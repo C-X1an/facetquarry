@@ -9,6 +9,12 @@ on:
         options: [full, smoke]
         default: full
         required: true
+      concurrency:
+        description: Separate fixed-reader throughput profile
+        type: choice
+        options: ["1", "4", "16"]
+        default: "1"
+        required: true
 
 permissions:
   contents: read
@@ -25,6 +31,7 @@ jobs:
       GOTOOLCHAIN: local
       FQ_CPUS: "4"
       FQ_BENCH_PROFILE: ${{ inputs.profile }}
+      FQ_BENCH_CONCURRENCY: ${{ inputs.concurrency }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
@@ -148,7 +155,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$FQ_VOLUME/source"
-          sudo systemd-run --quiet --wait --pipe --property=MemoryMax=8G --property=CPUQuota=400% --uid="$(id -u)" --gid="$(id -g)" --working-directory="$FQ_VOLUME/source" --setenv="PATH=$PATH" --setenv="FQ_CPUS=4" --setenv="FQ_WORKSPACE_ROOT=$FQ_VOLUME" --setenv="FQ_EXTERNAL_ALLOCATIONS=$FQ_EXTERNAL_ALLOCATIONS" --setenv="TMPDIR=$TMPDIR" --setenv="GOPATH=$GOPATH" --setenv="GOBIN=$GOBIN" --setenv="XDG_CONFIG_HOME=$XDG_CONFIG_HOME" --setenv="XDG_CACHE_HOME=$XDG_CACHE_HOME" python3 scripts/evidence.py --category reference-benchmark --requirements AC-016,AC-017 --timeout 16200 -- python3 scripts/benchmark.py --profile "$FQ_BENCH_PROFILE"
+          sudo systemd-run --quiet --wait --pipe --property=MemoryMax=8G --property=CPUQuota=400% --uid="$(id -u)" --gid="$(id -g)" --working-directory="$FQ_VOLUME/source" --setenv="PATH=$PATH" --setenv="FQ_CPUS=4" --setenv="FQ_WORKSPACE_ROOT=$FQ_VOLUME" --setenv="FQ_EXTERNAL_ALLOCATIONS=$FQ_EXTERNAL_ALLOCATIONS" --setenv="TMPDIR=$TMPDIR" --setenv="GOPATH=$GOPATH" --setenv="GOBIN=$GOBIN" --setenv="XDG_CONFIG_HOME=$XDG_CONFIG_HOME" --setenv="XDG_CACHE_HOME=$XDG_CACHE_HOME" python3 scripts/evidence.py --category reference-benchmark --requirements AC-016,AC-017 --timeout 16200 -- python3 scripts/benchmark.py --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY"
       - name: Record final inventory
         if: always()
         timeout-minutes: 2
@@ -173,6 +180,7 @@ jobs:
             ${{ env.FQ_VOLUME }}/source/.local/integrity-negative
             ${{ env.FQ_VOLUME }}/source/.local/demo
             ${{ env.FQ_VOLUME }}/source/.local/clean-verify
+            ${{ env.FQ_VOLUME }}/source/.local/test-failures
             ${{ env.FQ_VOLUME }}/source/.local/remote-*.json
             ${{ env.FQ_VOLUME }}/source/.local/govulncheck-build.txt
             ${{ env.FQ_VOLUME }}/toolchain-download.json

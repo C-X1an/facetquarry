@@ -2,6 +2,7 @@
 from __future__ import annotations
 import hashlib
 import os
+import stat
 from pathlib import Path
 import subprocess
 import sys
@@ -24,11 +25,22 @@ def command_args(args: list[str]) -> list[str]:
     return args
 
 def source_files(root: Path = ROOT) -> list[Path]:
-    return sorted(p for p in root.rglob('*') if p.is_file()
-                  and not any(x in EXCLUDED for x in p.relative_to(root).parts)
-                  and (p.suffix in {'.go', '.py', '.mod', '.yml', '.yaml', '.toml'}
-                       or p.name in {'Makefile', '.go-version', '.gitignore', '.gitattributes', 'go.sum', 'ACCEPTANCE_SPEC.md', 'phase_definitions.json', 'locks.json'}
-                       or p.suffix == '.json' and p.relative_to(root).parts[0] in {'examples', 'benchmarks'}))
+    files = []
+    def failed(error):
+        raise error
+    for parent, dirs, names in os.walk(root, topdown=True, followlinks=False, onerror=failed):
+        dirs[:] = [name for name in dirs if name not in EXCLUDED]
+        for name in names:
+            if name in EXCLUDED:
+                continue
+            p = Path(parent) / name
+            if (p.suffix in {'.go', '.py', '.mod', '.yml', '.yaml', '.toml'}
+                    or p.name in {'Makefile', '.go-version', '.gitignore', '.gitattributes', 'go.sum', 'ACCEPTANCE_SPEC.md', 'phase_definitions.json', 'locks.json'}
+                    or p.suffix == '.json' and p.relative_to(root).parts[0] in {'examples', 'benchmarks'}):
+                mode = p.stat().st_mode  # Do not silently shorten identity on stat failures.
+                if stat.S_ISREG(mode):
+                    files.append(p)
+    return sorted(files)
 
 def source_hash(root: Path = ROOT) -> str:
     h = hashlib.sha256()

@@ -71,6 +71,7 @@
     "scripts/public_audit.py",
     "scripts/release_gate.py",
     "tests/test_cli.py",
+    "tests/test_source_identity.py",
     "tests/test_tooling.py",
     "tests/test_tooling_benchmark.py",
     "tests/test_tooling_regressions.py",
