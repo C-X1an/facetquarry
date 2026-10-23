@@ -14,6 +14,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from unittest.mock import patch
 
@@ -22,6 +23,22 @@ sys.path.insert(0,str(ROOT/'scripts'))
 import benchmark
 import benchmark_support
 import common
+
+
+@contextlib.contextmanager
+def retained_native_fixture():
+    """Keep actual attempt streams when a negative-control assertion fails."""
+    with tempfile.TemporaryDirectory(dir=ROOT/'.cache/tmp') as directory:
+        root=Path(directory)
+        try:
+            yield root
+        except BaseException:
+            target=ROOT/'.local/test-failures'/str(time.time_ns())
+            target.mkdir(parents=True)
+            for name in ('.local','benchmarks'):
+                if (root/name).exists():shutil.copytree(root/name,target/name)
+            sys.__stderr__.write('Native fixture failure retained: '+str(target)+'\n')
+            raise
 
 
 class RetainedAttempts(unittest.TestCase):
@@ -90,8 +107,8 @@ class ActualNativeFailureCoverage(unittest.TestCase):
         identity=common.source_hash()
         provenance=benchmark.binary_provenance(identity)
         original_workload=benchmark.workload
-        with tempfile.TemporaryDirectory(dir=ROOT/'.cache/tmp') as directory:
-            root=Path(directory);(root/'benchmarks').mkdir();(root/'bin').mkdir()
+        with retained_native_fixture() as root:
+            (root/'benchmarks').mkdir();(root/'bin').mkdir()
             (root/'benchmarks/grid.json').write_text(json.dumps({'smoke':config}))
             for name in ('facetquarry','fqbench'):
                 shutil.copy2(common.executable(name),common.executable(name,root))
@@ -111,7 +128,7 @@ class ActualNativeFailureCoverage(unittest.TestCase):
             self.assertEqual(coverage['missing_cells'],[]);self.assertEqual(len(coverage['failed_cells']),4)
             self.assertEqual(coverage['run_errors'],[])
             for path in folder.glob('*.summary.json'):
-                summary=json.loads(path.read_text());self.assertEqual(summary['stage'],stage)
+                summary=json.loads(path.read_text());self.assertEqual(summary['stage'],stage,json.dumps(summary))
                 self.assertEqual(summary['status'],'FAIL');self.assertTrue(summary['errors'])
                 attempt=summary['attempts'][-1];self.assertEqual(attempt['stage'],stage)
                 self.assertNotEqual(attempt['exit_code'],0)
