@@ -1,0 +1,36 @@
+{
+  "run_id": "20261022T185751Z-1f9a5a0cbc",
+  "category": "fresh-checkout",
+  "requirements": [
+    "AC-019"
+  ],
+  "commit": "219000c2277b19c208bb6e8f07e5b044833a2861",
+  "git_status": "",
+  "source_before": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "source_after": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "command": [
+    "make",
+    "clean-verify"
+  ],
+  "cwd": "/mnt/data/facetquarry-handoff/public",
+  "environment": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "versions": {
+      "go": "go version go1.23.2 linux/amd64",
+      "python": "Python 3.13.5",
+      "git": "git version 2.47.3"
+    }
+  },
+  "started_at": "2026-10-22T18:57:51.919674+00:00",
+  "ended_at": "2026-10-22T18:58:13.716060+00:00",
+  "duration_seconds": 21.709806467999897,
+  "exit_code": 0,
+  "stdout": ".local/evidence/20261022T185751Z-1f9a5a0cbc/stdout.txt",
+  "stderr": ".local/evidence/20261022T185751Z-1f9a5a0cbc/stderr.txt",
+  "stdout_sha256": "72f28ce6514610e34221238088f8f95552abfba52f19a6729d1f398eb7dea3a6",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval"
+}

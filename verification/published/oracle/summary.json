@@ -1,0 +1,6 @@
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "seed_count": 1000,
+  "status": "PASS",
+  "scope": "finite exact semantic comparisons, not ANN recall or production scale"
+}

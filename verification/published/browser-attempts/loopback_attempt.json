@@ -1,0 +1,6 @@
+{
+  "status": "BLOCKED",
+  "method": "Headless Chromium navigation to temporary loopback-only server",
+  "observed_error": "Page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at http://127.0.0.1:45575/report.html",
+  "outcome": "No browser navigation, screenshot, layout or keyboard check completed. No policy overrides attempted. Preserve HA-002; continue all other tasks."
+}

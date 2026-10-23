@@ -1,0 +1,13 @@
+.cache/
+.local/
+bin/
+__pycache__/
+*.pyc
+*.fq
+.env
+.env.*
+!.env.example
+*.token
+*.pem
+*.key
+.DS_Store

@@ -1,0 +1,9 @@
+{
+  "original_receipt": {
+    "path": "verification/published/fresh-checkout/receipt.json",
+    "sha256": "8497978c8c62a8dd5e47b3ac991517f1ebc4409b2b03b7edb00fa34861a5c947"
+  },
+  "original_stdout_path": ".local/evidence/20261022T185751Z-1f9a5a0cbc/stdout.txt",
+  "original_stderr_path": ".local/evidence/20261022T185751Z-1f9a5a0cbc/stderr.txt",
+  "note": "Original receipt is unchanged; stdout.txt and stderr.txt sit beside it in this deliberate export. Validate their hashes from the receipt. Source identity is technical-source, not final documentation identity."
+}

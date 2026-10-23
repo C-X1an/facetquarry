@@ -1,0 +1,5 @@
+--- FAIL: TestTenantScope (0.00s)
+    engine_test.go:83: beta boundary {SchemaVersion:1 Generation:4d01671dbcf14c4f5b09d0c99f800968f910c75430b60f7029dd7439988b8fc3 Plan:exact Status:complete Exact:true Eligible:4 DistanceEvaluations:4 Hits:[{ID:aaa Distance:0} {ID:baa Distance:2} {ID:caa Distance:8}]} <nil>
+FAIL
+FAIL	facetquarry/internal/engine	0.002s
+FAIL

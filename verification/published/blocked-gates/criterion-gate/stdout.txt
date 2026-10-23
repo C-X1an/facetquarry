@@ -1,0 +1,20 @@
+{
+  "status": "FAIL",
+  "failures": [
+    "AC-013: PARTIAL",
+    "AC-015: BLOCKED",
+    "AC-016: PARTIAL",
+    "AC-017: NOT_RUN",
+    "AC-018: PARTIAL",
+    "AC-019: BLOCKED",
+    "AC-020: PARTIAL",
+    "AC-021: NOT_RUN",
+    "AC-022: NOT_RUN",
+    "required gate: supported_toolchain",
+    "required gate: independent_review_complete",
+    "required gate: full_benchmark_complete",
+    "required gate: owner_walkthrough_complete",
+    "required gate: resource_inventory_complete"
+  ],
+  "note": "Repository-local assessment is not third-party attestation; independently inspect its linked evidence."
+}

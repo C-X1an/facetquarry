@@ -1,0 +1,5 @@
+--- FAIL: TestExactAndTies (0.00s)
+    engine_test.go:65: filter mismatch: {SchemaVersion:1 Generation:9ae74bd869b6f33d36815fdb690d64581fa25a11ca9a01822033ee32d3687610 Plan:exact Status:complete Exact:true Eligible:3 DistanceEvaluations:3 Hits:[{ID:aaa Distance:1} {ID:baa Distance:1} {ID:caa Distance:16}]} <nil>
+FAIL
+FAIL	facetquarry/internal/engine	0.002s
+FAIL

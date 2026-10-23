@@ -1,0 +1,48 @@
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "profile": "smoke",
+  "config": {
+    "n": [
+      512
+    ],
+    "dimension": 8,
+    "distributions": [
+      "uniform"
+    ],
+    "correlations": [
+      "independent"
+    ],
+    "seeds": [
+      17
+    ],
+    "selectivities": [
+      1.0,
+      0.05
+    ],
+    "two_facet": true,
+    "ef": [
+      16,
+      64
+    ],
+    "queries": 16,
+    "warmup": 4,
+    "repetitions": 2,
+    "k": 10,
+    "m": 12,
+    "ef_construction": 96,
+    "build_budget": 20000000,
+    "concurrency": 1
+  },
+  "config_hash": "fabe3caa0f16",
+  "expected_cells": 21,
+  "completed_cells": 21,
+  "missing_cells": [],
+  "unexpected_cells": [],
+  "failed_cells": [],
+  "limited": false,
+  "grid_complete": true,
+  "reference_host_verified": false,
+  "reference_recall_target": "NOT YET MEASURED",
+  "release_qualification": false,
+  "scope": "synthetic experimental measurements; full grid and reference-host qualification are separate gates"
+}

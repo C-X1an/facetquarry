@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "current_tree_files": 160,
+  "history_status": "PASS",
+  "history_blobs_checked": 140,
+  "findings": [],
+  "scope": "explicit export paths and targeted heuristics; not a comprehensive secrets/security certification",
+  "technical_source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e"
+}

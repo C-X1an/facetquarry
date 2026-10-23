@@ -1,0 +1,47 @@
+python3 scripts/bootstrap.py
+{
+  "go": "go version go1.23.2 linux/amd64",
+  "python": "3.13.5",
+  "reference_go": "go1.27.3",
+  "reference_toolchain_matches": false,
+  "qualification": "development-only",
+  "network_installs_performed": false
+}
+python3 scripts/disk_guard.py --reserve 2000000000
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "/mnt/data/facetquarry-handoff/public",
+      "accounted_bytes": 225849344,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 225849344,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}
+python3 scripts/clean_verify.py
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "commit": "219000c2277b19c208bb6e8f07e5b044833a2861",
+  "command": [
+    "make",
+    "build",
+    "fmt",
+    "lint",
+    "check",
+    "test",
+    "integration",
+    "demo",
+    "clean"
+  ],
+  "exit_code": 0,
+  "go": "go version go1.23.2 linux/amd64",
+  "qualification": "fresh committed local checkout; separate supported-toolchain gate still applies",
+  "status": "PASS"
+}

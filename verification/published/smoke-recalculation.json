@@ -1,0 +1,180 @@
+{
+  "status": "PASS",
+  "readiness": "Share with caveats",
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "cells": 21,
+  "timed_samples": 672,
+  "method": "Reconstructed the synthetic corpus and exact eligible IDs without importing benchmark.py or oracle.py; recomputed recall/work/p95 and distinct query/repetition coverage",
+  "independent_human_review": false,
+  "scope": "all21 delivered smoke cells, not full grid or reference-host qualification",
+  "checks": [
+    {
+      "cell_id": "0af25d0c18e209f69474",
+      "mode": "auto",
+      "filter": "p05",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "25978482ff391ad88e6c",
+      "mode": "postfilter",
+      "filter": "p05",
+      "ef": 64,
+      "mean_recall": 0.09375,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "2baf7438c8a9fb25ff87",
+      "mode": "graph",
+      "filter": "all",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "59fc57db3bc18113f61c",
+      "mode": "graph",
+      "filter": "and20",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "67c6a2f08c7bed38598d",
+      "mode": "graph",
+      "filter": "all",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "680e3893e08766cbf60e",
+      "mode": "auto",
+      "filter": "p05",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "7563223332d94660b2fb",
+      "mode": "exact",
+      "filter": "p05",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "78f0978dcf9d01bee17c",
+      "mode": "graph",
+      "filter": "p05",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "79fd512af8f51855921e",
+      "mode": "postfilter",
+      "filter": "and20",
+      "ef": 16,
+      "mean_recall": 0.1625,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "8f3817ba66a6cbe5ac0a",
+      "mode": "graph",
+      "filter": "and20",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "9901eb0f9995f0b4f8b5",
+      "mode": "auto",
+      "filter": "and20",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "9ca4dac69962fcf2fda1",
+      "mode": "postfilter",
+      "filter": "and20",
+      "ef": 64,
+      "mean_recall": 0.1625,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "9e8bc959d11bcd02db54",
+      "mode": "postfilter",
+      "filter": "p05",
+      "ef": 16,
+      "mean_recall": 0.09375,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "acc2b35b70a74481b5ed",
+      "mode": "postfilter",
+      "filter": "all",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "b262f7ad661e85111203",
+      "mode": "graph",
+      "filter": "p05",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "d22dade79959067842eb",
+      "mode": "exact",
+      "filter": "and20",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "d6abf8b605a9c6f61087",
+      "mode": "auto",
+      "filter": "all",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "ecd46463806773744ea1",
+      "mode": "auto",
+      "filter": "and20",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "ef25c10fa72e33c6f8a2",
+      "mode": "auto",
+      "filter": "all",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "f8962117cb425810c724",
+      "mode": "exact",
+      "filter": "all",
+      "ef": 64,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    },
+    {
+      "cell_id": "fd009b8e5aef179b6f49",
+      "mode": "postfilter",
+      "filter": "all",
+      "ef": 16,
+      "mean_recall": 1.0,
+      "status": "PASS"
+    }
+  ]
+}

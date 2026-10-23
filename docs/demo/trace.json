@@ -1,0 +1,204 @@
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "dataset": "synthetic, four records in two tenants",
+  "build": {
+    "schema_version": 1,
+    "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
+    "dimension": 2,
+    "tenants": 2,
+    "records": 4,
+    "edges": 8,
+    "max_level": 1
+  },
+  "cases": [
+    {
+      "label": "Allowed exact fallback",
+      "input": {
+        "vector": [
+          0,
+          0
+        ],
+        "k": 2,
+        "ef": 16,
+        "budget": 100,
+        "mode": "auto",
+        "filter": {
+          "kind": "guide"
+        }
+      },
+      "exit_code": 0,
+      "result": {
+        "schema_version": 1,
+        "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
+        "plan": "exact",
+        "status": "complete",
+        "exact": true,
+        "eligible": 2,
+        "distance_evaluations": 2,
+        "hits": [
+          {
+            "id": "a1",
+            "distance": 1
+          },
+          {
+            "id": "a3",
+            "distance": 18
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "label": "Original graph search",
+      "input": {
+        "vector": [
+          0,
+          0
+        ],
+        "k": 2,
+        "ef": 16,
+        "budget": 100,
+        "mode": "graph",
+        "filter": {
+          "kind": "guide"
+        }
+      },
+      "exit_code": 0,
+      "result": {
+        "schema_version": 1,
+        "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
+        "plan": "graph",
+        "status": "complete",
+        "exact": false,
+        "eligible": 2,
+        "distance_evaluations": 3,
+        "hits": [
+          {
+            "id": "a1",
+            "distance": 1
+          },
+          {
+            "id": "a3",
+            "distance": 18
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "label": "Postfilter baseline",
+      "input": {
+        "vector": [
+          0,
+          0
+        ],
+        "k": 2,
+        "ef": 16,
+        "budget": 100,
+        "mode": "postfilter",
+        "filter": {
+          "kind": "guide"
+        }
+      },
+      "exit_code": 0,
+      "result": {
+        "schema_version": 1,
+        "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
+        "plan": "postfilter",
+        "status": "complete",
+        "exact": false,
+        "eligible": 2,
+        "distance_evaluations": 3,
+        "hits": [
+          {
+            "id": "a1",
+            "distance": 1
+          }
+        ]
+      },
+      "error": null
+    },
+    {
+      "label": "Zero distance budget",
+      "input": {
+        "vector": [
+          0,
+          0
+        ],
+        "k": 2,
+        "ef": 16,
+        "budget": 0,
+        "mode": "auto",
+        "filter": {
+          "kind": "guide"
+        }
+      },
+      "exit_code": 0,
+      "result": {
+        "schema_version": 1,
+        "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
+        "plan": "exact",
+        "status": "budget_exhausted",
+        "exact": false,
+        "eligible": 2,
+        "distance_evaluations": 0,
+        "hits": []
+      },
+      "error": null
+    },
+    {
+      "label": "Client tenant override denied",
+      "input": {
+        "vector": [
+          0,
+          0
+        ],
+        "k": 2,
+        "ef": 16,
+        "budget": 100,
+        "mode": "auto",
+        "filter": {
+          "kind": "guide"
+        },
+        "tenant": "beta"
+      },
+      "exit_code": 2,
+      "result": null,
+      "error": {
+        "error": {
+          "code": "E_INPUT",
+          "message": "invalid query JSON"
+        }
+      }
+    },
+    {
+      "label": "Untrusted text remains text",
+      "input": {
+        "vector": [
+          0,
+          0
+        ],
+        "k": 2,
+        "ef": 16,
+        "budget": 100,
+        "mode": "auto",
+        "filter": {
+          "kind": "<script>alert(1)</script>"
+        }
+      },
+      "exit_code": 0,
+      "result": {
+        "schema_version": 1,
+        "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
+        "plan": "exact",
+        "status": "complete",
+        "exact": true,
+        "eligible": 0,
+        "distance_evaluations": 0,
+        "hits": []
+      },
+      "error": null
+    }
+  ],
+  "browser_review": "NOT RUN"
+}

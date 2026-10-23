@@ -1,0 +1,53 @@
+{
+  "cell": {
+    "n": 512,
+    "dimension": 8,
+    "distribution": "uniform",
+    "correlation": "independent",
+    "seed": 17,
+    "filter_label": "all",
+    "filter": {},
+    "mode": "exact",
+    "ef": 64,
+    "concurrency": 1
+  },
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "status": "PASS",
+  "stage": "measurement",
+  "sample_count": 32,
+  "empty_denominator_samples": 0,
+  "mean_recall": 1.0,
+  "p50_search_ns": 167136.0,
+  "p95_search_ns": 487812.0,
+  "p99_search_ns": 637283.0,
+  "mean_distance_evaluations": 512,
+  "build_process_seconds": 0.118410101000336,
+  "snapshot_bytes": 165800,
+  "generation": "8743e9846984f4d193dcd6f652ed4fc74a98cd2c6d7db208056bb0370ceb257e",
+  "native_metadata": {
+    "go": "go1.23.2",
+    "go_runtime_sys_bytes": 11492368,
+    "measurement": "Search wall time only; excludes load/parse and worker queue wait; RSS includes loaded index and harness",
+    "peak_rss_bytes_linux": 8384512,
+    "samples": 32,
+    "summary": true,
+    "workers": 1
+  },
+  "errors": [],
+  "stderr": "",
+  "command": [
+    "/mnt/data/facetquarry-handoff/public/bin/fqbench",
+    "--index",
+    "/mnt/data/facetquarry-handoff/public/.local/benchmarks/smoke-391755f583d1-fabe3caa0f16/active-index.fq",
+    "--tenant",
+    "alpha",
+    "--queries",
+    "/mnt/data/facetquarry-handoff/public/.local/benchmarks/smoke-391755f583d1-fabe3caa0f16/active-queries.jsonl",
+    "--warmup",
+    "4",
+    "--repetitions",
+    "2",
+    "--concurrency",
+    "1"
+  ]
+}

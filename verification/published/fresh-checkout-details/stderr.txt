@@ -1,0 +1,11 @@
+test_lifecycle_and_host_scope (test_cli.CLI.test_lifecycle_and_host_scope) ... ok
+test_unknown_command_is_json_error (test_cli.CLI.test_unknown_command_is_json_error) ... ok
+test_admission_thresholds (test_tooling.Tooling.test_admission_thresholds) ... ok
+test_external_file_inventory (test_tooling.Tooling.test_external_file_inventory) ... ok
+test_inventory_counts_owned_file_and_reports_symlink (test_tooling.Tooling.test_inventory_counts_owned_file_and_reports_symlink) ... ok
+test_public_negative_controls (test_tooling.Tooling.test_public_negative_controls) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.015s
+
+OK

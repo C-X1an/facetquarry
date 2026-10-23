@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "full": {
+    "n": [2000, 10000], "dimension": 64,
+    "distributions": ["uniform", "clustered", "ties"],
+    "correlations": ["independent", "positive", "negative"],
+    "seeds": [11, 23, 47, 83, 131],
+    "selectivities": [1.0, 0.2, 0.05, 0.01, 0.001],
+    "two_facet": true, "ef": [32, 128, 512],
+    "queries": 200, "warmup": 20, "repetitions": 5,
+    "k": 10, "m": 12, "ef_construction": 96,
+    "build_budget": 200000000, "concurrency": 1
+  },
+  "smoke": {
+    "n": [512], "dimension": 8,
+    "distributions": ["uniform"], "correlations": ["independent"],
+    "seeds": [17], "selectivities": [1.0, 0.05],
+    "two_facet": true, "ef": [16, 64],
+    "queries": 16, "warmup": 4, "repetitions": 2,
+    "k": 10, "m": 12, "ef_construction": 96,
+    "build_budget": 20000000, "concurrency": 1
+  }
+}

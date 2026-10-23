@@ -1,0 +1,147 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>FacetQuarry | execution inspector</title><style>body{font:17px/1.6 system-ui,sans-serif;max-width:960px;margin:3rem auto;padding:0 1.5rem}h1{font-size:2.8rem;line-height:1.1}section{border-top:1px solid;padding:1.5rem 0}pre{overflow:auto;padding:1rem;border:1px solid;border-radius:.5rem;font:14px/1.5 monospace}summary{cursor:pointer;padding:.5rem}a:focus,summary:focus{outline:3px solid;outline-offset:3px}small{overflow-wrap:anywhere}</style><header><p>FACETQUARRY / ENGINEERING INSPECTOR</p><h1>Search quality is a tradeoff.<br>Authority is not.</h1><p>Real Go executable outputs over a tiny synthetic corpus. Not a production benchmark or browser-test certification.</p><small>Technical source: 391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e</small></header><main><section><h2>Allowed exact fallback</h2><p>Actual process exit: 0</p><details><summary>Input contract</summary><pre>{
+  &quot;vector&quot;: [
+    0,
+    0
+  ],
+  &quot;k&quot;: 2,
+  &quot;ef&quot;: 16,
+  &quot;budget&quot;: 100,
+  &quot;mode&quot;: &quot;auto&quot;,
+  &quot;filter&quot;: {
+    &quot;kind&quot;: &quot;guide&quot;
+  }
+}</pre></details><pre>{
+  &quot;schema_version&quot;: 1,
+  &quot;generation&quot;: &quot;3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00&quot;,
+  &quot;plan&quot;: &quot;exact&quot;,
+  &quot;status&quot;: &quot;complete&quot;,
+  &quot;exact&quot;: true,
+  &quot;eligible&quot;: 2,
+  &quot;distance_evaluations&quot;: 2,
+  &quot;hits&quot;: [
+    {
+      &quot;id&quot;: &quot;a1&quot;,
+      &quot;distance&quot;: 1
+    },
+    {
+      &quot;id&quot;: &quot;a3&quot;,
+      &quot;distance&quot;: 18
+    }
+  ]
+}</pre></section><section><h2>Original graph search</h2><p>Actual process exit: 0</p><details><summary>Input contract</summary><pre>{
+  &quot;vector&quot;: [
+    0,
+    0
+  ],
+  &quot;k&quot;: 2,
+  &quot;ef&quot;: 16,
+  &quot;budget&quot;: 100,
+  &quot;mode&quot;: &quot;graph&quot;,
+  &quot;filter&quot;: {
+    &quot;kind&quot;: &quot;guide&quot;
+  }
+}</pre></details><pre>{
+  &quot;schema_version&quot;: 1,
+  &quot;generation&quot;: &quot;3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00&quot;,
+  &quot;plan&quot;: &quot;graph&quot;,
+  &quot;status&quot;: &quot;complete&quot;,
+  &quot;exact&quot;: false,
+  &quot;eligible&quot;: 2,
+  &quot;distance_evaluations&quot;: 3,
+  &quot;hits&quot;: [
+    {
+      &quot;id&quot;: &quot;a1&quot;,
+      &quot;distance&quot;: 1
+    },
+    {
+      &quot;id&quot;: &quot;a3&quot;,
+      &quot;distance&quot;: 18
+    }
+  ]
+}</pre></section><section><h2>Postfilter baseline</h2><p>Actual process exit: 0</p><details><summary>Input contract</summary><pre>{
+  &quot;vector&quot;: [
+    0,
+    0
+  ],
+  &quot;k&quot;: 2,
+  &quot;ef&quot;: 16,
+  &quot;budget&quot;: 100,
+  &quot;mode&quot;: &quot;postfilter&quot;,
+  &quot;filter&quot;: {
+    &quot;kind&quot;: &quot;guide&quot;
+  }
+}</pre></details><pre>{
+  &quot;schema_version&quot;: 1,
+  &quot;generation&quot;: &quot;3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00&quot;,
+  &quot;plan&quot;: &quot;postfilter&quot;,
+  &quot;status&quot;: &quot;complete&quot;,
+  &quot;exact&quot;: false,
+  &quot;eligible&quot;: 2,
+  &quot;distance_evaluations&quot;: 3,
+  &quot;hits&quot;: [
+    {
+      &quot;id&quot;: &quot;a1&quot;,
+      &quot;distance&quot;: 1
+    }
+  ]
+}</pre></section><section><h2>Zero distance budget</h2><p>Actual process exit: 0</p><details><summary>Input contract</summary><pre>{
+  &quot;vector&quot;: [
+    0,
+    0
+  ],
+  &quot;k&quot;: 2,
+  &quot;ef&quot;: 16,
+  &quot;budget&quot;: 0,
+  &quot;mode&quot;: &quot;auto&quot;,
+  &quot;filter&quot;: {
+    &quot;kind&quot;: &quot;guide&quot;
+  }
+}</pre></details><pre>{
+  &quot;schema_version&quot;: 1,
+  &quot;generation&quot;: &quot;3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00&quot;,
+  &quot;plan&quot;: &quot;exact&quot;,
+  &quot;status&quot;: &quot;budget_exhausted&quot;,
+  &quot;exact&quot;: false,
+  &quot;eligible&quot;: 2,
+  &quot;distance_evaluations&quot;: 0,
+  &quot;hits&quot;: []
+}</pre></section><section><h2>Client tenant override denied</h2><p>Actual process exit: 2</p><details><summary>Input contract</summary><pre>{
+  &quot;vector&quot;: [
+    0,
+    0
+  ],
+  &quot;k&quot;: 2,
+  &quot;ef&quot;: 16,
+  &quot;budget&quot;: 100,
+  &quot;mode&quot;: &quot;auto&quot;,
+  &quot;filter&quot;: {
+    &quot;kind&quot;: &quot;guide&quot;
+  },
+  &quot;tenant&quot;: &quot;beta&quot;
+}</pre></details><pre>{
+  &quot;error&quot;: {
+    &quot;code&quot;: &quot;E_INPUT&quot;,
+    &quot;message&quot;: &quot;invalid query JSON&quot;
+  }
+}</pre></section><section><h2>Untrusted text remains text</h2><p>Actual process exit: 0</p><details><summary>Input contract</summary><pre>{
+  &quot;vector&quot;: [
+    0,
+    0
+  ],
+  &quot;k&quot;: 2,
+  &quot;ef&quot;: 16,
+  &quot;budget&quot;: 100,
+  &quot;mode&quot;: &quot;auto&quot;,
+  &quot;filter&quot;: {
+    &quot;kind&quot;: &quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;
+  }
+}</pre></details><pre>{
+  &quot;schema_version&quot;: 1,
+  &quot;generation&quot;: &quot;3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00&quot;,
+  &quot;plan&quot;: &quot;exact&quot;,
+  &quot;status&quot;: &quot;complete&quot;,
+  &quot;exact&quot;: true,
+  &quot;eligible&quot;: 0,
+  &quot;distance_evaluations&quot;: 0,
+  &quot;hits&quot;: []
+}</pre></section></main><footer><p>No scripts, remote assets, telemetry or model APIs. Full acceptance and independent review remain separate gates.</p></footer></html>

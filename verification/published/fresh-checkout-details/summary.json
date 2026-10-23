@@ -1,0 +1,19 @@
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "commit": "219000c2277b19c208bb6e8f07e5b044833a2861",
+  "command": [
+    "make",
+    "build",
+    "fmt",
+    "lint",
+    "check",
+    "test",
+    "integration",
+    "demo",
+    "clean"
+  ],
+  "exit_code": 0,
+  "go": "go version go1.23.2 linux/amd64",
+  "qualification": "fresh committed local checkout; separate supported-toolchain gate still applies",
+  "status": "PASS"
+}

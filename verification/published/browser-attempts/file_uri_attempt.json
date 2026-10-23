@@ -1,0 +1,6 @@
+{
+  "status": "FAIL",
+  "method": "Playwright Chromium file URI navigation",
+  "observed_error": "Page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///mnt/data/facetquarry-handoff/public/.local/demo/report.html",
+  "adaptation": "Use ordinary loopback development server for the owned report; no browser policy or OS permission changed"
+}

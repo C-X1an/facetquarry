@@ -1,0 +1,13 @@
+# Cost analysis
+Research as of 2026-10-23; USD advertised prices, before tax/region/overage variations. No purchase or billing activation is authorized by this package.
+
+| Tier | Services and assumptions | Fixed cost | Variable cost / driver | Limitations and controls | Portfolio value |
+|---|---|---|---|---|---|
+| LOCAL / FREE BASELINE | Existing CPU device, standard-library engine, synthetic data; public standard GitHub-hosted CI | $0 incremental service subscription | Existing power/storage and Codex subscription/API usage not assumed free | <15 GB attributable local storage; no GPUs/containers/model downloads; CI storage/usage policy still applies | Full core algorithm, oracle, demo and reproducible source |
+| CREDIBLE HOSTED DEMO | Public GitHub Pages hosting of sanitized static report | $0 hosting on GitHub Free public repository | Domain optional and not purchased; Actions/artifact limits apply | Recorded report only, no live user-query service or uptime claim | Frictionless review, no recurring server burden |
+| OPTIONAL LIVE CPU LAB | AWS Lightsail Linux public-IPv4 2-vCPU/4-GB advertised bundle | $24/month listed bundle | Transfer/snapshots/tax/region and allocated lifetime; exact hourly effective bill UNKNOWN without deployment quote | No account creation/spend without separate explicit billing authorization; burstable CPU not a dedicated benchmark reference | Reproducible remote setup, limited additional value over local |
+| PREMIUM / SCALE TEST | AWS Lightsail 4-vCPU/16-GB advertised bundle as upper demo example, or approved dedicated CPU | $84/month listed Lightsail bundle; dedicated alternative UNKNOWN | Lifetime, snapshots, transfer; true dedicated pricing must be quoted | External host storage is not device storage; do not download giant output locally; no production scale inference | Independent machine measurements and larger finite corpus, not fake users |
+
+Sources: GitHub Pages availability docs; GitHub standard runner/workflow billing docs; AWS official Lightsail bundle table. Pricing is not a recommendation to provision these. The $24 and $84 options describe publicly listed monthly plans, not a computed project bill or a guarantee of Singapore-region availability. A credible static demo already costs no server fee, so paying more is not necessary for portfolio credibility.
+
+Agent/model cost is separate. Use measured provider usage where available; API token prices cannot be applied to subscription credits as if they were interchangeable. Record exact model/surface and current pricing reference in CODEX_RUNTIME_PROFILE. Stop before financial actions and continue offline/local work.

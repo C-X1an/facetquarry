@@ -1,0 +1,201 @@
+python3 scripts/bootstrap.py
+{
+  "go": "go version go1.23.2 linux/amd64",
+  "python": "3.13.5",
+  "reference_go": "go1.27.3",
+  "reference_toolchain_matches": false,
+  "qualification": "development-only",
+  "network_installs_performed": false
+}
+python3 scripts/disk_guard.py --reserve 2000000000
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "/mnt/data/facetquarry-handoff/public",
+      "accounted_bytes": 220905472,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 220905472,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}
+python3 scripts/check_integrity.py
+{"status": "PASS", "changed": [], "action": "Record a deviation; never rewrite the lock to bypass failure."}
+go build -trimpath -ldflags "-X main.sourceID=$(python3 scripts/common.py)" -o bin/facetquarry ./cmd/facetquarry
+go vet ./...
+go test -run '^$' ./...
+?   	facetquarry/cmd/facetquarry	[no test files]
+?   	facetquarry/cmd/fqbench	[no test files]
+ok  	facetquarry/internal/engine	(cached) [no tests to run]
+ok  	facetquarry/internal/strictjson	(cached) [no tests to run]
+python3 -m compileall -q scripts tests
+go test -count=1 ./...
+?   	facetquarry/cmd/facetquarry	[no test files]
+?   	facetquarry/cmd/fqbench	[no test files]
+ok  	facetquarry/internal/engine	0.061s
+ok  	facetquarry/internal/strictjson	0.001s
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+go test -race -count=1 ./...
+?   	facetquarry/cmd/facetquarry	[no test files]
+?   	facetquarry/cmd/fqbench	[no test files]
+ok  	facetquarry/internal/engine	1.294s
+ok  	facetquarry/internal/strictjson	1.009s
+python3 scripts/mutation.py
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "controls": [
+    {
+      "mutation": "tenant",
+      "test": "TestTenantScope",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestTenantScope$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "9c8a15d64052c7f7580b067bc66b6fe771192c9e34b99b48bcc3d91f4eed51d1",
+      "mutated_sha256": "456670ebfe8cbb00c7cc82b8e4aa9a738aa5f7f6c9928115bd5d2010277c1ecc"
+    },
+    {
+      "mutation": "filter",
+      "test": "TestExactAndTies",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestExactAndTies$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "9c8a15d64052c7f7580b067bc66b6fe771192c9e34b99b48bcc3d91f4eed51d1",
+      "mutated_sha256": "1c308c3df830cc296b03956a07b24237c26b1525e3ecdba057e8401f207caabf"
+    },
+    {
+      "mutation": "exact-label",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "e43adf4efe04908024428665885f57873b6441c72f68782fac0c2f347937e77f",
+      "mutated_sha256": "e9a7a4c4281fb347be0bb03d7d6d75792133e0a2da1c0828d4b3093f185e0c7e"
+    },
+    {
+      "mutation": "budget",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "e43adf4efe04908024428665885f57873b6441c72f68782fac0c2f347937e77f",
+      "mutated_sha256": "761959980b84e77c69675c910fc2620406bfef2028704267e0793b7f6568f32f"
+    }
+  ],
+  "scope": "four selected critical defects, not a whole-program mutation score",
+  "status": "PASS"
+}
+python3 scripts/integrity_negative.py
+[
+  {
+    "file": "ACCEPTANCE_SPEC.md",
+    "exits": [
+      0,
+      1,
+      0
+    ],
+    "status": "PASS"
+  },
+  {
+    "file": "verification/phase_definitions.json",
+    "exits": [
+      0,
+      1,
+      0
+    ],
+    "status": "PASS"
+  }
+]
+python3 scripts/demo.py
+{"status": "PASS", "report": ".local/demo/report.html", "cases": 6, "scope": "real execution and HTML escaping; visual/browser review NOT RUN"}
+go build -trimpath -o bin/fqbench ./cmd/fqbench
+python3 scripts/benchmark.py --profile smoke
+{"profile": "smoke", "folder": ".local/benchmarks/smoke-391755f583d1-fabe3caa0f16", "cells": 21, "expected": 21, "failed_cells": 0, "scope": "synthetic experimental measurements; full grid and reference-host qualification are separate gates"}
+python3 scripts/oracle.py --seeds 1000
+{"source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e", "seed_count": 1000, "status": "PASS", "scope": "finite exact semantic comparisons, not ANN recall or production scale"}
+go test ./internal/engine -run '^$' -fuzz '^FuzzQuery$' -fuzztime 30s -parallel 2
+fuzz: elapsed: 0s, gathering baseline coverage: 0/220 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 220/220 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 92164 (30712/sec), new interesting: 7 (total: 227)
+fuzz: elapsed: 6s, execs: 146700 (18180/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 9s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 12s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 15s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 18s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 21s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 24s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 27s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 30s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+fuzz: elapsed: 31s, execs: 146700 (0/sec), new interesting: 13 (total: 233)
+PASS
+ok  	facetquarry/internal/engine	31.025s
+go test ./internal/engine -run '^$' -fuzz '^FuzzSnapshot$' -fuzztime 30s -parallel 2
+fuzz: elapsed: 0s, gathering baseline coverage: 0/3 completed
+fuzz: elapsed: 0s, gathering baseline coverage: 3/3 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 33275 (11091/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 6s, execs: 33275 (0/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 9s, execs: 33275 (0/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 12s, execs: 33275 (0/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 15s, execs: 649408 (205389/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 18s, execs: 654480 (1691/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 21s, execs: 654480 (0/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 24s, execs: 654480 (0/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 27s, execs: 1205038 (183511/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 30s, execs: 1205038 (0/sec), new interesting: 0 (total: 3)
+fuzz: elapsed: 31s, execs: 1205038 (0/sec), new interesting: 0 (total: 3)
+PASS
+ok  	facetquarry/internal/engine	31.012s
+python3 scripts/public_audit.py
+{
+  "status": "PASS",
+  "current_tree_files": 150,
+  "history_status": "PASS",
+  "history_blobs_checked": 140,
+  "findings": [],
+  "scope": "explicit export paths and targeted heuristics; not a comprehensive secrets/security certification"
+}

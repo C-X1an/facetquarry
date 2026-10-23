@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "assessment": "IMPLEMENTED_EXPERIMENTAL_NOT_RELEASE_READY",
+  "criteria": [
+    {
+      "id": "AC-001",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-002",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-003",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-004",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-005",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-006",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-007",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-008",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-009",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-010",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-011",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-012",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-013",
+      "status": "PARTIAL",
+      "qualification": "Real CLI/escaped HTML passed; both actual browser navigation attempts were blocked by administrator policy.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-014",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-015",
+      "status": "BLOCKED",
+      "qualification": "Both bounded fuzz campaigns passed on Go1.23.2, not the required supported Go1.27.3.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-016",
+      "status": "PARTIAL",
+      "qualification": "Separate21-cell smoke passed; zero full-grid qualification cells claimed; full5400-cell grid and intended statistical report unrun.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-017",
+      "status": "NOT_RUN",
+      "qualification": "10k64-dimensional reference-host recall target not measured.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-018",
+      "status": "PARTIAL",
+      "qualification": "Explicit public tree/history heuristic scan executed; full independent/current security review remains open.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-019",
+      "status": "BLOCKED",
+      "qualification": "Fresh committed local checkout passed, but supported-toolchain qualification remains open.",
+      "receipts": [
+        {
+          "path": "verification/published/fresh-checkout/receipt.json",
+          "sha256": "8497978c8c62a8dd5e47b3ac991517f1ebc4409b2b03b7edb00fa34861a5c947"
+        }
+      ]
+    },
+    {
+      "id": "AC-020",
+      "status": "PARTIAL",
+      "qualification": "Owned workspace and guard tests checked; actual user-device external allocations and hard quota not verified.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-021",
+      "status": "NOT_RUN",
+      "qualification": "No genuinely separate read-only reviewer was available; self-checks are not substituted.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-022",
+      "status": "NOT_RUN",
+      "qualification": "Actual owner technical walkthrough not performed; browser manual usability also incomplete.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-023",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    },
+    {
+      "id": "AC-024",
+      "status": "PASS",
+      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "receipts": [
+        {
+          "path": "verification/published/final-core/receipt.json",
+          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+        }
+      ]
+    }
+  ],
+  "supported_toolchain": false,
+  "independent_review_complete": false,
+  "full_benchmark_complete": false,
+  "owner_walkthrough_complete": false,
+  "public_export_audited": true,
+  "fresh_checkout_complete": true,
+  "resource_inventory_complete": false,
+  "note": "PASS criteria are scoped developmental observations. Required global gates and partial criteria prevent release; booleans are not substitutes for their linked actual evidence."
+}

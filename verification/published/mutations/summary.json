@@ -1,0 +1,83 @@
+{
+  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "controls": [
+    {
+      "mutation": "tenant",
+      "test": "TestTenantScope",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestTenantScope$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "9c8a15d64052c7f7580b067bc66b6fe771192c9e34b99b48bcc3d91f4eed51d1",
+      "mutated_sha256": "456670ebfe8cbb00c7cc82b8e4aa9a738aa5f7f6c9928115bd5d2010277c1ecc"
+    },
+    {
+      "mutation": "filter",
+      "test": "TestExactAndTies",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestExactAndTies$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "9c8a15d64052c7f7580b067bc66b6fe771192c9e34b99b48bcc3d91f4eed51d1",
+      "mutated_sha256": "1c308c3df830cc296b03956a07b24237c26b1525e3ecdba057e8401f207caabf"
+    },
+    {
+      "mutation": "exact-label",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "e43adf4efe04908024428665885f57873b6441c72f68782fac0c2f347937e77f",
+      "mutated_sha256": "e9a7a4c4281fb347be0bb03d7d6d75792133e0a2da1c0828d4b3093f185e0c7e"
+    },
+    {
+      "mutation": "budget",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "e43adf4efe04908024428665885f57873b6441c72f68782fac0c2f347937e77f",
+      "mutated_sha256": "761959980b84e77c69675c910fc2620406bfef2028704267e0793b7f6568f32f"
+    }
+  ],
+  "scope": "four selected critical defects, not a whole-program mutation score",
+  "status": "PASS"
+}

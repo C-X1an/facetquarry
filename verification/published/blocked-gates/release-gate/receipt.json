@@ -1,0 +1,34 @@
+{
+  "run_id": "20261022T190424Z-17b802d36b",
+  "category": "release-gate",
+  "requirements": [],
+  "commit": "219000c2277b19c208bb6e8f07e5b044833a2861",
+  "git_status": "M CLAIMS_EVIDENCE.md\n M LIMITATIONS.md\n M VERIFICATION_REPORT.md\n M docs/COSTS.md\n M docs/demo/report.html\n M docs/demo/trace.json\n M verification/criterion_status.json\n M verification/public_allowlist.json\n M verification/published/README.md\n M verification/published/benchmark-smoke/0af25d0c18e209f69474.samples.jsonl.gz\n M verification/published/benchmark-smoke/0af25d0c18e209f69474.summary.json\n M verification/published/benchmark-smoke/25978482ff391ad88e6c.samples.jsonl.gz\n M verification/published/benchmark-smoke/25978482ff391ad88e6c.summary.json\n M verification/published/benchmark-smoke/2baf7438c8a9fb25ff87.samples.jsonl.gz\n M verification/published/benchmark-smoke/2baf7438c8a9fb25ff87.summary.json\n M verification/published/benchmark-smoke/59fc57db3bc18113f61c.samples.jsonl.gz\n M verification/published/benchmark-smoke/59fc57db3bc18113f61c.summary.json\n M verification/published/benchmark-smoke/67c6a2f08c7bed38598d.samples.jsonl.gz\n M verification/published/benchmark-smoke/67c6a2f08c7bed38598d.summary.json\n M verification/published/benchmark-smoke/680e3893e08766cbf60e.samples.jsonl.gz\n M verification/published/benchmark-smoke/680e3893e08766cbf60e.summary.json\n M verification/published/benchmark-smoke/7563223332d94660b2fb.samples.jsonl.gz\n M verification/published/benchmark-smoke/7563223332d94660b2fb.summary.json\n M verification/published/benchmark-smoke/78f0978dcf9d01bee17c.samples.jsonl.gz\n M verification/published/benchmark-smoke/78f0978dcf9d01bee17c.summary.json\n M verification/published/benchmark-smoke/79fd512af8f51855921e.samples.jsonl.gz\n M verification/published/benchmark-smoke/79fd512af8f51855921e.summary.json\n M verification/published/benchmark-smoke/8f3817ba66a6cbe5ac0a.samples.jsonl.gz\n M verification/published/benchmark-smoke/8f3817ba66a6cbe5ac0a.summary.json\n M verification/published/benchmark-smoke/9901eb0f9995f0b4f8b5.samples.jsonl.gz\n M verification/published/benchmark-smoke/9901eb0f9995f0b4f8b5.summary.json\n M verification/published/benchmark-smoke/9ca4dac69962fcf2fda1.samples.jsonl.gz\n M verification/published/benchmark-smoke/9ca4dac69962fcf2fda1.summary.json\n M verification/published/benchmark-smoke/9e8bc959d11bcd02db54.samples.jsonl.gz\n M verification/published/benchmark-smoke/9e8bc959d11bcd02db54.summary.json\n M verification/published/benchmark-smoke/acc2b35b70a74481b5ed.samples.jsonl.gz\n M verification/published/benchmark-smoke/acc2b35b70a74481b5ed.summary.json\n M verification/published/benchmark-smoke/b262f7ad661e85111203.samples.jsonl.gz\n M verification/published/benchmark-smoke/b262f7ad661e85111203.summary.json\n M verification/published/benchmark-smoke/coverage.json\n M verification/published/benchmark-smoke/d22dade79959067842eb.samples.jsonl.gz\n M verification/published/benchmark-smoke/d22dade79959067842eb.summary.json\n M verification/published/benchmark-smoke/d6abf8b605a9c6f61087.samples.jsonl.gz\n M verification/published/benchmark-smoke/d6abf8b605a9c6f61087.summary.json\n M verification/published/benchmark-smoke/ecd46463806773744ea1.samples.jsonl.gz\n M verification/published/benchmark-smoke/ecd46463806773744ea1.summary.json\n M verification/published/benchmark-smoke/ef25c10fa72e33c6f8a2.samples.jsonl.gz\n M verification/published/benchmark-smoke/ef25c10fa72e33c6f8a2.summary.json\n M verification/published/benchmark-smoke/f8962117cb425810c724.samples.jsonl.gz\n M verification/published/benchmark-smoke/f8962117cb425810c724.summary.json\n M verification/published/benchmark-smoke/fd009b8e5aef179b6f49.samples.jsonl.gz\n M verification/published/benchmark-smoke/fd009b8e5aef179b6f49.summary.json\n M verification/published/final-core/export.json\n M verification/published/final-core/receipt.json\n M verification/published/final-core/stderr.txt\n M verification/published/final-core/stdout.txt\n M verification/published/fresh-checkout-details/stdout.txt\n M verification/published/fresh-checkout-details/summary.json\n M verification/published/fresh-checkout/export.json\n M verification/published/fresh-checkout/receipt.json\n M verification/published/fresh-checkout/stdout.txt\n M verification/published/mutations/budget-defect.stdout\n M verification/published/mutations/budget-restored.stdout\n M verification/published/mutations/filter-before.stdout\n M verification/published/mutations/summary.json\n M verification/published/mutations/tenant-before.stdout\n M verification/published/oracle/summary.json\n M verification/published/smoke-recalculation.json\n?? verification/published/blocked-gates/\n?? verification/published/public-export-audit.json",
+  "source_before": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "source_after": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "command": [
+    "make",
+    "release-verify"
+  ],
+  "cwd": "/mnt/data/facetquarry-handoff/public",
+  "environment": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "versions": {
+      "go": "go version go1.23.2 linux/amd64",
+      "python": "Python 3.13.5",
+      "git": "git version 2.47.3"
+    }
+  },
+  "started_at": "2026-10-22T19:04:24.691794+00:00",
+  "ended_at": "2026-10-22T19:04:28.286820+00:00",
+  "duration_seconds": 3.5035671179998644,
+  "exit_code": 2,
+  "stdout": ".local/evidence/20261022T190424Z-17b802d36b/stdout.txt",
+  "stderr": ".local/evidence/20261022T190424Z-17b802d36b/stderr.txt",
+  "stdout_sha256": "bb31c9e72cd584eab55d5eb9eb1d7bdfe74312f8f1cc7deb325bfa31ba7606f1",
+  "stderr_sha256": "21908ca188a7c0a95023e389c2e0d3af82ab5d5b21c432ab259b939843349622",
+  "status": "FAIL",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval"
+}

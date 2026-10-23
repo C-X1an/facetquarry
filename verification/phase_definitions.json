@@ -1,0 +1,173 @@
+[
+  {
+    "id": "I0",
+    "title": "Runtime, privacy and resource admission",
+    "objective": "Verify runtime, locks, private/public boundary and storage inventory",
+    "dependencies": [],
+    "outputs": [
+      "runtime probe",
+      "disk inventory"
+    ],
+    "acceptance_criteria": [
+      "AC-020",
+      "AC-024"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I1",
+    "title": "Contracts and independent exact reference",
+    "objective": "Implement strict contracts, exact semantics and independent oracle",
+    "dependencies": [
+      "I0"
+    ],
+    "outputs": [
+      "types/parser",
+      "exact search",
+      "oracle"
+    ],
+    "acceptance_criteria": [
+      "AC-001",
+      "AC-002",
+      "AC-011"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I2",
+    "title": "Original graph and filtered planning",
+    "objective": "Implement HNSW construction, pruning, traversal, postings and budgets",
+    "dependencies": [
+      "I1"
+    ],
+    "outputs": [
+      "original graph",
+      "planner",
+      "graph tests"
+    ],
+    "acceptance_criteria": [
+      "AC-003",
+      "AC-004",
+      "AC-006",
+      "AC-007"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I3",
+    "title": "Immutable snapshots, scope and executable integration",
+    "objective": "Implement validated persistence, scoped handles and real CLI",
+    "dependencies": [
+      "I2"
+    ],
+    "outputs": [
+      "snapshot codec",
+      "scoped API",
+      "CLI"
+    ],
+    "acceptance_criteria": [
+      "AC-005",
+      "AC-008",
+      "AC-009",
+      "AC-010",
+      "AC-012"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I4",
+    "title": "Adversarial verification and test-the-tests",
+    "objective": "Run property, race, fuzz, mutations and threat-driven checks",
+    "dependencies": [
+      "I3"
+    ],
+    "outputs": [
+      "negative controls",
+      "fuzz/race receipts"
+    ],
+    "acceptance_criteria": [
+      "AC-014",
+      "AC-015"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I5",
+    "title": "Measurements and reviewer experience",
+    "objective": "Execute frozen benchmarks, inspect real demo and document observations",
+    "dependencies": [
+      "I4"
+    ],
+    "outputs": [
+      "raw benchmark grid",
+      "demo",
+      "limitations"
+    ],
+    "acceptance_criteria": [
+      "AC-013",
+      "AC-016",
+      "AC-017"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I6",
+    "title": "Independent challenge and repairs",
+    "objective": "Obtain read-only findings, repair and reverify; prepare owner defence",
+    "dependencies": [
+      "I5"
+    ],
+    "outputs": [
+      "independent findings",
+      "fix receipts",
+      "defence map"
+    ],
+    "acceptance_criteria": [
+      "AC-021",
+      "AC-022"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  },
+  {
+    "id": "I7",
+    "title": "Clean reproduction and public release",
+    "objective": "Reproduce from clean checkout, audit source/history and publish honest scope",
+    "dependencies": [
+      "I6"
+    ],
+    "outputs": [
+      "release report",
+      "public repository"
+    ],
+    "acceptance_criteria": [
+      "AC-018",
+      "AC-019",
+      "AC-023"
+    ],
+    "verification": [
+      "machine receipts",
+      "source-bound acceptance assessment"
+    ]
+  }
+]

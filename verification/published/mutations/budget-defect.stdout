@@ -1,0 +1,5 @@
+--- FAIL: TestBudget (0.00s)
+    engine_test.go:101: overspent: 1 > 0
+FAIL
+FAIL	facetquarry/internal/engine	0.003s
+FAIL
