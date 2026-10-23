@@ -69,6 +69,7 @@
     "scripts/mutation.py",
     "scripts/oracle.py",
     "scripts/public_audit.py",
+    "scripts/reference_capability_probe.py",
     "scripts/release_gate.py",
     "tests/test_clean_retention.py",
     "tests/test_cli.py",
