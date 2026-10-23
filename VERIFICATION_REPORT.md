@@ -1,10 +1,10 @@
 # Verification report
 
-**Experimental implementation; release qualification remains incomplete.** Updated2026-10-23. Current technical source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03`; audited source commit `4a6d08f163da12f04b0bde963da381d7196f949c`. Presentation/evidence updates are outside this technical digest's documented domain.
+**Experimental implementation; release qualification remains incomplete.** Updated2026-10-23. Current technical source `87ce77a71b9cb135fd8cad7ce7604bc88d22a01151c3a2c3bc2ffb572b3e1c8b` includes the portable source-identity repair; full current-source qualification is pending. The table below retains historical Windows source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03` at source commit `4a6d08f163da12f04b0bde963da381d7196f949c`. Presentation/evidence updates are outside this technical digest's documented domain.
 
 The original Go engine is implemented and independently challenged. Current execution uses pinned **Go1.27.3 windows/amd64**, Python3.13.14 and Git2.52.0. Linux x86_64 is the locked reference platform. Older Linux/Go1.23.2 exports remain historical development evidence.
 
-| Actually executed check | Outcome | Evidence and scope |
+| Historical executed check | Outcome | Evidence and scope |
 |---|---|---|
 | `make verify` | PASS, exit0,438.23s | [Receipt](verification/published/candidate-e7/core/receipt.json), [stdout](verification/published/candidate-e7/core/stdout.txt), [stderr](verification/published/candidate-e7/core/stderr.txt). Build, format, vet, compile, Go unit/race,33Python tests, controls, demo, smoke, oracle, fuzz, source/history audit. Source unchanged throughout. |
 | Independent exhaustive oracle | PASS,1000seeded cases | [Summary](verification/published/candidate-e7/oracle/summary.json) and cases. Separate Python float32 conversion and exhaustive float64 L2/order; finite semantics, not ANN recall. |
@@ -35,3 +35,9 @@ The reviewed manual Linux workflow installs the verified pinned SDK in an owned5
 Local/external inventory is approximately2.6GB, below the15,000,000,000-byte ceiling. Local quota query was denied; monitoring is not hard enforcement. Remote enforcement must actually execute. Browser file-URL policy denied the actual inspector; no screenshot or keyboard PASS exists. Owner walkthrough was declined and remains NOT RUN. [All24criteria](verification/criterion_status.json) retain incomplete/failed gates.
 
 The new public [C-X1an/facetquarry repository](https://github.com/C-X1an/facetquarry) was created and verified empty before publication. The [post-curation public export/history audit](verification/published/candidate-e7/export-audit.json) passed; source push and hosted CI were pending at this checkpoint. No deployment, live-user, availability, universal recall, arbitrary ACL, snapshot authenticity, hard local quota or vendor-superiority claim is made.
+
+## Publication and identity repair checkpoint
+
+Public commit `35d139931ea52db26891e0d5c2e72abed0b7f6c4` was successfully pushed to the newly created [repository](https://github.com/C-X1an/facetquarry). [Hosted source verification39969413311](https://github.com/C-X1an/facetquarry/actions/runs/39969413311) passed with Go1.27.3 Linux/amd64,33Python tests, race, oracle, mutations and two bounded fuzz campaigns. Its source identity `804ea0aa27eb1f6412f48b7246f9419d00a5228e516922faae91d259d11a53ba` differed from Windows because native pathlib sorting casefolds on Windows. An independent read-only review verified all52selected file bytes matched Git and reproduced both digests; no checkout byte drift was found.
+
+The repair sorts root-relative POSIX path strings explicitly. A fixed mixed-case fixture digest failed with the intended mismatch before repair, then all4source-identity tests passed on Windows. Independent static reassessment confirmed equivalent logical Windows/POSIX ordering and no new security concern in the two-file delta. Actual new-source Linux execution remains pending. Previous e7/804e receipts, binaries and sealed security scan are historical; they have not been relabeled as87ce evidence. Current source-bound criterion qualification remains NOT RUN until regenerated.

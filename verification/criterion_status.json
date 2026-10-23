@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "source": "87ce77a71b9cb135fd8cad7ce7604bc88d22a01151c3a2c3bc2ffb572b3e1c8b",
   "assessment": "IMPLEMENTED_EXPERIMENTAL_NOT_RELEASE_READY",
   "criteria": [
     {
       "id": "AC-001",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -17,8 +17,8 @@
     },
     {
       "id": "AC-002",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -29,8 +29,8 @@
     },
     {
       "id": "AC-003",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -41,8 +41,8 @@
     },
     {
       "id": "AC-004",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -53,8 +53,8 @@
     },
     {
       "id": "AC-005",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -65,8 +65,8 @@
     },
     {
       "id": "AC-006",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -77,8 +77,8 @@
     },
     {
       "id": "AC-007",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -89,8 +89,8 @@
     },
     {
       "id": "AC-008",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -101,8 +101,8 @@
     },
     {
       "id": "AC-009",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -113,8 +113,8 @@
     },
     {
       "id": "AC-010",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -125,8 +125,8 @@
     },
     {
       "id": "AC-011",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -137,8 +137,8 @@
     },
     {
       "id": "AC-012",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -149,8 +149,8 @@
     },
     {
       "id": "AC-013",
-      "status": "PARTIAL",
-      "qualification": "Six real escaped CLI cases; actual browser capture/keyboard review blocked by file-URL policy.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -161,8 +161,8 @@
     },
     {
       "id": "AC-014",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -173,8 +173,8 @@
     },
     {
       "id": "AC-015",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -185,8 +185,8 @@
     },
     {
       "id": "AC-016",
-      "status": "PARTIAL",
-      "qualification": "Current21-cell/672-sample smoke complete; frozen5400-cell full matrix not run.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -198,7 +198,7 @@
     {
       "id": "AC-017",
       "status": "NOT_RUN",
-      "qualification": "10k64 reference-host recall target not measured.",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -209,8 +209,8 @@
     },
     {
       "id": "AC-018",
-      "status": "PASS",
-      "qualification": "Current public source/history/allowlist heuristic audit and govulncheck1.9 pass; post-curation audit found no targeted secret/license/path findings.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -231,8 +231,8 @@
     },
     {
       "id": "AC-019",
-      "status": "FAIL",
-      "qualification": "Actual Windows committed clone preserves source bytes but nested paths hit WinError206; LongPathsEnabled0 and registry write access denied. Linux reproduction unrun.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/clean-failed/receipt.json",
@@ -243,8 +243,8 @@
     },
     {
       "id": "AC-020",
-      "status": "PARTIAL",
-      "qualification": "All listed local/external allocations below15GB; no local hard quota. Remote loop-volume enforcement not executed.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -255,8 +255,8 @@
     },
     {
       "id": "AC-021",
-      "status": "PASS",
-      "qualification": "Independent read-only findings precede repairs; all material findings reassessed closed and current affected regressions pass.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -273,7 +273,7 @@
     {
       "id": "AC-022",
       "status": "NOT_RUN",
-      "qualification": "Owner declined; actual browser keyboard usability not performed. No substituted owner evidence.",
+      "qualification": "Owner declined walkthrough; no substituted evidence. Browser keyboard usability also unrun.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -284,8 +284,8 @@
     },
     {
       "id": "AC-023",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -296,8 +296,8 @@
     },
     {
       "id": "AC-024",
-      "status": "PASS",
-      "qualification": "Finite pinned Go1.27.3 Windows current-source checks; Linux reference release qualification remains separate.",
+      "status": "NOT_RUN",
+      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
       "receipts": [
         {
           "path": "verification/published/candidate-e7/core/receipt.json",
@@ -308,27 +308,12 @@
     }
   ],
   "supported_toolchain": false,
-  "independent_review_complete": true,
+  "independent_review_complete": false,
   "full_benchmark_complete": false,
   "owner_walkthrough_complete": false,
-  "public_export_audited": true,
+  "public_export_audited": false,
   "fresh_checkout_complete": false,
   "resource_inventory_complete": false,
-  "gate_evidence": {
-    "independent_review_complete": [
-      {
-        "path": "verification/published/candidate-e7/review.json",
-        "kind": "review",
-        "sha256": "42b5acd38b802f5671143f0cb78f5cb2b773bc15a82db3cd735cf69c4ad374a4"
-      }
-    ],
-    "public_export_audited": [
-      {
-        "path": "verification/published/candidate-e7/export-audit.json",
-        "kind": "export_audit",
-        "sha256": "33d4073bc65186a6bde204ac1a80342650199bc3ad3abe37c7e30d995cb8b7d8"
-      }
-    ]
-  },
-  "note": "Windows pinned-toolchain evidence is current. Linux/full-matrix/quota/browser/owner gates remain explicit; booleans do not replace evidence."
+  "gate_evidence": {},
+  "note": "New portable technical source; prior receipts retained as historical. Current Linux qualification will supply fresh typed evidence."
 }

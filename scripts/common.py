@@ -40,7 +40,7 @@ def source_files(root: Path = ROOT) -> list[Path]:
                 mode = p.stat().st_mode  # Do not silently shorten identity on stat failures.
                 if stat.S_ISREG(mode):
                     files.append(p)
-    return sorted(files)
+    return sorted(files, key=lambda p: p.relative_to(root).as_posix())
 
 def source_hash(root: Path = ROOT) -> str:
     h = hashlib.sha256()

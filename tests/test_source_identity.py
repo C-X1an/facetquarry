@@ -12,6 +12,21 @@ import common
 
 
 class SourceIdentity(unittest.TestCase):
+    def test_mixed_case_paths_have_platform_independent_identity(self):
+        # Fixed digest for these literal UTF-8 path/byte pairs in ASCII order.
+        # Native Windows Path ordering casefolds and produces a different hash.
+        names=['Alpha.py','Makefile','benchmarks/grid.json','nested/Z.go','nested/a.go']
+        with tempfile.TemporaryDirectory(dir=ROOT/'.cache/tmp') as directory:
+            root=Path(directory)
+            for name in reversed(names):
+                path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'fixture\n')
+            self.assertEqual(common.source_hash(root),
+                '7fa3727f0420f89c131853897333b77a51b0ba5a0cde1af8ce6aa0b7b99b0859')
+            self.assertEqual([p.relative_to(root).as_posix() for p in common.source_files(root)],names)
+            (root/'Alpha.py').write_bytes(b'changed\n')
+            self.assertNotEqual(common.source_hash(root),
+                '7fa3727f0420f89c131853897333b77a51b0ba5a0cde1af8ce6aa0b7b99b0859')
+
     def test_membership_and_excluded_directories_are_not_opened(self):
         expected={'.gitattributes','Makefile','src/a.go','published.py',
                   'examples/query.json','benchmarks/grid.json','nested/phase_definitions.json'}

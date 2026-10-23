@@ -13,8 +13,10 @@ Current technical source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3
 | Measurements |21cells/672synthetic smoke timings with source/binary/input provenance | Full5400grid, reference target and concurrency4/16 unmeasured |
 | Offline inspector | Six actual escaped CLI cases | Browser visual/keyboard review blocked |
 | Clean reproduction | Current Windows FAIL preserved with unchanged source | OS long-path policy denied; Linux reproduction NOT RUN |
-| Public repository | Authorized new empty repository created | Source push/hosted CI pending |
+| Public repository | Published public source and curated evidence | [Repository](https://github.com/C-X1an/facetquarry); source CI39969413311 passed before portable-identity repair |
 | Resource policy | Complete declared local/external inventory below15GB | Local hard quota denied; remote enforcement unexecuted |
 | Owner understanding | Walkthrough declined | NOT RUN; agent explanation is not owner evidence |
 
 Trusted-host receipts can be forged by their owner; inspect original/curated digests and scope. Unfavorable results, failed attempts and missing gates remain visible.
+
+The portable source-identity repair changes the technical digest to87ce77a71b9cb135fd8cad7ce7604bc88d22a01151c3a2c3bc2ffb572b3e1c8b. Earlier e7/804e measurements below remain historical. Current full verification, scanner, clean reproduction and frozen matrix are pending.
