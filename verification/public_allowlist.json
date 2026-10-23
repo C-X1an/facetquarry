@@ -2,6 +2,7 @@
   "schema_version": 1,
   "purpose": "Reviewed source, synthetic examples, tests, public documentation and curated execution evidence only",
   "files": [
+    ".gitattributes",
     ".github/workflows/release-evidence.yml",
     ".github/workflows/verify.yml",
     ".gitignore",

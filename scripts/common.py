@@ -27,7 +27,7 @@ def source_files(root: Path = ROOT) -> list[Path]:
     return sorted(p for p in root.rglob('*') if p.is_file()
                   and not any(x in EXCLUDED for x in p.relative_to(root).parts)
                   and (p.suffix in {'.go', '.py', '.mod', '.yml', '.yaml', '.toml'}
-                       or p.name in {'Makefile', '.go-version', '.gitignore', 'go.sum', 'ACCEPTANCE_SPEC.md', 'phase_definitions.json', 'locks.json'}
+                       or p.name in {'Makefile', '.go-version', '.gitignore', '.gitattributes', 'go.sum', 'ACCEPTANCE_SPEC.md', 'phase_definitions.json', 'locks.json'}
                        or p.suffix == '.json' and p.relative_to(root).parts[0] in {'examples', 'benchmarks'}))
 
 def source_hash(root: Path = ROOT) -> str:

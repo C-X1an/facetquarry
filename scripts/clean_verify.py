@@ -12,6 +12,8 @@ def main():
     if dirty.stdout.strip():print('BLOCKED: clean reproduction requires a committed clean source tree');return 2
     with tempfile.TemporaryDirectory(dir=ROOT/'.cache/tmp') as d:
         clone=Path(d)/'source';run(['git','clone','--no-hardlinks','--local',str(ROOT),str(clone)])
+        if source_hash(clone) != source_hash():
+            raise SystemExit('FAIL: clean clone technical bytes differ from committed source')
         command=['make','build','fmt','lint','check','test','integration','demo','clean']
         result=run(command,cwd=clone,timeout=240,check=False)
         out=ROOT/'.local/clean-verify';out.mkdir(parents=True,exist_ok=True)
