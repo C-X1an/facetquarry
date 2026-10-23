@@ -50,7 +50,7 @@ jobs:
           fallocate -l 5500000000 "$fq_image"
           mkfs.ext4 -F -q "$fq_image"
           sudo mount -o loop "$fq_image" "$fq_volume"
-          sudo chown "$(id -u):$(id -g)" "$fq_volume"
+          sudo chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
           if fallocate -l 6000000000 "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-quota-probe.stderr"; then
             echo 'FAIL: oversized allocation was accepted'
             exit 1
@@ -155,6 +155,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$FQ_VOLUME/source"
+          python3 scripts/evidence.py --category reference-benchmark-build --requirements AC-016 --timeout 120 -- make build
           sudo systemd-run --quiet --wait --pipe --property=MemoryMax=8G --property=CPUQuota=400% --uid="$(id -u)" --gid="$(id -g)" --working-directory="$FQ_VOLUME/source" --setenv="PATH=$PATH" --setenv="FQ_CPUS=4" --setenv="FQ_WORKSPACE_ROOT=$FQ_VOLUME" --setenv="FQ_EXTERNAL_ALLOCATIONS=$FQ_EXTERNAL_ALLOCATIONS" --setenv="TMPDIR=$TMPDIR" --setenv="GOPATH=$GOPATH" --setenv="GOBIN=$GOBIN" --setenv="XDG_CONFIG_HOME=$XDG_CONFIG_HOME" --setenv="XDG_CACHE_HOME=$XDG_CACHE_HOME" python3 scripts/evidence.py --category reference-benchmark --requirements AC-016,AC-017 --timeout 16200 -- python3 scripts/benchmark.py --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY"
       - name: Record final inventory
         if: always()

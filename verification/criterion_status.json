@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source": "87ce77a71b9cb135fd8cad7ce7604bc88d22a01151c3a2c3bc2ffb572b3e1c8b",
+  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
   "assessment": "IMPLEMENTED_EXPERIMENTAL_NOT_RELEASE_READY",
   "criteria": [
     {
@@ -315,5 +315,5 @@
   "fresh_checkout_complete": false,
   "resource_inventory_complete": false,
   "gate_evidence": {},
-  "note": "New portable technical source; prior receipts retained as historical. Current Linux qualification will supply fresh typed evidence."
+  "note": "Owned-volume setup and independent benchmark build repaired; fresh bounded Linux run pending. Historical e7/804e/87ce receipts retained without relabeling."
 }

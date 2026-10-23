@@ -1,6 +1,6 @@
 # Claims and evidence
 
-Current technical source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03`. [Verification report](VERIFICATION_REPORT.md) defines scope. Current curated observations are under `verification/published/candidate-e7/`; older exports are historical.
+Current technical source `4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe`. [Verification report](VERIFICATION_REPORT.md) defines scope. The observations under `verification/published/candidate-e7/` are historical; fresh bounded reference qualification is pending.
 
 | Claim | Evidence | Limit |
 |---|---|---|
@@ -8,8 +8,8 @@ Current technical source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3
 | Exact filtered semantics |1000separate exhaustive seeded comparisons | Finite inputs, not universal proof or graph recall |
 | Scope/budget/ownership controls | Unit, CLI, race and4intentional defect controls | Trusted host selects tenant; no hostile-process isolation or arbitrary record ACLs |
 | Validated snapshots | Structural/canonical/digest/cancellation tests and current fuzz | Corruption checks do not authenticate malicious authors |
-| Current pinned-toolchain verification | Actual Go1.27.3Windows makeverify PASS,33Python tests | Linux qualification is separate |
-| Security review | Two read-only current reviews plus completed scan and current govulncheck | Bounded/static/advisory scope, not certification |
+| Historical pinned-toolchain verification | Actual Go1.27.3Windows makeverify PASS,33Python tests | Linux qualification is separate |
+| Historical security baseline | Independent reviews, completed full baseline scan and portable-identity diff scan; govulncheck | Bounded/static/advisory scope, not certification |
 | Measurements |21cells/672synthetic smoke timings with source/binary/input provenance | Full5400grid, reference target and concurrency4/16 unmeasured |
 | Offline inspector | Six actual escaped CLI cases | Browser visual/keyboard review blocked |
 | Clean reproduction | Current Windows FAIL preserved with unchanged source | OS long-path policy denied; Linux reproduction NOT RUN |
@@ -19,4 +19,4 @@ Current technical source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3
 
 Trusted-host receipts can be forged by their owner; inspect original/curated digests and scope. Unfavorable results, failed attempts and missing gates remain visible.
 
-The portable source-identity repair changes the technical digest to87ce77a71b9cb135fd8cad7ce7604bc88d22a01151c3a2c3bc2ffb572b3e1c8b. Earlier e7/804e measurements below remain historical. Current full verification, scanner, clean reproduction and frozen matrix are pending.
+The portable source-identity repair changes the technical digest to87ce77a71b9cb135fd8cad7ce7604bc88d22a01151c3a2c3bc2ffb572b3e1c8b. Earlier e7/804e measurements above remain historical. Current full verification, scanner, clean reproduction and frozen matrix are pending.
