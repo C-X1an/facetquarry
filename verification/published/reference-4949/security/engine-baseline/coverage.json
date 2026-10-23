@@ -1,0 +1,64 @@
+{
+  "completeness": "complete",
+  "deferred": [],
+  "documentType": "codex-security.coverage",
+  "excludePaths": [],
+  "explicitExclusions": [
+    {
+      "pattern": ".git/**",
+      "reason": "Git administrative storage is not product source; proposed public history is checked separately by actual export/history audit."
+    },
+    {
+      "pattern": ".cache/**",
+      "reason": "Owned generated build/module/temp caches are not distributed product source; toolchain advisories and resource controls are separate gates."
+    },
+    {
+      "pattern": ".local/**",
+      "reason": "Ignored generated experiments/logs are not product source. Curated published evidence and the code that produces/checks it are in scope."
+    },
+    {
+      "pattern": "bin/**",
+      "reason": "Generated binaries are bound to audited source; this is a static source audit, not binary reverse engineering."
+    }
+  ],
+  "includePaths": [
+    "."
+  ],
+  "inventoryStrategy": "repository",
+  "mode": "repository",
+  "openQuestions": [],
+  "resolvedDeferred": [
+    {
+      "id": "deferred-90e2bd8160536da5",
+      "reason": "Independent full current baseline completed read-only at unchanged current commit/source; report saved."
+    },
+    {
+      "id": "deferred-fe30f9d83d93dcc6",
+      "reason": "Independent focused trust-boundary challenge completed read-only; report saved; no substantiated candidate."
+    }
+  ],
+  "scanId": "c4ab61b9-d27b-4794-b251-3d0d7f314983",
+  "schemaVersion": "1.0",
+  "surfaces": [
+    {
+      "disposition": "no_issue_found",
+      "id": "surface-075e425ce48f3839",
+      "label": "Independent full current-source runtime and developer-tooling baseline",
+      "notes": "Separate read-only auditor inspected13production Go files,15Python scripts, both workflows and contracts at unchanged4a6d08f/e7d2268d. No substantiated attacker-reachable candidate; static scope and trusted-host limitations remain.",
+      "receiptRefs": [
+        "artifacts/independent-baseline.md"
+      ],
+      "riskArea": "Strict parsing, tenant scope, graph budgets, snapshots, immutable ownership and developer trust boundaries"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "surface-936423b623c7a4b3",
+      "label": "Independent evidence/export/filesystem/CI attack-surface challenge",
+      "notes": "Read-only focused review found no substantiated vulnerability. Previously reported correctness/evidence defects were repaired and reassessed separately; host-local receipts remain forgeable and publication scanning heuristic.",
+      "receiptRefs": [
+        "artifacts/evidence-boundary-review.md"
+      ],
+      "riskArea": "Subprocess arguments, publication/cleanup containment, rendering, CI credentials and provenance"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": 12519574083,
+  "node_id": "MDg6QXJ0aWZhY3QxMjUxOTU3NDA4Mw==",
+  "name": "reference-evidence-39973710730-1",
+  "size_in_bytes": 784433491,
+  "url": "https://api.github.com/repos/C-X1an/facetquarry/actions/artifacts/12519574083",
+  "archive_download_url": "https://api.github.com/repos/C-X1an/facetquarry/actions/artifacts/12519574083/zip",
+  "expired": false,
+  "digest": "sha256:f3de649b5ac186c5514c46d84372fba67af4a1b65c7c44176c7e14286b1b86b8",
+  "created_at": "2026-10-23T17:40:31Z",
+  "updated_at": "2026-10-23T17:40:31Z",
+  "expires_at": "2026-10-30T17:39:51Z",
+  "workflow_run": {
+    "id": 39973710730,
+    "repository_id": 1430604581,
+    "head_repository_id": 1430604581,
+    "head_branch": "main",
+    "head_sha": "625582eb753e7bec76e057a8f368f62f6aaf3d1d"
+  }
+}

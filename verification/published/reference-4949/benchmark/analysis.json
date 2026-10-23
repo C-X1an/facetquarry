@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "evidence_type": "benchmark_reanalysis",
+  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "created_at": "2026-10-23T18:59:23.347601+00:00",
+  "profile": "full",
+  "concurrency": 1,
+  "qualification": "RECORDED_RESULTS_REANALYSIS_NOT_REFERENCE_HOST_APPROVAL",
+  "analysis_script_sha256": "ab6f22f6d52766c82b54d6b6485fc09e8a38b60c9afda47c61cbf1e907e0fede",
+  "input_coverage_sha256": "2f536ab339667e3cfcdd6366a04591fdcd0e034ae171679930241307de060486",
+  "locked_grid_sha256": "37d376ffa53b54fd37849b0fb682a76b944cea029185a0da4771dc1d20420992",
+  "expected_cells": 5400,
+  "present_cells": 5400,
+  "missing_cells": [],
+  "unexpected_cells": [],
+  "analysis_failed_cells": [],
+  "baseline_errors": [],
+  "sample_count": 5400000,
+  "successful_samples": 5400000,
+  "error_calls": 0,
+  "zero_duration_count": 0,
+  "five_seed_groups": 1080,
+  "complete_five_seed_groups": 1080,
+  "target_cells": 45,
+  "target_pass_cells": 33,
+  "target_outcome": "FAIL",
+  "target_status_counts": {
+    "PASS": 33,
+    "FAIL": 12
+  },
+  "paired_comparison_groups": 972,
+  "status": "PASS",
+  "method": {
+    "quantiles": "nearest rank ceil(q*N); per full cell ranks500/950/990 of1000timings",
+    "ci": "95% percentile bootstrap interval for mean of five per-seed statistic summaries; nearest-rank bootstrap endpoints",
+    "resampling_unit": "workload/build seed (joint corpus, queries and graph)",
+    "bootstrap_replicates": 2000,
+    "bootstrap_seed": 20261023,
+    "ordering": "one shuffled cell order per group; five contiguous repetitions inside each cell",
+    "throughput": "successful queries / actual dispatch-to-completion interval including queue and streaming JSON backpressure"
+  },
+  "limitations": [
+    "Five seeds provide weak uncertainty estimates; repeated timings are not independent datasets.",
+    "Shared-host drift, power state and competing workload not controlled; no dedicated reference-host approval.",
+    "This reanalysis checks exact-baseline intersections. The collector independently enumerated exhaustive target IDs and checked exact ID/order and eligible-set membership. It did not compare returned distances with independent numerical distances; the separate oracle gate performs finite numerical-tolerance comparisons.",
+    "Invalid/foreign ID checks use frozen synthetic rNNNNNN IDs/range; collector filter violations remain separately reported.",
+    "Build metrics are one shared build per workload group, repeated in cell summaries; do not sum them across cells.",
+    "Methods pair within workload/build seed by frozen collector construction, shared corpus SHA and generation; query JSON hashes include method/ef and cannot directly establish vector identity. Never pair query indices across correlation conditions."
+  ]
+}

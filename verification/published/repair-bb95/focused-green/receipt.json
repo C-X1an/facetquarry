@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T190705Z-27d0ab47f8",
+  "category": "duplicate-graph-regression-green",
+  "requirements": [
+    "AC-003",
+    "AC-017",
+    "AC-021"
+  ],
+  "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "git_status": "M internal/engine/graph.go\n M verification/public_allowlist.json\n?? internal/engine/graph_duplicates_test.go\n?? verification/published/reference-4949/",
+  "source_before": "aef7d603f042875fbc2704639cb32f20cb61b1761eaaf38b3ca5f00d0e1cf63c",
+  "source_after": "aef7d603f042875fbc2704639cb32f20cb61b1761eaaf38b3ca5f00d0e1cf63c",
+  "command": [
+    "go",
+    "test",
+    "./internal/engine",
+    "-run",
+    "TestPruneKeepsBridgesAmongDuplicates|TestPrunePreservesNonzeroEqualDistanceDiversity|TestDuplicateVectorsReachLowestIDs",
+    "-count=1",
+    "-v",
+    "-timeout=100s"
+  ],
+  "cwd": "[WORKSPACE]\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T19:07:05.873721+00:00",
+  "ended_at": "2026-10-23T19:07:19.297953+00:00",
+  "duration_seconds": 13.311017799991532,
+  "exit_code": 0,
+  "stdout": "verification/published/repair-bb95/focused-green/stdout.txt",
+  "stderr": "verification/published/repair-bb95/focused-green/stderr.txt",
+  "stdout_sha256": "6b417c18ad05bbff0614987db6578ead913a4a7bee312e0ade11228e9e110271",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "d8e33d4d8151bc018c415bb6adc7fb4fe17fee07908f304ca9c2e072adc9f70a",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "6b417c18ad05bbff0614987db6578ead913a4a7bee312e0ade11228e9e110271",
+        "export_sha256": "6b417c18ad05bbff0614987db6578ead913a4a7bee312e0ade11228e9e110271"
+      },
+      "stderr.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "transformation": "Only local workspace prefixes replaced; original execution, statuses and source hashes unchanged. Derived export; originals retained."
+  }
+}

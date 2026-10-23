@@ -1,0 +1,9 @@
+# Independent duplicate-pruning review and repair
+
+A separate explicit gpt-6.1-sol reviewer began read-only. Before repairs, it identified zero-distance candidates saturating neighbor slots, reciprocal bridge loss, and inadequate duplicate-heavy fixtures. The complete original matrix then showed all12 target failures occurred in ties; the five recalls were.9/1/.9/.9/.4 across every correlation.
+
+Integrator RED reproduced those recalls and exact frozen build-distance totals. A second RED followed the actual upper-layer descent and proved seed131's six missing canonical IDs were outside both the bottom-entry component and upper-layer cache. The small pruning fixture also failed because coincident candidates displaced both distinct bridges; a separate nonzero equal-distance diversity control passed.
+
+Before the fix, independent preflight confirmed that rejecting pairwise distance0 changes only duplicate-at-base behavior; it does not introduce an epsilon or change positive equal-distance handling. The reviewer required explicit graph/non-exact/budget checks and cautioned that spare-slot filling still does not guarantee connectivity. The integrator added those assertions and applied the narrow predicate. GREEN passed allfive diagnostic seeds; no budget/parameter/ID-truth change, exact fallback or discarded failed run. Build work fell to16.60–16.69million, below the unchanged200million limit.
+
+The reviewer inspected actual RED/GREEN records and current source, reassessed the scoped repair closed, and found no remaining material issue in that scope. Current sourcebb95 full supported verification separately passed. Earlier GREEN sourceaef7 differs frombb95 by comment wording; original hashes are retained rather than relabeled. This is independent session review, not external certification or a substitute for the frozen200-query matrix. No universal connectivity, complete reference host, browser or owner PASS is claimed.

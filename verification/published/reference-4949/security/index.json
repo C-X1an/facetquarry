@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "evidence_type": "curated_security_artifact_index",
+  "created_at": "2026-10-23T16:58:29.574318+00:00",
+  "current_source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "scans": [
+    {
+      "scan_id": "c4ab61b9-d27b-4794-b251-3d0d7f314983",
+      "commit": "4a6d08f163da12f04b0bde963da381d7196f949c",
+      "scope": "Full Standard baseline; historical Windows source identitye7; unchanged engine/core at current candidate.",
+      "reportable_findings": 0,
+      "files": [
+        {
+          "path": "engine-baseline/report.md",
+          "sha256": "1911238600896931ceb4d98a7863df0af88f7576600f75d7e4f1e6ccbf2cf564",
+          "bytes": 9504,
+          "transformation": "none"
+        },
+        {
+          "path": "engine-baseline/findings.json",
+          "sha256": "64b3f1aad9f9ab500006c1a723cc9e74d40d7bc03c2fab83d08d16453fbc28b9",
+          "bytes": 144,
+          "transformation": "none"
+        },
+        {
+          "path": "engine-baseline/coverage.json",
+          "sha256": "edc24e2a9a3bf38bbde4954bad4374810edb89999fd92ea100f3883e55c2759b",
+          "bytes": 2753,
+          "transformation": "none"
+        }
+      ]
+    },
+    {
+      "scan_id": "e161acbd-fe83-49fb-9f76-2188c696120e",
+      "commit": "ecd143f2eb156244389e549b9c524e08e32010c7",
+      "scope": "Exact35d1399..ecd143f2 delta, six changed files; source87ce at that commit.",
+      "reportable_findings": 0,
+      "files": [
+        {
+          "path": "portable-identity-delta/report.md",
+          "sha256": "ec19ab31ad10226ce1e7f639e559f020ebd8583019d7202f82f3eee57602f8a7",
+          "bytes": 8515,
+          "transformation": "none"
+        },
+        {
+          "path": "portable-identity-delta/findings.json",
+          "sha256": "a1c2e5d8377ce16ce2e0b994a33540b714ee2077788299c2a59506eba6dc72d6",
+          "bytes": 144,
+          "transformation": "none"
+        },
+        {
+          "path": "portable-identity-delta/coverage.json",
+          "sha256": "407c42ab9a0dd975bda7dcd26ca088517737d2073a12d3b921bd3fb118abc7be",
+          "bytes": 2962,
+          "transformation": "none"
+        }
+      ]
+    },
+    {
+      "scan_id": "4c1b9952-3950-4fa2-97cb-acd3a84e4791",
+      "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+      "scope": "Exactecd143f2..625582e delta, four changed files; current source4949.",
+      "reportable_findings": 0,
+      "files": [
+        {
+          "path": "workflow-delta/report.md",
+          "sha256": "e1851ad08f2de07133ac0a3aceb05a95fa20a646d11899ddac75fceb463509d9",
+          "bytes": 7886,
+          "transformation": "none"
+        },
+        {
+          "path": "workflow-delta/findings.json",
+          "sha256": "1c8ecca126401a987b300dbe60cb5dde6b43796bfb4a1d319ebb540b42dd268e",
+          "bytes": 144,
+          "transformation": "none"
+        },
+        {
+          "path": "workflow-delta/coverage.json",
+          "sha256": "1608723668f18dd423a6e5744ae7c75f18922564f04fe08df0eee9e7781c3c76",
+          "bytes": 1943,
+          "transformation": "none"
+        }
+      ]
+    }
+  ],
+  "scope": "Byte-identical canonical report/findings/coverage copies. Baseline plus later scoped deltas, not a newly executed whole-repository scan of the final candidate. No benchmark/manual/reference-host qualification."
+}

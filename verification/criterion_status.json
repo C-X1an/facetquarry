@@ -1,319 +1,316 @@
 {
   "schema_version": 1,
-  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
-  "assessment": "IMPLEMENTED_EXPERIMENTAL_NOT_RELEASE_READY",
+  "source": "bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f",
+  "assessment": "REPAIRED_EXPERIMENTAL_NOT_RELEASE_READY",
   "criteria": [
     {
       "id": "AC-001",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-002",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-003",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-004",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-005",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-006",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-007",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-008",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-009",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-010",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-011",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-012",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-013",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PARTIAL",
+      "qualification": "Six real escaped CLI cases passed; actual offline browser capture remains blocked by URL policy.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-014",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-015",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-016",
       "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "qualification": "Current repaired source full frozen/reference matrix unrun. Historical4949 full5400 completed, recall33PASS/12FAIL, retained separately.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-017",
       "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "qualification": "Current repaired source full frozen/reference matrix unrun. Historical4949 full5400 completed, recall33PASS/12FAIL, retained separately.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-018",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Current explicit public tree/history/targeted credential checks and govulncheck passed. New repair securitydiff and final committed export audit pending.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         },
         {
-          "path": "verification/published/candidate-e7/online-security/receipt.json",
+          "path": "verification/published/repair-bb95/online-security/receipt.json",
           "kind": "command",
-          "sha256": "1b1b256dc57f8163c2ba9475c620fea7b2b2d5049e398636cc0298c6430ad9f2"
-        },
-        {
-          "path": "verification/published/candidate-e7/export-audit.json",
-          "kind": "export_audit",
-          "sha256": "33d4073bc65186a6bde204ac1a80342650199bc3ad3abe37c7e30d995cb8b7d8"
+          "sha256": "8b493057e95c6e98dc374f1942cf7ed41107f4370b416646f7e1d1a1e235e06d"
         }
       ]
     },
     {
       "id": "AC-019",
       "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "qualification": "Fresh committed current-source supported Linux reproduction pending; historical4949 Linux reproduction passed.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/clean-failed/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "8e36bd5372cc0e65db121034dcc7cf6cf60d73f4aded1127a3a34abb8d6949d3"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-020",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PARTIAL",
+      "qualification": "Actual global attribution below15GB; local NTFS quota denied. Unchanged historical remote quota proved, fresh admission/cleanup and new-source run pending.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-021",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Independent read-only findings precede repair; scoped issues reassessed closed with RED/GREEN and current full verification.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         },
         {
-          "path": "verification/published/candidate-e7/review.json",
+          "path": "verification/published/repair-bb95/review.json",
           "kind": "review",
-          "sha256": "42b5acd38b802f5671143f0cb78f5cb2b773bc15a82db3cd735cf69c4ad374a4"
+          "sha256": "6e47d7590437da71bfa8bc8f8ce35aee8b516ca90719042d6f8bcc8413e9b10a"
         }
       ]
     },
     {
       "id": "AC-022",
       "status": "NOT_RUN",
-      "qualification": "Owner declined walkthrough; no substituted evidence. Browser keyboard usability also unrun.",
-      "receipts": [
-        {
-          "path": "verification/published/candidate-e7/core/receipt.json",
-          "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
-        }
-      ]
+      "qualification": "Owner declined walkthrough; browser keyboard review unrun. No substitute owner evidence.",
+      "receipts": []
     },
     {
       "id": "AC-023",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     },
     {
       "id": "AC-024",
-      "status": "NOT_RUN",
-      "qualification": "Current portable-source qualification pending. Previous e7 references below are historical and fail source equality; no passing current gate is inferred.",
+      "status": "PASS",
+      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
       "receipts": [
         {
-          "path": "verification/published/candidate-e7/core/receipt.json",
+          "path": "verification/published/repair-bb95/core/receipt.json",
           "kind": "command",
-          "sha256": "04c2aff20bf618e5b4b748d083766e29600f7472b296cacd8889544b667af091"
+          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
         }
       ]
     }
   ],
   "supported_toolchain": false,
-  "independent_review_complete": false,
+  "independent_review_complete": true,
   "full_benchmark_complete": false,
   "owner_walkthrough_complete": false,
   "public_export_audited": false,
   "fresh_checkout_complete": false,
   "resource_inventory_complete": false,
-  "gate_evidence": {},
-  "note": "Owned-volume setup and independent benchmark build repaired; fresh bounded Linux run pending. Historical e7/804e/87ce receipts retained without relabeling."
+  "gate_evidence": {
+    "independent_review_complete": [
+      {
+        "path": "verification/published/repair-bb95/review.json",
+        "kind": "review",
+        "sha256": "6e47d7590437da71bfa8bc8f8ce35aee8b516ca90719042d6f8bcc8413e9b10a"
+      }
+    ]
+  },
+  "note": "Current Windows verification qualifies finite checks. Required global reference/toolchain/reproduction/resource/manual gates remain explicit."
 }

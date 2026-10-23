@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "evidence_type": "benchmark_coverage",
+  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "provenance": {
+    "schema_version": 1,
+    "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+    "binaries": {
+      "facetquarry": {
+        "sha256": "2c61fe07a4d2b12c3ccb47c77c47a69c9477abc63f174c606db3cdca676bc956",
+        "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+        "go": "go1.27.3",
+        "build_settings": "/home/runner/work/_temp/facetquarry-volume/source/bin/facetquarry: go1.27.3\n\tpath\tfacetquarry/cmd/facetquarry\n\tmod\tfacetquarry\tv0.0.0-20261023144822-625582eb753e\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=linux\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=625582eb753e7bec76e057a8f368f62f6aaf3d1d\n\tbuild\tvcs.time=2026-10-23T14:48:22Z\n\tbuild\tvcs.modified=false\n"
+      },
+      "fqbench": {
+        "sha256": "c0072632fbdafed906aa31e699b569abaa6edad307bd4949b848e18c6060e98f",
+        "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+        "go": "go1.27.3",
+        "build_settings": "/home/runner/work/_temp/facetquarry-volume/source/bin/fqbench: go1.27.3\n\tpath\tfacetquarry/cmd/fqbench\n\tmod\tfacetquarry\tv0.0.0-20261023144822-625582eb753e\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=linux\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=625582eb753e7bec76e057a8f368f62f6aaf3d1d\n\tbuild\tvcs.time=2026-10-23T14:48:22Z\n\tbuild\tvcs.modified=false\n"
+      }
+    },
+    "host": {
+      "system": "Linux",
+      "kernel": "6.17.0-1022-azure",
+      "os_version": "#22-Ubuntu SMP Mon Jul 27 17:24:03 UTC 2026",
+      "machine": "x86_64",
+      "cpu_model": "AMD EPYC 7763 64-Core Processor",
+      "logical_cpu_count": 4,
+      "physical_ram_bytes": 16766414848,
+      "power_mode": "not measured",
+      "competing_workload": "shared local host; competing activity not controlled",
+      "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]"
+    },
+    "gomaxprocs_requested": "4",
+    "declared_build_flags": [
+      "-trimpath",
+      "-ldflags",
+      "-X main.sourceID=4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe"
+    ]
+  },
+  "profile": "full",
+  "config": {
+    "n": [
+      2000,
+      10000
+    ],
+    "dimension": 64,
+    "distributions": [
+      "uniform",
+      "clustered",
+      "ties"
+    ],
+    "correlations": [
+      "independent",
+      "positive",
+      "negative"
+    ],
+    "seeds": [
+      11,
+      23,
+      47,
+      83,
+      131
+    ],
+    "selectivities": [
+      1.0,
+      0.2,
+      0.05,
+      0.01,
+      0.001
+    ],
+    "two_facet": true,
+    "ef": [
+      32,
+      128,
+      512
+    ],
+    "queries": 200,
+    "warmup": 20,
+    "repetitions": 5,
+    "k": 10,
+    "m": 12,
+    "ef_construction": 96,
+    "build_budget": 200000000,
+    "concurrency": 1
+  },
+  "config_hash": "f80208448535",
+  "expected_cells": 5400,
+  "completed_cells": 5400,
+  "missing_cells": [],
+  "unexpected_cells": [],
+  "failed_cells": [],
+  "run_errors": [],
+  "limited": false,
+  "grid_complete": true,
+  "reference_host_verified": false,
+  "reference_recall_target": "FAIL",
+  "release_qualification": false,
+  "scope": "synthetic experimental measurements; full grid and reference-host qualification are separate gates",
+  "status": "PASS"
+}

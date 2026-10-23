@@ -143,7 +143,11 @@ func (b *builder) prune(g *graph, base int, candidates []int, cap int) ([]int, e
 			if e != nil {
 				return nil, e
 			}
-			if d < cand.d {
+			// Coincident candidates offer the same navigation direction.
+			// Keep one during diversification so zero-distance neighbors
+			// cannot fill the degree before distinct-vector bridges. The
+			// fallback below still fills spare slots with coincident records.
+			if d == 0 || d < cand.d {
 				diverse = false
 				break
 			}

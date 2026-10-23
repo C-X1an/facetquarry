@@ -1,0 +1,53 @@
+{
+  "completeness": "complete",
+  "deferred": [],
+  "documentType": "codex-security.coverage",
+  "excludePaths": [],
+  "explicitExclusions": [],
+  "includePaths": [
+    "."
+  ],
+  "inventoryStrategy": "diff",
+  "mode": "branch_diff",
+  "openQuestions": [],
+  "resolvedDeferred": [
+    {
+      "id": "workflow-delta-review",
+      "reason": "All4immutable changed files, exact owned paths, complete inventory, build independence, source/receipt consumers, process constraints and deadlines reviewed; independent pre-fix finding/post-fix closure and actual current setup/check outcomes corroborate. No credible security candidate."
+    }
+  ],
+  "scanId": "4c1b9952-3950-4fa2-97cb-acd3a84e4791",
+  "schemaVersion": "1.0",
+  "surfaces": [
+    {
+      "disposition": "no_issue_found",
+      "id": "owned-volume",
+      "label": "Owned volume traversal and privilege",
+      "notes": "Exact nonrecursive fresh-volume metadata ownership; restrictive modes and fail-closed inventory retained.",
+      "receiptRefs": [
+        "artifacts/workflow-delta-review.md"
+      ],
+      "riskArea": "Filesystem ownership, quota and full resource inventory"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "independent-build",
+      "label": "Independent bounded benchmark build",
+      "notes": "Evidenced120sbuild, set-e,272within275min; actual process caps unchanged.",
+      "receiptRefs": [
+        "artifacts/workflow-delta-review.md"
+      ],
+      "riskArea": "CI trust, provenance, execution and deadlines"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "workflow-qualification-docs",
+      "label": "Two documentation files and criterion assessment",
+      "notes": "Allmissing/stale gates remain explicit, current source bound; no private data added.",
+      "receiptRefs": [
+        "artifacts/workflow-delta-review.md"
+      ],
+      "riskArea": "False release approval and publication confidentiality"
+    }
+  ]
+}

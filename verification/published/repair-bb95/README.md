@@ -1,0 +1,3 @@
+# Repaired sourcebb95 verification
+
+Technical source `bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f`. Full pinned Go1.27.3 Windows verification passed in469.22seconds, including34Python tests, race,1000oracle,4engine+2integrity controls, two30second fuzz campaigns,21cell smoke, actual6case demo and targeted public/history audit. Current online govulncheck passed separately. Linux committed reproduction and the unchanged full matrix remain pending. Earlier RED/GREEN receipts retain their original technical digests. Local prefixes alone are redacted; original/export digests are declared in each derived receipt. No failed run is overwritten or presented as full qualification.

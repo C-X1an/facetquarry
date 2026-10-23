@@ -13,7 +13,7 @@ Go standard-library core | Offline-first | MIT | Experimental
 
 Nearest neighbors are not necessarily the nearest **eligible** neighbors. FacetQuarry makes that distinction visible: an original hierarchical graph, exact filtered ground truth, a deliberately weak postfilter baseline, and a small disclosed planner all operate on the same vectors.
 
-> **Development status:** The original Go engine passed pinned Go 1.27.3 Windows and hosted Linux checks. A later source-identity portability repair passed its Windows regression and independent review; full verification of that new source is pending. Prior receipts remain historical. Full matrix, bounded Linux reference run and browser qualification remain incomplete; owner walkthrough was declined. Read the source-bound [verification report](VERIFICATION_REPORT.md).
+> **Development status:** The original Go engine passed pinned Go 1.27.3 verification and clean Linux reproduction. Its first full 5,400-cell matrix completed, but 12 of 45 recall targets failed on duplicate vectors. A narrow pruning repair now passes all five focused seed regressions; fresh full-matrix qualification is pending. The [failed measurements](verification/published/reference-4949/README.md) remain preserved. Reference-host, separate reader, browser and declined owner gates remain incomplete. Read the source-bound [verification report](VERIFICATION_REPORT.md).
 
 | Build the graph | Bound the request | Inspect the result |
 |:--|:--|:--|

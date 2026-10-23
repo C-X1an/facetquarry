@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "statuses": {
+    "transport-analysis-input": {
+      "exit_code": 0
+    },
+    "original-records-reanalysis": {
+      "exit_code": 0
+    }
+  },
+  "analysis_only": true,
+  "measured_source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "packaging_commit": "5df3d2f893f75a2c37694aab716f078d030de1bf",
+  "original_zip_sha256": "f3de649b5ac186c5514c46d84372fba67af4a1b65c7c44176c7e14286b1b86b8",
+  "original_zip_bytes": 784433491,
+  "original_artifact_id": 12519574083,
+  "original_run_id": 39973710730,
+  "script_sha256": {
+    "test_analyze_reference.py": "c8aaa8b189a64fa98a98e520c4e649b942578c5a21ba1b80ce5e044164eaf6f6",
+    "download_reference.py": "a3685f74a79c371b6c59ea02561881ffcf0c45e6d467fc70208767f8f80adb01",
+    "test_download_reference.py": "0678c9d9c7dad1159ab056fccc63ebae0c0dabd4657480c3bbeba8e686eab1ee",
+    "package_reference.py": "9392f1386c52d78ef3e25e9b50a3e42a11cebd6c47e9c08d9da77d4875d408fd",
+    "test_prepare_reference_analysis.py": "1a88e5261042dd60be22cd3d3d244c523b7e70a7922dfef59793939a4617e965",
+    "prepare_reference_analysis.py": "79bd7f9457b2168393a64c38b356a36a22f17e40109b4eb0cd4617915a142b03",
+    "run_transport.py": "3b2151fd6953b8d18353b13b6562d43ebcfc71df07af9c1428a2a8956ac83514",
+    "test_package_reference.py": "5376b4e12bfd4f289cc8ab9fe25ce89d37a57c734c6df7db1595027dc6ca9d8c",
+    "admit_transport_upload.py": "d6edac31f6f34c030a64c5a53ab20f1877947ee257ccd15294d9e2e0b53fc040",
+    "test_transport_upload.py": "9953325498dd9bc7670c3b5fa8e20c6a96f48a9581c5b1e0fbfe13e266a0d0c1",
+    "analyze_reference.py": "ab6f22f6d52766c82b54d6b6485fc09e8a38b60c9afda47c61cbf1e907e0fede"
+  },
+  "scope": "Transport and reanalysis only; no engine measurements run, no outer ZIP reconstruction or reference-host approval.",
+  "results_total_bytes": 5954882
+}

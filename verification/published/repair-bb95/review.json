@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "evidence_type": "review",
+  "source": "bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f",
+  "status": "PASS",
+  "reviewer": "Separate explicit gpt-6.1-sol read-only reviewer",
+  "initially_read_only": true,
+  "independent": true,
+  "findings_artifact": "verification/published/repair-bb95/independent-review.md",
+  "unresolved_critical_high": [],
+  "fixes_verified": true,
+  "scope": "Independent source and real RED/GREEN reassessment; current full verification executed separately; not whole-product release approval."
+}

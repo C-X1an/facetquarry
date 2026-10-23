@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T190631Z-ea34b68793",
+  "category": "duplicate-query-path-red",
+  "requirements": [
+    "AC-003",
+    "AC-017",
+    "AC-021"
+  ],
+  "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "git_status": "M verification/public_allowlist.json\n?? internal/engine/graph_duplicates_test.go\n?? verification/published/reference-4949/",
+  "source_before": "5e17aa7f53717ac24dcc36a29bb8611b1113f1ea362e55b72f326f9a0941db46",
+  "source_after": "5e17aa7f53717ac24dcc36a29bb8611b1113f1ea362e55b72f326f9a0941db46",
+  "command": [
+    "go",
+    "test",
+    "./internal/engine",
+    "-run",
+    "^TestDuplicateVectorsReachLowestIDs$/^131$",
+    "-count=1",
+    "-v",
+    "-timeout=60s"
+  ],
+  "cwd": "[WORKSPACE]\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T19:06:31.334031+00:00",
+  "ended_at": "2026-10-23T19:06:39.635181+00:00",
+  "duration_seconds": 8.178773400009959,
+  "exit_code": 1,
+  "stdout": "verification/published/repair-bb95/query-path-red/stdout.txt",
+  "stderr": "verification/published/repair-bb95/query-path-red/stderr.txt",
+  "stdout_sha256": "b2a124141d621cdd4f9444b7728b78eb5bcee784e546a59b602436267b1fa2d5",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "FAIL",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "cf6f07b36dcf05d81b5c5ae3dce04383a906217b9b8813723ea3fd4c738a2ff2",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "b2a124141d621cdd4f9444b7728b78eb5bcee784e546a59b602436267b1fa2d5",
+        "export_sha256": "b2a124141d621cdd4f9444b7728b78eb5bcee784e546a59b602436267b1fa2d5"
+      },
+      "stderr.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "transformation": "Only local workspace prefixes replaced; original execution, statuses and source hashes unchanged. Derived export; originals retained."
+  }
+}

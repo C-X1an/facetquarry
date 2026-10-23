@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "evidence_type": "oracle_summary",
+  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "seed_count": 1000,
+  "status": "PASS",
+  "scope": "finite exact semantic comparisons, not ANN recall or production scale"
+}

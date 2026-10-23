@@ -1,0 +1,27 @@
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "/home/runner/work/_temp/facetquarry-volume",
+      "accounted_bytes": 1712640000,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "/home/runner/work/facetquarry/facetquarry",
+      "accounted_bytes": 3158016,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "/home/runner/work/_temp/facetquarry-volume.img",
+      "accounted_bytes": 5500000000,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 7215798016,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}

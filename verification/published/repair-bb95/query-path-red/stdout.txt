@@ -1,0 +1,9 @@
+=== RUN   TestDuplicateVectorsReachLowestIDs
+=== RUN   TestDuplicateVectorsReachLowestIDs/131
+    graph_duplicates_test.go:151: {"actual_lower_entry":"r000175","build_distances":75708673,"expected_ids":["r000000","r000005","r000010","r000015","r000020","r000025","r000030","r000035","r000040","r000045"],"layers":[{"cross_vector_edges":71190,"level":0,"nodes":10000,"reachable_from_entry":110,"unreachable_top10_ids":["r000000","r000005","r000010","r000015","r000020","r000025","r000030","r000035","r000040","r000045"]},{"cross_vector_edges":3046,"level":1,"nodes":848,"reachable_from_entry":30,"unreachable_top10_ids":[]},{"cross_vector_edges":456,"level":2,"nodes":74,"reachable_from_entry":25,"unreachable_top10_ids":[]},{"cross_vector_edges":0,"level":3,"nodes":1,"reachable_from_entry":1,"unreachable_top10_ids":[]}],"query":{"schema_version":1,"generation":"faf6e958c61f9ff835e96764d1b09216831b3d047991bfee70326037d1c59e75","plan":"graph","status":"complete","exact":false,"eligible":10000,"distance_evaluations":59,"hits":[{"id":"r000000","distance":0},{"id":"r000005","distance":0},{"id":"r000030","distance":0},{"id":"r000035","distance":0},{"id":"r000075","distance":0},{"id":"r000100","distance":0},{"id":"r000105","distance":0},{"id":"r000110","distance":0},{"id":"r000115","distance":0},{"id":"r000120","distance":0}]},"reachable_from_lower_entry":25,"seed":131,"unreachable_from_query_path_top10":["r000010","r000015","r000020","r000025","r000040","r000045"]}
+    graph_duplicates_test.go:153: duplicate-vector graph missed lowest tied IDs: got [r000000 r000005 r000030 r000035 r000075 r000100 r000105 r000110 r000115 r000120], want [r000000 r000005 r000010 r000015 r000020 r000025 r000030 r000035 r000040 r000045]
+--- FAIL: TestDuplicateVectorsReachLowestIDs (3.57s)
+    --- FAIL: TestDuplicateVectorsReachLowestIDs/131 (3.57s)
+FAIL
+FAIL	facetquarry/internal/engine	6.517s
+FAIL

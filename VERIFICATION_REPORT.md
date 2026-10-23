@@ -1,6 +1,6 @@
 # Verification report
 
-**Experimental implementation; release qualification remains incomplete.** Updated2026-10-23. Current technical source `4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe` includes portable source identity and owned Linux-volume setup repairs; full current-source qualification is pending. The table below retains historical Windows source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03` at source commit `4a6d08f163da12f04b0bde963da381d7196f949c`. Presentation/evidence updates are outside this technical digest's documented domain.
+**Experimental implementation; release qualification remains incomplete.** Updated2026-10-23. The completed source4949 matrix failed12of45 recall targets; a narrow duplicate-pruning repair is being qualified. The current-result checkpoint below supersedes earlier pending statements, which remain historical. The initial table retains historical Windows source `e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03` at source commit `4a6d08f163da12f04b0bde963da381d7196f949c`. Presentation/evidence updates are outside the technical digest's documented domain.
 
 The original Go engine is implemented and independently challenged. Current execution uses pinned **Go1.27.3 windows/amd64**, Python3.13.14 and Git2.52.0. Linux x86_64 is the locked reference platform. Older Linux/Go1.23.2 exports remain historical development evidence.
 
@@ -28,9 +28,9 @@ The earlier security workbench scan was marked failed as obsolete after authoriz
 
 ## Outstanding gates
 
-The frozen primary matrix is **5400cells and5.4million timed query samples**. Full matrix, reference10k64 recall target, confidence intervals and per-seed comparative report are NOT RUN. Separate concurrency4/16 profiles are also unmeasured. All cells and failures must be retained; a missed target is a failure, not a success to relabel.
+At this historical checkpoint the frozen primary matrix and analyses were NOT RUN. They subsequently completed with a failed recall target as recorded below. Separate concurrency4/16 profiles remain unmeasured. All cells and failures must be retained; a missed target is a failure, not a success to relabel.
 
-The reviewed manual Linux workflow installs the verified pinned SDK in an owned5.5GB loop filesystem, requires actual ENOSPC refusal, constrains process resources, retains independent verification/reproduction/scanner outcomes and uploads failure evidence. It has not executed. A shared runner with4CPU/8GiB process constraints is not automatically a dedicated4-vCPU/8-GB physical reference host.
+The manual Linux workflow subsequently executed in an owned5.5GB loop filesystem and actually refused a6GB allocation. A shared runner with4CPU/8GiB process constraints does not by itself establish the named4-vCPU/8-GB reference host.
 
 Local/external inventory is approximately2.6GB, below the15,000,000,000-byte ceiling. Local quota query was denied; monitoring is not hard enforcement. Remote enforcement must actually execute. Browser file-URL policy denied the actual inspector; no screenshot or keyboard PASS exists. Owner walkthrough was declined and remains NOT RUN. [All24criteria](verification/criterion_status.json) retain incomplete/failed gates.
 
@@ -43,3 +43,25 @@ Public commit `35d139931ea52db26891e0d5c2e72abed0b7f6c4` was successfully pushed
 The repair sorts root-relative POSIX path strings explicitly. A fixed mixed-case fixture digest failed with the intended mismatch before repair, then all4source-identity tests passed on Windows. Independent static reassessment confirmed equivalent logical Windows/POSIX ordering and no new security concern in the two-file delta. Actual new-source Linux execution remains pending. Previous e7/804e receipts, binaries and sealed security scan are historical; they have not been relabeled as87ce evidence. Current source-bound criterion qualification remains NOT RUN until regenerated.
 
 The first bounded reference workflow39971843773 established the5.5GBfilesystem cap, actual6GBENOSPC refusal, pinned Go installation and systemd constraints. Workload checks then failed because freshly formatted ext4 lost+found was root-owned and unreadable to the runner. All failed receipts and artifact12509926056 are retained. The narrow repair gives the runner ownership of that exact fresh directory without widening its0700permissions or excluding it from inventory. An independent bounded evidenced build now precedes benchmark measurement, so verification failures cannot leave measurement relying on nonexistent binaries. New-source execution remains pending.
+
+## Completed matrix and duplicate-pruning repair
+
+The first full matrix measured commit `625582eb753e7bec76e057a8f368f62f6aaf3d1d`, technical source `4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe`. [Original run39973710730](https://github.com/C-X1an/facetquarry/actions/runs/39973710730) completed all 5,400 frozen cells and 5.4 million successful timed calls, with zero call errors or zero-duration samples. **The recall target failed: 33 of 45 target cells passed, 12 failed.** Every failed cell used duplicate-heavy ties. Across all three correlations, the five seeds produced:
+
+| Seed | Recall@10 | Target |
+|---|---:|---|
+| 11 | 0.90 | FAIL |
+| 23 | 1.00 | PASS |
+| 47 | 0.90 | FAIL |
+| 83 | 0.90 | FAIL |
+| 131 | 0.40 | FAIL |
+
+Uniform targets had recall at least 0.9865; clustered targets at least 0.9985. The tie five-seed mean was 0.82 with a bootstrap interval of [0.60, 0.96]; averaging does not override an individual failing seed. [All 45 target rows](verification/published/reference-4949/benchmark/reference-target-cells.csv), [all 5,400 cell summaries](verification/published/reference-4949/benchmark/per-seed-cells.csv.gz), [five-seed intervals](verification/published/reference-4949/benchmark/five-seed-intervals.json) and [paired effects](verification/published/reference-4949/benchmark/paired-method-effects.json) are preserved. The compressed CSV decodes to the exact original bytes; its compressed and uncompressed hashes are declared in the [manifest](verification/published/reference-4949/manifest.json).
+
+Supported Go 1.27.3 Linux verification, race detection, the independent 1,000-case oracle, mutation controls, two 30-second fuzz campaigns, clean committed reproduction and current online vulnerability checks all passed at source4949. [Original receipts](verification/published/reference-4949/README.md) retain their source and scope. The runner had four logical CPUs and approximately 16 GB host RAM; 4-CPU/8-GiB process limits do not establish the named reference environment. Original `reference_host_verified` remains false. Reader4/16 profiles are unrun.
+
+The original 784,433,491-byte artifact exceeded the connector's 512-MiB download limit. A separate bounded transport preserved and verified all 27,738 original members. That transport's orchestration failed on mixed full/smoke profile selection; its failed preparation and successful member proofs remain retained. A corrected, independently reviewed [reanalysis40007294397](https://github.com/C-X1an/facetquarry/actions/runs/40007294397) validated every cell and all 5.4 million samples without running new measurements. Analysis status PASS means valid recorded data; target outcome remains FAIL.
+
+Independent read-only review identified duplicate-vector saturation in diversified neighbor pruning before repair. A supported-toolchain regression reproduced the five measured tie recalls and build-distance counts. For seed131, six required IDs were outside both the actual bottom-entry component and upper-layer distance cache. The repair rejects coincident candidates during diversification, preserving distinct-vector choices before spare slots are filled. Nonzero equal-distance comparisons, M, efConstruction, ef, seeds, exact ID ordering and all budgets remain unchanged. All five focused zero-query regressions now return canonical top-10 IDs in graph mode, remain non-exact and respect the supplied budget. Build distance work fell from approximately 76 million to 17 million. These diagnostic results do not establish universal connectivity or replace fresh full-matrix qualification for the repaired source.
+
+Current repaired technical source `bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f` passed [full Go1.27.3 Windows verification](verification/published/repair-bb95/core/receipt.json) in 469.22 seconds: 34 Python tests, race, 1,000 oracle cases, four engine and two integrity controls, two 30-second fuzz campaigns, actual demo, smoke and targeted public/history audit. [Current online govulncheck](verification/published/repair-bb95/online-security/receipt.json) also passed. [RED/GREEN and independent reassessment](verification/published/repair-bb95/README.md) preserve failures and original source hashes. Fresh committed Linux reproduction, the repair security diff, full matrix and separate reader profiles remain pending; manual browser/owner evidence is still missing.

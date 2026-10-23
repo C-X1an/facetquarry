@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "measured_source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "measured_commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "original_run_id": 39973710730,
+  "original_artifact_id": 12519574083,
+  "original_zip_sha256": "f3de649b5ac186c5514c46d84372fba67af4a1b65c7c44176c7e14286b1b86b8",
+  "reanalysis_run_id": 40007294397,
+  "reanalysis_artifact_id": 12523998873,
+  "reanalysis_zip_sha256": "3b85586619d30c5cad23647f520b13741cd9834f26d1c4c03bdd5720502e7d5f",
+  "scope": "Byte-identical selected public-safe original metadata and complete analysis outputs. Receipt stream paths retain original run-relative locations; sibling exported streams have identical hashes. Raw originals retained separately; these exports do not include all raw samples. Reanalysis statusPASS is data validation, recall targetFAIL remains unchanged.",
+  "files": [
+    {
+      "path": "verification/published/reference-4949/benchmark/coverage.json",
+      "bytes": 4352,
+      "sha256": "2f536ab339667e3cfcdd6366a04591fdcd0e034ae171679930241307de060486",
+      "original_file": "benchmark/coverage.json"
+    },
+    {
+      "path": "verification/published/reference-4949/clean/summary.json",
+      "bytes": 780,
+      "sha256": "9f3637d028b8e356f148085e79d89f166e4fc12393c1b673550eccbb1fa6ba49",
+      "original_file": "clean/summary.json"
+    },
+    {
+      "path": "verification/published/reference-4949/core/receipt.json",
+      "bytes": 1558,
+      "sha256": "7c2015c813eb268d2e671223adc13e0b2a473c2f03f4e0ee84159cbbdb0e9522",
+      "original_file": "core/receipt.json"
+    },
+    {
+      "path": "verification/published/reference-4949/core/stderr.txt",
+      "bytes": 5032,
+      "sha256": "5c18646dcd902675a7603472e58710beecc11a4bd64be3ff7b4f3e3b232d85d5",
+      "original_file": "core/stderr.txt"
+    },
+    {
+      "path": "verification/published/reference-4949/core/stdout.txt",
+      "bytes": 9538,
+      "sha256": "cc059628c52913590c59338a9897e1f39ad57638ecf90f1ea68828a4048316b0",
+      "original_file": "core/stdout.txt"
+    },
+    {
+      "path": "verification/published/reference-4949/clean/receipt.json",
+      "bytes": 1337,
+      "sha256": "0f571bae12e7ee70a394e08092ec16d45d96188546d04ac4bb35b5ec2f305efc",
+      "original_file": "clean/receipt.json"
+    },
+    {
+      "path": "verification/published/reference-4949/clean/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_file": "clean/stderr.txt"
+    },
+    {
+      "path": "verification/published/reference-4949/clean/stdout.txt",
+      "bytes": 1918,
+      "sha256": "217f0a29d8ba623fdab04f26b920e1c489cd726ac47dbefd1da11f4adc3f7db8",
+      "original_file": "clean/stdout.txt"
+    },
+    {
+      "path": "verification/published/reference-4949/online-security/receipt.json",
+      "bytes": 1342,
+      "sha256": "7557fe1f6ab2c7a46e215ff2d4f867d9abefd04b419770fed0f1149600623c8f",
+      "original_file": "online-security/receipt.json"
+    },
+    {
+      "path": "verification/published/reference-4949/online-security/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_file": "online-security/stderr.txt"
+    },
+    {
+      "path": "verification/published/reference-4949/online-security/stdout.txt",
+      "bytes": 1150,
+      "sha256": "e4aaecbb416b0b8a55b9fbb6e66ed26dd86081d93a9feb5e787e78ba21cd200b",
+      "original_file": "online-security/stdout.txt"
+    },
+    {
+      "path": "verification/published/reference-4949/integrity-controls/summary.json",
+      "bytes": 1356,
+      "sha256": "246cc8c7c35984c61e96fbe4eac2d79942698762981f7680891816b599173d76",
+      "original_file": "integrity-controls/summary.json"
+    },
+    {
+      "path": "verification/published/reference-4949/mutations/summary.json",
+      "bytes": 2445,
+      "sha256": "bc005d5f516a2c7248b200a1d6dec8a30c4c2ae8ef7fe57f60a3a687d3946956",
+      "original_file": "mutations/summary.json"
+    },
+    {
+      "path": "verification/published/reference-4949/oracle/summary.json",
+      "bytes": 269,
+      "sha256": "bfb2b520b112bf00065410485f60d021e6116d838f98646a2d357a1483f9c777",
+      "original_file": "oracle/summary.json"
+    },
+    {
+      "path": "verification/published/reference-4949/remote-enforcement.json",
+      "bytes": 662,
+      "sha256": "9b92173bcc187ac8ffd22a66f78d03b73c51be687c8791787faad54faf181a1f",
+      "original_file": "remote-enforcement.json"
+    },
+    {
+      "path": "verification/published/reference-4949/remote-inventory.json",
+      "bytes": 819,
+      "sha256": "410815e5cfbe48b572b3b29ea141445427a3ffecb7745ba47ab1392af073957f",
+      "original_file": "remote-inventory.json"
+    },
+    {
+      "path": "verification/published/reference-4949/benchmark/analysis.json",
+      "bytes": 2805,
+      "sha256": "5876ca7eb955fe5e593aa0ceb70b37bd0bc79f536492d80e60e8f8f70ffd11aa",
+      "original_file": "benchmark/analysis.json"
+    },
+    {
+      "path": "verification/published/reference-4949/benchmark/five-seed-intervals.json",
+      "bytes": 1752926,
+      "sha256": "886a467dc6e3b2ab4ae9fcca496fcb4afdbbb51f4db2b1d9be423182c44b50f9",
+      "original_file": "benchmark/five-seed-intervals.json"
+    },
+    {
+      "path": "verification/published/reference-4949/benchmark/paired-method-effects.json",
+      "bytes": 1607670,
+      "sha256": "0584217a3c72955aba611f97624a11199fef8248bb5466e326f0c8b6404b3b0d",
+      "original_file": "benchmark/paired-method-effects.json"
+    },
+    {
+      "path": "verification/published/reference-4949/benchmark/per-seed-cells.csv.gz",
+      "bytes": 725555,
+      "sha256": "31b73d7d8008b54ec5d69448f866db9cdeb7f54dc0983bbae72f8c959759cb1d",
+      "original_file": "benchmark/per-seed-cells.csv",
+      "uncompressed_sha256": "c6c5d3353569e8c42e3e8768f61a5d9976f416ee65a37e0f13c4683efd29adec",
+      "uncompressed_bytes": 2565882,
+      "transformation": "Lossless gzip, mtime0; exact decoded original CSV bytes"
+    },
+    {
+      "path": "verification/published/reference-4949/benchmark/reference-target-cells.csv",
+      "bytes": 22174,
+      "sha256": "0e3dd0ac948d9fd720da10e12e97890ad7dc2f3f2309765f30aa875ad4662de4",
+      "original_file": "benchmark/reference-target-cells.csv"
+    },
+    {
+      "path": "verification/published/reference-4949/reanalysis/original-artifact-metadata.json",
+      "bytes": 782,
+      "sha256": "c3454f2de759a22a24530d034996d037b496000891b4ab9c955ffdd0175048f2",
+      "original_file": "reanalysis/original-artifact-metadata.json"
+    },
+    {
+      "path": "verification/published/reference-4949/reanalysis/analysis-input.json",
+      "bytes": 2643,
+      "sha256": "3cc01f8fd7c7d6130ed40cdc47dcfaee391a873c141564e7cde4aaec7435d9ff",
+      "original_file": "reanalysis/analysis-input.json"
+    },
+    {
+      "path": "verification/published/reference-4949/reanalysis/transport-result.json",
+      "bytes": 1863,
+      "sha256": "667a1a9eb8c15b8c4d1f15ce8534416a24d67a89573e489bc88ecacd72a02d95",
+      "original_file": "reanalysis/transport-result.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/index.json",
+      "bytes": 3311,
+      "sha256": "c2b79feb05df1b1039dbb80f5c1556c55096d5da8415180650fb9d58e4178ff7",
+      "original_file": "security/index.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/README.md",
+      "bytes": 926,
+      "sha256": "45f6ad453e1724e68de9334f1ae798b0ff923957ba8e2ff34d28f27347959514",
+      "original_file": "security/README.md"
+    },
+    {
+      "path": "verification/published/reference-4949/security/engine-baseline/coverage.json",
+      "bytes": 2753,
+      "sha256": "edc24e2a9a3bf38bbde4954bad4374810edb89999fd92ea100f3883e55c2759b",
+      "original_file": "security/engine-baseline/coverage.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/engine-baseline/findings.json",
+      "bytes": 144,
+      "sha256": "64b3f1aad9f9ab500006c1a723cc9e74d40d7bc03c2fab83d08d16453fbc28b9",
+      "original_file": "security/engine-baseline/findings.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/engine-baseline/report.md",
+      "bytes": 9504,
+      "sha256": "1911238600896931ceb4d98a7863df0af88f7576600f75d7e4f1e6ccbf2cf564",
+      "original_file": "security/engine-baseline/report.md"
+    },
+    {
+      "path": "verification/published/reference-4949/security/portable-identity-delta/coverage.json",
+      "bytes": 2962,
+      "sha256": "407c42ab9a0dd975bda7dcd26ca088517737d2073a12d3b921bd3fb118abc7be",
+      "original_file": "security/portable-identity-delta/coverage.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/portable-identity-delta/findings.json",
+      "bytes": 144,
+      "sha256": "a1c2e5d8377ce16ce2e0b994a33540b714ee2077788299c2a59506eba6dc72d6",
+      "original_file": "security/portable-identity-delta/findings.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/portable-identity-delta/report.md",
+      "bytes": 8515,
+      "sha256": "ec19ab31ad10226ce1e7f639e559f020ebd8583019d7202f82f3eee57602f8a7",
+      "original_file": "security/portable-identity-delta/report.md"
+    },
+    {
+      "path": "verification/published/reference-4949/security/workflow-delta/coverage.json",
+      "bytes": 1943,
+      "sha256": "1608723668f18dd423a6e5744ae7c75f18922564f04fe08df0eee9e7781c3c76",
+      "original_file": "security/workflow-delta/coverage.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/workflow-delta/findings.json",
+      "bytes": 144,
+      "sha256": "1c8ecca126401a987b300dbe60cb5dde6b43796bfb4a1d319ebb540b42dd268e",
+      "original_file": "security/workflow-delta/findings.json"
+    },
+    {
+      "path": "verification/published/reference-4949/security/workflow-delta/report.md",
+      "bytes": 7886,
+      "sha256": "e1851ad08f2de07133ac0a3aceb05a95fa20a646d11899ddac75fceb463509d9",
+      "original_file": "security/workflow-delta/report.md"
+    }
+  ]
+}

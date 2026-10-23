@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T145716Z-0398a30f27",
+  "category": "clean-linux-reference",
+  "requirements": [
+    "AC-019"
+  ],
+  "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "git_status": "",
+  "source_before": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "source_after": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "command": [
+    "make",
+    "clean-verify"
+  ],
+  "cwd": "/home/runner/work/_temp/facetquarry-volume/source",
+  "environment": {
+    "system": "Linux",
+    "machine": "x86_64",
+    "versions": {
+      "go": "go version go1.27.3 linux/amd64",
+      "python": "Python 3.12.3",
+      "git": "git version 2.55.0"
+    }
+  },
+  "started_at": "2026-10-23T14:57:16.678276+00:00",
+  "ended_at": "2026-10-23T14:57:38.953459+00:00",
+  "duration_seconds": 22.261956397999995,
+  "exit_code": 0,
+  "stdout": ".local/evidence/20261023T145716Z-0398a30f27/stdout.txt",
+  "stderr": ".local/evidence/20261023T145716Z-0398a30f27/stderr.txt",
+  "stdout_sha256": "217f0a29d8ba623fdab04f26b920e1c489cd726ac47dbefd1da11f4adc3f7db8",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval"
+}

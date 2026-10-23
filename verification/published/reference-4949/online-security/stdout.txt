@@ -1,0 +1,39 @@
+python3 scripts/bootstrap.py
+{
+  "go": "go version go1.27.3 linux/amd64",
+  "python": "3.12.3",
+  "reference_go": "go1.27.3",
+  "reference_toolchain_matches": true,
+  "qualification": "reference",
+  "network_installs_performed": false
+}
+python3 scripts/disk_guard.py --reserve 2000000000
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "/home/runner/work/_temp/facetquarry-volume",
+      "accounted_bytes": 771014656,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "/home/runner/work/_temp/facetquarry-volume.img",
+      "accounted_bytes": 5500000000,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "/home/runner/work/facetquarry/facetquarry",
+      "accounted_bytes": 3158016,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 6274172672,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}
+govulncheck ./...
+No vulnerabilities found.

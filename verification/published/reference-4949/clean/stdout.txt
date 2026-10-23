@@ -1,0 +1,66 @@
+python3 scripts/bootstrap.py
+{
+  "go": "go version go1.27.3 linux/amd64",
+  "python": "3.12.3",
+  "reference_go": "go1.27.3",
+  "reference_toolchain_matches": true,
+  "qualification": "reference",
+  "network_installs_performed": false
+}
+python3 scripts/disk_guard.py --reserve 2000000000
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "/home/runner/work/_temp/facetquarry-volume",
+      "accounted_bytes": 636121088,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "/home/runner/work/_temp/facetquarry-volume.img",
+      "accounted_bytes": 5500000000,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "/home/runner/work/facetquarry/facetquarry",
+      "accounted_bytes": 3158016,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 6139279104,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}
+python3 scripts/clean_verify.py
+{
+  "schema_version": 1,
+  "evidence_type": "fresh_checkout",
+  "clean_checkout": true,
+  "supported_toolchain": true,
+  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "command": [
+    "make",
+    "build",
+    "fmt",
+    "lint",
+    "check",
+    "test",
+    "integration",
+    "demo",
+    "clean"
+  ],
+  "exit_code": 0,
+  "termination_reason": null,
+  "error": null,
+  "retention_errors": [],
+  "go": "go version go1.27.3 linux/amd64",
+  "source_unchanged": true,
+  "retained_evidence": ".local/clean-verify/1792767437389931439",
+  "qualification": "fresh committed local checkout with retained nested command receipts; separate supported-toolchain gate still applies",
+  "status": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "approved_remote_runner": true,
+  "hard_quota_enforced": true,
+  "volume_file_bytes": 5500000000,
+  "oversized_allocation_bytes": 6000000000,
+  "oversized_allocation": "DENIED_ENOSPC",
+  "enforcement": "Linux loop-mounted ext4 volume; oversized fallocate actually refused",
+  "memory_constraint": "systemd MemoryMax=8G",
+  "cpu_constraint": "systemd CPUQuota=400%",
+  "host_logical_cpus": 4,
+  "os": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "scope": "Project tools, caches, source and workload artifacts inside a bounded filesystem. Hosted runner is ephemeral. Physical host RAM may exceed the process limit; report both."
+}

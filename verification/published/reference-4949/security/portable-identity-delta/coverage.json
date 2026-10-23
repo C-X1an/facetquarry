@@ -1,0 +1,83 @@
+{
+  "completeness": "complete",
+  "deferred": [],
+  "documentType": "codex-security.coverage",
+  "excludePaths": [],
+  "explicitExclusions": [],
+  "includePaths": [
+    "."
+  ],
+  "inventoryStrategy": "diff",
+  "mode": "branch_diff",
+  "openQuestions": [],
+  "resolvedDeferred": [
+    {
+      "id": "identity-delta-review",
+      "reason": "All six immutable changed paths and affected source-identity consumers reviewed; independent pre-fix finding and post-fix closure verified. No credible security candidate."
+    }
+  ],
+  "scanId": "e161acbd-fe83-49fb-9f76-2188c696120e",
+  "schemaVersion": "1.0",
+  "surfaces": [
+    {
+      "disposition": "no_issue_found",
+      "id": "identity-delta-0",
+      "label": "Portable source ordering",
+      "notes": "scripts/common.py:27-50 retains membership and failures, changes only canonical sort order; affected binary/benchmark/receipt/gate consumers reviewed.",
+      "receiptRefs": [
+        "artifacts/identity-diff-review.md"
+      ],
+      "riskArea": "Evidence identity; filesystem/hash boundary"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "identity-delta-1",
+      "label": "Independent fixed fixture regression",
+      "notes": "tests/test_source_identity.py actual red/green Windows digest and content sensitivity; no new product authority.",
+      "receiptRefs": [
+        "artifacts/identity-diff-review.md"
+      ],
+      "riskArea": "Test integrity; no weakened assertions"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "identity-delta-2",
+      "label": "Readme status",
+      "notes": "README.md retains explicit historical/pending qualification and repository links.",
+      "receiptRefs": [
+        "artifacts/identity-diff-review.md"
+      ],
+      "riskArea": "Public security and qualification claims"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "identity-delta-3",
+      "label": "Verification report",
+      "notes": "VERIFICATION_REPORT.md records real hosted run and portability finding; old receipts not relabeled.",
+      "receiptRefs": [
+        "artifacts/identity-diff-review.md"
+      ],
+      "riskArea": "Evidence provenance"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "identity-delta-4",
+      "label": "Claims mapping",
+      "notes": "CLAIMS_EVIDENCE.md adds publication and provenance-repair checkpoint; old measured results retained as historical.",
+      "receiptRefs": [
+        "artifacts/identity-diff-review.md"
+      ],
+      "riskArea": "Measured versus unmeasured assertions"
+    },
+    {
+      "disposition": "no_issue_found",
+      "id": "identity-delta-5",
+      "label": "Criterion assessment",
+      "notes": "verification/criterion_status.json has all24NOT_RUN/allfalse/no globalrefs; unchanged validator rejects stale earlier-source evidence.",
+      "receiptRefs": [
+        "artifacts/identity-diff-review.md"
+      ],
+      "riskArea": "False release approval boundary"
+    }
+  ]
+}

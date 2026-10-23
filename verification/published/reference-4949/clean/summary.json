@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "evidence_type": "fresh_checkout",
+  "clean_checkout": true,
+  "supported_toolchain": true,
+  "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "command": [
+    "make",
+    "build",
+    "fmt",
+    "lint",
+    "check",
+    "test",
+    "integration",
+    "demo",
+    "clean"
+  ],
+  "exit_code": 0,
+  "termination_reason": null,
+  "error": null,
+  "retention_errors": [],
+  "go": "go version go1.27.3 linux/amd64",
+  "source_unchanged": true,
+  "retained_evidence": ".local/clean-verify/1792767437389931439",
+  "qualification": "fresh committed local checkout with retained nested command receipts; separate supported-toolchain gate still applies",
+  "status": "PASS"
+}

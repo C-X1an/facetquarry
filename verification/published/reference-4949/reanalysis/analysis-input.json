@@ -1,0 +1,101 @@
+{
+  "status": "PASS",
+  "folder": "/home/runner/work/_temp/facetquarry-transport/analysis-input/source/.local/benchmarks/full-4949a016d1fc-f80208448535",
+  "selected_members": 10801,
+  "selected_bytes": 458250579,
+  "original_zip_sha256": "f3de649b5ac186c5514c46d84372fba67af4a1b65c7c44176c7e14286b1b86b8",
+  "cleanup_scope": "/home/runner/work/_temp/facetquarry-transport/analysis-input",
+  "original_zip_retained": true,
+  "selected_profile": {
+    "zip_path": "source/.local/benchmarks/full-4949a016d1fc-f80208448535/coverage.json",
+    "profile": "full",
+    "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+    "config": {
+      "n": [
+        2000,
+        10000
+      ],
+      "dimension": 64,
+      "distributions": [
+        "uniform",
+        "clustered",
+        "ties"
+      ],
+      "correlations": [
+        "independent",
+        "positive",
+        "negative"
+      ],
+      "seeds": [
+        11,
+        23,
+        47,
+        83,
+        131
+      ],
+      "selectivities": [
+        1.0,
+        0.2,
+        0.05,
+        0.01,
+        0.001
+      ],
+      "two_facet": true,
+      "ef": [
+        32,
+        128,
+        512
+      ],
+      "queries": 200,
+      "warmup": 20,
+      "repetitions": 5,
+      "k": 10,
+      "m": 12,
+      "ef_construction": 96,
+      "build_budget": 200000000,
+      "concurrency": 1
+    },
+    "coverage_sha256": "2f536ab339667e3cfcdd6366a04591fdcd0e034ae171679930241307de060486"
+  },
+  "excluded_profiles": [
+    {
+      "zip_path": "source/.local/benchmarks/smoke-4949a016d1fc-fabe3caa0f16/coverage.json",
+      "profile": "smoke",
+      "source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+      "config": {
+        "n": [
+          512
+        ],
+        "dimension": 8,
+        "distributions": [
+          "uniform"
+        ],
+        "correlations": [
+          "independent"
+        ],
+        "seeds": [
+          17
+        ],
+        "selectivities": [
+          1.0,
+          0.05
+        ],
+        "two_facet": true,
+        "ef": [
+          16,
+          64
+        ],
+        "queries": 16,
+        "warmup": 4,
+        "repetitions": 2,
+        "k": 10,
+        "m": 12,
+        "ef_construction": 96,
+        "build_budget": 20000000,
+        "concurrency": 1
+      },
+      "coverage_sha256": "3e9adb71be01f7f808e73d826010bcf06c20049fbbecfd719c8f7a5a513308b0"
+    }
+  ],
+  "selection_policy": "Exactly one full/current-source/frozen-config candidate, without checking outcome; every summary/sample in that folder retained, including failed/unexpected cells. Original other profiles retained in unchanged ZIP."
+}

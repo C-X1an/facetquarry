@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T190927Z-ad0740fe46",
+  "category": "repaired-core-supported-verification",
+  "requirements": [
+    "AC-001",
+    "AC-002",
+    "AC-003",
+    "AC-004",
+    "AC-005",
+    "AC-006",
+    "AC-007",
+    "AC-008",
+    "AC-009",
+    "AC-010",
+    "AC-011",
+    "AC-012",
+    "AC-014",
+    "AC-015",
+    "AC-018",
+    "AC-021",
+    "AC-023",
+    "AC-024"
+  ],
+  "commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "git_status": "M README.md\n M VERIFICATION_REPORT.md\n M internal/engine/graph.go\n M verification/public_allowlist.json\n?? internal/engine/graph_duplicates_test.go\n?? verification/published/reference-4949/",
+  "source_before": "bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f",
+  "source_after": "bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f",
+  "command": [
+    "make",
+    "verify"
+  ],
+  "cwd": "[WORKSPACE]\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T19:09:27.044226+00:00",
+  "ended_at": "2026-10-23T19:17:16.420209+00:00",
+  "duration_seconds": 469.22375009999087,
+  "exit_code": 0,
+  "stdout": "verification/published/repair-bb95/core/stdout.txt",
+  "stderr": "verification/published/repair-bb95/core/stderr.txt",
+  "stdout_sha256": "f71048c64240efe1d604a15d30db820ce25522e9933885365a6915d7f9180bc0",
+  "stderr_sha256": "ab8d010b0c8b8ad5662ae3cb666a676962197fd5a59dca88eb7313264cbdd722",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "766c42efcd7b219822345bdd4acc9501e4b22df7ed0d017a99ebc6d5ea9a2416",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "3c69dd0d74dc2d1c98aa0fee2fe80d94c496e14773d354cff84475048e534863",
+        "export_sha256": "f71048c64240efe1d604a15d30db820ce25522e9933885365a6915d7f9180bc0"
+      },
+      "stderr.txt": {
+        "original_sha256": "ab8d010b0c8b8ad5662ae3cb666a676962197fd5a59dca88eb7313264cbdd722",
+        "export_sha256": "ab8d010b0c8b8ad5662ae3cb666a676962197fd5a59dca88eb7313264cbdd722"
+      }
+    },
+    "transformation": "Only local workspace prefixes replaced; original execution, statuses and source hashes unchanged. Derived export; originals retained."
+  }
+}
