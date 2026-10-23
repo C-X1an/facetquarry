@@ -7,6 +7,6 @@ Approximate search can miss true nearest eligible neighbors. An apparently full 
 
 A disk monitor alone cannot mathematically prevent a short write burst exceeding a threshold. The 15 GB absolute requirement needs an OS-enforced quota/container volume limit or remote execution for growth-heavy tasks. Default local work is designed to remain far below it, but do not assert quota enforcement where it was not configured.
 
-See VERIFICATION_REPORT.md for what actually ran and what remains incomplete. Historical receipts apply only to their source identity. Synthetic observations cannot be described as real embedding or production workloads. Public release qualification requires the outstanding independent review, full matrix and clean-environment gates, not just a green unit suite.
+See VERIFICATION_REPORT.md for what actually ran and what remains incomplete. Historical receipts apply only to their source identity. Synthetic observations cannot be described as real embedding or production workloads. Public release qualification requires the outstanding full matrix, reference environment, browser and manual gates, not just a green unit suite.
 
 The engine package is internal to this module and exercised through the real CLI/tests. No separately versioned, externally importable Go SDK has been published. The earlier hosted browser was blocked by administrator navigation policy. Current browser-review status is recorded separately; generated HTML alone is not a graphical review.

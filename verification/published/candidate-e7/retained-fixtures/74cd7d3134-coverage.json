@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "evidence_type": "benchmark_coverage",
+  "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "provenance": {
+    "schema_version": 1,
+    "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+    "binaries": {
+      "facetquarry": {
+        "sha256": "a0b70426d1780fe72b8f0d4fd05383333cc74e0a0922c39978ed57df9ecb336a",
+        "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+        "go": "go1.27.3",
+        "build_settings": "<handoff>\\public\\.cache\\tmp\\tmpxcf4ad55\\source\\bin\\facetquarry.exe: go1.27.3\n\tpath\tfacetquarry/cmd/facetquarry\n\tmod\tfacetquarry\tv0.0.0-20261023093509-4a6d08f163da\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=4a6d08f163da12f04b0bde963da381d7196f949c\n\tbuild\tvcs.time=2026-10-23T09:35:09Z\n\tbuild\tvcs.modified=false\n"
+      },
+      "fqbench": {
+        "sha256": "4af85057ff5c6e16e5883a3494cd08c72b89a7b7625aa0e8fc251d0782a22650",
+        "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+        "go": "go1.27.3",
+        "build_settings": "<handoff>\\public\\.cache\\tmp\\tmpxcf4ad55\\source\\bin\\fqbench.exe: go1.27.3\n\tpath\tfacetquarry/cmd/fqbench\n\tmod\tfacetquarry\tv0.0.0-20261023093509-4a6d08f163da\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=4a6d08f163da12f04b0bde963da381d7196f949c\n\tbuild\tvcs.time=2026-10-23T09:35:09Z\n\tbuild\tvcs.modified=false\n"
+      }
+    },
+    "host": {
+      "system": "Windows",
+      "kernel": "11",
+      "os_version": "10.0.26300",
+      "machine": "AMD64",
+      "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "logical_cpu_count": 20,
+      "physical_ram_bytes": 34048978944,
+      "power_mode": "not measured",
+      "competing_workload": "shared local host; competing activity not controlled",
+      "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]"
+    },
+    "gomaxprocs_requested": "2",
+    "declared_build_flags": [
+      "-trimpath",
+      "-ldflags",
+      "-X main.sourceID=e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03"
+    ]
+  },
+  "profile": "smoke",
+  "config": {
+    "n": [
+      2
+    ],
+    "dimension": 1,
+    "distributions": [
+      "ties"
+    ],
+    "correlations": [
+      "independent"
+    ],
+    "seeds": [
+      11
+    ],
+    "selectivities": [
+      1.0
+    ],
+    "two_facet": false,
+    "ef": [
+      4
+    ],
+    "queries": 1,
+    "warmup": 0,
+    "repetitions": 1,
+    "k": 1,
+    "m": 2,
+    "ef_construction": 4,
+    "build_budget": 100,
+    "concurrency": 1
+  },
+  "config_hash": "747d469962be",
+  "expected_cells": 4,
+  "completed_cells": 0,
+  "missing_cells": [
+    "2bc4f6c4b605a01fa5e7",
+    "523ac0e619f6a28604d8",
+    "6502125f4f6cd17adcdb",
+    "e7dfb5fe7d5f44b516a8"
+  ],
+  "unexpected_cells": [],
+  "failed_cells": [],
+  "run_errors": [
+    "FileNotFoundError: [WinError 206] The filename or extension is too long: '<handoff>\\\\public\\\\.cache\\\\tmp\\\\tmpxcf4ad55\\\\source\\\\.cache\\\\tmp\\\\tmp_a930hpa\\\\.local\\\\benchmarks\\\\smoke-e7d2268d8196-747d469962be\\\\attempts\\\\1792748697106467900-124792ef'"
+  ],
+  "limited": false,
+  "grid_complete": false,
+  "reference_host_verified": false,
+  "reference_recall_target": "NOT YET MEASURED",
+  "release_qualification": false,
+  "scope": "synthetic experimental measurements; full grid and reference-host qualification are separate gates",
+  "status": "FAIL"
+}

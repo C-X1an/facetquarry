@@ -1,0 +1,1 @@
+{"status": "FAIL", "changed": ["phase definitions"], "action": "Record a deviation; never rewrite the lock to bypass failure."}

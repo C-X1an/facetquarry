@@ -1,0 +1,11 @@
+# Independent review and repairs
+
+Separate AI reviewer roles began read-only and supplied findings before integrator repairs. This is independent review within this development session, not external certification or an OS-enforced read-only sandbox.
+
+The [earlier findings record](../supported-20261023/independent-review.md) preserves IR-001 through IR-006: evidence type/status/source validation, recursive nulls, cancellation/publication boundaries, cached failures on resume, executable provenance, and canonical snapshot generation. All were repaired and independently reassessed closed. Current full verification covers the affected runtime and evidence controls.
+
+Release-path findings RR-001 through RR-006 were likewise received before fixes. Repairs preserve independent CI stages after earlier failures; refuse resource growth before workload generation; fit stage deadlines within the job; preserve canonical Git bytes; retain clone/fixture failures including wrapper exceptions; and prune excluded source directories while retaining source checks and fail-closed membership. Read-only reassessment found no remaining material or critical/high issue. The new unit fault controls remain explicitly labeled and are not mocked integration qualification.
+
+At current commit4a6d08f163da12f04b0bde963da381d7196f949c and technical sourcee7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03, two separate read-only security reviews re-read the full current runtime/tooling and focused developer trust boundaries. They identified no substantiated attacker-reachable vulnerability within the supplied offline/trusted-host threat model. The registered Standard scan completed and sealed its canonical artifacts. Static coverage was complete within its declared scope; this is not universal proof or release qualification.
+
+Review limitations: no independent dynamic/advisory execution, exhaustive historical confidentiality investigation, external license-provenance investigation, browser assessment or quota enforcement. Root separately ran actual checks; see core/receipt.json and online-security/receipt.json. Current Windows clean reproduction failed with source unchanged due host long-path policy. No reviewer explanation substitutes for the declined owner walkthrough.

@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-10-23T09:38:21.015115+00:00",
+  "available_physical_ram_bytes": 7484465152,
+  "arguments": {
+    "profile": "smoke",
+    "limit_cells": 0,
+    "concurrency": null
+  },
+  "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "ended_at": "2026-10-23T09:38:58.409322+00:00",
+  "status": "PASS",
+  "completed_this_invocation": 21,
+  "run_errors": []
+}

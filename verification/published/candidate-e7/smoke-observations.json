@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "scope": "Current synthetic Windows smoke only, not full/reference qualification",
+  "cells": 21,
+  "samples": 672,
+  "zero_duration_samples": 0,
+  "p50_search_ns_range": [
+    5900.0,
+    195900.0
+  ],
+  "p95_search_ns_range": [
+    12700.0,
+    1112800.0
+  ],
+  "mean_recall_range": [
+    0.09375,
+    1.0
+  ],
+  "peak_rss_bytes_range": [
+    12365824,
+    13103104
+  ]
+}

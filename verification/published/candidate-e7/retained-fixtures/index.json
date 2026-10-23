@@ -1,0 +1,41 @@
+{
+  "scope": "Available failed nested fixtures, flattened to fit Windows host path limits. Failed creation/copy paths remain explicit in command stderr; no unavailable output is invented.",
+  "files": [
+    {
+      "original_relative_path": "test-failures/1792748697134128700/.local/benchmarks/smoke-e7d2268d8196-747d469962be/coverage.json",
+      "export": "verification/published/candidate-e7/retained-fixtures/74cd7d3134-coverage.json",
+      "original_sha256": "71cb9e1828a8820e2aee9dfe4d078197efef11dd6934019c8c8fabd6fca8773f",
+      "export_sha256": "7ea86b76287be27737a0e8acd4538c6828cd54b32acabebce7a44af630e967ab"
+    },
+    {
+      "original_relative_path": "test-failures/1792748697134128700/.local/benchmarks/smoke-e7d2268d8196-747d469962be/expected_cells.json",
+      "export": "verification/published/candidate-e7/retained-fixtures/3b33eadb71-expected_cells.json",
+      "original_sha256": "967e441b7717b7a3792f66b63bc956f7edb80c6852d9b80b9a748fad9dffc02e",
+      "export_sha256": "967e441b7717b7a3792f66b63bc956f7edb80c6852d9b80b9a748fad9dffc02e"
+    },
+    {
+      "original_relative_path": "test-failures/1792748697134128700/.local/benchmarks/smoke-e7d2268d8196-747d469962be/provenance.json",
+      "export": "verification/published/candidate-e7/retained-fixtures/cd0e09841f-provenance.json",
+      "original_sha256": "565abe56938966c457be5a75cb1240fda7fe477467ac2219efc94aaebb06c008",
+      "export_sha256": "e3bd72a5b48e92d06a300095144708578a3c8bc81a9067619e0cc1142b29cae5"
+    },
+    {
+      "original_relative_path": "test-failures/1792748698397921200/.local/benchmarks/smoke-e7d2268d8196-747d469962be/coverage.json",
+      "export": "verification/published/candidate-e7/retained-fixtures/267b7799b2-coverage.json",
+      "original_sha256": "4f17f6ee26a3fbfb1becf302aa262ae37c8fa5c09f31eb69d8d7dd63eb260740",
+      "export_sha256": "33ae6bb8b16c4939e4e6d1f2aac1dae6173c0ec0db831f365d1947214aad2550"
+    },
+    {
+      "original_relative_path": "test-failures/1792748698397921200/.local/benchmarks/smoke-e7d2268d8196-747d469962be/expected_cells.json",
+      "export": "verification/published/candidate-e7/retained-fixtures/c397bbbcbb-expected_cells.json",
+      "original_sha256": "967e441b7717b7a3792f66b63bc956f7edb80c6852d9b80b9a748fad9dffc02e",
+      "export_sha256": "967e441b7717b7a3792f66b63bc956f7edb80c6852d9b80b9a748fad9dffc02e"
+    },
+    {
+      "original_relative_path": "test-failures/1792748698397921200/.local/benchmarks/smoke-e7d2268d8196-747d469962be/provenance.json",
+      "export": "verification/published/candidate-e7/retained-fixtures/5521764aaf-provenance.json",
+      "original_sha256": "565abe56938966c457be5a75cb1240fda7fe477467ac2219efc94aaebb06c008",
+      "export_sha256": "e3bd72a5b48e92d06a300095144708578a3c8bc81a9067619e0cc1142b29cae5"
+    }
+  ]
+}

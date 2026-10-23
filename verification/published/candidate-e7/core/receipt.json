@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T093509Z-bc509bb09f",
+  "category": "release-candidate-core",
+  "requirements": [
+    "AC-001",
+    "AC-002",
+    "AC-003",
+    "AC-004",
+    "AC-005",
+    "AC-006",
+    "AC-007",
+    "AC-008",
+    "AC-009",
+    "AC-010",
+    "AC-011",
+    "AC-012",
+    "AC-014",
+    "AC-015",
+    "AC-018",
+    "AC-020",
+    "AC-023",
+    "AC-024"
+  ],
+  "commit": "4a6d08f163da12f04b0bde963da381d7196f949c",
+  "git_status": "",
+  "source_before": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "source_after": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "command": [
+    "make",
+    "verify"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T09:35:09.680344+00:00",
+  "ended_at": "2026-10-23T09:42:28.045880+00:00",
+  "duration_seconds": 438.2270367000019,
+  "exit_code": 0,
+  "stdout": "verification/published/candidate-e7/core/stdout.txt",
+  "stderr": "verification/published/candidate-e7/core/stderr.txt",
+  "stdout_sha256": "94b5dc4d3dd7363ef2af424c84593df1ce7c2ed99b8c3d7615ed865b3a00a684",
+  "stderr_sha256": "77f502f425a65adf33750e8e3dcd4f7ff60e24038b2a955cd4baeedee5e6435d",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "a113b7ad3f04239df0014e333acdfee555bc496ce2ccafd17e5d9f69e8d0117d",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "e255f643b313ddc46004a0def1bf2d96b0ddb98e48def6898ca9ef2e8a5d9deb",
+        "export_sha256": "94b5dc4d3dd7363ef2af424c84593df1ce7c2ed99b8c3d7615ed865b3a00a684",
+        "path_prefix_redacted": true
+      },
+      "stderr.txt": {
+        "original_sha256": "77f502f425a65adf33750e8e3dcd4f7ff60e24038b2a955cd4baeedee5e6435d",
+        "export_sha256": "77f502f425a65adf33750e8e3dcd4f7ff60e24038b2a955cd4baeedee5e6435d",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Only local path prefixes replaced. Original receipt/streams retained privately; statuses, measurements and assertions unchanged. This is a derived receipt."
+  }
+}

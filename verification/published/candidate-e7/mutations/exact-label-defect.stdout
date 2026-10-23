@@ -1,0 +1,5 @@
+--- FAIL: TestBudget (0.00s)
+    engine_test.go:222: false exact: {SchemaVersion:1 Generation:c2209fe0a02c5a157a8de883a291d3a8526f1b0e2861e81c0552ad33267ca09c Plan:exact Status:budget_exhausted Exact:true Eligible:30 DistanceEvaluations:0 Hits:[]}
+FAIL
+FAIL	facetquarry/internal/engine	2.692s
+FAIL

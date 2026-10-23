@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T094505Z-4c81dff5b1",
+  "category": "release-candidate-vulnerability",
+  "requirements": [
+    "AC-018"
+  ],
+  "commit": "4a6d08f163da12f04b0bde963da381d7196f949c",
+  "git_status": "",
+  "source_before": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "source_after": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "command": [
+    "make",
+    "security-online"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T09:45:05.816477+00:00",
+  "ended_at": "2026-10-23T09:45:41.798603+00:00",
+  "duration_seconds": 35.873958299998776,
+  "exit_code": 0,
+  "stdout": "verification/published/candidate-e7/online-security/stdout.txt",
+  "stderr": "verification/published/candidate-e7/online-security/stderr.txt",
+  "stdout_sha256": "da90052ad039f8253a9c7025859d88270ee85967664b943445e9c6ed026df0fc",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "6c0bce708880bd13a1a413ed7ac778d394f648f6b806cb20d0d867d6cf5b628c",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "03aa2d10a8533affe1d9a908e3dbe823494304adeb5de7ce8996a30fc14ac896",
+        "export_sha256": "da90052ad039f8253a9c7025859d88270ee85967664b943445e9c6ed026df0fc",
+        "path_prefix_redacted": true
+      },
+      "stderr.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Only local path prefixes replaced. Original receipt/streams retained privately; statuses, measurements and assertions unchanged. This is a derived receipt."
+  }
+}

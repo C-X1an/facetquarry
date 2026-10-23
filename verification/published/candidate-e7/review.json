@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "evidence_type": "review",
+  "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "status": "PASS",
+  "reviewer": "Separate read-only AI baseline and focused review roles",
+  "initially_read_only": true,
+  "independent": true,
+  "findings_artifact": "verification/published/candidate-e7/independent-review.md",
+  "unresolved_critical_high": [],
+  "fixes_verified": true,
+  "canonical_security_scan_completed": true,
+  "substantiated_security_findings": 0,
+  "scope": "Static independent reassessment plus separately executed root regression checks; no third-party attestation or release approval."
+}

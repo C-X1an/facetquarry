@@ -1,0 +1,79 @@
+python3 scripts/bootstrap.py
+{
+  "go": "go version go1.27.3 windows/amd64",
+  "python": "3.13.14",
+  "reference_go": "go1.27.3",
+  "reference_toolchain_matches": true,
+  "qualification": "reference",
+  "network_installs_performed": false
+}
+python3 scripts/disk_guard.py --reserve 2000000000
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "<user-home>\\.codex\\tmp",
+      "accounted_bytes": 1404,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<handoff>",
+      "accounted_bytes": 1572290053,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\.codex\\sessions\\2026\\10\\23",
+      "accounted_bytes": 19862518,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\AppData\\Local\\Google\\Chrome\\User Data\\ShaderCache",
+      "accounted_bytes": 1642864,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\AppData\\Local\\Google\\Chrome\\User Data\\GrShaderCache",
+      "accounted_bytes": 12157308,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Code Cache",
+      "accounted_bytes": 391299150,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\.codex\\state\\plugins\\codex-security\\scans\\public\\4ca0a3015f6153870d898fa6d34bd8ef70b608f5_20261023T043056Z_jg90zq3y",
+      "accounted_bytes": 41514,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache",
+      "accounted_bytes": 530760223,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 2528055034,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}
+python3 scripts/check_integrity.py
+{"status": "PASS", "changed": [], "action": "Record a deviation; never rewrite the lock to bypass failure."}
+go build -trimpath -ldflags "-X main.sourceID=$(python3 scripts/common.py)" -o bin/facetquarry.exe ./cmd/facetquarry
+go build -trimpath -ldflags "-X main.sourceID=$(python3 scripts/common.py)" -o bin/fqbench.exe ./cmd/fqbench
+go vet ./...
+go test -run '^$' ./...
+ok  	facetquarry/cmd/facetquarry	(cached) [no tests to run]
+ok  	facetquarry/cmd/fqbench	(cached) [no tests to run]
+ok  	facetquarry/internal/engine	(cached) [no tests to run]
+ok  	facetquarry/internal/strictjson	(cached) [no tests to run]
+python3 -m compileall -q scripts tests
+go test -count=1 ./...
+ok  	facetquarry/cmd/facetquarry	1.260s
+ok  	facetquarry/cmd/fqbench	0.918s
+ok  	facetquarry/internal/engine	1.712s
+ok  	facetquarry/internal/strictjson	1.154s
+python3 -m unittest discover -s tests -p 'test_*.py' -v

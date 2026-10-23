@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "evidence_type": "export_audit",
+  "source": "e7d2268d8196e614a8cc3b120d47263748e47cb8cd375dfe2cc8f3f27fb6bc03",
+  "allowlist_audited": true,
+  "history_audited": true,
+  "status": "PASS",
+  "current_tree_files": 403,
+  "history_status": "PASS",
+  "history_blobs_checked": 285,
+  "findings": [],
+  "scope": "explicit export paths and targeted heuristics; not a comprehensive secrets/security certification"
+}
