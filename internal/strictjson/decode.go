@@ -3,6 +3,7 @@ package strictjson
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -14,12 +15,21 @@ import (
 // Decode accepts one bounded JSON value, exact struct-key spelling and no duplicates.
 // Dynamic map keys are data. The caller must check required fields and semantic bounds.
 func Decode(data []byte, maxBytes int, dst any) error {
+	return DecodeContext(context.Background(), data, maxBytes, dst)
+}
+
+// DecodeContext observes cancellation at each recursive validation boundary.
+// Individual standard-library decoding calls remain bounded by maxBytes.
+func DecodeContext(ctx context.Context, data []byte, maxBytes int, dst any) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if len(data) == 0 || len(data) > maxBytes || !utf8.Valid(data) {
 		return errors.New("JSON byte limit")
 	}
 	d := json.NewDecoder(bytes.NewReader(data))
 	d.UseNumber()
-	if err := walk(d, 0); err != nil {
+	if err := walk(ctx, d, 0); err != nil {
 		return err
 	}
 	if _, err := d.Token(); err != io.EOF {
@@ -29,14 +39,20 @@ func Decode(data []byte, maxBytes int, dst any) error {
 	if t == nil || t.Kind() != reflect.Pointer {
 		return errors.New("decoder destination")
 	}
-	if err := keys(data, t.Elem()); err != nil {
+	if err := keys(ctx, data, t.Elem()); err != nil {
 		return err
 	}
 	d = json.NewDecoder(bytes.NewReader(data))
 	d.DisallowUnknownFields()
-	return d.Decode(dst)
+	if err := d.Decode(dst); err != nil {
+		return err
+	}
+	return ctx.Err()
 }
-func walk(d *json.Decoder, depth int) error {
+func walk(ctx context.Context, d *json.Decoder, depth int) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if depth > 32 {
 		return errors.New("JSON depth limit")
 	}
@@ -61,13 +77,13 @@ func walk(d *json.Decoder, depth int) error {
 				return errors.New("duplicate or invalid key")
 			}
 			seen[s] = true
-			if err := walk(d, depth+1); err != nil {
+			if err := walk(ctx, d, depth+1); err != nil {
 				return err
 			}
 		}
 	case '[':
 		for d.More() {
-			if err := walk(d, depth+1); err != nil {
+			if err := walk(ctx, d, depth+1); err != nil {
 				return err
 			}
 		}
@@ -83,9 +99,12 @@ func walk(d *json.Decoder, depth int) error {
 	}
 	return nil
 }
-func keys(data []byte, t reflect.Type) error {
+func keys(ctx context.Context, data []byte, t reflect.Type) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if bytes.Equal(bytes.TrimSpace(data), []byte("null")) {
-		return nil
+		return errors.New("null is not a typed value")
 	}
 	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
@@ -112,7 +131,7 @@ func keys(data []byte, t reflect.Type) error {
 			if !ok {
 				return errors.New("unknown or mis-cased field")
 			}
-			if err := keys(v, ft); err != nil {
+			if err := keys(ctx, v, ft); err != nil {
 				return err
 			}
 		}
@@ -122,7 +141,7 @@ func keys(data []byte, t reflect.Type) error {
 			return errors.New("expected array")
 		}
 		for _, v := range values {
-			if err := keys(v, t.Elem()); err != nil {
+			if err := keys(ctx, v, t.Elem()); err != nil {
 				return err
 			}
 		}
@@ -132,7 +151,7 @@ func keys(data []byte, t reflect.Type) error {
 			return errors.New("expected map")
 		}
 		for _, v := range values {
-			if err := keys(v, t.Elem()); err != nil {
+			if err := keys(ctx, v, t.Elem()); err != nil {
 				return err
 			}
 		}

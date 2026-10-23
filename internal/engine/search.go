@@ -39,8 +39,14 @@ func (s *Scope) Search(ctx context.Context, q Query) (Response, error) {
 	if err := validateQuery(q, s.dimension); err != nil {
 		return r, err
 	}
-	eligible := s.g.eligible(q.Filter)
+	eligible, err := s.g.eligibleContext(ctx, q.Filter)
+	if err != nil {
+		return Response{}, err
+	}
 	for _, yes := range eligible {
+		if err := cancelled(ctx); err != nil {
+			return Response{}, err
+		}
 		if yes {
 			r.Eligible++
 		}
@@ -60,9 +66,11 @@ func (s *Scope) Search(ctx context.Context, q Query) (Response, error) {
 		return r, cancelled(ctx)
 	}
 	w := workspace{ctx: ctx, g: s.g, query: q.Vector, budget: q.Budget, cache: map[int]float64{}}
-	var err error
 	if r.Plan == "exact" {
 		for i, yes := range eligible {
+			if err := cancelled(ctx); err != nil {
+				return Response{}, err
+			}
 			if yes {
 				_, err = w.get(i)
 				if err != nil {
@@ -101,6 +109,9 @@ func (s *Scope) Search(ctx context.Context, q Query) (Response, error) {
 	}
 	results := make([]neighbor, 0, len(w.cache))
 	for i, d := range w.cache {
+		if err := cancelled(ctx); err != nil {
+			return Response{}, err
+		}
 		if eligible[i] || r.Plan == "postfilter" {
 			results = append(results, neighbor{i, d, s.g.Records[i].ID})
 		}
@@ -115,5 +126,8 @@ func (s *Scope) Search(ctx context.Context, q Query) (Response, error) {
 		}
 	}
 	r.DistanceEvaluations = w.used
+	if err := cancelled(ctx); err != nil {
+		return Response{}, err
+	}
 	return r, nil
 }

@@ -13,7 +13,7 @@ Go standard-library core | Offline-first | MIT | Experimental
 
 Nearest neighbors are not necessarily the nearest **eligible** neighbors. FacetQuarry makes that distinction visible: an original hierarchical graph, exact filtered ground truth, a deliberately weak postfilter baseline, and a small disclosed planner all operate on the same vectors.
 
-> **Development status:** The real engine and verification tooling are implemented. Local developmental checks have run, but full benchmark qualification, a supported-toolchain rerun, genuine independent review, actual browser review and owner walkthrough remain open. There is no production-use, availability, universal-recall or superiority claim. Read the source-bound [verification report](VERIFICATION_REPORT.md).
+> **Development status:** The real engine and verification tooling are implemented. Pinned Go 1.27.3 checks and independent read-only reviews have run, and their findings have been repaired. Current-source make verify passed, including supported-toolchain fuzz/race and the 1,000-case oracle. The complete benchmark matrix and Linux reference measurements remain unrun; actual browser review is blocked by URL policy. The owner walkthrough was not performed. There is no production-use, availability, universal-recall or superiority claim. Read the source-bound [verification report](VERIFICATION_REPORT.md).
 
 | Build the graph | Bound the request | Inspect the result |
 |:--|:--|:--|
@@ -68,7 +68,7 @@ make clean-verify       # Fresh committed local checkout, separate caches.
 make release-verify     # Fails closed while locked evidence is missing.
 ```
 
-A passing smoke cell means the experiment completed and its checked invariants held, **not** that recall was perfect. The full grid has 5,400 cells and is not claimed as executed in this handoff. [Evaluation](EVALUATION.md) explains the workload, denominator, reference target and measurement scope. Published receipts are trusted-host execution records, not independent cryptographic attestations.
+A passing smoke cell means the experiment completed and its checked invariants held, **not** that recall was perfect. The full grid has 5,400 cells; its current completion and target status are recorded in the verification report. [Evaluation](EVALUATION.md) explains the workload, denominator, reference target and measurement scope. Published receipts are trusted-host execution records, not independent cryptographic attestations.
 
 ## Deliberate boundaries
 

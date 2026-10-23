@@ -1,5 +1,7 @@
 import importlib.util
 import json
+import os
+import subprocess
 from pathlib import Path
 import sys
 import tempfile
@@ -13,8 +15,19 @@ class Tooling(unittest.TestCase):
     def test_inventory_counts_owned_file_and_reports_symlink(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d);(p/'owned').write_bytes(b'x'*123)
-            (p/'alias').symlink_to(p/'owned')
-            inv=disk_guard.inventory(p)
+            if os.name == 'nt':
+                # Windows directory junctions exercise real link traversal without
+                # requiring the symlink privilege unavailable to ordinary users.
+                target=p/'target';target.mkdir();(target/'data').write_bytes(b'y'*31)
+                result=subprocess.run(['cmd.exe','/d','/c','mklink','/J',str(p/'alias'),str(target)],capture_output=True,text=True)
+                self.assertEqual(result.returncode,0,result.stderr)
+                try:
+                    inv=disk_guard.inventory(p)
+                finally:
+                    (p/'alias').rmdir()
+            else:
+                (p/'alias').symlink_to(p/'owned')
+                inv=disk_guard.inventory(p)
             self.assertGreaterEqual(inv['accounted_bytes'],123);self.assertEqual(len(inv['symlinks_not_followed']),1)
     def test_external_file_inventory(self):
         with tempfile.TemporaryDirectory() as d:

@@ -1,65 +1,36 @@
 # Verification report
 
-**Implemented experimental prototype; NOT release-ready.** Research/handoff date2026-10-23 (Asia/Singapore). Actual receipts use UTC timestamps on2026-10-22, which is the same Singapore calendar day for these runs.
+**Experimental implementation; release qualification is incomplete.** Updated 2026-10-23. Technical source: `c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09`.
 
-Technical source: `391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e`. Local source commit checked: `219000c2277b19c208bb6e8f07e5b044833a2861`. Neither is a hosted-repository publication claim.
+The original Go engine is implemented and has undergone independent challenge and repairs. Current command evidence uses pinned **Go 1.27.3 windows/amd64**, Python 3.13.14 and Git 2.52.0. The locked reference platform is Linux; Windows observations do not establish its performance qualification. Older Linux/Go 1.23.2 exports remain historical development evidence.
 
-## What actually ran
-| Check | Actual outcome | Scope |
+| Check actually executed | Outcome | Evidence and limits |
 |---|---|---|
-| `make verify` | PASS, exit0 | Build, formatting, Go vet/type compilation, Go unit tests,6 Python integration/tooling tests, race, mutations, demo, smoke,1,000-case oracle, both bounded fuzz campaigns, targeted public audit |
-| `make clean-verify` | PASS, exit0 | Fresh committed local clone with separate build caches; build, lint/type checks, tests, integration and demo |
-| Independent exhaustive oracle |1,000 seeded cases matched | IDs/order and float64 distances after float32 conversion; finite exact semantics, not ANN recall |
-| Targeted defect controls |4 PASS-FAIL-PASS controls | Tenant selection, filter bypass, final exact-label exhaustion and budget overspend; not a whole-program mutation score |
-| Locked-spec controls |2 PASS-FAIL-PASS checks | Acceptance and phase-definition edits are detected, then restored |
-| Smoke benchmark |21 cells,672 timed samples |512 vectors,8 dimensions,one seed,uniform/independent data; not full/reference workload |
-| Smoke metric recalculation |PASS | Rebuilt exact eligible IDs and recomputed recall/work/p95 and query/repetition coverage without benchmark/oracle helper reuse |
-| Browser review |BLOCKED | File and ordinary loopback navigation returned ERR_BLOCKED_BY_ADMINISTRATOR; no screenshots or keyboard/layout results claimed |
+| `make verify` | PASS, exit 0, 332.65 seconds | [Derived receipt](verification/published/supported-20261023/verify/receipt.json), [stdout](verification/published/supported-20261023/verify/stdout.txt), [stderr](verification/published/supported-20261023/verify/stderr.txt). Build, format, vet, compilation, Go unit/race checks, 28 Python tests, mutation, demo, smoke, oracle, fuzz and public audit. |
+| Independent exhaustive oracle | PASS, 1,000 seeded cases | [Summary and cases](verification/published/supported-20261023/oracle/summary.json). Separate Python float32 conversion and exhaustive float64 L2/order calculation. Finite semantic evidence. |
+| Intentional engine defects | Four PASS/FAIL/PASS controls | [Mutation record](verification/published/supported-20261023/mutations/summary.json): tenant, filter, exact-label and distance-budget defects fail their expected assertions. |
+| Locked-file tampering | Two PASS/FAIL/PASS controls | [Retained control outputs](verification/published/supported-20261023/integrity-controls/summary.json). Acceptance and phase edits fail integrity checks; original bytes restore exactly. |
+| Supported-toolchain fuzz | PASS, at least 30 seconds each | Current verification log: query target 134,974 executions; snapshot target 1,301,312 executions. These bounded campaigns do not prove arbitrary-input safety. Interesting corpus remains in the owned cache. |
+| Calibrated synthetic smoke | PASS, 21 cells and 672 timed samples | [Coverage](verification/published/supported-20261023/smoke/coverage.json), all raw sample archives and per-cell summaries in the same directory. Concurrency 1, n=512, dimension 8. This is not the frozen full matrix. |
+| Real offline inspector | Six real CLI cases PASS | [Generated report](docs/demo/report.html), [trace](docs/demo/trace.json). Dynamic content is escaped. Actual browser visual/keyboard review is BLOCKED. |
+| Independent review | Material findings repaired and reassessed | [Findings before fixes and disposition](verification/published/supported-20261023/independent-review.md). Separate reviewers began read-only; root performed dynamic checks. Review conduct was not an OS sandbox. |
 
-**All executable Go checks above used Go1.23.2 on Linux x86_64, with Python3.13.5.** The pinned reference is Go1.27.3. A verified-current-toolchain download attempt failed DNS here. Compatible source execution is useful developmental evidence, not supported-toolchain or current-security qualification.
+The curated receipts replace only local path prefixes and declare original and exported digests. Successful and failed originals remain unchanged in private storage. They are trusted-host execution records, not third-party attestations.
 
-Raw logs/receipts are in [published evidence](verification/published/README.md). The source hash covers technical code/config/fixtures/locked behavior; documentation/export changes do not imply that a new source implementation was exercised. This report does not assert a live CI pass.
+## Failures preserved
 
-## Failures preserved rather than hidden
-An early intermediate exactness mutation survived because a later safety check corrected its value. The actual failing run is retained privately. The control was replaced with a final observable boundary defect and the unchanged assertions then detected it; all four controls passed after restoration. An earlier fuzz wrapper was interrupted before a final receipt; its output is not treated as a valid completed receipt. The later final-core run captured both completed campaigns and the real exit code.
+The initial supported Windows run failed because a test attempted a symlink without OS privilege. The replacement test uses an actual Windows directory junction while POSIX still tests symlinks. A deliberately executed regression suite reproduced recursive null acceptance, snapshot-generation drift and cancelled CLI success before repairs. A later verification failed because its integrity control restored text with changed newlines; the control now restores exact bytes. [Those failed receipts and streams remain available](verification/published/supported-20261023/failures/).
 
-The current security-online command requires an installed verified scanner and may fail NOT RUN. The release gate deliberately refuses unsupported runtime and missing criteria. Neither a scanner absence nor a blocked browser is quietly converted to PASS.
+An earlier Windows timing run produced zero-duration samples because its clock lacked adequate resolution. That run is retained privately and excluded from latency claims. Current native measurements use calibrated QueryPerformanceCounter, retain zero values if observed, and disclose counter-read overhead. Throughput is successful queries divided by an actual measured interval that includes queue/JSON output backpressure, not reciprocal median latency.
 
-## Criterion assessment
-| Criterion | Status | Qualification |
-|---|---|---|
-| AC-001 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-002 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-003 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-004 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-005 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-006 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-007 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-008 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-009 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-010 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-011 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-012 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-013 | PARTIAL | Real CLI/escaped HTML passed; both actual browser navigation attempts were blocked by administrator policy. |
-| AC-014 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-015 | BLOCKED | Both bounded fuzz campaigns passed on Go1.23.2, not the required supported Go1.27.3. |
-| AC-016 | PARTIAL | Separate21-cell smoke passed; zero full-grid qualification cells claimed; full5400-cell grid and intended statistical report unrun. |
-| AC-017 | NOT_RUN | 10k64-dimensional reference-host recall target not measured. |
-| AC-018 | PARTIAL | Explicit public tree/history heuristic scan executed; full independent/current security review remains open. |
-| AC-019 | BLOCKED | Fresh committed local checkout passed, but supported-toolchain qualification remains open. |
-| AC-020 | PARTIAL | Owned workspace and guard tests checked; actual user-device external allocations and hard quota not verified. |
-| AC-021 | NOT_RUN | No genuinely separate read-only reviewer was available; self-checks are not substituted. |
-| AC-022 | NOT_RUN | Actual owner technical walkthrough not performed; browser manual usability also incomplete. |
-| AC-023 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
-| AC-024 | PASS | Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate. |
+## Outstanding qualification
 
-## Still required
-Supported-toolchain re-verification and online security checks; full frozen synthetic grid and predeclared statistical summary; reference-host target; actual browser usability; genuinely independent read-only findings followed by repairs and re-verification; owner understanding; complete attributable-device resource inventory/hard enforcement where needed; final public-source/history audit and authenticated GitHub publication. Optional hnswlib/real-data tracks are not implemented or measured and are not represented as core evidence.
+The complete frozen matrix has **5,400 cells and 5.4 million timed query samples**. It has not yet run on the current source. The 10,000-record, 64-dimensional reference recall target, confidence intervals, per-seed comparative report, and separate concurrency 4/16 throughput profiles remain unmeasured. A target failure must be reported as a failure.
 
-No production users, production traffic, availability SLA, cryptographic snapshot authenticity, arbitrary record ACL enforcement, universal ANN recall or vendor superiority is claimed.
+A manual Linux evidence workflow implements a 5.5 GB loop-backed filesystem, a real ENOSPC probe, owned SDK/caches, process resource constraints, independent verification/reproduction/scanner stages and failure-artifact retention. Its source has been reviewed; the workflow has not executed. A constrained shared runner must not be described as a dedicated physical reference machine.
 
-## Final fail-closed checks actually executed
-On the final technical source, `make security-online` exited2 because a verified govulncheck was not installed; `make release-verify` exited2 at the supported-toolchain gate; direct `python3 scripts/release_gate.py` exited1 because required criteria/gates are incomplete. Original receipts and command output are retained in verification/published/blocked-gates/. Those are expected unresolved qualification outcomes, not passing security or release results.
+The local quota query returned access denied. Full local/external attributable inventory is below the 15 GB limit, but an admission monitor is not a hard quota. Fresh current-source committed reproduction is pending. The current online govulncheck v1.9.0 scan passed with “No vulnerabilities found”; see [receipt](verification/published/supported-20261023/online-security/receipt.json). A [separate current-source read-only security review](verification/published/supported-20261023/security-review.md) found no substantiated new vulnerabilities within its stated scope. Public repository creation/publication is pending final export audit.
 
-## Final fail-closed checks actually executed
-On the final technical source, `make security-online` exited2 because a verified govulncheck was not installed; `make release-verify` exited2 at the supported-toolchain gate; direct `python3 scripts/release_gate.py` exited1 because required criteria/gates are incomplete. Original receipts and command output are retained in verification/published/blocked-gates/. Those are expected unresolved qualification outcomes, not passing security or release results.
+Browser automation refused the local inspector file URL under its URL policy. No screenshot or keyboard result is invented and no bypass was attempted. The owner declined the technical walkthrough. AC-013 is PARTIAL and AC-022 remains NOT RUN; neither is silently waived by this report. [All 24 criterion statuses](verification/criterion_status.json) retain the unresolved gates.
+
+No production availability, arbitrary record ACL enforcement, snapshot authenticity, universal ANN recall, hard device quota or vendor-superiority claim is made.

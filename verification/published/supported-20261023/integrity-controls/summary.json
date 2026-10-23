@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "status": "PASS",
+  "controls": [
+    {
+      "file": "ACCEPTANCE_SPEC.md",
+      "command": [
+        "python3",
+        "scripts/check_integrity.py"
+      ],
+      "exits": [
+        0,
+        1,
+        0
+      ],
+      "original_sha256": "0e33bf159dc601f9317acdec1f410b90c4e4466e0629c1984b7f380006d72a59",
+      "defect_sha256": "d8f6af5678118d0b41f128ccb77fd48abb842650c96f4b315fc42941fc5082c5",
+      "restored_sha256": "0e33bf159dc601f9317acdec1f410b90c4e4466e0629c1984b7f380006d72a59",
+      "byte_exact_restore": true,
+      "expected_assertion_failed": true,
+      "status": "PASS"
+    },
+    {
+      "file": "verification/phase_definitions.json",
+      "command": [
+        "python3",
+        "scripts/check_integrity.py"
+      ],
+      "exits": [
+        0,
+        1,
+        0
+      ],
+      "original_sha256": "63bdc946bc5578451c6c6ee28eb058a71f3263a95cf0e40a4fb423ea96178dec",
+      "defect_sha256": "259e1f0c0fac6dfd3bdb15b9b7a639e8fdb868e378aa963a0e68a7575596089a",
+      "restored_sha256": "63bdc946bc5578451c6c6ee28eb058a71f3263a95cf0e40a4fb423ea96178dec",
+      "byte_exact_restore": true,
+      "expected_assertion_failed": true,
+      "status": "PASS"
+    }
+  ],
+  "folder": ".local\\integrity-negative\\1792731591760721100"
+}

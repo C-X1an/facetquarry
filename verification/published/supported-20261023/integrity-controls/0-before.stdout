@@ -1,0 +1,1 @@
+{"status": "PASS", "changed": [], "action": "Record a deviation; never rewrite the lock to bypass failure."}

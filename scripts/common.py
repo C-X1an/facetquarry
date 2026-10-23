@@ -4,9 +4,24 @@ import hashlib
 import os
 from pathlib import Path
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 EXCLUDED = {'.git', '.cache', '.local', '__pycache__', 'bin', 'raw', 'published'}
+
+def executable(name: str, root: Path = ROOT) -> Path:
+    """Use the native Go executable suffix, including direct script invocations."""
+    return root / 'bin' / (name + ('.exe' if os.name == 'nt' else ''))
+
+def command_args(args: list[str]) -> list[str]:
+    args = list(args)
+    if args and args[0] == 'python3':
+        args[0] = sys.executable
+    if args and os.name == 'nt':
+        path = Path(args[0])
+        if path.parent.name == 'bin' and path.name in {'facetquarry', 'fqbench'}:
+            args[0] = str(path.with_suffix('.exe'))
+    return args
 
 def source_files(root: Path = ROOT) -> list[Path]:
     return sorted(p for p in root.rglob('*') if p.is_file()
@@ -34,8 +49,8 @@ def environment(root: Path = ROOT) -> dict[str, str]:
     return env
 
 def run(args: list[str], *, cwd: Path = ROOT, timeout: int = 120,
-        check: bool = True, input_text: str | None = None) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(args, cwd=cwd, env=environment(ROOT), text=True,
+        check: bool = True, input_text: str | None = None, text: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(command_args(args), cwd=cwd, env=environment(ROOT), text=text,
                           capture_output=True, input=input_text, timeout=timeout, check=check)
 
 if __name__ == '__main__':

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T050752Z-bceafb68f5",
+  "category": "current-vulnerability-scan",
+  "requirements": [
+    "AC-018"
+  ],
+  "commit": "4ca0a3015f6153870d898fa6d34bd8ef70b608f5",
+  "git_status": "M CLAIMS_EVIDENCE.md\n M LIMITATIONS.md\n M Makefile\n M OPERATIONS.md\n M README.md\n M VERIFICATION_REPORT.md\n M cmd/facetquarry/main.go\n M cmd/fqbench/main.go\n M docs/demo/report.html\n M docs/demo/trace.json\n M internal/engine/engine_test.go\n M internal/engine/fuzz_test.go\n M internal/engine/graph.go\n M internal/engine/search.go\n M internal/engine/snapshot.go\n M internal/engine/types.go\n M internal/strictjson/decode.go\n M scripts/benchmark.py\n M scripts/clean_verify.py\n M scripts/common.py\n M scripts/demo.py\n M scripts/disk_guard.py\n M scripts/evidence.py\n M scripts/integrity_negative.py\n M scripts/mutation.py\n M scripts/oracle.py\n M scripts/public_audit.py\n M scripts/release_gate.py\n M tests/test_cli.py\n M tests/test_tooling.py\n M verification/criterion_status.json\n M verification/public_allowlist.json\n?? .github/workflows/release-evidence.yml\n?? cmd/facetquarry/main_test.go\n?? cmd/fqbench/clock.go\n?? cmd/fqbench/clock_other.go\n?? cmd/fqbench/clock_test.go\n?? cmd/fqbench/clock_windows.go\n?? cmd/fqbench/memory_linux.go\n?? cmd/fqbench/memory_other.go\n?? cmd/fqbench/memory_windows.go\n?? scripts/benchmark_support.py\n?? tests/test_tooling_benchmark.py\n?? tests/test_tooling_regressions.py\n?? verification/published/supported-20261023/",
+  "source_before": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "source_after": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "command": [
+    "make",
+    "security-online"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T05:07:52.536436+00:00",
+  "ended_at": "2026-10-23T05:08:13.281147+00:00",
+  "duration_seconds": 19.89445369999885,
+  "exit_code": 0,
+  "stdout": "verification/published/supported-20261023/online-security/stdout.txt",
+  "stderr": "verification/published/supported-20261023/online-security/stderr.txt",
+  "stdout_sha256": "0e2d29b82ff61eaa8957d138ac2dd325c8d88496fbaf3821a7e328cf293bb9fa",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "05a085389c316890d225e61795e6b95ad230e757d1e348156c09f26de718b570",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "e6abc63dde6557456b3850ed2b849168b9b0b21bf527f20ca49aa2dc1ca1a3e3",
+        "export_sha256": "0e2d29b82ff61eaa8957d138ac2dd325c8d88496fbaf3821a7e328cf293bb9fa",
+        "path_prefix_redacted": true
+      },
+      "stderr.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; original private receipt and streams retained. This derived receipt is not the original byte sequence."
+  }
+}

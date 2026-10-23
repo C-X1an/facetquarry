@@ -11,15 +11,23 @@ from common import ROOT, run, source_hash
 
 def f32(x:float)->float:return struct.unpack('<f',struct.pack('<f',x))[0]
 
-def expected(records:list[dict],query:dict,tenant:str)->list[dict]:
+def prepare_records(records:list[dict])->list[dict]:
+    """Round corpus coordinates once; preserve the independent Python calculation."""
+    return [{**rec, 'vector': [f32(x) for x in rec['vector']]} for rec in records]
+
+
+def expected_prepared(records:list[dict],query:dict,tenant:str)->list[dict]:
     q=[f32(x) for x in query['vector']]
     values=[]
     for rec in records:
         if rec['tenant']!=tenant or not all(rec['metadata'].get(k)==v for k,v in query['filter'].items()):continue
-        v=[f32(x) for x in rec['vector']]
-        d=sum((a-b)*(a-b) for a,b in zip(q,v))
+        d=sum((a-b)*(a-b) for a,b in zip(q,rec['vector']))
         values.append({'id':rec['id'],'distance':d})
     return sorted(values,key=lambda x:(x['distance'],x['id']))[:query['k']]
+
+
+def expected(records:list[dict],query:dict,tenant:str)->list[dict]:
+    return expected_prepared(prepare_records(records),query,tenant)
 
 def main()->int:
     p=argparse.ArgumentParser();p.add_argument('--seeds',type=int,default=1000);a=p.parse_args()
@@ -50,6 +58,6 @@ def main()->int:
             if not actual['exact'] or actual['status']!='complete':raise AssertionError(f'exact status seed={seed}')
             results.append({'seed':seed,'dimension':dim,'records_per_tenant':n,'hits':len(truth),'status':'PASS','generation':actual['generation']})
     (out/'cases.jsonl').write_text(''.join(json.dumps(x,separators=(',',':'))+'\n' for x in results))
-    summary={'source':source_hash(),'seed_count':len(results),'status':'PASS','scope':'finite exact semantic comparisons, not ANN recall or production scale'}
+    summary={'schema_version':1,'evidence_type':'oracle_summary','source':source_hash(),'seed_count':len(results),'status':'PASS','scope':'finite exact semantic comparisons, not ANN recall or production scale'}
     (out/'summary.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary));return 0
 if __name__=='__main__':raise SystemExit(main())

@@ -1,0 +1,59 @@
+{
+  "run_id": "20261023T042513Z-0379abcd07",
+  "category": "independent-findings-before",
+  "requirements": [
+    "AC-009",
+    "AC-010",
+    "AC-011"
+  ],
+  "commit": "4ca0a3015f6153870d898fa6d34bd8ef70b608f5",
+  "git_status": "M Makefile\n M cmd/fqbench/main.go\n M internal/engine/engine_test.go\n M scripts/common.py\n?? cmd/facetquarry/main_test.go",
+  "source_before": "c6d46db135dffd83bec7036ed8fc208cc52938feb8652943c47c085793720a80",
+  "source_after": "c6d46db135dffd83bec7036ed8fc208cc52938feb8652943c47c085793720a80",
+  "command": [
+    "go",
+    "test",
+    "./internal/engine",
+    "./cmd/facetquarry",
+    "-run",
+    "TestNestedNullRejected|TestNoncanonicalSnapshotRejected|TestCancelledCLINeverSucceeds",
+    "-count=1"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T04:25:13.441363+00:00",
+  "ended_at": "2026-10-23T04:25:16.716673+00:00",
+  "duration_seconds": 3.0299125000019558,
+  "exit_code": 1,
+  "stdout": "verification/published/supported-20261023/failures/reproduced-defects/stdout.txt",
+  "stderr": "verification/published/supported-20261023/failures/reproduced-defects/stderr.txt",
+  "stdout_sha256": "382f306944d98d2020d6800b85154b3ee90732f1c4a78b7209e32a3b68807ab6",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "status": "FAIL",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "902f8e2d371d4f064155373b853eca94fcdce51779c6dd6626b3fe10664d869d",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "7bd16affd37d0a8e99f3d85df73b2fc30ad3973dda4847c70c1d579d5fb23916",
+        "export_sha256": "382f306944d98d2020d6800b85154b3ee90732f1c4a78b7209e32a3b68807ab6",
+        "path_prefix_redacted": true
+      },
+      "stderr.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; original private receipt and streams retained. This derived receipt is not the original byte sequence."
+  }
+}

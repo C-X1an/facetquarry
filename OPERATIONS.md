@@ -20,7 +20,7 @@ make release-verify  # Evidence-gated full criteria; fails when required evidenc
 | Build | `make build` | Go build with trimpath |
 | Format apply/check | `make format` / `make fmt` | gofmt apply / fail on differences |
 | Lint/static/type | `make lint` / `make check` | go vet and compile; Go compiler provides static typecheck |
-| Unit | `make test` | Go package tests plus tooling unit checks |
+| Unit | `make test` | Go package tests; Python tooling tests run through `make integration` |
 | Integration | `make integration` | Real CLI/snapshot/adapter subprocess checks |
 | Locked acceptance | `make acceptance` | Criteria-linked checks; does not invent missing manual evidence |
 | Race | `make race` | Go race tests under supported platform |
@@ -28,17 +28,17 @@ make release-verify  # Evidence-gated full criteria; fails when required evidenc
 | Fuzz | `make fuzz` | Bounded Go fuzz targets, 30 s each for release profile |
 | Negative controls | `make mutation` | Disposable copy PASS/FAIL/PASS targeted defects |
 | Security local | `make security` | Local input/scope/public-file checks, not online CVE assurance |
-| Security online | `make security-online` | Pinned official govulncheck plus verified secret scanner; unavailable tool is BLOCKED |
+| Security online | `make security-online` | Installed pinned official govulncheck; missing scanner fails. Public secret-pattern checks are a separate local gate. |
 | Benchmark smoke/full | `make benchmark-smoke` / `make benchmark` | Smoke observation versus full frozen grid; never interchangeable |
 | Demo | `make demo` | Deterministic actual executable outputs and escaped HTML |
 | Clean environment | `make clean-verify` | Fresh committed checkout with owned caches; re-run setup/checks/demo |
-| Core CI equivalent | `make ci` | Versions, formatting, build, vet, tests, race, oracle, mutation, fuzz, demo |
+| Core CI equivalent | `make ci` | Build, formatting, vet, tests, race, mutations, demo and smoke; `make verify` also runs the oracle, fuzz and security checks |
 | Teardown | `make clean` | Remove only owned generated binaries/demo/cache paths after preserving relevant evidence |
 
 The first delivery may have incomplete targets that explicitly exit nonzero with NOT RUN and task IDs. Codex must implement them, not change them to success messages. Never use `|| true` or blanket exception suppression on required checks.
 
 ## Configuration and secrets
-There are no service secrets or API providers. `.env.example` contains tooling path examples only. GOCACHE, GOMODCACHE and GOTMPDIR are inside `.cache/`; temporary child-process roots inside `.local/`. `GOTOOLCHAIN=local` prevents surprise toolchain downloads. GOMAXPROCS defaults to min(available CPUs,4) for repeatable local work; benchmarks record the actual value. Do not run `go env -w` against the user's global profile. Inputs/outputs are operator-owned files; never accept those paths from client query JSON.
+There are no service secrets or API providers. GOCACHE and GOMODCACHE are inside `.cache/`; GOTMPDIR and child-process temporary files use `.cache/tmp`. Generated workloads and evidence use `.local/`. `GOTOOLCHAIN=local` prevents surprise toolchain downloads. Make sets GOMAXPROCS to 2; direct Python helpers use `FQ_CPUS` or 2. Benchmarks record the actual value. Do not run `go env -w` against the user's global profile. Inputs/outputs are operator-owned files; never accept those paths from client query JSON.
 
 ## Index lifecycle and recovery
 Build to a new destination name, validate before publication, and retain the old immutable generation until the new one has passed smoke queries. Startup loads and validates a snapshot, then returns scoped handles. Reads do not mutate disk. Backup is copying completed snapshot/checksum/config to an approved owned path; restore uses full validation before scope creation. There is no database migration. Unsupported format is E_FORMAT; write a separate converter only after versioned contract and tests.
@@ -49,7 +49,7 @@ Failed writes/cancelled builds leave no successful new generation and never over
 CLI emits structured results and bounded errors, not an always-running metrics endpoint. Measure per-query plan/cardinality/distance work/status and separate process/build timings. Optional pprof profiles are local developer artifacts; never expose a diagnostic HTTP listener. No OpenTelemetry collector or Prometheus stack is needed for a local library. Alerts are deterministic nonzero exit codes and release-gate failures.
 
 ## CI and supply chain
-Public PR workflow uses `pull_request` and `push`, read-only `contents`, immutable official action commits, disabled persisted checkout credentials and bounded timeouts. No `pull_request_target` execution of PR code, no deployment secrets, no privileged runners. Lock declared tools and record runtime versions. Separate manually dispatched full benchmark/release workflow avoids costly whole-grid work on every PR. Artifacts have short retention and include only reviewed synthetic outputs. Cache stays disabled initially to simplify provenance and storage.
+The source workflow uses `pull_request` and `push`, read-only `contents`, immutable official action commits, disabled persisted checkout credentials and a bounded timeout. It has no deployment secrets or privileged runner. It runs `make verify` and the public audit. The separate manual release-evidence workflow admits a loop-backed 5.5 GB volume only after an actual ENOSPC probe, installs the verified pinned toolchain, constrains process resources, runs independent verification/reproduction/scanner stages and the full matrix, and uploads successful and failed evidence. It has not yet executed. Shared runner constraints do not imply dedicated physical reference hardware. Cache stays disabled to simplify provenance and storage.
 
 SBOM starts from `go list -m -json all` and toolchain/dependency notices; current third-party runtime module list is empty by design, not proof that compiler/OS code has no vulnerabilities. License checks verify original license plus any optional comparator/data terms. No container scan is claimed when no image exists. A GitHub workflow file is not evidence it ran.
 

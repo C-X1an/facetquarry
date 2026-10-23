@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T043357Z-7be5f6c71b",
+  "category": "supported-verification",
+  "requirements": [
+    "AC-001",
+    "AC-002",
+    "AC-003",
+    "AC-004",
+    "AC-005",
+    "AC-006",
+    "AC-007",
+    "AC-008",
+    "AC-009",
+    "AC-010",
+    "AC-011",
+    "AC-012",
+    "AC-014",
+    "AC-015",
+    "AC-018",
+    "AC-020",
+    "AC-023",
+    "AC-024"
+  ],
+  "commit": "4ca0a3015f6153870d898fa6d34bd8ef70b608f5",
+  "git_status": "M Makefile\n M cmd/facetquarry/main.go\n M cmd/fqbench/main.go\n M internal/engine/engine_test.go\n M internal/engine/fuzz_test.go\n M internal/engine/graph.go\n M internal/engine/search.go\n M internal/engine/snapshot.go\n M internal/engine/types.go\n M internal/strictjson/decode.go\n M scripts/benchmark.py\n M scripts/clean_verify.py\n M scripts/common.py\n M scripts/disk_guard.py\n M scripts/evidence.py\n M scripts/mutation.py\n M scripts/oracle.py\n M scripts/public_audit.py\n M scripts/release_gate.py\n M tests/test_cli.py\n M tests/test_tooling.py\n M verification/public_allowlist.json\n?? cmd/facetquarry/main_test.go\n?? cmd/fqbench/memory_linux.go\n?? cmd/fqbench/memory_other.go\n?? cmd/fqbench/memory_windows.go\n?? tests/test_tooling_regressions.py",
+  "source_before": "21810fb59dda66b50fb29a6aac71ee84fccb61232ddad06a45800d3142493cba",
+  "source_after": "21810fb59dda66b50fb29a6aac71ee84fccb61232ddad06a45800d3142493cba",
+  "command": [
+    "make",
+    "verify"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T04:33:57.215806+00:00",
+  "ended_at": "2026-10-23T04:35:26.440504+00:00",
+  "duration_seconds": 88.94540899999993,
+  "exit_code": 2,
+  "stdout": "verification/published/supported-20261023/failures/integrity-restore/stdout.txt",
+  "stderr": "verification/published/supported-20261023/failures/integrity-restore/stderr.txt",
+  "stdout_sha256": "0788de5fb991a1e26816732419ebff9d4c1ac02f912dca72cc1bb91177959bc2",
+  "stderr_sha256": "88a821aba5af43cd380decf818538a960bffef34b6bfc9842eec4248fb00e39b",
+  "status": "FAIL",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "819c2e94792b67170de9d661072d97561754b3608044609c72f18b71feef3769",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "b08cbf51b446fd9130060b06457972d4b870dbbf68c0a4649536c16778de2cb9",
+        "export_sha256": "0788de5fb991a1e26816732419ebff9d4c1ac02f912dca72cc1bb91177959bc2",
+        "path_prefix_redacted": true
+      },
+      "stderr.txt": {
+        "original_sha256": "88a821aba5af43cd380decf818538a960bffef34b6bfc9842eec4248fb00e39b",
+        "export_sha256": "88a821aba5af43cd380decf818538a960bffef34b6bfc9842eec4248fb00e39b",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; original private receipt and streams retained. This derived receipt is not the original byte sequence."
+  }
+}

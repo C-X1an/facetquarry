@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"bytes"
 	"context"
 	"crypto/sha256"
 	"encoding/binary"
@@ -12,6 +13,120 @@ import (
 	"sync"
 	"testing"
 )
+
+func TestNestedNullRejected(t *testing.T) {
+	queries := []string{
+		`{"vector":[null,0],"k":1,"ef":8,"budget":1,"mode":"exact","filter":{}}`,
+		`{"vector":[0,0],"k":1,"ef":8,"budget":1,"mode":"exact","filter":{"kind":null}}`,
+	}
+	for _, input := range queries {
+		if _, err := DecodeQuery([]byte(input)); Code(err) != "E_INPUT" {
+			t.Fatalf("nested null query accepted: %v", err)
+		}
+	}
+	raw, err := json.Marshal(fixture(1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, malformed := range [][]byte{
+		bytes.Replace(raw, []byte(`"vector":[0,0]`), []byte(`"vector":[null,0]`), 1),
+		bytes.Replace(raw, []byte(`"kind":"even"`), []byte(`"kind":null`), 1),
+	} {
+		if _, err := DecodeCorpus(malformed); Code(err) != "E_INPUT" {
+			t.Fatalf("nested null corpus accepted: %v", err)
+		}
+	}
+	col := mustBuild(t, fixture(1))
+	snapshot, err := col.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	malformed := bytes.Replace(snapshot[48:], []byte(`"vector":[0,0]`), []byte(`"vector":[null,0]`), 1)
+	if _, err := LoadBytes(reframe(malformed)); Code(err) != "E_FORMAT" {
+		t.Fatalf("nested null snapshot accepted: %v", err)
+	}
+	if _, err := DecodeQuery([]byte(`{"vector":[0,0],"k":1,"ef":8,"budget":1,"mode":"exact","filter":{"kind":""}}`)); err != nil {
+		t.Fatalf("legal zero or empty string refused: %v", err)
+	}
+}
+
+func TestNoncanonicalSnapshotRejected(t *testing.T) {
+	col := mustBuild(t, fixture(4))
+	raw, err := col.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var pretty bytes.Buffer
+	if err := json.Indent(&pretty, raw[48:], "", "  "); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadBytes(reframe(pretty.Bytes())); Code(err) != "E_FORMAT" {
+		t.Fatalf("noncanonical snapshot accepted with unstable identity: %v", err)
+	}
+}
+
+// Cancel only after a full snapshot has been staged, before its atomic publication.
+type stagedContext struct {
+	context.Context
+	directory string
+	observed  bool
+}
+
+func (s *stagedContext) Err() error {
+	paths, _ := filepath.Glob(filepath.Join(s.directory, ".fq-*"))
+	for _, p := range paths {
+		if st, err := os.Stat(p); err == nil && st.Size() > 0 {
+			s.observed = true
+			return context.Canceled
+		}
+	}
+	return nil
+}
+func TestSnapshotCancellationBoundaries(t *testing.T) {
+	col := mustBuild(t, fixture(30))
+	raw, err := col.Marshal()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if loaded, err := LoadBytesContext(ctx, raw); loaded != nil || Code(err) != "E_CANCELLED" {
+		t.Fatalf("pre-cancelled load: %v", err)
+	}
+	if data, err := col.MarshalContext(ctx); data != nil || Code(err) != "E_CANCELLED" {
+		t.Fatalf("pre-cancelled marshal: %v", err)
+	}
+	steps := &stepContext{Context: context.Background(), remaining: 8}
+	if err := validateSnapshotContext(steps, col.data); Code(err) != "E_CANCELLED" {
+		t.Fatalf("validation loop ignored cancellation: %v", err)
+	}
+	dir := t.TempDir()
+	old := filepath.Join(dir, "prior.fq")
+	if err := col.Save(old); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(old)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, path := range []string{filepath.Join(dir, "new.fq"), old} {
+		staged := &stagedContext{Context: context.Background(), directory: dir}
+		if err := col.SaveContext(staged, path); Code(err) != "E_CANCELLED" || !staged.observed {
+			t.Fatalf("staged save ignored cancellation: %v, observed=%v", err, staged.observed)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "new.fq")); !os.IsNotExist(err) {
+		t.Fatalf("cancelled generation was published: %v", err)
+	}
+	after, err := os.ReadFile(old)
+	if err != nil || !bytes.Equal(before, after) {
+		t.Fatal("prior generation changed")
+	}
+	paths, err := filepath.Glob(filepath.Join(dir, ".fq-*"))
+	if err != nil || len(paths) != 0 {
+		t.Fatal("cancelled save left staging files")
+	}
+}
 
 func fixture(n int) Corpus {
 	c := Corpus{SchemaVersion: 1, Dimension: 2, M: 4, EFConstruction: 24, Seed: 17, BuildBudget: 20000000}

@@ -1,0 +1,181 @@
+name: Reference evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Frozen benchmark profile
+        type: choice
+        options: [full, smoke]
+        default: full
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reference-evidence
+  cancel-in-progress: false
+
+jobs:
+  reference:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    env:
+      GOTOOLCHAIN: local
+      FQ_CPUS: "4"
+      FQ_BENCH_PROFILE: ${{ inputs.profile }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        timeout-minutes: 2
+        with:
+          persist-credentials: false
+      - name: Establish a bounded owned filesystem
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          fq_image="$RUNNER_TEMP/facetquarry-volume.img"
+          fq_volume="$RUNNER_TEMP/facetquarry-volume"
+          test ! -e "$fq_image"
+          test ! -e "$fq_volume"
+          mkdir "$fq_volume"
+          fallocate -l 5500000000 "$fq_image"
+          mkfs.ext4 -F -q "$fq_image"
+          sudo mount -o loop "$fq_image" "$fq_volume"
+          sudo chown "$(id -u):$(id -g)" "$fq_volume"
+          if fallocate -l 6000000000 "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-quota-probe.stderr"; then
+            echo 'FAIL: oversized allocation was accepted'
+            exit 1
+          fi
+          grep -q 'No space left on device' "$RUNNER_TEMP/facetquarry-quota-probe.stderr"
+          rm -- "$fq_volume/quota-probe"
+          cp -a "$GITHUB_WORKSPACE" "$fq_volume/source"
+          mkdir -p "$fq_volume/source/.cache/tmp" "$fq_volume/tools/bin" "$fq_volume/config"
+          printf '%s\n' "FQ_VOLUME=$fq_volume" "FQ_IMAGE=$fq_image" "FQ_WORKSPACE_ROOT=$fq_volume" "TMPDIR=$fq_volume/source/.cache/tmp" "TEMP=$fq_volume/source/.cache/tmp" "TMP=$fq_volume/source/.cache/tmp" "GOPATH=$fq_volume/gopath" "GOBIN=$fq_volume/tools/bin" "XDG_CONFIG_HOME=$fq_volume/config" "XDG_CACHE_HOME=$fq_volume/cache" >> "$GITHUB_ENV"
+          printf '%s\n' "$fq_volume/tools/go/bin" "$fq_volume/tools/bin" >> "$GITHUB_PATH"
+      - name: Verify and install the pinned official Go archive inside the volume
+        id: sdk
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,tarfile,urllib.request
+          root=pathlib.Path(os.environ['FQ_VOLUME'])
+          version='go'+(root/'source/.go-version').read_text().strip().removeprefix('go')
+          data=json.load(urllib.request.urlopen('https://go.dev/dl/?mode=json&include=all',timeout=30))
+          record=next(v for v in data if v['version']==version)
+          item=next(f for f in record['files'] if f['os']=='linux' and f['arch']=='amd64' and f['kind']=='archive')
+          assert 0 < item['size'] < 100_000_000
+          path=root/'tools'/item['filename'];count=0;digest=hashlib.sha256()
+          with urllib.request.urlopen('https://go.dev/dl/'+item['filename'],timeout=90) as response,path.open('wb') as output:
+              while chunk:=response.read(1024*1024):
+                  count+=len(chunk)
+                  if count>item['size']:raise RuntimeError('download exceeds admitted size')
+                  digest.update(chunk);output.write(chunk)
+          assert count==item['size'] and digest.hexdigest()==item['sha256']
+          with tarfile.open(path) as archive:
+              assert sum(m.size for m in archive.getmembers())<1_000_000_000
+              archive.extractall(root/'tools',filter='data')
+          (root/'toolchain-download.json').write_text(json.dumps(item,indent=2)+'\n')
+          PY
+          go version
+          go telemetry off
+          cd "$FQ_VOLUME/source"
+          python3 scripts/bootstrap.py --release
+      - name: Record actual reference constraints and allocation enforcement
+        id: constraints
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(nproc)" -ge 4
+          sudo systemd-run --quiet --wait --pipe --property=MemoryMax=8G --property=CPUQuota=400% /bin/true
+          python3 - <<'PY'
+          import json,os,pathlib,platform,subprocess
+          root=pathlib.Path(os.environ['FQ_VOLUME'])
+          subprocess.run(['git','-C',str(root/'source'),'status','--porcelain'],check=True)
+          record={'schema_version':1,'approved_remote_runner':True,'hard_quota_enforced':True,
+            'volume_file_bytes':pathlib.Path(os.environ['FQ_IMAGE']).stat().st_size,
+            'oversized_allocation_bytes':6000000000,'oversized_allocation':'DENIED_ENOSPC',
+            'enforcement':'Linux loop-mounted ext4 volume; oversized fallocate actually refused',
+            'memory_constraint':'systemd MemoryMax=8G','cpu_constraint':'systemd CPUQuota=400%',
+            'host_logical_cpus':os.cpu_count(),'os':platform.platform(),
+            'scope':'Project tools, caches, source and workload artifacts inside a bounded filesystem. Hosted runner is ephemeral. Physical host RAM may exceed the process limit; report both.'}
+          (root/'source/.local').mkdir(exist_ok=True)
+          (root/'source/.local/remote-enforcement.json').write_text(json.dumps(record,indent=2)+'\n')
+          (root/'source/.local/external-allocations.json').write_text(json.dumps([os.environ['FQ_IMAGE'],os.environ['GITHUB_WORKSPACE']],indent=2)+'\n')
+          PY
+          printf '%s\n' "FQ_EXTERNAL_ALLOCATIONS=$FQ_VOLUME/source/.local/external-allocations.json" >> "$GITHUB_ENV"
+      - name: Supported reference source, oracle, race, fuzz, mutations and demo
+        timeout-minutes: 22
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          python3 scripts/evidence.py --category linux-reference --requirements AC-001,AC-002,AC-003,AC-004,AC-005,AC-006,AC-007,AC-008,AC-009,AC-010,AC-011,AC-012,AC-014,AC-015,AC-018,AC-020,AC-023,AC-024 --timeout 1200 -- make verify
+      - name: Clean committed reference reproduction
+        if: ${{ !cancelled() && steps.constraints.outcome == 'success' }}
+        timeout-minutes: 7
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          python3 scripts/evidence.py --category clean-linux-reference --requirements AC-019 --timeout 300 -- make clean-verify
+      - name: Install the current pinned Go vulnerability scanner
+        id: scanner
+        if: ${{ !cancelled() && steps.constraints.outcome == 'success' }}
+        timeout-minutes: 7
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          python3 scripts/evidence.py --category scanner-install --requirements AC-018 --timeout 300 -- go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
+          go version -m "$GOBIN/govulncheck" > .local/govulncheck-build.txt
+      - name: Current online vulnerability scan
+        if: ${{ !cancelled() && steps.scanner.outcome == 'success' }}
+        timeout-minutes: 7
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          python3 scripts/evidence.py --category current-online-security --requirements AC-018 --timeout 300 -- make security-online
+      - name: Frozen synthetic measurements under declared process constraints
+        if: ${{ !cancelled() && steps.constraints.outcome == 'success' }}
+        timeout-minutes: 275
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          sudo systemd-run --quiet --wait --pipe --property=MemoryMax=8G --property=CPUQuota=400% --uid="$(id -u)" --gid="$(id -g)" --working-directory="$FQ_VOLUME/source" --setenv="PATH=$PATH" --setenv="FQ_CPUS=4" --setenv="FQ_WORKSPACE_ROOT=$FQ_VOLUME" --setenv="FQ_EXTERNAL_ALLOCATIONS=$FQ_EXTERNAL_ALLOCATIONS" --setenv="TMPDIR=$TMPDIR" --setenv="GOPATH=$GOPATH" --setenv="GOBIN=$GOBIN" --setenv="XDG_CONFIG_HOME=$XDG_CONFIG_HOME" --setenv="XDG_CACHE_HOME=$XDG_CACHE_HOME" python3 scripts/evidence.py --category reference-benchmark --requirements AC-016,AC-017 --timeout 16200 -- python3 scripts/benchmark.py --profile "$FQ_BENCH_PROFILE"
+      - name: Record final inventory
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -f "$FQ_VOLUME/source/scripts/disk_guard.py"; then
+            cd "$FQ_VOLUME/source"
+            python3 scripts/disk_guard.py --reserve 2000000000 > .local/remote-inventory.json
+          fi
+      - name: Retain actual evidence including failures
+        if: always()
+        timeout-minutes: 8
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: reference-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ env.FQ_VOLUME }}/source/.local/evidence
+            ${{ env.FQ_VOLUME }}/source/.local/benchmarks
+            ${{ env.FQ_VOLUME }}/source/.local/oracle
+            ${{ env.FQ_VOLUME }}/source/.local/mutation
+            ${{ env.FQ_VOLUME }}/source/.local/integrity-negative
+            ${{ env.FQ_VOLUME }}/source/.local/demo
+            ${{ env.FQ_VOLUME }}/source/.local/clean-verify
+            ${{ env.FQ_VOLUME }}/source/.local/remote-*.json
+            ${{ env.FQ_VOLUME }}/source/.local/govulncheck-build.txt
+            ${{ env.FQ_VOLUME }}/toolchain-download.json
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error

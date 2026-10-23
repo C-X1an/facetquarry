@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T045801Z-5a86df60a1",
+  "category": "final-supported-verification",
+  "requirements": [
+    "AC-001",
+    "AC-002",
+    "AC-003",
+    "AC-004",
+    "AC-005",
+    "AC-006",
+    "AC-007",
+    "AC-008",
+    "AC-009",
+    "AC-010",
+    "AC-011",
+    "AC-012",
+    "AC-014",
+    "AC-015",
+    "AC-018",
+    "AC-020",
+    "AC-023",
+    "AC-024"
+  ],
+  "commit": "4ca0a3015f6153870d898fa6d34bd8ef70b608f5",
+  "git_status": "M LIMITATIONS.md\n M Makefile\n M OPERATIONS.md\n M README.md\n M cmd/facetquarry/main.go\n M cmd/fqbench/main.go\n M internal/engine/engine_test.go\n M internal/engine/fuzz_test.go\n M internal/engine/graph.go\n M internal/engine/search.go\n M internal/engine/snapshot.go\n M internal/engine/types.go\n M internal/strictjson/decode.go\n M scripts/benchmark.py\n M scripts/clean_verify.py\n M scripts/common.py\n M scripts/demo.py\n M scripts/disk_guard.py\n M scripts/evidence.py\n M scripts/integrity_negative.py\n M scripts/mutation.py\n M scripts/oracle.py\n M scripts/public_audit.py\n M scripts/release_gate.py\n M tests/test_cli.py\n M tests/test_tooling.py\n M verification/public_allowlist.json\n?? .github/workflows/release-evidence.yml\n?? cmd/facetquarry/main_test.go\n?? cmd/fqbench/clock.go\n?? cmd/fqbench/clock_other.go\n?? cmd/fqbench/clock_test.go\n?? cmd/fqbench/clock_windows.go\n?? cmd/fqbench/memory_linux.go\n?? cmd/fqbench/memory_other.go\n?? cmd/fqbench/memory_windows.go\n?? scripts/benchmark_support.py\n?? tests/test_tooling_benchmark.py\n?? tests/test_tooling_regressions.py",
+  "source_before": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "source_after": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "command": [
+    "make",
+    "verify"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T04:58:01.804520+00:00",
+  "ended_at": "2026-10-23T05:03:34.733320+00:00",
+  "duration_seconds": 332.65294829999766,
+  "exit_code": 0,
+  "stdout": "verification/published/supported-20261023/verify/stdout.txt",
+  "stderr": "verification/published/supported-20261023/verify/stderr.txt",
+  "stdout_sha256": "abffd91de5991e821b7a18b29ae6bd8fad666587992759054ac4f0c03c98a5f8",
+  "stderr_sha256": "fa7f66f18a671157e453a9ca5649e1842ef268ce821d4e2b513e82905d07206a",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "89ebe84841f4be39727f6cd4e82cefe05b348d86dcd03816af3dbf25084e8ef4",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "d872a8ae9d80405e5c76d5d926712d3f68a9a7aa1431aa6d619392d4129a5b0d",
+        "export_sha256": "abffd91de5991e821b7a18b29ae6bd8fad666587992759054ac4f0c03c98a5f8",
+        "path_prefix_redacted": true
+      },
+      "stderr.txt": {
+        "original_sha256": "fa7f66f18a671157e453a9ca5649e1842ef268ce821d4e2b513e82905d07206a",
+        "export_sha256": "fa7f66f18a671157e453a9ca5649e1842ef268ce821d4e2b513e82905d07206a",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; original private receipt and streams retained. This derived receipt is not the original byte sequence."
+  }
+}

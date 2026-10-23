@@ -9,6 +9,4 @@ A disk monitor alone cannot mathematically prevent a short write burst exceeding
 
 See VERIFICATION_REPORT.md for what actually ran and what remains incomplete. Historical receipts apply only to their source identity. Synthetic observations cannot be described as real embedding or production workloads. Public release qualification requires the outstanding independent review, full matrix and clean-environment gates, not just a green unit suite.
 
-The engine package is currently internal to this module and exercised through the real CLI/tests. No separately versioned, externally importable Go SDK has been published. Actual graphical browser inspection was blocked by the hosted browser's administrator navigation policy; generated HTML is not a substitute for that inspection.
-
-The engine package is currently internal to this module and exercised through the real CLI/tests. No separately versioned, externally importable Go SDK has been published. Actual graphical browser inspection was blocked by the hosted browser's administrator navigation policy; generated HTML is not a substitute for that inspection.
+The engine package is internal to this module and exercised through the real CLI/tests. No separately versioned, externally importable Go SDK has been published. The earlier hosted browser was blocked by administrator navigation policy. Current browser-review status is recorded separately; generated HTML alone is not a graphical review.

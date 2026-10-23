@@ -69,7 +69,7 @@ def main() -> int:
         except OSError as exc:
             code = 127; reason = type(exc).__name__; err.write(str(exc).encode())
     after = source_hash()
-    record = {'run_id': run_id, 'category': a.category,
+    record = {'schema_version': 1, 'evidence_type': 'command', 'run_id': run_id, 'category': a.category,
               'requirements': [x for x in a.requirements.split(',') if x],
               'commit': git('rev-parse', 'HEAD'), 'git_status': git('status', '--porcelain'),
               'source_before': before, 'source_after': after,

@@ -42,7 +42,7 @@ def main() -> int:
                             'original_sha256':hashlib.sha256(original.encode()).hexdigest(),
                             'mutated_sha256':hashlib.sha256(original.replace(old,new).encode()).hexdigest()})
     if source_hash()!=initial:raise AssertionError('real source changed during mutation campaign')
-    report={'source':initial,'controls':results,'scope':'four selected critical defects, not a whole-program mutation score',
+    report={'schema_version':1,'evidence_type':'mutation_summary','source':initial,'controls':results,'scope':'four selected critical defects, not a whole-program mutation score',
             'status':'PASS' if all(x['status']=='PASS' for x in results) else 'FAIL'}
     (out/'summary.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
     return 0 if report['status']=='PASS' else 1

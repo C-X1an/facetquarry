@@ -16,7 +16,18 @@ import (
 
 var sourceID = "development-unbound"
 
-func input(path string, limit int) ([]byte, error) {
+type contextReader struct {
+	ctx    context.Context
+	reader io.Reader
+}
+
+func (r contextReader) Read(b []byte) (int, error) {
+	if r.ctx.Err() != nil {
+		return 0, &engine.Error{Code: "E_CANCELLED", Message: "operation cancelled"}
+	}
+	return r.reader.Read(b)
+}
+func input(ctx context.Context, path string, limit int) ([]byte, error) {
 	var r io.Reader = os.Stdin
 	if path != "-" {
 		f, e := os.Open(path)
@@ -26,8 +37,11 @@ func input(path string, limit int) ([]byte, error) {
 		defer f.Close()
 		r = f
 	}
-	b, e := io.ReadAll(io.LimitReader(r, int64(limit)+1))
+	b, e := io.ReadAll(io.LimitReader(contextReader{ctx, r}, int64(limit)+1))
 	if e != nil {
+		if ctx.Err() != nil {
+			return nil, &engine.Error{Code: "E_CANCELLED", Message: "operation cancelled"}
+		}
 		return nil, &engine.Error{Code: "E_IO", Message: "cannot read input"}
 	}
 	if len(b) > limit {
@@ -46,6 +60,15 @@ func errorValue(err error) any {
 	}{e}
 }
 func run(ctx context.Context, args []string) error {
+	emit := func(v any) error {
+		if ctx.Err() != nil {
+			return &engine.Error{Code: "E_CANCELLED", Message: "operation cancelled"}
+		}
+		return output(v)
+	}
+	if ctx.Err() != nil {
+		return &engine.Error{Code: "E_CANCELLED", Message: "operation cancelled"}
+	}
 	bad := func(msg string) error { return &engine.Error{Code: "E_INPUT", Message: msg} }
 	if len(args) == 0 {
 		return bad("expected build, search, batch, inspect or version")
@@ -54,7 +77,7 @@ func run(ctx context.Context, args []string) error {
 		if len(args) != 1 {
 			return bad("unexpected version arguments")
 		}
-		return output(map[string]any{"schema_version": 1, "version": "0.1.0-dev", "source": sourceID, "go": runtime.Version()})
+		return emit(map[string]any{"schema_version": 1, "version": "0.1.0-dev", "source": sourceID, "go": runtime.Version()})
 	}
 	fs := flag.NewFlagSet(args[0], flag.ContinueOnError)
 	fs.SetOutput(io.Discard)
@@ -83,11 +106,11 @@ func run(ctx context.Context, args []string) error {
 		if corpus == "" || out == "" {
 			return bad("input and output required")
 		}
-		b, e := input(corpus, engine.MaxSnapshot)
+		b, e := input(ctx, corpus, engine.MaxSnapshot)
 		if e != nil {
 			return e
 		}
-		c, e := engine.DecodeCorpus(b)
+		c, e := engine.DecodeCorpusContext(ctx, b)
 		if e != nil {
 			return e
 		}
@@ -95,20 +118,20 @@ func run(ctx context.Context, args []string) error {
 		if e != nil {
 			return e
 		}
-		if e = collection.Save(out); e != nil {
+		if e = collection.SaveContext(ctx, out); e != nil {
 			return e
 		}
-		return output(collection.Inspect())
+		return emit(collection.Inspect())
 	}
 	if index == "" {
 		return bad("index required")
 	}
-	collection, e := engine.Load(index)
+	collection, e := engine.LoadContext(ctx, index)
 	if e != nil {
 		return e
 	}
 	if args[0] == "inspect" {
-		return output(collection.Inspect())
+		return emit(collection.Inspect())
 	}
 	if tenant == "" {
 		return bad("host tenant required")
@@ -118,7 +141,7 @@ func run(ctx context.Context, args []string) error {
 		return e
 	}
 	execute := func(b []byte) (engine.Response, error) {
-		q, e := engine.DecodeQuery(b)
+		q, e := engine.DecodeQueryContext(ctx, b)
 		if e != nil {
 			return engine.Response{}, e
 		}
@@ -128,7 +151,7 @@ func run(ctx context.Context, args []string) error {
 		if query == "" {
 			return bad("query required")
 		}
-		b, e := input(query, engine.MaxQuery)
+		b, e := input(ctx, query, engine.MaxQuery)
 		if e != nil {
 			return e
 		}
@@ -136,7 +159,7 @@ func run(ctx context.Context, args []string) error {
 		if e != nil {
 			return e
 		}
-		return output(r)
+		return emit(r)
 	}
 	if queries == "" {
 		return bad("queries required")
@@ -152,11 +175,14 @@ func run(ctx context.Context, args []string) error {
 	for scan.Scan() {
 		r, e := execute(scan.Bytes())
 		if e != nil {
-			failed = true
-			if e = output(errorValue(e)); e != nil {
+			if engine.Code(e) == "E_CANCELLED" {
 				return e
 			}
-		} else if e = output(r); e != nil {
+			failed = true
+			if e = emit(errorValue(e)); e != nil {
+				return e
+			}
+		} else if e = emit(r); e != nil {
 			return e
 		}
 	}

@@ -1,0 +1,231 @@
+{
+  "cell": {
+    "n": 512,
+    "dimension": 8,
+    "distribution": "uniform",
+    "correlation": "independent",
+    "seed": 17,
+    "filter_label": "p05",
+    "filter": {
+      "p05": "yes"
+    },
+    "mode": "auto",
+    "ef": 16,
+    "concurrency": 1
+  },
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "provenance": {
+    "schema_version": 1,
+    "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+    "binaries": {
+      "facetquarry": {
+        "sha256": "1d303b5271efa07a62af17d5652038e6897392a50880b12c75632513f5e6c5a1",
+        "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+        "go": "go1.27.3",
+        "build_settings": "<handoff>\\public\\bin\\facetquarry.exe: go1.27.3\n\tpath\tfacetquarry/cmd/facetquarry\n\tmod\tfacetquarry\tv0.0.0-20261023042052-4ca0a3015f61+dirty\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=4ca0a3015f6153870d898fa6d34bd8ef70b608f5\n\tbuild\tvcs.time=2026-10-23T04:20:52Z\n\tbuild\tvcs.modified=true\n"
+      },
+      "fqbench": {
+        "sha256": "11fbc05c247eaa9cab0883375f610e1a8989cc47a1b2fc9db0b5af8eaa03c12b",
+        "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+        "go": "go1.27.3",
+        "build_settings": "<handoff>\\public\\bin\\fqbench.exe: go1.27.3\n\tpath\tfacetquarry/cmd/fqbench\n\tmod\tfacetquarry\tv0.0.0-20261023042052-4ca0a3015f61+dirty\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=4ca0a3015f6153870d898fa6d34bd8ef70b608f5\n\tbuild\tvcs.time=2026-10-23T04:20:52Z\n\tbuild\tvcs.modified=true\n"
+      }
+    },
+    "host": {
+      "system": "Windows",
+      "kernel": "11",
+      "os_version": "10.0.26300",
+      "machine": "AMD64",
+      "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "logical_cpu_count": 20,
+      "physical_ram_bytes": 34048978944,
+      "power_mode": "not measured",
+      "competing_workload": "shared local host; competing activity not controlled",
+      "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]"
+    },
+    "gomaxprocs_requested": "2",
+    "declared_build_flags": [
+      "-trimpath",
+      "-ldflags",
+      "-X main.sourceID=c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09"
+    ]
+  },
+  "status": "PASS",
+  "started_at": "2026-10-23T05:00:16.255135+00:00",
+  "corpus_sha256": "30b3b45b678fcc904593f2ccf437095558492b29d283d5f01a96b21c12c3fbfc",
+  "queries_sha256": "95b82c7fb60959224b14f507ec87de601dfb1a16b68edc6c544194825c618836",
+  "attempts": [
+    {
+      "attempt_id": "1792731593728251500-e75ce5a7",
+      "stage": "admission",
+      "command": [
+        "python3",
+        "scripts/disk_guard.py",
+        "--reserve",
+        "500000000"
+      ],
+      "started_at": "2026-10-23T04:59:53.728998+00:00",
+      "ended_at": "2026-10-23T05:00:03.401875+00:00",
+      "duration_seconds": 9.672879500001727,
+      "timeout_seconds": 120,
+      "exit_code": 0,
+      "termination_reason": null,
+      "error": null,
+      "status": "PASS",
+      "streams": {
+        "stdout": {
+          "path": "attempts/1792731593728251500-e75ce5a7/stdout.txt.gz",
+          "sha256": "59090044c4ac2c54648dd2e04ae5d2c19341fc6b547498a1a1082ea7007aceee",
+          "raw_bytes": 1888,
+          "raw_sha256": "f125b4c91d0dedbe99400594adb3c3bb74f9c4977c973266416ac966e18e8e60"
+        },
+        "stderr": {
+          "path": "attempts/1792731593728251500-e75ce5a7/stderr.txt.gz",
+          "sha256": "0d080af0d40e168154caae0cb34b54dfc42bdd4a699316777c7cd02948a80e52",
+          "raw_bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "attempt_id": "1792731603410092400-8bef6308",
+      "stage": "build",
+      "command": [
+        "<handoff>\\public\\bin\\facetquarry.exe",
+        "build",
+        "--input",
+        "<handoff>\\public\\.local\\benchmarks\\smoke-c06d3256afde-fabe3caa0f16\\active-corpus.json",
+        "--output",
+        "<handoff>\\public\\.local\\benchmarks\\smoke-c06d3256afde-fabe3caa0f16\\active-index.fq"
+      ],
+      "started_at": "2026-10-23T05:00:03.411214+00:00",
+      "ended_at": "2026-10-23T05:00:03.609212+00:00",
+      "duration_seconds": 0.19799049999710405,
+      "timeout_seconds": 900,
+      "exit_code": 0,
+      "termination_reason": null,
+      "error": null,
+      "status": "PASS",
+      "streams": {
+        "stdout": {
+          "path": "attempts/1792731603410092400-8bef6308/stdout.txt.gz",
+          "sha256": "57fe0285644492a07602186e95eb49b953d81719a7537ebc2ba1d6cddfb8dead",
+          "raw_bytes": 287,
+          "raw_sha256": "ddf07248604319d2d77c4724a29a6523c6bce7eff0a433362f57ead1e1a3740a"
+        },
+        "stderr": {
+          "path": "attempts/1792731603410092400-8bef6308/stderr.txt.gz",
+          "sha256": "0d080af0d40e168154caae0cb34b54dfc42bdd4a699316777c7cd02948a80e52",
+          "raw_bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "attempt_id": "1792731616256085000-6b299d46",
+      "stage": "measurement",
+      "command": [
+        "<handoff>\\public\\bin\\fqbench.exe",
+        "--index",
+        "<handoff>\\public\\.local\\benchmarks\\smoke-c06d3256afde-fabe3caa0f16\\active-index.fq",
+        "--tenant",
+        "alpha",
+        "--queries",
+        "<handoff>\\public\\.local\\benchmarks\\smoke-c06d3256afde-fabe3caa0f16\\active-queries.jsonl",
+        "--warmup",
+        "4",
+        "--repetitions",
+        "2",
+        "--concurrency",
+        "1"
+      ],
+      "started_at": "2026-10-23T05:00:16.257335+00:00",
+      "ended_at": "2026-10-23T05:00:16.351796+00:00",
+      "duration_seconds": 0.09446240000397665,
+      "timeout_seconds": 900,
+      "exit_code": 0,
+      "termination_reason": null,
+      "error": null,
+      "status": "PASS",
+      "streams": {
+        "stdout": {
+          "path": "attempts/1792731616256085000-6b299d46/stdout.txt.gz",
+          "sha256": "1a437af3722635f633e60f797fec20a0a9e19e1392430745ffe67e3ab8deb781",
+          "raw_bytes": 24370,
+          "raw_sha256": "ed89d414b3463903936fb8c1e40557d4e2cc72ea61b6af1f8d16cc823402d6a4"
+        },
+        "stderr": {
+          "path": "attempts/1792731616256085000-6b299d46/stderr.txt.gz",
+          "sha256": "c8eca3a46a2c833e76b07ecc51348fefa527503f07dfd281efcb36ec069f70cc",
+          "raw_bytes": 0,
+          "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "stage": "measurement",
+  "sample_count": 32,
+  "empty_denominator_samples": 0,
+  "mean_recall": 1.0,
+  "p50_search_ns": 7500.0,
+  "p95_search_ns": 12500.0,
+  "p99_search_ns": 20900.0,
+  "zero_duration_count": 0,
+  "mean_distance_evaluations": 25,
+  "build_process_seconds": 0.19799049999710405,
+  "snapshot_bytes": 165800,
+  "generation": "8743e9846984f4d193dcd6f652ed4fc74a98cd2c6d7db208056bb0370ceb257e",
+  "build_distance_evaluations": 1292480,
+  "native_metadata": {
+    "clock": {
+      "calibration": {
+        "minimum_positive_ns": 100,
+        "minimum_positive_ticks": 1,
+        "scope": "observed counter-read spacing, not search latency or a guaranteed clock resolution",
+        "successive_read_pairs": 1000,
+        "zero_tick_pairs": 0
+      },
+      "fallback": false,
+      "frequency_hz": 10000000,
+      "monotonic": true,
+      "name": "Windows QueryPerformanceCounter",
+      "nominal_tick_ns": 100,
+      "resolution": "1 / QueryPerformanceFrequency seconds per counter tick; read-spacing calibration retained; no duration floor"
+    },
+    "completed_queries_per_second": 46948.35680751174,
+    "go": "go1.27.3",
+    "go_runtime_sys_bytes": 11431936,
+    "goarch": "amd64",
+    "gomaxprocs": 2,
+    "goos": "windows",
+    "measured_interval_ns": 681600,
+    "measurement": "per-query search wall time excludes load/parse and worker queue wait; counter-read overhead remains; RSS includes loaded index and harness",
+    "peak_rss_bytes": 12509184,
+    "rss_measurement": "Windows GetProcessMemoryInfo PeakWorkingSetSize",
+    "samples": 32,
+    "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+    "successful_queries": 32,
+    "summary": true,
+    "throughput_measurement": "successful measured queries / dispatch-to-worker-completion interval; includes queueing and streaming JSON backpressure; excludes load, parse, calibration and warmup",
+    "workers": 1,
+    "zero_duration_count": 0
+  },
+  "errors": [],
+  "command": [
+    "<handoff>\\public\\bin\\fqbench.exe",
+    "--index",
+    "<handoff>\\public\\.local\\benchmarks\\smoke-c06d3256afde-fabe3caa0f16\\active-index.fq",
+    "--tenant",
+    "alpha",
+    "--queries",
+    "<handoff>\\public\\.local\\benchmarks\\smoke-c06d3256afde-fabe3caa0f16\\active-queries.jsonl",
+    "--warmup",
+    "4",
+    "--repetitions",
+    "2",
+    "--concurrency",
+    "1"
+  ],
+  "samples_sha256": "4edbc4e9cbc190380e5db7fd7373e4eba7b9a764d1c44b035cf9dbdf09fcd925",
+  "ended_at": "2026-10-23T05:00:16.782106+00:00"
+}

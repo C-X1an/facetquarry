@@ -273,14 +273,21 @@ func Build(ctx context.Context, input Corpus) (*Collection, error) {
 				g.MaxLevel = level
 			}
 		}
-		g.indexMetadata()
+		if err := g.indexMetadataContext(ctx); err != nil {
+			return nil, err
+		}
 		col.data.Graphs = append(col.data.Graphs, g)
 	}
-	if err := validateSnapshot(col.data); err != nil {
+	if err := validateSnapshotContext(ctx, col.data); err != nil {
 		return nil, err
 	}
-	if err := col.identify(); err != nil {
+	if err := col.identifyContext(ctx); err != nil {
 		return nil, err
 	}
+	if err := cancelled(ctx); err != nil {
+		return nil, err
+	}
+	col.buildDistances = b.used
+	col.buildMeasured = true
 	return col, nil
 }

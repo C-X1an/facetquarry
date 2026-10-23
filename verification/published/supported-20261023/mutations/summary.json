@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "evidence_type": "mutation_summary",
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "controls": [
+    {
+      "mutation": "tenant",
+      "test": "TestTenantScope",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestTenantScope$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "19ac34c22e19b1ed37c796b44bbec1963fe28f6e8b03af7d05defc09954fae58",
+      "mutated_sha256": "ec9ebc8ba0b7daeaae70ebd867a5b5600c94bb632bfe7cb287759f88cd38536d"
+    },
+    {
+      "mutation": "filter",
+      "test": "TestExactAndTies",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestExactAndTies$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "19ac34c22e19b1ed37c796b44bbec1963fe28f6e8b03af7d05defc09954fae58",
+      "mutated_sha256": "b626ffc99a223a5c0ba07a769911e9ece2369caa58e580c33152a68864b77e6a"
+    },
+    {
+      "mutation": "exact-label",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "1246856b5eda94444258bf60539d49996cb930a6395aa58c0d87a7944aa52bb2",
+      "mutated_sha256": "96d0ba9c3603918288df2e1385c92f8183299fb672c1f267f456fe2ecb19bfe7"
+    },
+    {
+      "mutation": "budget",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "1246856b5eda94444258bf60539d49996cb930a6395aa58c0d87a7944aa52bb2",
+      "mutated_sha256": "9a3e367c65e3af6b17fef7a569eeb2e610f69e237850ce51c84a464151dbff49"
+    }
+  ],
+  "scope": "four selected critical defects, not a whole-program mutation score",
+  "status": "PASS"
+}

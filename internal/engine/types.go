@@ -94,8 +94,10 @@ type snapshot struct {
 	Graphs         []*graph `json:"graphs"`
 }
 type Collection struct {
-	data       snapshot
-	generation string
+	data           snapshot
+	generation     string
+	buildDistances int
+	buildMeasured  bool
 }
 type Scope struct {
 	g          *graph
@@ -184,16 +186,37 @@ func normalizeContext(ctx context.Context, c Corpus) (Corpus, error) {
 	return c, nil
 }
 func DecodeCorpus(b []byte) (Corpus, error) {
+	return DecodeCorpusContext(context.Background(), b)
+}
+func DecodeCorpusContext(ctx context.Context, b []byte) (Corpus, error) {
 	var c Corpus
-	if strictjson.Decode(b, MaxSnapshot, &c) != nil || strictjson.Required(b, "schema_version", "dimension", "records") != nil {
+	if err := strictjson.DecodeContext(ctx, b, MaxSnapshot, &c); err != nil {
+		if e := cancelled(ctx); e != nil {
+			return c, e
+		}
 		return c, fail("E_INPUT", "invalid corpus JSON")
 	}
-	return normalize(c)
+	if strictjson.Required(b, "schema_version", "dimension", "records") != nil {
+		return c, fail("E_INPUT", "invalid corpus JSON")
+	}
+	return normalizeContext(ctx, c)
 }
 func DecodeQuery(b []byte) (Query, error) {
+	return DecodeQueryContext(context.Background(), b)
+}
+func DecodeQueryContext(ctx context.Context, b []byte) (Query, error) {
 	var q Query
-	if strictjson.Decode(b, MaxQuery, &q) != nil || strictjson.Required(b, "vector", "k", "ef", "budget", "mode", "filter") != nil {
+	if err := strictjson.DecodeContext(ctx, b, MaxQuery, &q); err != nil {
+		if e := cancelled(ctx); e != nil {
+			return q, e
+		}
 		return q, fail("E_INPUT", "invalid query JSON")
+	}
+	if strictjson.Required(b, "vector", "k", "ef", "budget", "mode", "filter") != nil {
+		return q, fail("E_INPUT", "invalid query JSON")
+	}
+	if err := cancelled(ctx); err != nil {
+		return q, err
 	}
 	if err := validateQuery(q, len(q.Vector)); err != nil {
 		return q, err
@@ -220,8 +243,14 @@ func distance(a, b []float32) float64 {
 	return s
 }
 func (g *graph) indexMetadata() {
+	_ = g.indexMetadataContext(context.Background())
+}
+func (g *graph) indexMetadataContext(ctx context.Context) error {
 	g.postings = map[string]map[string][]int{}
 	for i, r := range g.Records {
+		if err := cancelled(ctx); err != nil {
+			return err
+		}
 		for k, v := range r.Metadata {
 			if g.postings[k] == nil {
 				g.postings[k] = map[string][]int{}
@@ -229,20 +258,31 @@ func (g *graph) indexMetadata() {
 			g.postings[k][v] = append(g.postings[k][v], i)
 		}
 	}
+	return cancelled(ctx)
 }
 func (g *graph) eligible(f map[string]string) []bool {
+	out, _ := g.eligibleContext(context.Background(), f)
+	return out
+}
+func (g *graph) eligibleContext(ctx context.Context, f map[string]string) ([]bool, error) {
+	if err := cancelled(ctx); err != nil {
+		return nil, err
+	}
 	out := make([]bool, len(g.Records))
 	if len(f) == 0 {
 		for i := range out {
+			if err := cancelled(ctx); err != nil {
+				return nil, err
+			}
 			out[i] = true
 		}
-		return out
+		return out, nil
 	}
 	lists := make([][]int, 0, len(f))
 	for k, v := range f {
 		p := g.postings[k][v]
 		if len(p) == 0 {
-			return out
+			return out, cancelled(ctx)
 		}
 		lists = append(lists, p)
 	}
@@ -252,6 +292,9 @@ func (g *graph) eligible(f map[string]string) []bool {
 		next := make([]int, 0, len(current))
 		i, j := 0, 0
 		for i < len(current) && j < len(list) {
+			if err := cancelled(ctx); err != nil {
+				return nil, err
+			}
 			if current[i] == list[j] {
 				next = append(next, current[i])
 				i++
@@ -265,7 +308,10 @@ func (g *graph) eligible(f map[string]string) []bool {
 		current = next
 	}
 	for _, i := range current {
+		if err := cancelled(ctx); err != nil {
+			return nil, err
+		}
 		out[i] = true
 	}
-	return out
+	return out, cancelled(ctx)
 }

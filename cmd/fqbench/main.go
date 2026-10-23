@@ -10,10 +10,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
-	"strconv"
-	"strings"
 	"sync"
-	"time"
 )
 
 type sample struct {
@@ -24,7 +21,12 @@ type sample struct {
 	Error       string           `json:"error,omitempty"`
 }
 
+var sourceID = "development-unbound"
+
 func execute() error {
+	if len(os.Args) == 2 && os.Args[1] == "version" {
+		return json.NewEncoder(os.Stdout).Encode(map[string]any{"schema_version": 1, "source": sourceID, "go": runtime.Version()})
+	}
 	index := flag.String("index", "", "snapshot")
 	tenant := flag.String("tenant", "alpha", "host scope")
 	file := flag.String("queries", "", "query JSONL")
@@ -68,6 +70,10 @@ func execute() error {
 		return fmt.Errorf("empty queries")
 	}
 	ctx := context.Background()
+	clock, e := newMeasurementClock()
+	if e != nil {
+		return e
+	}
 	for i := 0; i < *warm; i++ {
 		if _, e = scope.Search(ctx, queries[i%len(queries)]); e != nil {
 			return e
@@ -83,10 +89,21 @@ func execute() error {
 			for id := range jobs {
 				q := id % len(queries)
 				rep := id / len(queries)
-				start := time.Now()
+				s := sample{Query: q, Repetition: rep}
+				start, clockError := clock.now()
+				if clockError != nil {
+					s.Error = clockError.Error()
+					results <- s
+					continue
+				}
 				r, e := scope.Search(ctx, queries[q])
-				s := sample{Query: q, Repetition: rep, Nanoseconds: time.Since(start).Nanoseconds()}
-				if e != nil {
+				end, clockError := clock.now()
+				if clockError == nil {
+					s.Nanoseconds, clockError = clock.elapsed(start, end)
+				}
+				if clockError != nil {
+					s.Error = clockError.Error()
+				} else if e != nil {
 					s.Error = e.Error()
 				} else {
 					s.Response = &r
@@ -95,39 +112,51 @@ func execute() error {
 			}
 		}()
 	}
+	intervalStart, e := clock.now()
+	if e != nil {
+		close(jobs)
+		wg.Wait()
+		return e
+	}
+	var intervalEnd int64
+	var intervalError error
 	go func() {
 		for i := 0; i < *reps*len(queries); i++ {
 			jobs <- i
 		}
 		close(jobs)
 		wg.Wait()
+		intervalEnd, intervalError = clock.now()
 		close(results)
 	}()
 	enc := json.NewEncoder(os.Stdout)
 	failed := false
+	successful := 0
+	zeros := 0
 	for s := range results {
 		if s.Error != "" {
 			failed = true
+		} else {
+			successful++
+		}
+		if s.Nanoseconds == 0 {
+			zeros++
 		}
 		if e = enc.Encode(s); e != nil {
 			return e
 		}
 	}
+	if intervalError != nil {
+		return intervalError
+	}
+	intervalNS, e := clock.elapsed(intervalStart, intervalEnd)
+	if e != nil || intervalNS <= 0 {
+		return fmt.Errorf("invalid full-run measurement interval: %d ns, %v", intervalNS, e)
+	}
 	var mem runtime.MemStats
 	runtime.ReadMemStats(&mem)
-	rss := int64(0)
-	if raw, e := os.ReadFile("/proc/self/status"); e == nil {
-		for _, line := range strings.Split(string(raw), "\n") {
-			if strings.HasPrefix(line, "VmHWM:") {
-				fields := strings.Fields(line)
-				if len(fields) >= 2 {
-					rss, _ = strconv.ParseInt(fields[1], 10, 64)
-					rss *= 1024
-				}
-			}
-		}
-	}
-	if e = enc.Encode(map[string]any{"summary": true, "peak_rss_bytes_linux": rss, "go_runtime_sys_bytes": mem.Sys, "go": runtime.Version(), "workers": *concurrency, "samples": len(queries) * *reps, "measurement": "Search wall time only; excludes load/parse and worker queue wait; RSS includes loaded index and harness"}); e != nil {
+	rss, rssMeasurement := peakRSS()
+	if e = enc.Encode(map[string]any{"summary": true, "source": sourceID, "peak_rss_bytes": rss, "rss_measurement": rssMeasurement, "goos": runtime.GOOS, "goarch": runtime.GOARCH, "gomaxprocs": runtime.GOMAXPROCS(0), "go_runtime_sys_bytes": mem.Sys, "go": runtime.Version(), "workers": *concurrency, "samples": len(queries) * *reps, "successful_queries": successful, "zero_duration_count": zeros, "clock": clock.metadata, "measured_interval_ns": intervalNS, "completed_queries_per_second": float64(successful) * 1e9 / float64(intervalNS), "throughput_measurement": "successful measured queries / dispatch-to-worker-completion interval; includes queueing and streaming JSON backpressure; excludes load, parse, calibration and warmup", "measurement": "per-query search wall time excludes load/parse and worker queue wait; counter-read overhead remains; RSS includes loaded index and harness"}); e != nil {
 		return e
 	}
 	if failed {

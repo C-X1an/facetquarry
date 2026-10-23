@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261023T050353Z-a8ab9109b2",
+  "category": "scanner-install",
+  "requirements": [
+    "AC-018"
+  ],
+  "commit": "4ca0a3015f6153870d898fa6d34bd8ef70b608f5",
+  "git_status": "M LIMITATIONS.md\n M Makefile\n M OPERATIONS.md\n M README.md\n M cmd/facetquarry/main.go\n M cmd/fqbench/main.go\n M internal/engine/engine_test.go\n M internal/engine/fuzz_test.go\n M internal/engine/graph.go\n M internal/engine/search.go\n M internal/engine/snapshot.go\n M internal/engine/types.go\n M internal/strictjson/decode.go\n M scripts/benchmark.py\n M scripts/clean_verify.py\n M scripts/common.py\n M scripts/demo.py\n M scripts/disk_guard.py\n M scripts/evidence.py\n M scripts/integrity_negative.py\n M scripts/mutation.py\n M scripts/oracle.py\n M scripts/public_audit.py\n M scripts/release_gate.py\n M tests/test_cli.py\n M tests/test_tooling.py\n M verification/public_allowlist.json\n?? .github/workflows/release-evidence.yml\n?? cmd/facetquarry/main_test.go\n?? cmd/fqbench/clock.go\n?? cmd/fqbench/clock_other.go\n?? cmd/fqbench/clock_test.go\n?? cmd/fqbench/clock_windows.go\n?? cmd/fqbench/memory_linux.go\n?? cmd/fqbench/memory_other.go\n?? cmd/fqbench/memory_windows.go\n?? scripts/benchmark_support.py\n?? tests/test_tooling_benchmark.py\n?? tests/test_tooling_regressions.py",
+  "source_before": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "source_after": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "command": [
+    "go",
+    "install",
+    "golang.org/x/vuln/cmd/govulncheck@v1.9.0"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "go version go1.27.3 windows/amd64",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-23T05:03:53.510112+00:00",
+  "ended_at": "2026-10-23T05:05:05.730244+00:00",
+  "duration_seconds": 71.71870739999576,
+  "exit_code": 0,
+  "stdout": "verification/published/supported-20261023/scanner-install/stdout.txt",
+  "stderr": "verification/published/supported-20261023/scanner-install/stderr.txt",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "2874b163bcfe8ac8ba18f3577c90f32fbef0ee6dda9154e98a701829f5285dba",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "87064cfcbb26926cc24957ae662c1d746ed4153af4c8ed7843d004e52a054db8",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix_redacted": false
+      },
+      "stderr.txt": {
+        "original_sha256": "2874b163bcfe8ac8ba18f3577c90f32fbef0ee6dda9154e98a701829f5285dba",
+        "export_sha256": "2874b163bcfe8ac8ba18f3577c90f32fbef0ee6dda9154e98a701829f5285dba",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; original private receipt and streams retained. This derived receipt is not the original byte sequence."
+  }
+}

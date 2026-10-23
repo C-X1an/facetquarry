@@ -1,279 +1,317 @@
 {
   "schema_version": 1,
-  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
   "assessment": "IMPLEMENTED_EXPERIMENTAL_NOT_RELEASE_READY",
   "criteria": [
     {
       "id": "AC-001",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-002",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-003",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-004",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-005",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-006",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-007",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-008",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-009",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-010",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-011",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-012",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-013",
       "status": "PARTIAL",
-      "qualification": "Real CLI/escaped HTML passed; both actual browser navigation attempts were blocked by administrator policy.",
+      "qualification": "Six real escaped CLI cases pass; actual visual/keyboard browser review blocked by URL policy.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-014",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-015",
-      "status": "BLOCKED",
-      "qualification": "Both bounded fuzz campaigns passed on Go1.23.2, not the required supported Go1.27.3.",
+      "status": "PASS",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-016",
       "status": "PARTIAL",
-      "qualification": "Separate21-cell smoke passed; zero full-grid qualification cells claimed; full5400-cell grid and intended statistical report unrun.",
+      "qualification": "21-cell smoke complete; full frozen 5400-cell matrix not run.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-017",
       "status": "NOT_RUN",
-      "qualification": "10k64-dimensional reference-host recall target not measured.",
+      "qualification": "Reference-host recall target not measured.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-018",
       "status": "PARTIAL",
-      "qualification": "Explicit public tree/history heuristic scan executed; full independent/current security review remains open.",
+      "qualification": "Current source/history heuristic audit passed; final committed export and current online vulnerability scan pending.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-019",
-      "status": "BLOCKED",
-      "qualification": "Fresh committed local checkout passed, but supported-toolchain qualification remains open.",
+      "status": "NOT_RUN",
+      "qualification": "Current supported source must be committed before fresh clean checkout.",
       "receipts": [
         {
-          "path": "verification/published/fresh-checkout/receipt.json",
-          "sha256": "8497978c8c62a8dd5e47b3ac991517f1ebc4409b2b03b7edb00fa34861a5c947"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-020",
       "status": "PARTIAL",
-      "qualification": "Owned workspace and guard tests checked; actual user-device external allocations and hard quota not verified.",
+      "qualification": "Full attributable inventory below cap; local quota query denied; remote quota workflow not executed.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-021",
-      "status": "NOT_RUN",
-      "qualification": "No genuinely separate read-only reviewer was available; self-checks are not substituted.",
+      "status": "PASS",
+      "qualification": "Separate read-only findings preceded repairs; static reassessment closed original and release-path findings; affected dynamic regressions passed.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
+        },
+        {
+          "path": "verification/published/supported-20261023/review.json",
+          "kind": "review",
+          "sha256": "63b7f643cd13db451b17a972efc6383b72f08838c3e5ff2eba42c9f26192dd73"
         }
       ]
     },
     {
       "id": "AC-022",
       "status": "NOT_RUN",
-      "qualification": "Actual owner technical walkthrough not performed; browser manual usability also incomplete.",
+      "qualification": "Owner declined walkthrough; browser usability also not performed. No generated explanation substitutes for either.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-023",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     },
     {
       "id": "AC-024",
       "status": "PASS",
-      "qualification": "Command-level PASS on Linux/Go1.23.2; current-toolchain release qualification is separate.",
+      "qualification": "Finite contract checks on pinned Go 1.27.3 windows/amd64; reference Linux qualification is separate.",
       "receipts": [
         {
-          "path": "verification/published/final-core/receipt.json",
-          "sha256": "a341d3072ed1158306ec97ce0146c804e4abba32344004bb7c1417f2f0db153d"
+          "path": "verification/published/supported-20261023/verify/receipt.json",
+          "kind": "command",
+          "sha256": "1a8b237fb5b1a5bd021c6e2154f3402c3b5c9ad1726be3802b4389b203ed6d0b"
         }
       ]
     }
   ],
   "supported_toolchain": false,
-  "independent_review_complete": false,
+  "independent_review_complete": true,
   "full_benchmark_complete": false,
   "owner_walkthrough_complete": false,
-  "public_export_audited": true,
-  "fresh_checkout_complete": true,
+  "public_export_audited": false,
+  "fresh_checkout_complete": false,
   "resource_inventory_complete": false,
-  "note": "PASS criteria are scoped developmental observations. Required global gates and partial criteria prevent release; booleans are not substitutes for their linked actual evidence."
+  "gate_evidence": {
+    "independent_review_complete": [
+      {
+        "path": "verification/published/supported-20261023/review.json",
+        "kind": "review",
+        "sha256": "63b7f643cd13db451b17a972efc6383b72f08838c3e5ff2eba42c9f26192dd73"
+      }
+    ]
+  },
+  "note": "Windows pinned-toolchain evidence is current; locked Linux reference, full benchmark, owner/browser and resource enforcement gates remain explicit. No boolean substitutes for typed evidence."
 }

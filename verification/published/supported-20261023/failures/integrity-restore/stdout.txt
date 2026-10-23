@@ -1,0 +1,166 @@
+python3 scripts/bootstrap.py
+{
+  "go": "go version go1.27.3 windows/amd64",
+  "python": "3.13.14",
+  "reference_go": "go1.27.3",
+  "reference_toolchain_matches": true,
+  "qualification": "reference",
+  "network_installs_performed": false
+}
+python3 scripts/disk_guard.py --reserve 2000000000
+{
+  "limit_bytes": 15000000000,
+  "admission_ceiling_bytes": 12000000000,
+  "inventory": [
+    {
+      "root": "<handoff>",
+      "accounted_bytes": 1269315694,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\.codex\\sessions\\2026\\10\\23",
+      "accounted_bytes": 10417875,
+      "symlinks_not_followed": []
+    },
+    {
+      "root": "<user-home>\\.codex\\state\\plugins\\codex-security\\scans\\public\\4ca0a3015f6153870d898fa6d34bd8ef70b608f5_20261023T043056Z_jg90zq3y",
+      "accounted_bytes": 0,
+      "symlinks_not_followed": []
+    }
+  ],
+  "total_attributable_bytes": 1279733569,
+  "reserved_growth_bytes": 2000000000,
+  "admission": "ALLOW",
+  "warning": false,
+  "hard_quota_enforced": false,
+  "caveat": "External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap."
+}
+python3 scripts/check_integrity.py
+{"status": "PASS", "changed": [], "action": "Record a deviation; never rewrite the lock to bypass failure."}
+go build -trimpath -ldflags "-X main.sourceID=$(python3 scripts/common.py)" -o bin/facetquarry.exe ./cmd/facetquarry
+go build -trimpath -ldflags "-X main.sourceID=$(python3 scripts/common.py)" -o bin/fqbench.exe ./cmd/fqbench
+go vet ./...
+go test -run '^$' ./...
+ok  	facetquarry/cmd/facetquarry	1.390s [no tests to run]
+?   	facetquarry/cmd/fqbench	[no test files]
+ok  	facetquarry/internal/engine	1.684s [no tests to run]
+ok  	facetquarry/internal/strictjson	1.362s [no tests to run]
+python3 -m compileall -q scripts tests
+go test -count=1 ./...
+ok  	facetquarry/cmd/facetquarry	1.328s
+?   	facetquarry/cmd/fqbench	[no test files]
+ok  	facetquarry/internal/engine	1.812s
+ok  	facetquarry/internal/strictjson	1.460s
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+go test -race -count=1 ./...
+ok  	facetquarry/cmd/facetquarry	2.082s
+?   	facetquarry/cmd/fqbench	[no test files]
+ok  	facetquarry/internal/engine	2.539s
+ok  	facetquarry/internal/strictjson	2.257s
+python3 scripts/mutation.py
+{
+  "schema_version": 1,
+  "evidence_type": "mutation_summary",
+  "source": "21810fb59dda66b50fb29a6aac71ee84fccb61232ddad06a45800d3142493cba",
+  "controls": [
+    {
+      "mutation": "tenant",
+      "test": "TestTenantScope",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestTenantScope$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "19ac34c22e19b1ed37c796b44bbec1963fe28f6e8b03af7d05defc09954fae58",
+      "mutated_sha256": "ec9ebc8ba0b7daeaae70ebd867a5b5600c94bb632bfe7cb287759f88cd38536d"
+    },
+    {
+      "mutation": "filter",
+      "test": "TestExactAndTies",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestExactAndTies$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "19ac34c22e19b1ed37c796b44bbec1963fe28f6e8b03af7d05defc09954fae58",
+      "mutated_sha256": "b626ffc99a223a5c0ba07a769911e9ece2369caa58e580c33152a68864b77e6a"
+    },
+    {
+      "mutation": "exact-label",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "1246856b5eda94444258bf60539d49996cb930a6395aa58c0d87a7944aa52bb2",
+      "mutated_sha256": "96d0ba9c3603918288df2e1385c92f8183299fb672c1f267f456fe2ecb19bfe7"
+    },
+    {
+      "mutation": "budget",
+      "test": "TestBudget",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/engine",
+        "-run",
+        "^TestBudget$"
+      ],
+      "before_exit": 0,
+      "defect_exit": 1,
+      "restored_exit": 0,
+      "expected_assertion_failed": true,
+      "status": "PASS",
+      "original_sha256": "1246856b5eda94444258bf60539d49996cb930a6395aa58c0d87a7944aa52bb2",
+      "mutated_sha256": "9a3e367c65e3af6b17fef7a569eeb2e610f69e237850ce51c84a464151dbff49"
+    }
+  ],
+  "scope": "four selected critical defects, not a whole-program mutation score",
+  "status": "PASS"
+}
+python3 scripts/integrity_negative.py
+[
+  {
+    "file": "ACCEPTANCE_SPEC.md",
+    "exits": [
+      0,
+      1,
+      1
+    ],
+    "status": "FAIL"
+  },
+  {
+    "file": "verification/phase_definitions.json",
+    "exits": [
+      1,
+      1,
+      1
+    ],
+    "status": "FAIL"
+  }
+]

@@ -1,12 +1,13 @@
 """Real executable integration: no mocked search, storage or process calls."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-BIN=ROOT/'bin/facetquarry'
+BIN=ROOT/'bin'/('facetquarry.exe' if os.name=='nt' else 'facetquarry')
 class CLI(unittest.TestCase):
     def test_lifecycle_and_host_scope(self):
         with tempfile.TemporaryDirectory() as d:

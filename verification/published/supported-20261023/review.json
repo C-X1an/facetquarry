@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "evidence_type": "review",
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "status": "PASS",
+  "reviewer": "Independent read-only general verifier and separate release-path reviewer",
+  "initially_read_only": true,
+  "independent": true,
+  "findings_artifact": "verification/published/supported-20261023/independent-review.md",
+  "unresolved_critical_high": [],
+  "fixes_verified": true,
+  "scope": "Static independent findings before fixes, then read-only reassessment; root executed regression checks. No universal security or browser claim."
+}

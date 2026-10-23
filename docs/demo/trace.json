@@ -1,10 +1,16 @@
 {
-  "source": "391755f583d10662000e092d181cdce8acc72d6e7ac6e7ca44fbd569dae5da8e",
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
   "dataset": "synthetic, four records in two tenants",
   "build": {
     "schema_version": 1,
+    "format_version": 1,
     "generation": "3db0501ee40deef97a4863e9dc975e870dd1f8e696ba3075b2668f1008ba5b00",
     "dimension": 2,
+    "m": 4,
+    "ef_construction": 24,
+    "seed": 17,
+    "build_budget": 10000,
+    "build_distance_evaluations": 9,
     "tenants": 2,
     "records": 4,
     "edges": 8,

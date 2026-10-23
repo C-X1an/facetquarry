@@ -16,7 +16,7 @@ def main():
         result=run(command,cwd=clone,timeout=240,check=False)
         out=ROOT/'.local/clean-verify';out.mkdir(parents=True,exist_ok=True)
         (out/'stdout.txt').write_text(result.stdout);(out/'stderr.txt').write_text(result.stderr)
-        record={'source':source_hash(),'commit':run(['git','rev-parse','HEAD']).stdout.strip(),'command':command,'exit_code':result.returncode,'go':run(['go','version']).stdout.strip(),'qualification':'fresh committed local checkout; separate supported-toolchain gate still applies','status':'PASS' if result.returncode==0 else 'FAIL'}
+        record={'schema_version':1,'evidence_type':'fresh_checkout','clean_checkout':True,'supported_toolchain':'go1.27.3' in run(['go','version']).stdout,'source':source_hash(),'commit':run(['git','rev-parse','HEAD']).stdout.strip(),'command':command,'exit_code':result.returncode,'go':run(['go','version']).stdout.strip(),'qualification':'fresh committed local checkout; separate supported-toolchain gate still applies','status':'PASS' if result.returncode==0 else 'FAIL'}
         (out/'summary.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))
         return result.returncode
 if __name__=='__main__':raise SystemExit(main())

@@ -8,7 +8,7 @@ import io
 from pathlib import Path
 import re
 import subprocess
-from common import ROOT
+from common import ROOT,source_hash
 EXCLUDED={'.git','.cache','.local','__pycache__','bin'}
 
 PATTERNS=[re.compile(rb'-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'),
@@ -61,6 +61,6 @@ def main()->int:
             if size>2_000_000:findings.append({'path':path,'issue':'oversized historical blob'});continue
             data=subprocess.check_output(['git','cat-file','blob',oid],cwd=ROOT)
             for problem in problems(path,data):findings.append({'path':path,'issue':'historical '+problem,'object':oid})
-    report={'status':'FAIL' if findings else 'PASS','current_tree_files':len(files),'history_status':history,'history_blobs_checked':checked,'findings':findings,'scope':'explicit export paths and targeted heuristics; not a comprehensive secrets/security certification'}
+    report={'schema_version':1,'evidence_type':'export_audit','source':source_hash(),'allowlist_audited':True,'history_audited':history=='PASS','status':'FAIL' if findings else 'PASS','current_tree_files':len(files),'history_status':history,'history_blobs_checked':checked,'findings':findings,'scope':'explicit export paths and targeted heuristics; not a comprehensive secrets/security certification'}
     print(json.dumps(report,indent=2));return 1 if findings else 0
 if __name__=='__main__':raise SystemExit(main())

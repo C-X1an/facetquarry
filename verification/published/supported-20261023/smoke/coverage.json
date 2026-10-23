@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "evidence_type": "benchmark_coverage",
+  "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+  "provenance": {
+    "schema_version": 1,
+    "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+    "binaries": {
+      "facetquarry": {
+        "sha256": "1d303b5271efa07a62af17d5652038e6897392a50880b12c75632513f5e6c5a1",
+        "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+        "go": "go1.27.3",
+        "build_settings": "<handoff>\\public\\bin\\facetquarry.exe: go1.27.3\n\tpath\tfacetquarry/cmd/facetquarry\n\tmod\tfacetquarry\tv0.0.0-20261023042052-4ca0a3015f61+dirty\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=4ca0a3015f6153870d898fa6d34bd8ef70b608f5\n\tbuild\tvcs.time=2026-10-23T04:20:52Z\n\tbuild\tvcs.modified=true\n"
+      },
+      "fqbench": {
+        "sha256": "11fbc05c247eaa9cab0883375f610e1a8989cc47a1b2fc9db0b5af8eaa03c12b",
+        "source": "c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09",
+        "go": "go1.27.3",
+        "build_settings": "<handoff>\\public\\bin\\fqbench.exe: go1.27.3\n\tpath\tfacetquarry/cmd/fqbench\n\tmod\tfacetquarry\tv0.0.0-20261023042052-4ca0a3015f61+dirty\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\t-trimpath=true\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,httpcookiemaxnum=0,httpservecontentmaxranges=1,multipathtcp=0,randseednop=0,rsa1024min=0,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,tracebacklabels=0,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,x509rsacrt=0,x509sha256skid=0,x509sslcertoverrideplatform=0,x509usepolicies=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=4ca0a3015f6153870d898fa6d34bd8ef70b608f5\n\tbuild\tvcs.time=2026-10-23T04:20:52Z\n\tbuild\tvcs.modified=true\n"
+      }
+    },
+    "host": {
+      "system": "Windows",
+      "kernel": "11",
+      "os_version": "10.0.26300",
+      "machine": "AMD64",
+      "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+      "logical_cpu_count": 20,
+      "physical_ram_bytes": 34048978944,
+      "power_mode": "not measured",
+      "competing_workload": "shared local host; competing activity not controlled",
+      "python": "3.13.14 (tags/v3.13.14:fd17997, Jun 10 2026, 13:03:48) [MSC v.1944 64 bit (AMD64)]"
+    },
+    "gomaxprocs_requested": "2",
+    "declared_build_flags": [
+      "-trimpath",
+      "-ldflags",
+      "-X main.sourceID=c06d3256afde9bb7141f3b787947b920b88967eeb3a52def5f41dc1e1f40ce09"
+    ]
+  },
+  "profile": "smoke",
+  "config": {
+    "n": [
+      512
+    ],
+    "dimension": 8,
+    "distributions": [
+      "uniform"
+    ],
+    "correlations": [
+      "independent"
+    ],
+    "seeds": [
+      17
+    ],
+    "selectivities": [
+      1.0,
+      0.05
+    ],
+    "two_facet": true,
+    "ef": [
+      16,
+      64
+    ],
+    "queries": 16,
+    "warmup": 4,
+    "repetitions": 2,
+    "k": 10,
+    "m": 12,
+    "ef_construction": 96,
+    "build_budget": 20000000,
+    "concurrency": 1
+  },
+  "config_hash": "fabe3caa0f16",
+  "expected_cells": 21,
+  "completed_cells": 21,
+  "missing_cells": [],
+  "unexpected_cells": [],
+  "failed_cells": [],
+  "run_errors": [],
+  "limited": false,
+  "grid_complete": true,
+  "reference_host_verified": false,
+  "reference_recall_target": "NOT YET MEASURED",
+  "release_qualification": false,
+  "scope": "synthetic experimental measurements; full grid and reference-host qualification are separate gates",
+  "status": "PASS"
+}

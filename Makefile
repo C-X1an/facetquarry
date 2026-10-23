@@ -1,4 +1,5 @@
-SHELL := /bin/sh
+SHELL := $(if $(FQ_SHELL),$(FQ_SHELL),$(if $(filter Windows_NT,$(OS)),sh.exe,/bin/sh))
+EXE := $(if $(filter Windows_NT,$(OS)),.exe,)
 PYTHON ?= python3
 export GOTOOLCHAIN := local
 export GOCACHE := $(CURDIR)/.cache/go-build
@@ -18,7 +19,8 @@ bootstrap:
 integrity: bootstrap
 	$(PYTHON) scripts/check_integrity.py
 build: integrity
-	$(GO) build -trimpath -ldflags "-X main.sourceID=$$($(PYTHON) scripts/common.py)" -o bin/facetquarry ./cmd/facetquarry
+	$(GO) build -trimpath -ldflags "-X main.sourceID=$$($(PYTHON) scripts/common.py)" -o bin/facetquarry$(EXE) ./cmd/facetquarry
+	$(GO) build -trimpath -ldflags "-X main.sourceID=$$($(PYTHON) scripts/common.py)" -o bin/fqbench$(EXE) ./cmd/fqbench
 format:
 	gofmt -w cmd internal
 fmt:
@@ -50,10 +52,8 @@ security-online: bootstrap
 	@command -v govulncheck >/dev/null || { echo 'NOT RUN: install a verified pinned govulncheck before this gate'; exit 2; }
 	govulncheck ./...
 benchmark-smoke: build
-	$(GO) build -trimpath -o bin/fqbench ./cmd/fqbench
 	$(PYTHON) scripts/benchmark.py --profile smoke
 benchmark: build
-	$(GO) build -trimpath -o bin/fqbench ./cmd/fqbench
 	$(PYTHON) scripts/benchmark.py --profile full
 
 demo: build

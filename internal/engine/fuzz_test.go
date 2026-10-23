@@ -8,6 +8,7 @@ import (
 func FuzzQuery(f *testing.F) {
 	f.Add([]byte(`{"vector":[0,0],"k":1,"ef":8,"budget":3,"mode":"graph","filter":{}}`))
 	f.Add([]byte(`{"tenant":"beta"}`))
+	f.Add([]byte(`{"vector":[null,0],"k":1,"ef":8,"budget":3,"mode":"graph","filter":{}}`))
 	col, e := Build(context.Background(), fixture(12))
 	if e != nil {
 		f.Fatal(e)
@@ -47,7 +48,7 @@ func FuzzSnapshot(f *testing.F) {
 	f.Add(b)
 	f.Add([]byte("FQIDX001"))
 	f.Fuzz(func(t *testing.T, b []byte) {
-		if len(b) > 1<<20 {
+		if len(b) > MaxSnapshot+1 {
 			return
 		}
 		c, e := LoadBytes(b)
@@ -56,6 +57,14 @@ func FuzzSnapshot(f *testing.F) {
 		}
 		if e = validateSnapshot(c.data); e != nil {
 			t.Fatal(e)
+		}
+		raw, e := c.Marshal()
+		if e != nil {
+			t.Fatal(e)
+		}
+		roundtrip, e := LoadBytes(raw)
+		if e != nil || roundtrip.generation != c.generation {
+			t.Fatalf("snapshot identity changed: %v", e)
 		}
 		for _, g := range c.data.Graphs {
 			s, e := c.Scope(g.Tenant)

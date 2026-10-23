@@ -1,0 +1,12 @@
+--- FAIL: TestNestedNullRejected (0.00s)
+    engine_test.go:24: nested null query accepted: <nil>
+--- FAIL: TestNoncanonicalSnapshotRejected (0.00s)
+    engine_test.go:56: noncanonical snapshot accepted with unstable identity: <nil>
+FAIL
+FAIL	facetquarry/internal/engine	1.531s
+{"schema_version":1,"generation":"b9963a900ab5a21beb44a39bea59f2c073a0e209ce9f10379ac18526a571ab78","dimension":1,"tenants":1,"records":1,"edges":0,"max_level":1}
+--- FAIL: TestCancelledCLINeverSucceeds (0.02s)
+    main_test.go:20: cancelled command succeeded: [inspect --index <handoff>\public\.cache\tmp\TestCancelledCLINeverSucceeds875364699\001\index.fq]: <nil>
+FAIL
+FAIL	facetquarry/cmd/facetquarry	1.411s
+FAIL
