@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Existing reference-host capabilities only; no measurements
+        description: Privileged empty KVM descriptor probe only; no guest or measurements
         type: choice
         options: [full]
         default: full
@@ -20,7 +20,7 @@ concurrency:
   group: reference-evidence
   cancel-in-progress: false
 jobs:
-  existing-reference-capabilities:
+  privileged-kvm-capability:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -28,17 +28,17 @@ jobs:
         timeout-minutes: 1
         with:
           persist-credentials: false
-      - name: Observe existing KVM, QEMU and boot prerequisites only
+      - name: Observe existing privileged KVM empty-VM creation capability
         timeout-minutes: 1
-        run: python3 scripts/evidence.py --category existing-reference-capabilities --timeout 45 -- python3 scripts/reference_capability_probe.py
-      - name: Retain actual capability observations and command receipt
+        run: python3 scripts/evidence.py --category privileged-kvm-capability --timeout 45 -- sudo -n /usr/bin/python3 scripts/reference_kvm_privileged_probe.py
+      - name: Retain actual observations and command receipt
         if: always()
         timeout-minutes: 2
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: reference-capability-${{ github.run_id }}
+          name: reference-kvm-capability-${{ github.run_id }}
           path: |
-            .local/reference-capability.json
+            .local/reference-kvm-privileged.json
             .local/evidence
           include-hidden-files: true
           retention-days: 7
