@@ -7,7 +7,9 @@ from download_reference import SHA,SIZE,ARTIFACT,RUN
 MEASURED='4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe'
 
 def main():
-    volume=Path(sys.argv[1]).resolve();root=Path.cwd().resolve();tool=root/'scripts/evidence-transport'
+    volume=Path(sys.argv[1]).resolve();analysis_only=sys.argv[2:]==['--analysis-only']
+    require(not sys.argv[2:] or analysis_only,'unexpected orchestration argument')
+    root=Path.cwd().resolve();tool=root/'scripts/evidence-transport'
     require(root==volume/'source' and volume.is_dir(),'unexpected packaging root')
     source=volume/'original.zip';require(source.stat().st_size==SIZE and file_sha(source)==SHA,'original ZIP mismatch')
     results=volume/'results';results.mkdir(exist_ok=False)
@@ -23,17 +25,20 @@ def main():
         execute('original-records-reanalysis',[sys.executable,tool/'analyze_reference.py',record['folder'],
             '--grid',root/'benchmarks/grid.json','--expected-source',MEASURED,'--output',results/'analysis'],1800)
         shutil.copy2(volume/'analysis-input.json',results)
-        # Only our freshly extracted duplicates; original ZIP hash rechecked and retained.
+    if inputs.exists():
+        # Only our freshly extracted duplicates, including failed preparation;
+        # all failure receipts and the original hash-verified ZIP are retained.
         require(inputs.resolve()==volume/'analysis-input' and inputs.is_dir() and not inputs.is_symlink()
             and file_sha(source)==SHA,'refusing analysis duplicate cleanup')
         shutil.rmtree(inputs)
-    packed=execute('lossless-member-packaging',[sys.executable,tool/'package_reference.py','pack',source,
-        results/'reference-members.tar.xz','--expected-sha',SHA,'--expected-size',SIZE,'--measured-source',MEASURED,
-        '--artifact-id',ARTIFACT,'--run-id',RUN],3600)
-    if packed==0:
-        execute('lossless-member-verification',[sys.executable,tool/'package_reference.py','verify',results/'reference-members.tar.xz'],1200)
+    if not analysis_only:
+        packed=execute('lossless-member-packaging',[sys.executable,tool/'package_reference.py','pack',source,
+            results/'reference-members.tar.xz','--expected-sha',SHA,'--expected-size',SIZE,'--measured-source',MEASURED,
+            '--artifact-id',ARTIFACT,'--run-id',RUN],3600)
+        if packed==0:
+            execute('lossless-member-verification',[sys.executable,tool/'package_reference.py','verify',results/'reference-members.tar.xz'],1200)
     record={'schema_version':1,'status':'PASS' if statuses and all(x['exit_code']==0 for x in statuses.values()) else 'FAIL',
-        'statuses':statuses,'measured_source':MEASURED,'packaging_commit':os.environ.get('GITHUB_SHA'),
+        'statuses':statuses,'analysis_only':analysis_only,'measured_source':MEASURED,'packaging_commit':os.environ.get('GITHUB_SHA'),
         'original_zip_sha256':SHA,'original_zip_bytes':SIZE,'original_artifact_id':ARTIFACT,'original_run_id':RUN,
         'script_sha256':{p.name:file_sha(p) for p in tool.glob('*.py')},
         'scope':'Transport and reanalysis only; no engine measurements run, no outer ZIP reconstruction or reference-host approval.'}

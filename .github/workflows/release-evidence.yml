@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Packaging only on this auxiliary branch; input must be full
+        description: Reanalysis only of original full profile; no new measurements
         type: choice
         options: [full]
         default: full
         required: true
       concurrency:
-        description: Packaging only; original reader profile1
+        description: Reanalysis only; original reader profile1
         type: choice
         options: ["1"]
         default: "1"
@@ -25,10 +25,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  package-original-evidence:
+  reanalyze-original-evidence:
     if: ${{ inputs.profile == 'full' && inputs.concurrency == '1' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 155
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
@@ -74,13 +74,13 @@ jobs:
           set -euo pipefail
           cd "$FQ_VOLUME/source"
           python3 scripts/evidence.py --category frozen-original-download --timeout 240 -- python3 scripts/evidence-transport/download_reference.py "$FQ_VOLUME"
-      - name: Analyze original records and preserve exact member recovery
-        timeout-minutes: 125
+      - name: Reanalyze every original full-profile record after selector repair
+        timeout-minutes: 43
         shell: bash
         run: |
           set -euo pipefail
           cd "$FQ_VOLUME/source"
-          sudo systemd-run --quiet --wait --pipe --property=MemoryMax=2G --property=CPUQuota=200% --property=RuntimeMaxSec=7300 --uid="$(id -u)" --gid="$(id -g)" --working-directory="$FQ_VOLUME/source" --setenv="PATH=$PATH" --setenv="FQ_WORKSPACE_ROOT=$FQ_VOLUME" --setenv="TMPDIR=$TMPDIR" --setenv="GITHUB_SHA=$GITHUB_SHA" python3 scripts/evidence.py --category transport-orchestration --timeout 7200 -- python3 scripts/evidence-transport/run_transport.py "$FQ_VOLUME"
+          sudo systemd-run --quiet --wait --pipe --property=MemoryMax=2G --property=CPUQuota=200% --property=RuntimeMaxSec=2500 --uid="$(id -u)" --gid="$(id -g)" --working-directory="$FQ_VOLUME/source" --setenv="PATH=$PATH" --setenv="FQ_WORKSPACE_ROOT=$FQ_VOLUME" --setenv="TMPDIR=$TMPDIR" --setenv="GITHUB_SHA=$GITHUB_SHA" python3 scripts/evidence.py --category transport-orchestration --timeout 2400 -- python3 scripts/evidence-transport/run_transport.py "$FQ_VOLUME" --analysis-only
       - name: Admit the entire upload set including receipts
         id: admission
         if: always()
@@ -95,7 +95,7 @@ jobs:
         timeout-minutes: 5
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: reference-transport-${{ github.run_id }}-${{ github.run_attempt }}
+          name: reference-analysis-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ steps.admission.outputs.paths }}
           include-hidden-files: true
           retention-days: 7

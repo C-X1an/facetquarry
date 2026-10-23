@@ -74,6 +74,7 @@
     "scripts/evidence-transport/test_analyze_reference.py",
     "scripts/evidence-transport/test_download_reference.py",
     "scripts/evidence-transport/test_package_reference.py",
+    "scripts/evidence-transport/test_prepare_reference_analysis.py",
     "scripts/evidence-transport/test_transport_upload.py",
     "scripts/evidence.py",
     "scripts/integrity_negative.py",

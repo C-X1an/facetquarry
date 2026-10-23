@@ -1,6 +1,6 @@
 # Original reference artifact transport
 
-This auxiliary branch packages the retained artifact from run39973710730. It does not run engine measurements or change the measured main commit625582eb753e7bec76e057a8f368f62f6aaf3d1d, technical source4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe. The auxiliary commit and script hashes are recorded separately.
+This auxiliary branch reanalyzes the retained artifact from run39973710730. It does not run engine measurements or change the measured main commit625582eb753e7bec76e057a8f368f62f6aaf3d1d, technical source4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe. The auxiliary commit and script hashes are recorded separately. This workflow uses --analysis-only and does not create a duplicate transport bundle. The original packaging run and its failure receipts remain retained.
 
 The original784433491-byte GitHub artifact exceeds the connector's512MiB limit. A packaging-only workflow retrieves that fixed same-repository artifact, validates public metadata and the full ZIP SHA256, reanalyzes its recorded results, and creates a bounded solid XZ member transport. API authentication is never forwarded to storage. The original cloud artifact is retained.
 
@@ -17,3 +17,5 @@ python3 -m unittest discover -s scripts/evidence-transport -p 'test_*.py' -v
 ```
 
 These controls establish helper behavior only. Live download, actual quota enforcement, compression size and benchmark acceptance require retained execution records. The auxiliary workflow must not be merged over the measured main workflow.
+
+Profile selection first inspects bounded coverage records. Exactly one full/current-source/frozen-config candidate is required, independent of PASS/FAIL outcome. Every summary/sample in that folder, including failed and unexpected cells, is retained. Other profiles and their identities are explicitly listed as excluded from this analysis; their original bytes remain in the unchanged original artifact and lossless transport.
