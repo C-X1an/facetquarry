@@ -1,6 +1,6 @@
 # Claims and evidence
 
-Current qualification-tooling candidate source `635f030c43d288ae9def8cde5e8795bac36724ace47d679dcc61ab8856bba65b`; the engine repair was previously checked at sourcebb95. The [verification report](VERIFICATION_REPORT.md) distinguishes original failed measurements, scoped repair checks and pending current-source qualification. Earlier sources remain historical.
+Current qualification-tooling candidate source `ffe6a722d127d3d392c4b3c49fd1c33f9600b0d39c99c5e5043dab9926f671d1`; the engine repair was previously checked at sourcebb95. The [verification report](VERIFICATION_REPORT.md) distinguishes original failed measurements, scoped repair checks and pending current-source qualification. Earlier sources remain historical.
 
 | Claim | Evidence | Limit |
 |---|---|---|

@@ -28,12 +28,16 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      FQ_VOLUME: ${{ runner.temp }}/facetquarry-reference
-      FQ_IMAGE: ${{ runner.temp }}/facetquarry-reference.img
       FQ_ACCOUNTED_BASE_BYTES: ${{ inputs.accounted_base_bytes }}
       FQ_BENCH_PROFILE: ${{ inputs.profile }}
       FQ_BENCH_CONCURRENCY: ${{ inputs.concurrency }}
     steps:
+      - name: Initialize owned paths from the actual runner environment
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf '%s\n' "FQ_VOLUME=$RUNNER_TEMP/facetquarry-reference" "FQ_IMAGE=$RUNNER_TEMP/facetquarry-reference.img" >> "$GITHUB_ENV"
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
         with:

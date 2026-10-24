@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "evidence_type": "workflow_validation_observation",
+  "recorded_at": "2026-10-24 19:08:11 UTC",
+  "status": "FAIL",
+  "repo": "C-X1an/facetquarry",
+  "run_id": 40123395161,
+  "commit": "54dc042978e470e3949eeea449297cbfee749378",
+  "source": "635f030c43d288ae9def8cde5e8795bac36724ace47d679dcc61ab8856bba65b",
+  "job_started": false,
+  "github_connector_jobs": {
+    "jobs": []
+  },
+  "visible_annotation": "(Line: 31, Col: 18): Unrecognized named-value: 'runner'. Located at position 1 within expression: runner.temp, (Line: 32, Col: 17): Unrecognized named-value: 'runner'. Located at position 1 within expression: runner.temp",
+  "scope": "Actual GitHub workflow validation failure observed in the run page; no runtime or benchmark job executed. Original failed run and private screenshot retained. Bash/Python syntax success did not validate GitHub expression context."
+}
