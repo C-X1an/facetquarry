@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261024T163805Z-604981c432",
+  "category": "independent-retention-directory-counterexample",
+  "requirements": [],
+  "commit": "bb34e3ab8ad9d1e971fe7c55e3cdcb99c16156e2",
+  "git_status": "M .github/workflows/release-evidence.yml\n M EVALUATION.md\n M scripts/release_gate.py\n M tests/test_tooling_regressions.py\n?? scripts/analyze_reference.py\n?? scripts/evidence_bundle.py\n?? scripts/reference_guest.py\n?? scripts/reference_qualification.py\n?? scripts/reference_retention.py\n?? tests/test_benchmark_analysis.py\n?? tests/test_evidence_bundle.py\n?? tests/test_reference_guest.py\n?? tests/test_reference_proof_contract.py\n?? tests/test_reference_qualification.py",
+  "source_before": "be7b95e2bba523c2c54c7c2ec33a445bce4a78afdff89f32f7f2ba3c548837c7",
+  "source_after": "be7b95e2bba523c2c54c7c2ec33a445bce4a78afdff89f32f7f2ba3c548837c7",
+  "command": [
+    "python3",
+    "-B",
+    "-c",
+    "import pathlib,tempfile\nimport sys\nsys.path.insert(0,'scripts')\nimport reference_retention as r\nimport evidence_bundle as b\nwith tempfile.TemporaryDirectory() as folder:\n    root=pathlib.Path(folder)\n    (root/'.local').mkdir()\n    (root/'.local/data').write_bytes(b'bounded synthetic evidence')\n    entries=b.inventory(root,['.local'])\n    manifest={'selected_paths':['.local'],'members':[{'path':name,'directory':name.endswith('/'),'original_bytes':size,'original_sha256':b.file_sha(root/name) if not name.endswith('/') else b.sha(b'')} for name,_,size in entries]}\n    print('Actual codec member names:',[x['path'] for x in manifest['members']])\n    print('Matching live directory count:',r.verify_live_members(root,manifest))"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "UNAVAILABLE",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-24T16:38:05.509003+00:00",
+  "ended_at": "2026-10-24T16:38:05.968353+00:00",
+  "duration_seconds": 0.3647404999937862,
+  "exit_code": 1,
+  "stdout": "verification/published/reference-pipeline-c1/preflight/directory-format-red/stdout.txt",
+  "stderr": "verification/published/reference-pipeline-c1/preflight/directory-format-red/stderr.txt",
+  "stdout_sha256": "3bde90b67002eaeb5125d7918bfba107da520ffe2ea70cf19ab069be5a6b0e04",
+  "stderr_sha256": "c35fe28bf9cb662c34c8e5927726f74e28720833ae25023b0cd2c1e5486a8849",
+  "status": "FAIL",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "feb00880793532829e90a53aa917226a529ee954b686fd29e6a4af736625bf84",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "3bde90b67002eaeb5125d7918bfba107da520ffe2ea70cf19ab069be5a6b0e04",
+        "export_sha256": "3bde90b67002eaeb5125d7918bfba107da520ffe2ea70cf19ab069be5a6b0e04",
+        "path_prefix_redacted": false
+      },
+      "stderr.txt": {
+        "original_sha256": "923c1993fed2f176fda449a9d639954dfcc08094aa76dd078a20a984a5147c55",
+        "export_sha256": "c35fe28bf9cb662c34c8e5927726f74e28720833ae25023b0cd2c1e5486a8849",
+        "path_prefix_redacted": true
+      }
+    },
+    "transformation": "Local path prefixes only; all outcomes, source hashes and assertions unchanged. Original private bytes retained."
+  }
+}

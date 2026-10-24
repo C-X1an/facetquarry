@@ -1,0 +1,12 @@
+test_baseline_cell_and_input_binding (test_benchmark_analysis.AnalyzerControls.test_baseline_cell_and_input_binding) ... ok
+test_malformed_metadata_and_ambiguous_sample (test_benchmark_analysis.AnalyzerControls.test_malformed_metadata_and_ambiguous_sample) ... ok
+test_missing_invalid_and_measured_target_states (test_benchmark_analysis.AnalyzerControls.test_missing_invalid_and_measured_target_states) ... ok
+test_optimized_python_keeps_source_guard (test_benchmark_analysis.AnalyzerControls.test_optimized_python_keeps_source_guard) ... ok
+test_pass_with_collector_errors_is_invalid (test_benchmark_analysis.AnalyzerControls.test_pass_with_collector_errors_is_invalid) ... ok
+test_rank_and_paired_five_seed_effects (test_benchmark_analysis.AnalyzerControls.test_rank_and_paired_five_seed_effects) ... ok
+test_valid_fixture_and_excess_hits (test_benchmark_analysis.AnalyzerControls.test_valid_fixture_and_excess_hits) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.139s
+
+OK

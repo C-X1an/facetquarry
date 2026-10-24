@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261024T161641Z-8953d42d36",
+  "category": "independent-proof-shadow-closure",
+  "requirements": [],
+  "commit": "bb34e3ab8ad9d1e971fe7c55e3cdcb99c16156e2",
+  "git_status": "M .github/workflows/release-evidence.yml\n M EVALUATION.md\n M scripts/release_gate.py\n M tests/test_tooling_regressions.py\n?? scripts/analyze_reference.py\n?? scripts/evidence_bundle.py\n?? scripts/reference_guest.py\n?? scripts/reference_qualification.py\n?? scripts/reference_retention.py\n?? tests/test_benchmark_analysis.py\n?? tests/test_evidence_bundle.py\n?? tests/test_reference_guest.py\n?? tests/test_reference_proof_contract.py\n?? tests/test_reference_qualification.py",
+  "source_before": "af7ddd629035ff146754bad2624538c16d920ef4c734d4b668cab7ac8c9c6c93",
+  "source_after": "af7ddd629035ff146754bad2624538c16d920ef4c734d4b668cab7ac8c9c6c93",
+  "command": [
+    "python3",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_reference_proof_contract.py",
+    "-v"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "UNAVAILABLE",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-24T16:16:41.890779+00:00",
+  "ended_at": "2026-10-24T16:16:44.469308+00:00",
+  "duration_seconds": 2.472335700003896,
+  "exit_code": 0,
+  "stdout": "verification/published/reference-pipeline-c1/preflight/independent-proof-controls/stdout.txt",
+  "stderr": "verification/published/reference-pipeline-c1/preflight/independent-proof-controls/stderr.txt",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "79ec851b1e7cec09d74071e44cd21cdaf48e9bd700f86fed9a516e7915bfb826",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "8dbc56a84c02d20cfd988ad07d28ec5e809a0902a095b7f696281aae7a03977e",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix_redacted": false
+      },
+      "stderr.txt": {
+        "original_sha256": "79ec851b1e7cec09d74071e44cd21cdaf48e9bd700f86fed9a516e7915bfb826",
+        "export_sha256": "79ec851b1e7cec09d74071e44cd21cdaf48e9bd700f86fed9a516e7915bfb826",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; all outcomes, source hashes and assertions unchanged. Original private bytes retained."
+  }
+}

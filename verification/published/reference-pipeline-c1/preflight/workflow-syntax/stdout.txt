@@ -1,0 +1,1 @@
+{"status": "PASS", "shell_blocks": 15, "python_blocks": 8, "scope": "Bash syntax and embedded Python parsing only; actual GitHub YAML/runtime acceptance remains unrun."}

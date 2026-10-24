@@ -1,0 +1,13 @@
+test_actual_codec_directories_and_files_match (test_reference_retention.RetentionByteControls.test_actual_codec_directories_and_files_match) ... ok
+test_all_live_fuzz_bytes_are_preserved (test_reference_retention.RetentionByteControls.test_all_live_fuzz_bytes_are_preserved) ... ok
+test_curated_copy_is_bound_to_verified_bundle (test_reference_retention.RetentionByteControls.test_curated_copy_is_bound_to_verified_bundle) ... ok
+test_curated_path_escape_is_rejected (test_reference_retention.RetentionByteControls.test_curated_path_escape_is_rejected) ... ok
+test_file_directory_substitution_is_rejected (test_reference_retention.RetentionByteControls.test_file_directory_substitution_is_rejected) ... ok
+test_mutation_is_rejected (test_reference_retention.RetentionByteControls.test_mutation_is_rejected) ... ok
+test_new_and_missing_members_are_rejected (test_reference_retention.RetentionByteControls.test_new_and_missing_members_are_rejected) ... ok
+test_omitted_fuzz_member_is_rejected (test_reference_retention.RetentionByteControls.test_omitted_fuzz_member_is_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.445s
+
+OK

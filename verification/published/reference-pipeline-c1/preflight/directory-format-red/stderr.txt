@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "<string>", line 13, in <module>
+    print('Matching live directory count:',r.verify_live_members(root,manifest))
+                                           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "<handoff>\public\scripts\reference_retention.py", line 47, in verify_live_members
+    require(name in expected and name not in seen, 'live result missing or duplicated in bundle')
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<handoff>\public\scripts\reference_retention.py", line 27, in require
+    raise ValueError(message)
+ValueError: live result missing or duplicated in bundle

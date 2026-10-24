@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 from common import ROOT,source_hash
+import reference_qualification
 
 GATE_KINDS = {
     'supported_toolchain': 'toolchain',
@@ -106,7 +107,8 @@ def validate_record(record: dict, kind: str, identity: str) -> list[str]:
     return errors
 
 
-def validate_reference(ref: dict, identity: str, root: Path, expected_kind: str | None = None) -> list[str]:
+def validate_reference(ref: dict, identity: str, root: Path, expected_kind: str | None = None,
+                       bundle_cache: dict | None = None, benchmark_proofs: list | None = None) -> list[str]:
     try:
         if not isinstance(ref, dict) or not nonempty(ref.get('path')):
             return ['invalid evidence reference']
@@ -124,13 +126,19 @@ def validate_reference(ref: dict, identity: str, root: Path, expected_kind: str 
             return ['command evidence mislabeled']
         if expected_kind and kind != expected_kind:
             return ['required gate needs ' + expected_kind + ' evidence']
-        return validate_record(record, kind, identity)
-    except (OSError, ValueError, TypeError, KeyError) as error:
+        errors = validate_record(record, kind, identity)
+        if kind == 'benchmark_coverage' and not errors:
+            proof = reference_qualification.validate_envelope(record, root, identity, bundle_cache)
+            if benchmark_proofs is not None:
+                benchmark_proofs.append(proof)
+        return errors
+    except (OSError, ValueError, TypeError, KeyError, IndexError) as error:
         return ['unreadable or invalid evidence: ' + str(error)]
 
 
 def assess(data: dict, identity: str, root: Path = ROOT) -> list[str]:
     failures = []
+    bundle_cache = {}
     if not isinstance(data, dict):
         return ['criterion assessment must be an object']
     if data.get('source') != identity:
@@ -151,7 +159,7 @@ def assess(data: dict, identity: str, root: Path = ROOT) -> list[str]:
         if not isinstance(refs, list) or not refs:
             failures.append(label + ': no typed evidence');continue
         for ref in refs:
-            failures.extend(label + ': ' + problem for problem in validate_reference(ref, identity, root))
+            failures.extend(label + ': ' + problem for problem in validate_reference(ref, identity, root, bundle_cache=bundle_cache))
     gates = data.get('gate_evidence', {})
     if not isinstance(gates, dict):
         gates = {}
@@ -161,8 +169,15 @@ def assess(data: dict, identity: str, root: Path = ROOT) -> list[str]:
         refs = gates.get(key, [])
         if not isinstance(refs, list) or not refs:
             failures.append(key + ': typed gate evidence missing');continue
+        proofs = []
         for ref in refs:
-            failures.extend(key + ': ' + problem for problem in validate_reference(ref, identity, root, kind))
+            failures.extend(key + ': ' + problem for problem in validate_reference(ref, identity, root, kind,
+                             bundle_cache=bundle_cache, benchmark_proofs=proofs))
+        if key == 'full_benchmark_complete':
+            try:
+                reference_qualification.validate_profiles(proofs)
+            except (ValueError, TypeError, KeyError) as error:
+                failures.append(key + ': ' + str(error))
     return failures
 
 

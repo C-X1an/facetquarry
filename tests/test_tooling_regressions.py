@@ -73,8 +73,18 @@ class ReleaseEvidence(unittest.TestCase):
             data['gate_evidence'][key] = [self.ref(record,kind,kind+'.json')]
         return data
 
-    def test_complete_typed_fixture_accepts(self):
-        self.assertEqual(release_gate.assess(self.complete(), IDENTITY, self.root), [])
+    def test_typed_fixture_requires_actual_reference_envelope(self):
+        data=self.complete()
+        # These other typed gates remain valid. The historical benchmark
+        # fixture has no real execution/transport proof and must now fail.
+        for key,kind in release_gate.GATE_KINDS.items():
+            if kind!='benchmark_coverage':
+                for ref in data['gate_evidence'][key]:
+                    self.assertEqual(release_gate.validate_reference(ref,IDENTITY,self.root,kind),[])
+        errors=release_gate.assess(data,IDENTITY,self.root)
+        self.assertTrue(any('verified reference envelope missing' in e for e in errors))
+        self.assertTrue(any('reader profiles1/4/16' in e for e in errors))
+        self.assertTrue(all(e.startswith('full_benchmark_complete:') for e in errors))
 
     def test_digest_correct_failed_and_stale_summaries_reject(self):
         for changed in ({'status':'FAIL'}, {'source':'f'*64}):
@@ -82,15 +92,15 @@ class ReleaseEvidence(unittest.TestCase):
                 data=self.complete()
                 record={'schema_version':1,'evidence_type':'oracle_summary','source':IDENTITY,'status':'PASS','seed_count':1000,**changed}
                 data['criteria'][0]['receipts']=[self.ref(record,'oracle_summary','summary.json')]
-                self.assertTrue(release_gate.assess(data,IDENTITY,self.root))
+                self.assertTrue(any(e.startswith('AC-001:') for e in release_gate.assess(data,IDENTITY,self.root)))
 
     def test_renamed_or_mislabeled_command_cannot_bypass_status(self):
         data=self.complete()
         ref=self.ref({**self.command(),'status':'FAIL','exit_code':1},'oracle_summary','renamed.json')
         data['criteria'][0]['receipts']=[ref]
-        self.assertTrue(release_gate.assess(data,IDENTITY,self.root))
+        self.assertTrue(any(e.startswith('AC-001:') for e in release_gate.assess(data,IDENTITY,self.root)))
         del ref['kind']
-        self.assertTrue(release_gate.assess(data,IDENTITY,self.root))
+        self.assertTrue(any(e.startswith('AC-001:') for e in release_gate.assess(data,IDENTITY,self.root)))
 
     def test_boolean_gates_do_not_substitute_for_evidence(self):
         data=self.complete();data.pop('gate_evidence')
@@ -105,10 +115,10 @@ class ReleaseEvidence(unittest.TestCase):
                     ref=data['gate_evidence'][key][0]
                     record=json.loads((self.root/ref['path']).read_text());record.update(change)
                     data['gate_evidence'][key]=[self.ref(record,kind,kind+'.json')]
-                    self.assertTrue(release_gate.assess(data,IDENTITY,self.root))
+                    self.assertTrue(any(e.startswith(key+':') for e in release_gate.assess(data,IDENTITY,self.root)))
         data=self.complete();record={'schema_version':1,'evidence_type':'resource','source':IDENTITY,'status':'PASS'}
         data['gate_evidence']['resource_inventory_complete']=[self.ref(record,'resource','resource.json')]
-        self.assertTrue(release_gate.assess(data,IDENTITY,self.root))
+        self.assertTrue(any(e.startswith('resource_inventory_complete:') for e in release_gate.assess(data,IDENTITY,self.root)))
 
     def test_invalid_or_external_reference_rejects(self):
         self.assertTrue(release_gate.validate_reference({'path':'../outside.json','sha256':'c'*64},IDENTITY,self.root))

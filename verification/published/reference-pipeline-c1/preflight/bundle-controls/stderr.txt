@@ -1,0 +1,20 @@
+test_active_partial_source_is_refused (test_evidence_bundle.DirectoryTransportControls.test_active_partial_source_is_refused) ... ok
+test_explicit_selection_does_not_silently_include_other_results (test_evidence_bundle.DirectoryTransportControls.test_explicit_selection_does_not_silently_include_other_results) ... ok
+test_file_added_after_inventory_refused (test_evidence_bundle.DirectoryTransportControls.test_file_added_after_inventory_refused) ... ok
+test_hash_check_refuses_byte_changes_even_if_metadata_check_is_bypassed (test_evidence_bundle.DirectoryTransportControls.test_hash_check_refuses_byte_changes_even_if_metadata_check_is_bypassed) ... ok
+test_hidden_tar_extensions_rejected_before_attacker_sized_read (test_evidence_bundle.DirectoryTransportControls.test_hidden_tar_extensions_rejected_before_attacker_sized_read) ... ok
+test_member_and_total_and_count_and_metadata_bounds (test_evidence_bundle.DirectoryTransportControls.test_member_and_total_and_count_and_metadata_bounds) ... ok
+test_nonregular_member_is_not_silently_skipped (test_evidence_bundle.DirectoryTransportControls.test_nonregular_member_is_not_silently_skipped) ... ok
+test_output_bound_retains_partial_diagnostics_and_originals (test_evidence_bundle.DirectoryTransportControls.test_output_bound_retains_partial_diagnostics_and_originals) ... ok
+test_output_inside_selection_and_overwrites_refused (test_evidence_bundle.DirectoryTransportControls.test_output_inside_selection_and_overwrites_refused) ... ok
+test_payload_original_hash_layout_and_total_tampering_refused (test_evidence_bundle.DirectoryTransportControls.test_payload_original_hash_layout_and_total_tampering_refused) ... ok
+test_roundtrip_preserves_opaque_gzip_header_and_identity_fallback (test_evidence_bundle.DirectoryTransportControls.test_roundtrip_preserves_opaque_gzip_header_and_identity_fallback) ... ok
+test_source_mutation_between_passes_is_refused_and_retained (test_evidence_bundle.DirectoryTransportControls.test_source_mutation_between_passes_is_refused_and_retained) ... ok
+test_symlink_and_windows_reparse_points_refused (test_evidence_bundle.DirectoryTransportControls.test_symlink_and_windows_reparse_points_refused) ... ok
+test_truncation_extra_members_and_trailing_compressed_data_refused (test_evidence_bundle.DirectoryTransportControls.test_truncation_extra_members_and_trailing_compressed_data_refused) ... ok
+test_unsafe_paths_and_nonportable_layout_are_refused (test_evidence_bundle.DirectoryTransportControls.test_unsafe_paths_and_nonportable_layout_are_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 1.151s
+
+OK

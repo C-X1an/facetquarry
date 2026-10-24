@@ -1,0 +1,21 @@
+test_cell_outside_collector_invocation_rejected (test_reference_proof_contract.ReferenceProofContract.test_cell_outside_collector_invocation_rejected) ... ok
+test_different_guest_session_rejected (test_reference_proof_contract.ReferenceProofContract.test_different_guest_session_rejected) ... ok
+test_nonfinite_or_out_of_range_target_rejected (test_reference_proof_contract.ReferenceProofContract.test_nonfinite_or_out_of_range_target_rejected) ... ok
+test_quota_from_different_volume_or_run_rejected (test_reference_proof_contract.ReferenceProofContract.test_quota_from_different_volume_or_run_rejected) ... ok
+test_receipt_outside_guest_execution_rejected (test_reference_proof_contract.ReferenceProofContract.test_receipt_outside_guest_execution_rejected) ... ok
+test_synthetic_full_descriptor_format_accepts (test_reference_proof_contract.ReferenceProofContract.test_synthetic_full_descriptor_format_accepts) ... ok
+test_target_and_cell_csv_disagreement_rejected (test_reference_proof_contract.ReferenceProofContract.test_target_and_cell_csv_disagreement_rejected) ... ok
+test_wrong_analysis_input_command_rejected (test_reference_proof_contract.ReferenceProofContract.test_wrong_analysis_input_command_rejected) ... ok
+test_wrong_evidenced_collector_command_rejected (test_reference_proof_contract.ReferenceProofContract.test_wrong_evidenced_collector_command_rejected) ... ok
+test_actual_tiny_bundle_and_curated_bytes_accept (test_reference_proof_contract.TinyTransportEnvelope.test_actual_tiny_bundle_and_curated_bytes_accept) ... ok
+test_artifact_descriptor_requires_matching_observation (test_reference_proof_contract.TinyTransportEnvelope.test_artifact_descriptor_requires_matching_observation) ... ok
+test_artifact_zip_digest_must_match_real_bytes (test_reference_proof_contract.TinyTransportEnvelope.test_artifact_zip_digest_must_match_real_bytes) ... ok
+test_changed_bundle_rejected_before_inner_validation (test_reference_proof_contract.TinyTransportEnvelope.test_changed_bundle_rejected_before_inner_validation) ... ok
+test_changed_curated_execution_rejected (test_reference_proof_contract.TinyTransportEnvelope.test_changed_curated_execution_rejected) ... ok
+test_observed_artifact_commit_and_job_must_match (test_reference_proof_contract.TinyTransportEnvelope.test_observed_artifact_commit_and_job_must_match) ... ok
+test_observed_zip_must_contain_the_verified_bundle_bytes (test_reference_proof_contract.TinyTransportEnvelope.test_observed_zip_must_contain_the_verified_bundle_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 2.089s
+
+OK

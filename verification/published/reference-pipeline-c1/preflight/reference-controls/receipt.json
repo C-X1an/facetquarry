@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "run_id": "20261024T164251Z-787e82f438",
+  "category": "current-reference-python-controls",
+  "requirements": [
+    "AC-016",
+    "AC-017",
+    "AC-020"
+  ],
+  "commit": "bb34e3ab8ad9d1e971fe7c55e3cdcb99c16156e2",
+  "git_status": "M .github/workflows/release-evidence.yml\n M EVALUATION.md\n M scripts/release_gate.py\n M tests/test_tooling_regressions.py\n?? scripts/analyze_reference.py\n?? scripts/evidence_bundle.py\n?? scripts/reference_guest.py\n?? scripts/reference_qualification.py\n?? scripts/reference_retention.py\n?? tests/test_benchmark_analysis.py\n?? tests/test_evidence_bundle.py\n?? tests/test_reference_guest.py\n?? tests/test_reference_proof_contract.py\n?? tests/test_reference_qualification.py\n?? tests/test_reference_retention.py",
+  "source_before": "2187403e1de9e8edab81afcdf3efd964cb662c42f46940fadba4967241fae531",
+  "source_after": "2187403e1de9e8edab81afcdf3efd964cb662c42f46940fadba4967241fae531",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_reference*.py",
+    "-v"
+  ],
+  "cwd": "<handoff>\\public",
+  "environment": {
+    "system": "Windows",
+    "machine": "AMD64",
+    "versions": {
+      "go": "UNAVAILABLE",
+      "python": "Python 3.13.14",
+      "git": "git version 2.52.0.windows.1"
+    }
+  },
+  "started_at": "2026-10-24T16:42:51.318915+00:00",
+  "ended_at": "2026-10-24T16:42:54.730377+00:00",
+  "duration_seconds": 3.3260968000104185,
+  "exit_code": 0,
+  "stdout": "verification/published/reference-pipeline-c1/preflight/reference-controls/stdout.txt",
+  "stderr": "verification/published/reference-pipeline-c1/preflight/reference-controls/stderr.txt",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "61b1552d6a99c1b75dbb7603ebfdbe76d4b5a0b6a586252a20e355ebf685d63a",
+  "status": "PASS",
+  "termination_reason": null,
+  "scope": "command only; not whole-product release approval",
+  "curation": {
+    "original_receipt_sha256": "3afc2b5d6f95884c0ec8ac0fc55619308822e287ef40a323d78c18767b746bca",
+    "streams": {
+      "stdout.txt": {
+        "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "export_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "path_prefix_redacted": false
+      },
+      "stderr.txt": {
+        "original_sha256": "61b1552d6a99c1b75dbb7603ebfdbe76d4b5a0b6a586252a20e355ebf685d63a",
+        "export_sha256": "61b1552d6a99c1b75dbb7603ebfdbe76d4b5a0b6a586252a20e355ebf685d63a",
+        "path_prefix_redacted": false
+      }
+    },
+    "transformation": "Local path prefixes only; all outcomes, source hashes and assertions unchanged. Original private bytes retained."
+  }
+}
