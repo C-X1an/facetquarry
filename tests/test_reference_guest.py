@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from reference_guest import allocated, newc, package_stanza, official_uri, admitted_copy, Setup, GUEST, INIT
+from reference_guest import allocated, newc, package_stanza, official_uri, mirror_suffix, mirror_bases, admitted_copy, Setup, GUEST, INIT
 
 
 class ReferenceGuestControls(unittest.TestCase):
@@ -71,6 +71,27 @@ class ReferenceGuestControls(unittest.TestCase):
     def test_embedded_guest_syntax(self):
         compile(GUEST, '<embedded guest>', 'exec')
         self.assertTrue(INIT.startswith('#!/bin/busybox sh\n'))
+
+    def test_observed_mirror_path_preserves_apt_encodings(self):
+        suffix = 'pool/main/q/qemu/qemu_8.2.2%2bds_amd64.deb'
+        self.assertEqual(mirror_suffix('mirror+file:/etc/apt/apt-mirrors.txt/'+suffix), suffix)
+        for uri in ('mirror+file://host/etc/apt/apt-mirrors.txt/pool/a.deb',
+                    'mirror+file:/tmp/apt-mirrors.txt/pool/a.deb',
+                    'mirror+file:/etc/apt/apt-mirrors.txt/pool/../a.deb',
+                    'mirror+file:/etc/apt/apt-mirrors.txt/pool/%252e%252e/a.deb',
+                    'mirror+file:/etc/apt/apt-mirrors.txt/pool/a%2fb.deb',
+                    'mirror+file:/etc/apt/apt-mirrors.txt/pool/a.deb?x=1'):
+            with self.subTest(uri=uri), self.assertRaises(RuntimeError):
+                mirror_suffix(uri)
+
+    def test_configured_mirror_bases_stay_official(self):
+        raw = b'# official mirror list\nhttp://azure.archive.ubuntu.com/ubuntu/\tpriority:1\nhttps://archive.ubuntu.com/ubuntu/\n'
+        self.assertEqual(len(mirror_bases(raw)), 2)
+        for raw in (b'https://archive.ubuntu.com.evil.invalid/\n',
+                    b'https://secret@archive.ubuntu.com/ubuntu/\n',
+                    b'file:/tmp/local/\n', b'https://archive.ubuntu.com/ubuntu/?x=1\n'):
+            with self.subTest(raw=raw), self.assertRaises(RuntimeError):
+                mirror_bases(raw)
 
 
 if __name__ == '__main__':

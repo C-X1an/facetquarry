@@ -22,7 +22,7 @@ import subprocess
 import sys
 import time
 import uuid
-from urllib.parse import urlparse
+from urllib.parse import urlparse, unquote
 
 from common import ROOT, source_hash
 
@@ -162,9 +162,68 @@ class Setup:
 def official_uri(uri):
     parsed = urlparse(uri)
     host = parsed.hostname or ''
-    return parsed.scheme in {'http', 'https'} and (
+    return (not any(ord(c) <= 32 or c == '\\' for c in uri)
+            and parsed.username is None and parsed.password is None
+            and not parsed.query and not parsed.fragment and parsed.port in (None, 80, 443)
+            and parsed.scheme in {'http', 'https'} and (
         host == 'ubuntu.com' or host.endswith('.ubuntu.com') or
-        host == 'canonical.com' or host.endswith('.canonical.com'))
+        host == 'canonical.com' or host.endswith('.canonical.com')))
+
+
+MIRROR_FILE = '/etc/apt/apt-mirrors.txt'
+
+
+def mirror_suffix(uri):
+    prefix = 'mirror+file:' + MIRROR_FILE + '/'
+    parsed = urlparse(uri)
+    if (not uri.startswith(prefix) or parsed.netloc or parsed.query or parsed.fragment
+            or len(uri) > 4096):
+        raise RuntimeError('unapproved APT mirror-file URI')
+    suffix = uri[len(prefix):]
+    decoded = suffix
+    for _ in range(4):
+        value = unquote(decoded, errors='strict')
+        if value == decoded: break
+        decoded = value
+    if (not suffix.startswith('pool/') or '%' in decoded
+            or decoded.count('/') != suffix.count('/')
+            or any(ord(c) <= 32 or c in '\\?#' for c in decoded)
+            or any(part in ('', '.', '..') for part in decoded.split('/'))):
+        raise RuntimeError('noncanonical APT pool path')
+    return suffix  # Preserve legitimate %2b and the separate APT cache filename.
+
+
+def mirror_bases(raw):
+    text = raw.decode('utf-8')
+    result = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line or line.startswith('#'): continue
+        fields = line.split()
+        if not official_uri(fields[0]) or not fields[0].endswith('/'):
+            raise RuntimeError('unapproved configured APT mirror base')
+        for item in fields[1:]:
+            if not re.fullmatch(r'(?:priority|arch|codename|component|lang|suite|type):[A-Za-z0-9._+-]+', item):
+                raise RuntimeError('unsupported APT mirror metadata')
+        result.append(fields[0])
+    if not result: raise RuntimeError('empty APT mirror file')
+    return result
+
+
+def mirror_snapshot():
+    path = Path(MIRROR_FILE)
+    before = path.lstat()
+    if (not stat.S_ISREG(before.st_mode) or before.st_uid != 0 or before.st_mode & 0o022
+            or not 0 < before.st_size <= 65536):
+        raise RuntimeError('APT mirror file is not a bounded root-owned regular configuration')
+    with path.open('rb') as stream:
+        raw = stream.read(65537)
+    after = path.lstat()
+    key = lambda s: (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns, s.st_uid, s.st_mode)
+    if key(before) != key(after) or len(raw) != before.st_size:
+        raise RuntimeError('APT mirror file changed while reading')
+    return {'path': MIRROR_FILE, 'sha256': hashlib.sha256(raw).hexdigest(), 'bytes': len(raw),
+            'stat': list(key(before)), 'text': raw.decode('utf-8'), 'bases': mirror_bases(raw)}
 
 
 def package_stanza(raw, version):
@@ -199,12 +258,19 @@ def packages(setup):
     # Print-URIs resolves the ordinary dependency set without downloading it.
     raw = setup.run(['sudo', '-n', *args[:1], '--print-uris', *args[1:]])
     planned = []
+    mirrors = None
     for line in raw.splitlines():
         if not line.startswith("'"):
             continue
         fields = shlex.split(line)
-        if len(fields) < 3 or not official_uri(fields[0]):
+        if len(fields) < 3:
             raise RuntimeError('APT selected an unapproved archive URI: ' + line)
+        if not official_uri(fields[0]):
+            mirror_suffix(fields[0])
+            current = mirror_snapshot()
+            if mirrors is not None and current != mirrors:
+                raise RuntimeError('APT mirror configuration changed during admission')
+            mirrors = current
         planned.append({'uri': fields[0], 'filename': fields[1], 'size': int(fields[2])})
     if not planned:
         raise RuntimeError('APT produced no download plan')
@@ -212,6 +278,7 @@ def packages(setup):
         raise RuntimeError('APT download plan exceeds 200MB admission')
     setup.check(sum(item['size'] for item in planned) * 3 + 100_000_000)
     setup.manifest['apt_download_plan'] = planned
+    setup.manifest['apt_mirror_file'] = mirrors
     setup.run(['apt-cache', 'policy', 'qemu-system-x86', 'qemu-system-common', 'busybox-static'])
     setup.run(['apt-get', 'indextargets'])
     releases = setup.base / 'signed-indexes'
@@ -220,7 +287,11 @@ def packages(setup):
         shutil.copyfile(path, releases / path.name)
     if not any(releases.iterdir()):
         raise RuntimeError('no Ubuntu signed InRelease indexes retained')
+    if mirrors is not None and mirror_snapshot() != mirrors:
+        raise RuntimeError('APT mirror configuration changed before download')
     setup.run(['sudo', '-n', *args], timeout=300)
+    if mirrors is not None and mirror_snapshot() != mirrors:
+        raise RuntimeError('APT mirror configuration changed during download')
     expected = {item['filename']: item for item in planned}
     actual = sorted(cache.glob('*.deb'))
     if {p.name for p in actual} != set(expected):
