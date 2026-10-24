@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from reference_guest import allocated, newc, package_stanza, official_uri, mirror_suffix, mirror_bases, admitted_copy, Setup, GUEST, INIT
+from reference_guest import allocated, newc, package_stanza, official_uri, mirror_suffix, mirror_bases, rooted_package_target, admitted_copy, Setup, GUEST, INIT
 
 
 class ReferenceGuestControls(unittest.TestCase):
@@ -92,6 +92,46 @@ class ReferenceGuestControls(unittest.TestCase):
                     b'file:/tmp/local/\n', b'https://archive.ubuntu.com/ubuntu/?x=1\n'):
             with self.subTest(raw=raw), self.assertRaises(RuntimeError):
                 mirror_bases(raw)
+
+    def test_actual_busybox_topology_with_explicit_usrmerge(self):
+        # Layout independently listed from official SHA944b2728... package.
+        tree = {name: {'kind': 'directory'} for name in ('', 'bin', 'usr', 'usr/bin')}
+        tree.update({'usr/bin/busybox': {'kind': 'file'},
+                     'bin/static-sh': {'kind': 'link', 'target': 'busybox'}})
+        with self.assertRaises(RuntimeError):
+            rooted_package_target('bin/static-sh', tree)
+        final, chain = rooted_package_target('bin/static-sh', tree, {'bin': 'usr/bin'})
+        self.assertEqual(final, 'usr/bin/busybox')
+        self.assertEqual(chain[-1]['missing'], 'bin/busybox')
+        # Explicit package entries take precedence over the base-OS mapping.
+        tree['bin/busybox'] = {'kind': 'file'}
+        self.assertEqual(rooted_package_target('bin/static-sh', tree, {'bin': 'usr/bin'})[0], 'bin/busybox')
+
+    def test_nested_absolute_links_use_package_root(self):
+        tree = {name: {'kind': 'directory'} for name in ('', 'usr', 'usr/bin')}
+        tree.update({'entry': {'kind': 'link', 'target': '/redirect/bin/tool'},
+                     'redirect': {'kind': 'link', 'target': '/usr'},
+                     'usr/bin/tool': {'kind': 'file'}})
+        final, chain = rooted_package_target('entry', tree)
+        self.assertEqual(final, 'usr/bin/tool')
+        self.assertEqual(len(chain), 2)
+
+    def test_dotdot_is_applied_after_link_expansion(self):
+        tree = {name: {'kind': 'directory'} for name in ('', 'usr', 'usr/bin')}
+        tree.update({'redirect': {'kind': 'link', 'target': 'usr/bin'},
+                     'usr/tool': {'kind': 'file'}})
+        self.assertEqual(rooted_package_target('redirect/../tool', tree)[0], 'usr/tool')
+
+    def test_package_link_refuses_escape_cycle_and_unsafe_target(self):
+        for target in ('../outside', '/../../outside', 'entry', 'C:\\outside', 'bad\x00name'):
+            tree = {'': {'kind': 'directory'}, 'entry': {'kind': 'link', 'target': target}}
+            with self.subTest(target=target), self.assertRaises(RuntimeError):
+                rooted_package_target('entry', tree)
+        tree = {'': {'kind': 'directory'}}
+        tree.update({str(i): {'kind': 'link', 'target': str(i+1)} for i in range(100)})
+        tree['100'] = {'kind': 'file'}
+        with self.assertRaises(RuntimeError):
+            rooted_package_target('0', tree)
 
 
 if __name__ == '__main__':

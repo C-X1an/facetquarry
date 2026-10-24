@@ -238,6 +238,139 @@ def package_stanza(raw, version):
     raise RuntimeError('APT signed-index size/SHA256 metadata missing')
 
 
+def package_topology(root):
+    tree = {'': {'kind': 'directory'}}
+    def failed(error): raise error
+    for parent, dirs, files in os.walk(root, followlinks=False, onerror=failed):
+        for name in dirs + files:
+            path = Path(parent)/name
+            s = path.lstat()
+            record = {'mode': s.st_mode, 'bytes': s.st_size}
+            if stat.S_ISLNK(s.st_mode):
+                record.update(kind='link', target=os.readlink(path))
+            elif stat.S_ISREG(s.st_mode): record['kind'] = 'file'
+            elif stat.S_ISDIR(s.st_mode): record['kind'] = 'directory'
+            else: raise RuntimeError('unsupported package entry: ' + str(path))
+            tree[path.relative_to(root).as_posix()] = record
+    return tree
+
+
+def rooted_package_target(name, tree, aliases=None):
+    """Resolve a frozen POSIX package topology, never the host filesystem."""
+    aliases = aliases or {}
+    pending = name.split('/')
+    resolved = []
+    chain = []
+    seen = set()
+    for _ in range(1024):
+        if not pending:
+            final = '/'.join(resolved)
+            if tree.get(final, {}).get('kind') != 'file':
+                raise RuntimeError('package link does not end at a regular file')
+            return final, chain
+        state = (tuple(resolved), tuple(pending))
+        if state in seen or len(chain) > 40 or len(pending)+len(resolved) > 256:
+            raise RuntimeError('package link cycle or traversal bound')
+        seen.add(state)
+        component = pending.pop(0)
+        if not component or component == '.': continue
+        if component == '..':
+            if not resolved: raise RuntimeError('package link ascends above root')
+            resolved.pop()
+            continue
+        if (len(component) > 255 or any(ord(c) < 32 or ord(c) == 127 or c in '\\:' for c in component)):
+            raise RuntimeError('unsafe package link component')
+        candidate = '/'.join([*resolved, component])
+        if len(candidate) > 4096: raise RuntimeError('package link path exceeds bound')
+        entry = tree.get(candidate)
+        if entry is None:
+            parts = candidate.split('/')
+            if parts[0] not in aliases:
+                raise RuntimeError('missing required package target: ' + candidate)
+            mapped = aliases[parts[0]].split('/') + parts[1:]
+            chain.append({'kind': 'observed merged-/usr fallback', 'missing': candidate,
+                          'mapped': '/'.join(mapped)})
+            resolved = []
+            pending = mapped + pending
+            continue
+        if entry['kind'] == 'link':
+            target = entry['target']
+            if (not target or len(target) > 4096
+                    or any(ord(c) < 32 or ord(c) == 127 or c in '\\:' for c in target)):
+                raise RuntimeError('unsafe package link target')
+            chain.append({'kind': 'package link', 'path': candidate, 'target': target})
+            if target.startswith('/'): resolved = []
+            pending = target.split('/') + pending
+        else:
+            if pending and entry['kind'] != 'directory':
+                raise RuntimeError('package file used as directory')
+            resolved.append(component)
+    raise RuntimeError('package traversal step bound exceeded')
+
+
+def observed_usrmerge():
+    # BusyBox's actual archive assumes this base-OS mapping. Observe it without
+    # following or copying a single host target byte; no other alias is inferred.
+    path = Path('/bin')
+    s = path.lstat()
+    target = os.readlink(path) if stat.S_ISLNK(s.st_mode) else None
+    valid = s.st_uid == 0 and target in ('usr/bin', '/usr/bin')
+    record = {'host_path': '/bin', 'observed_target': target, 'uid': s.st_uid,
+              'mode': s.st_mode, 'accepted': valid,
+              'scope': 'Missing package paths only; package contents always take precedence; no host bytes.'}
+    return ({'bin': 'usr/bin'} if valid else {}), record
+
+
+def materialize_package_links(setup, extract):
+    tree = package_topology(extract)
+    aliases, observed = observed_usrmerge()
+    setup.manifest['observed_usrmerge'] = observed
+    records = [{'path': name, 'target': entry['target'], 'status': 'PENDING'}
+               for name, entry in sorted(tree.items()) if entry['kind'] == 'link']
+    setup.manifest['package_link_materialization'] = records
+    setup.save()
+    plans = []
+    # Resolve every chain against the original topology before changing links.
+    for record in records:
+        name = record['path']
+        try:
+            final, chain = rooted_package_target(name, tree, aliases)
+            path = extract.joinpath(*final.split('/'))
+            info = path.lstat()
+            if not stat.S_ISREG(info.st_mode) or info.st_size != tree[final]['bytes']:
+                raise RuntimeError('package target changed after topology snapshot')
+            record.update(status='RESOLVED', chain=chain, final_package_path=final,
+                          bytes=info.st_size, mode=info.st_mode & 0o777, sha256=digest(path))
+            plans.append((record, path))
+        except (OSError, RuntimeError) as error:
+            record.update(status='FAIL', error=str(error))
+            setup.save()
+            if not name.startswith(('usr/share/doc/', 'usr/share/man/')):
+                raise
+            record.update(status='OPTIONAL_DOCUMENTATION_REMOVAL',
+                          reason='Unused documentation target; original path/target/error retained')
+            plans.append((record, None))
+        setup.save()
+    for record, source in plans:
+        target = extract.joinpath(*record['path'].split('/'))
+        if source is None:
+            target.unlink()
+        else:
+            setup.check(record['bytes'] + 4096)
+            data = source.read_bytes()
+            if len(data) != record['bytes'] or hashlib.sha256(data).hexdigest() != record['sha256']:
+                raise RuntimeError('package target bytes changed before materialization')
+            target.unlink()
+            target.write_bytes(data)
+            target.chmod(record['mode'])
+            if digest(target) != record['sha256']:
+                raise RuntimeError('materialized package bytes differ')
+            record['status'] = 'MATERIALIZED'
+        setup.save()
+    setup.package_links = None
+    setup.check()
+
+
 def packages(setup):
     cache = setup.base / 'apt'
     cache.mkdir()
@@ -297,6 +430,7 @@ def packages(setup):
     if {p.name for p in actual} != set(expected):
         raise RuntimeError('APT archive set differs from admitted plan')
     records = []
+    setup.manifest['packages'] = records
     setup.package_links = extract
     for path in actual:
         identity = setup.run(['dpkg-deb', '-f', str(path), 'Package', 'Version', 'Architecture', 'Installed-Size'])
@@ -311,43 +445,15 @@ def packages(setup):
         expanded = int(values['Installed-Size']) * 1024
         setup.check(expanded + 4_000_000)
         records.append({**values, 'archive': path.name, 'bytes': path.stat().st_size,
-                        'sha256': digest(path), 'signed_index': metadata})
+                        'sha256': digest(path), 'signed_index': metadata, 'extraction_status': 'PENDING'})
+        setup.save()
         # Trusted official .deb payload only; no maintainer scripts are executed.
         setup.run(['dpkg-deb', '-x', str(path), str(extract)])
+        records[-1]['extraction_status'] = 'PASS'
+        setup.save()
     # Package payloads include legitimate symlinks; turn them into owned regular
     # files so inventory never skips an attributable allocation or follows outside.
-    link_records = []
-    def failed(error):
-        raise error
-    for parent, dirs, files in os.walk(extract, followlinks=False, onerror=failed):
-        for name in dirs + files:
-            path = Path(parent) / name
-            if path.is_symlink():
-                target = os.readlink(path)
-                resolved = (extract / target.lstrip('/')) if target.startswith('/') else path.parent / target
-                resolved = resolved.resolve()
-                if not resolved.is_relative_to(extract) or not resolved.is_file():
-                    relative = path.relative_to(extract).as_posix()
-                    if not relative.startswith(('usr/share/doc/', 'usr/share/man/')):
-                        raise RuntimeError('unresolved required package link: ' + relative)
-                    link_records.append({'path': relative, 'target': target,
-                                         'action': 'removed optional documentation link; original target retained'})
-                    path.unlink()
-                    if name in dirs: dirs.remove(name)
-                    continue
-                setup.check(resolved.stat().st_size)
-                data = resolved.read_bytes()
-                mode = resolved.stat().st_mode & 0o777
-                link_records.append({'path': path.relative_to(extract).as_posix(), 'target': target,
-                                     'action': 'materialized exact target bytes', 'bytes': len(data),
-                                     'sha256': hashlib.sha256(data).hexdigest()})
-                path.unlink()
-                path.write_bytes(data)
-                path.chmod(mode)
-    setup.package_links = None
-    setup.check()
-    setup.manifest['packages'] = records
-    setup.manifest['package_link_materialization'] = link_records
+    materialize_package_links(setup, extract)
     setup.save()
     return extract
 
