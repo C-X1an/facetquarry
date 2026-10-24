@@ -16,6 +16,7 @@ import math
 from pathlib import Path, PurePosixPath
 import re
 import stat
+import struct
 import zipfile
 
 from common import ROOT, source_hash
@@ -25,6 +26,77 @@ import evidence_bundle as bundle_tool
 FORMAT = 'kvm-frozen-reference-v1'
 GRID_SHA = '37d376ffa53b54fd37849b0fb682a76b944cea029185a0da4771dc1d20420992'
 MAX_METADATA = 32_000_000
+MAX_ZIP_MEMBERS = 50_000
+
+
+def check_artifact_zip_directory(path):
+    """Admit ZIP metadata before ZipFile allocates its directory objects.
+
+    Only single-disk, non-concatenated archives with an ordinary central
+    directory are accepted. ZIP64 end records are bounded and checked too.
+    Compressed member data is left to the existing size/hash/CRC checks.
+    """
+    def admit(condition, message):
+        require(condition, 'artifact ZIP ' + message)
+
+    size = path.stat().st_size
+    admit(22 <= size <= 450_000_000, 'size admission exceeded')
+    with path.open('rb') as stream:
+        tail_size = min(size, 22 + 65535)
+        stream.seek(size - tail_size)
+        tail = stream.read(tail_size)
+        end = tail.rfind(b'PK\x05\x06')
+        # Match ZipFile's last-signature choice. Searching backward past a
+        # malformed signature in a comment could admit a different directory.
+        admit(end >= 0 and end + 22 <= len(tail)
+              and end + 22 + struct.unpack_from('<H', tail, end + 20)[0] == len(tail),
+              'end record missing or malformed')
+        _, disk, directory_disk, disk_count, count, directory_size, offset, _ = struct.unpack_from('<4s4H2LH', tail, end)
+        admit(disk == directory_disk == 0 and disk_count == count, 'split directory is unsupported')
+        directory_end = size - tail_size + end
+        locator = b''
+        if directory_end >= 20:
+            stream.seek(directory_end - 20)
+            locator = stream.read(20)
+        # The standard reader also honors a locator without EOCD sentinels.
+        if locator[:4] == b'PK\x06\x07' or count == 65535 or directory_size == 0xffffffff or offset == 0xffffffff:
+            admit(directory_end >= 20, 'ZIP64 locator missing')
+            signature, locator_disk, zip64_offset, disks = struct.unpack('<4sLQL', locator)
+            admit(signature == b'PK\x06\x07' and locator_disk == 0 and disks == 1, 'ZIP64 locator is invalid')
+            admit(zip64_offset + 56 <= directory_end - 20, 'ZIP64 end extent is invalid')
+            stream.seek(zip64_offset)
+            record = stream.read(56)
+            values = struct.unpack('<4sQ2H2L4Q', record)
+            sig64, record_size, _, _, disk64, directory_disk64, disk_count64, count64, size64, offset64 = values
+            # ZipFile supports the fixed ZIP64 end record, not an extensible
+            # data sector. Require exactly that same record before its locator.
+            admit(sig64 == b'PK\x06\x06' and record_size == 44
+                  and zip64_offset + 56 == directory_end - 20, 'ZIP64 end record is invalid')
+            admit(disk64 == directory_disk64 == 0 and disk_count64 == count64, 'ZIP64 split directory is unsupported')
+            admit((count == 65535 or count == count64)
+                  and (directory_size == 0xffffffff or directory_size == size64)
+                  and (offset == 0xffffffff or offset == offset64), 'ZIP64 directory disagrees with end record')
+            count, directory_size, offset = count64, size64, offset64
+            directory_end = zip64_offset
+        admit(count <= MAX_ZIP_MEMBERS, 'member admission exceeded')
+        admit(directory_size <= MAX_METADATA and offset + directory_size == directory_end,
+              'directory byte admission or extent is invalid')
+        admit(offset >= 0 and offset <= directory_end, 'directory offset is invalid')
+        stream.seek(offset)
+        actual = 0
+        while stream.tell() < directory_end:
+            admit(actual < MAX_ZIP_MEMBERS, 'member admission exceeded')
+            admit(directory_end - stream.tell() >= 46, 'directory record is truncated')
+            header = stream.read(46)
+            admit(len(header) == 46 and header[:4] == b'PK\x01\x02', 'directory record is malformed')
+            name_size, extra_size, comment_size, member_disk = struct.unpack_from('<4H', header, 28)
+            admit(member_disk == 0, 'split member is unsupported')
+            next_offset = stream.tell() + name_size + extra_size + comment_size
+            admit(next_offset <= directory_end, 'directory variable data is truncated')
+            stream.seek(next_offset)
+            actual += 1
+        admit(actual == count, 'directory count differs from end record')
+        return actual
 
 
 def require(condition, message):
@@ -388,9 +460,10 @@ def validate_envelope(record, root, identity, cache=None):
             and 0 < zip_ref['bytes'] <= 450_000_000
             and bundle_tool.file_sha(zip_path) == zip_ref['sha256'] == artifact['digest'].removeprefix('sha256:'),
             'actual artifact ZIP differs from connector identity')
+    directory_count = check_artifact_zip_directory(zip_path)
     with zipfile.ZipFile(zip_path) as archive:
         infos = archive.infolist()
-        require(len(infos) <= 50000, 'artifact ZIP member admission exceeded')
+        require(len(infos) == directory_count <= MAX_ZIP_MEMBERS, 'artifact ZIP member admission exceeded')
         matches = [item for item in infos if PurePosixPath(item.filename).name == 'reference-members.tar.xz']
         require(len(matches) == 1, 'artifact ZIP must contain exactly one reference bundle')
         item = matches[0]

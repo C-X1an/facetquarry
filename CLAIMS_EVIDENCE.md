@@ -22,3 +22,6 @@ Current qualification-tooling candidate source `ffe6a722d127d3d392c4b3c49fd1c33f
 Trusted-host receipts can be forged by their owner; inspect original/curated digests and scope. Unfavorable results, failed attempts and missing gates remain visible.
 
 Portable identity and owned-volume repairs were qualified on Linux at source4949. The duplicate-pruning change creates sourcebb95; its Windows verification and online scanner passed. No historical benchmark, scan or clean-checkout result is relabeled as current repair qualification.
+
+
+Actual reference smoke40124290304 (commit3058/sourceffe6): supported full verification, clean committed Linux reproduction, current online scan and lossless655-member preservation/owned-image cleanup PASS. Guest benchmark FAIL before any native query: complete disk admission timed out120seconds; all21cells retained. See verification/published/reference-pipeline-c2/observation.json. Inventory metadata and ZIP admission repairs have bounded controls; actual rerun, full repaired1/4/16 matrices and manual gates remain unqualified.

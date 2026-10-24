@@ -1,0 +1,7 @@
+# Actual failed reference workflow smoke
+
+Run40124290304 accepted the repaired workflow on commit3058/sourceffe6. Supported Go1.27.3 full verification, clean committed reproduction and the online vulnerability scan passed. The four-CPU guest booted, but one full-owned-volume disk admission command timed out after120.118seconds; all21 cells failed before corpus/query creation. Zero native queries ran. Analysis and full-reference qualification were not run.
+
+All655 completed raw members were losslessly packed, verified and recovered. Exact owned-image cleanup passed after raw, metadata and fuzz preservation. The native deep Windows recovery failure remains retained; the explicit extended-path retry recovered every member. These observations qualify neither a full benchmark nor an experimental release.
+
+Independent read-only review identified repeated metadata calls over uncached9p before repair. The integrator retained the full accounting roots and120second deadline, reduced each entry to one no-follow stat, and added flushed progress. Review caught and repaired a Windows zero-file-ID accounting regression; its failing run is retained. Separate ZIP metadata admission now bounds bytes and actual records before the standard reader, including consistent end-record selection. New controls are format/accounting checks, not scientific measurements. The pending actual smoke rerun must establish runtime success.
