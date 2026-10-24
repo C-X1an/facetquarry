@@ -511,7 +511,10 @@ INIT = r'''#!/bin/busybox sh
 set -eu
 /bin/busybox mount -t proc proc /proc
 /bin/busybox mount -t sysfs sysfs /sys
-/bin/busybox mount -t devtmpfs -o size=1048576 devtmpfs /dev
+/bin/busybox mount -t devtmpfs -o nosuid devtmpfs /dev
+# devtmpfs mounts reuse the kernel's existing superblock. Reconfigure its
+# capacity explicitly; size= on the initial mount does not resize it.
+/bin/busybox mount -t devtmpfs -o remount,size=1048576,nosuid devtmpfs /dev
 MODULES
 /bin/busybox mount -t 9p -o trans=virtio,version=9p2000.L,cache=loose,ro rootfs /newroot
 /bin/busybox mount -t proc -o nosuid,nodev,noexec proc /newroot/proc
@@ -530,7 +533,26 @@ result={'schema_version':1,'source':config['source'],'status':'FAIL','mode':conf
         'reference_host_verified':False,'scope':'Actual KVM guest geometry and commands; no release claim'}
 code=1
 try:
+    # Observe the actual kernel-enforced device filesystem capacity before
+    # giving up the privilege needed to configure it. Mount arguments alone
+    # are not evidence that the kernel applied the requested limit.
+    device_mount=next(line.split() for line in pathlib.Path('/proc/mounts').read_text().splitlines()
+                      if line.split()[1]=='/dev')
+    device_fs=os.statvfs('/dev')
+    device_capacity=device_fs.f_frsize*device_fs.f_blocks
+    result['devtmpfs_before_uid_drop']={'mount':device_mount,'capacity_bytes':device_capacity,
+                                      'uid':os.getuid(),'gid':os.getgid()}
+    if (device_mount[2]!='devtmpfs' or 'rw' not in device_mount[3].split(',')
+            or 'nodev' in device_mount[3].split(',') or not 0<device_capacity<=1048576):
+        raise RuntimeError('actual devtmpfs capacity or device access differs from configuration')
     os.setgroups([]);os.setgid(config['gid']);os.setuid(config['uid'])
+    # These real I/O operations also check device access after dropping UID.
+    with open('/dev/null','wb') as stream:stream.write(b'facetquarry-device-control')
+    with open('/dev/zero','rb') as stream:
+        if stream.read(16)!=bytes(16):raise RuntimeError('guest zero device differs')
+    with open('/dev/urandom','rb') as stream:
+        if len(stream.read(16))!=16:raise RuntimeError('guest random device is not readable')
+    result['unprivileged_device_controls']='PASS'
     os.chdir(root)
     env={'PATH':'/usr/bin:/bin:/opt/go/bin','HOME':'/tmp','LANG':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1',
          'PYTHONPYCACHEPREFIX':'/tmp/pycache','GOTOOLCHAIN':'local','GOROOT':'/opt/go',
@@ -559,9 +581,10 @@ try:
             suffix=size[-1].lower(); multiplier={'k':1024,'m':1024**2,'g':1024**3}.get(suffix,1)
             count=int(size[:-1] if multiplier!=1 else size)*multiplier
             ram_backed.append({'mount':fields[1],'bytes':count})
-    if sum(item['bytes'] for item in ram_backed)>33554432:raise RuntimeError('guest RAM-backed filesystem budget exceeded')
     result['ram_backed_filesystems']=ram_backed
+    if sum(item['bytes'] for item in ram_backed)>33554432:raise RuntimeError('guest RAM-backed filesystem budget exceeded')
     versions={}
+    result['versions']=versions
     for name,command in [('python',[sys.executable,'--version']),('go',['go','version']),('git',['git','--version'])]:
         p=subprocess.run(command,text=True,capture_output=True,timeout=30)
         versions[name]={'command':command,'exit_code':p.returncode,'stdout':p.stdout,'stderr':p.stderr}
