@@ -17,6 +17,39 @@ def utc_now():
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
+class Progress:
+    """Atomic, bounded diagnostics outside every native timed Search interval."""
+    def __init__(self, path, source, profile, concurrency, expected):
+        self.path = path
+        self.tick = time.monotonic()
+        self.record = {'source': source, 'profile': profile, 'concurrency': concurrency,
+                       'expected_cells': expected, 'completed_cells': 0, 'failed_cells': 0,
+                       'phase': 'starting', 'phase_seconds': {}, 'started_at': utc_now()}
+        start = path.parent / 'reference-benchmark-start.json'
+        if start.is_file():
+            value = json.loads(start.read_text())
+            self.record['execution_id'] = value.get('execution_id')
+        self.phase('starting')
+
+    def phase(self, name, **fields):
+        now = time.monotonic()
+        old = self.record['phase']
+        times = self.record['phase_seconds']
+        times[old] = times.get(old, 0) + now - self.tick
+        self.tick = now
+        self.record.update(phase=name, phase_started_at=utc_now(), **fields)
+        raw = (json.dumps(self.record, sort_keys=True) + '\n').encode()
+        if len(raw) > 8192: raise ValueError('progress diagnostic exceeds bound')
+        temporary = self.path.with_suffix('.tmp')
+        temporary.write_bytes(raw)
+        os.replace(temporary, self.path)
+
+    def cell_finished(self, status):
+        self.record['completed_cells'] += 1
+        self.record['failed_cells'] += status != 'PASS'
+        self.phase('cell_complete')
+
+
 def memory_bytes():
     if os.name == 'nt':
         class MemoryStatus(ctypes.Structure):

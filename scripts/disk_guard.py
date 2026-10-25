@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import stat
+import subprocess
 import sys
 import time
 
@@ -61,8 +62,10 @@ def inventory(root: Path, progress=None) -> dict:
     report(root, 'complete', True)
     return {'root': str(root), 'accounted_bytes': total, 'symlinks_not_followed': links}
 
-def admission(total: int, reserve: int, free: int, unresolved_links: bool = False) -> bool:
-    return total >= 0 and reserve >= 0 and total+reserve <= 12_000_000_000 and free >= reserve and not unresolved_links
+def admission(total: int, reserve: int, free: int, unresolved_links: bool = False,
+              filesystem_floor: int | None = None) -> bool:
+    floor = reserve if filesystem_floor is None else filesystem_floor
+    return total >= 0 and reserve >= 0 and floor >= 0 and total+reserve <= 12_000_000_000 and free >= floor and not unresolved_links
 
 def inventory_roots(root: Path, external: Path | None, progress=None) -> list[dict]:
     # These are operator-selected attribution roots, not client input. Do not
@@ -83,19 +86,28 @@ def inventory_roots(root: Path, external: Path | None, progress=None) -> list[di
 def main() -> int:
     p=argparse.ArgumentParser(); p.add_argument('--root', type=Path)
     p.add_argument('--reserve', type=int, default=2_000_000_000)
+    p.add_argument('--filesystem-free-floor', type=int,
+                   help='Distinct local floor; a smaller value requires a verified owned-reference global reservation')
     p.add_argument('--external', type=Path, help='JSON list of explicit attributable external paths')
     a=p.parse_args(); root=a.root or Path(os.environ.get('FQ_WORKSPACE_ROOT', Path(__file__).resolve().parents[1]))
     external=a.external or (Path(os.environ['FQ_EXTERNAL_ALLOCATIONS']) if os.environ.get('FQ_EXTERNAL_ALLOCATIONS') else None)
+    floor = a.reserve if a.filesystem_free_floor is None else a.filesystem_free_floor
+    reservation = None
     try:
+        if floor != a.reserve:
+            from reference_reservation import verify
+            reservation = verify(root, a.reserve, floor)
         items=inventory_roots(root,external,lambda record: print(json.dumps(record),file=sys.stderr,flush=True))
-    except (OSError, ValueError) as error:
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         print(json.dumps({'admission':'REFUSE','hard_quota_enforced':False,'error':str(error)}));return 1
     total=sum(x['accounted_bytes'] for x in items)
     unresolved=any(x['symlinks_not_followed'] for x in items)
-    denied=not admission(total,a.reserve,shutil.disk_usage(root).free,unresolved)
+    denied=not admission(total,a.reserve,shutil.disk_usage(root).free,unresolved,floor)
     report={'limit_bytes':LIMIT, 'admission_ceiling_bytes':12_000_000_000,
             'inventory':items, 'total_attributable_bytes':total,
             'reserved_growth_bytes':a.reserve, 'admission':'REFUSE' if denied else 'ALLOW',
+            'global_reserved_growth_bytes': a.reserve, 'filesystem_free_floor_bytes': floor,
+            'reference_reservation': reservation,
             'warning':total>=10_000_000_000,
             'hard_quota_enforced':False,
             'caveat':'External app, VM, toolchain and cache allocations must be listed separately. Monitoring does not guarantee a hard cap.'}

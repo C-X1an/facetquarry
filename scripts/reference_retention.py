@@ -127,7 +127,7 @@ def main():
             and image == parent / 'facetquarry-reference.img', 'unexpected owned image/volume paths')
     require(not args.volume.is_symlink() and not Path(os.environ['FQ_IMAGE']).is_symlink()
             and image.is_file() and image.stat().st_uid == os.getuid()
-            and image.stat().st_size == 3_300_000_000, 'owned image identity differs')
+            and image.stat().st_size in (2_300_000_000, 3_300_000_000), 'owned image identity differs')
     require(not ROOT.is_relative_to(volume) and not Path.cwd().resolve().is_relative_to(volume),
             'retention must run outside the measured volume')
     require(bundle == ROOT / '.local/reference-transport/reference-members.tar.xz'
@@ -226,6 +226,12 @@ def main():
                         'guest privileged unit is still active')
         # Repeat the complete live comparison immediately before unmounting.
         verify_live_members(volume / 'source', manifest)
+        nested_proof = volume / 'reference-results-setup.json'
+        if nested_proof.exists():
+            # This happens only after every live result/fuzz/metadata byte is
+            # proved against the complete external bundle, and units are idle.
+            from reference_results import freeze
+            record['nested_results_freeze'] = freeze(volume, volume / 'source', nested_proof)
         save()
         run(['sudo', '-n', 'umount', '--', str(volume)])
         remaining = json.loads(run(['sudo', '-n', 'losetup', '--json', '--list', '--associated', str(image),

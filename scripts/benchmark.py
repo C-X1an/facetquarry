@@ -18,7 +18,7 @@ import statistics
 import time
 from common import ROOT,run,source_hash,executable
 from oracle import expected_prepared,prepare_records
-from benchmark_support import command_attempt,host_metadata,memory_bytes,utc_now
+from benchmark_support import command_attempt,host_metadata,memory_bytes,utc_now,Progress
 
 FACETS={0.2:'p20',0.05:'p05',0.01:'p01',0.001:'p001'}
 
@@ -155,9 +155,11 @@ def measurement(stdout,truths,eligible_ids,cell,config,identity):
 
 
 def main()->int:
-    parser=argparse.ArgumentParser();parser.add_argument('--profile',choices=('smoke','full'),default='smoke');parser.add_argument('--limit-cells',type=int,default=0);parser.add_argument('--concurrency',type=int,choices=(1,4,16));args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('--profile',choices=('smoke','full','diagnostic'),default='smoke');parser.add_argument('--limit-cells',type=int,default=0);parser.add_argument('--concurrency',type=int,choices=(1,4,16));args=parser.parse_args()
     if args.limit_cells<0:parser.error('--limit-cells must be nonnegative')
-    config=json.loads((ROOT/'benchmarks/grid.json').read_text())[args.profile]
+    config=json.loads((ROOT/'benchmarks/grid.json').read_text())['full' if args.profile=='diagnostic' else args.profile]
+    if args.profile=='diagnostic':
+        config.update(n=[10000],distributions=['ties'],correlations=['independent'],seeds=[131])
     if args.concurrency:config['concurrency']=args.concurrency
     identity=source_hash();provenance=binary_provenance(identity);cfg_hash=hashlib.sha256(json.dumps(config,sort_keys=True).encode()).hexdigest()[:12]
     folder=ROOT/'.local/benchmarks'/f'{args.profile}-{identity[:12]}-{cfg_hash}';folder.mkdir(parents=True,exist_ok=True)
@@ -168,6 +170,7 @@ def main()->int:
         if any(folder.glob('*.summary.json')):raise RuntimeError('cached summaries have no run provenance; refusing to relabel historical measurements')
         provenance_path.write_text(json.dumps(provenance,indent=2)+'\n')
     groups,cell_map,expected_targets=grid_groups(config)
+    progress=Progress(ROOT/'.local/reference-progress.json',identity,args.profile,config['concurrency'],len(cell_map))
     invocation={'started_at':utc_now(),'available_physical_ram_bytes':memory_bytes()[1],
                 'arguments':vars(args),'source':identity}
     invocation_path=folder/('invocation-'+str(time.time_ns())+'.json')
@@ -179,8 +182,10 @@ def main()->int:
             if args.limit_cells and completed_this_run>=args.limit_cells:
                 limited=limited or bool(pending);continue
             if not pending:continue
+            progress.phase('source_and_binary_proof',group=group,cell=None)
             if source_hash()!=identity:raise RuntimeError('source changed; refusing mixed-source benchmark')
             verify_binary_hashes(provenance)
+            progress.phase('admission')
             admission,_,_=command_attempt(folder,'admission',['python3','scripts/disk_guard.py','--reserve','500000000'],run,120)
             if admission['status']!='PASS':
                 # Refusal is terminal before generating vectors, preparing the
@@ -194,13 +199,16 @@ def main()->int:
                              'started_at':admission['started_at'],'ended_at':utc_now(),
                              'corpus_sha256':None,'queries_sha256':None,'attempts':[admission]}
                     temp=folder/f'{cid}.summary.tmp';temp.write_text(json.dumps(summary,indent=2)+'\n');temp.replace(folder/f'{cid}.summary.json');completed_this_run+=1
+                    progress.cell_finished('FAIL')
                 continue
+            progress.phase('corpus_creation')
             records,vectors=workload(group['n'],config['dimension'],group['distribution'],group['correlation'],group['seed'],config['queries'])
             prepared=prepare_records(records)
             corpus={'schema_version':1,'dimension':config['dimension'],'m':config['m'],'ef_construction':config['ef_construction'],'seed':group['seed'],'build_budget':config['build_budget'],'records':records}
             corpus_path=folder/'active-corpus.json';index_path=folder/'active-index.fq';index_path.unlink(missing_ok=True)
             corpus_raw=json.dumps(corpus,separators=(',',':')).encode();corpus_path.write_bytes(corpus_raw)
             corpus_sha=hashlib.sha256(corpus_raw).hexdigest();build_info=None;build_error=None;build=None
+            progress.phase('build')
             build,build_stdout,_=command_attempt(folder,'build',[str(executable('facetquarry',ROOT)),'build','--input',str(corpus_path),'--output',str(index_path)],run)
             if build['status']=='PASS':
                 try:
@@ -210,6 +218,7 @@ def main()->int:
             truths={}
             for cid,cell in pending:
                 if args.limit_cells and completed_this_run>=args.limit_cells:limited=True;break
+                progress.phase('source_proof',cell=cid)
                 if source_hash()!=identity:raise RuntimeError('source changed during experiment')
                 started=utc_now();qbase=[{'vector':vector,'k':config['k'],'ef':cell['ef'],'budget':1000000,'mode':cell['mode'],'filter':cell['filter']} for vector in vectors]
                 query_raw=''.join(json.dumps(query,separators=(',',':'))+'\n' for query in qbase).encode()
@@ -220,11 +229,14 @@ def main()->int:
                     summary.update(stage='build',errors=[build_error or 'build command failed'],build_seconds=build['duration_seconds'])
                 else:
                     label=cell['filter_label']
+                    progress.phase('oracle')
                     if label not in truths:truths[label]=[expected_prepared(prepared,query,'alpha') for query in qbase]
                     eligible_ids={record['id'] for record in records if all(record['metadata'].get(key)==value for key,value in cell['filter'].items())}
                     query_path=folder/'active-queries.jsonl';query_path.write_bytes(query_raw)
                     command=[str(executable('fqbench',ROOT)),'--index',str(index_path),'--tenant','alpha','--queries',str(query_path),'--warmup',str(config['warmup']),'--repetitions',str(config['repetitions']),'--concurrency',str(config['concurrency'])]
+                    progress.phase('native_measurement')
                     observed,stdout,_=command_attempt(folder,'measurement',command,run)
+                    progress.phase('sample_validation_and_compression')
                     samples,timings,recalls,work,meta,errors=measurement(stdout,truths[label],eligible_ids,cell,config,identity)
                     if observed['status']!='PASS':errors.append('measurement command failed: '+str(observed['termination_reason'] or observed['exit_code']))
                     with gzip.open(folder/f'{cid}.samples.jsonl.gz','wt') as output:
@@ -238,14 +250,17 @@ def main()->int:
                         snapshot_bytes=index_path.stat().st_size,generation=build_info['generation'],
                         build_distance_evaluations=build_info.get('build_distance_evaluations'),native_metadata=meta,errors=errors,command=command,
                         samples_sha256=hashlib.sha256((folder/f'{cid}.samples.jsonl.gz').read_bytes()).hexdigest())
+                progress.phase('publication_proof')
                 verify_binary_hashes(provenance)
                 if source_hash()!=identity:raise RuntimeError('source changed before summary publication')
                 summary['ended_at']=utc_now()
                 temp=folder/f'{cid}.summary.tmp';temp.write_text(json.dumps(summary,indent=2)+'\n');temp.replace(folder/f'{cid}.summary.json');completed_this_run+=1
+                progress.cell_finished(summary['status'])
             corpus_path.unlink(missing_ok=True);index_path.unlink(missing_ok=True);(folder/'active-queries.jsonl').unlink(missing_ok=True)
     except Exception as failure:
         # Preserve attempts and make interrupted/unattempted cells explicit in coverage.
         run_errors.append(type(failure).__name__+': '+str(failure))
+    progress.phase('final_collection')
     try:
         summaries,actual_ids=collect_summaries(folder,cell_map,identity,provenance)
     except Exception as failure:
@@ -257,12 +272,13 @@ def main()->int:
     report={'schema_version':1,'evidence_type':'benchmark_coverage','source':identity,'provenance':provenance,'profile':args.profile,'config':config,'config_hash':cfg_hash,
         'expected_cells':len(cell_map),'completed_cells':len(actual_ids),'missing_cells':missing,'unexpected_cells':extra,'failed_cells':failures,'run_errors':run_errors,'limited':limited,
         'grid_complete':not missing and not extra and not run_errors,'reference_host_verified':False,
-        'reference_recall_target':'PASS' if target_pass else 'NOT YET MEASURED' if not target_complete else 'FAIL',
+        'reference_recall_target':'NOT QUALIFYING' if args.profile=='diagnostic' else 'PASS' if target_pass else 'NOT YET MEASURED' if not target_complete else 'FAIL',
         'release_qualification':False,'scope':'synthetic experimental measurements; full grid and reference-host qualification are separate gates'}
     report['status']='PASS' if not missing and not extra and not failures and not run_errors else 'FAIL'
     invocation.update(ended_at=utc_now(),status=report['status'],completed_this_invocation=completed_this_run,run_errors=run_errors)
     invocation_path.write_text(json.dumps(invocation,indent=2)+'\n')
     (folder/'coverage.json').write_text(json.dumps(report,indent=2)+'\n');(folder/'expected_cells.json').write_text(json.dumps(list(cell_map))+'\n')
+    progress.phase('complete' if report['status']=='PASS' else 'failed',qualifying_profile=args.profile=='full')
     print(json.dumps({'profile':args.profile,'folder':str(folder.relative_to(ROOT)),'status':report['status'],'cells':len(actual_ids),'expected':len(cell_map),'failed_cells':len(failures),'run_errors':run_errors,'scope':report['scope']}))
     return 0 if report['status']=='PASS' else 1
 if __name__=='__main__':raise SystemExit(main())

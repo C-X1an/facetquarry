@@ -236,8 +236,10 @@ def check_inner(record, inputs, members, identity):
     require(guest['versions']['go']['exit_code'] == 0
             and guest['versions']['go']['stdout'].strip() == 'go version go1.27.3 linux/amd64', 'guest supported toolchain differs')
     quota = documents['quota']
-    require(quota.get('volume_file_bytes') == 3_300_000_000
-            and quota.get('oversized_allocation_bytes') == 3_400_000_000
+    require(type(quota.get('volume_file_bytes')) is int
+            and quota['volume_file_bytes'] in (2_300_000_000, 3_300_000_000)
+            and type(quota.get('oversized_allocation_bytes')) is int
+            and quota['oversized_allocation_bytes'] == quota['volume_file_bytes'] + 100_000_000
             and quota.get('oversized_allocation') == 'DENIED_ENOSPC'
             and quota.get('hard_quota_enforced') is True and b'No space left on device' in inputs['enospc'],
             'actual fixed-volume refusal proof missing')
@@ -248,9 +250,15 @@ def check_inner(record, inputs, members, identity):
             'quota belongs to a different volume or execution')
     fsdevs = [argv[i + 1] for i, value in enumerate(argv[:-1]) if value == '-fsdev']
     volume = quota['volume_path']
-    require('local,id=owned,path=' + volume + ',security_model=none,readonly=on' in fsdevs
-            and 'local,id=project,path=' + volume + '/source,security_model=none' in fsdevs
-            and 'local,id=rootfs,path=' + volume + '/reference-guest/rootfs,security_model=none,readonly=on' in fsdevs,
+    legacy_shares = {'local,id=owned,path=' + volume + ',security_model=none,readonly=on',
+                     'local,id=project,path=' + volume + '/source,security_model=none',
+                     'local,id=rootfs,path=' + volume + '/reference-guest/rootfs,security_model=none,readonly=on'}
+    remapped_shares = {value.replace(',security_model=none', ',security_model=none,multidevs=remap')
+                       for value in legacy_shares}
+    # Existing single-filesystem 3.3GB records retain their exact contract. The
+    # nested 2.3GB layout requires remapped inode identities on every share.
+    require(len(fsdevs) == 3 and (set(fsdevs) == remapped_shares
+            or quota['volume_file_bytes'] == 3_300_000_000 and set(fsdevs) == legacy_shares),
             'actual guest shares differ from the quota volume')
     require(start.get('preexisting_full_profiles') == [] and start.get('profile') == 'full'
             and start.get('concurrency') == concurrency and start.get('config') == config,

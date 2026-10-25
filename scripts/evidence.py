@@ -38,8 +38,11 @@ def main() -> int:
     p.add_argument('--category', required=True)
     p.add_argument('--requirements', default='')
     p.add_argument('--timeout', type=int, default=600)
+    p.add_argument('--progress-file', type=Path)
+    p.add_argument('--progress-seconds', type=int, default=30)
     p.add_argument('command', nargs=argparse.REMAINDER)
     a = p.parse_args(); command = a.command
+    if not 1 <= a.progress_seconds <= 60: p.error('progress interval must be1..60seconds')
     if command and command[0] == '--': command = command[1:]
     if not command: p.error('command required')
     # Never run commands containing credential literals; this wrapper is not a redactor.
@@ -54,11 +57,24 @@ def main() -> int:
             r = subprocess.run(args, text=True, capture_output=True, timeout=10)
             versions[name] = r.stdout.strip() if r.returncode == 0 else 'UNAVAILABLE'
         except (OSError, subprocess.TimeoutExpired): versions[name] = 'UNAVAILABLE'
-    monotonic = time.monotonic(); reason = None
+    monotonic = time.monotonic(); reason = None; last_progress = monotonic; updates = 0; progress_error = None
     with stdout.open('wb') as out, stderr.open('wb') as err:
         try:
             proc = subprocess.Popen(command, cwd=ROOT, env=environment(), stdout=out, stderr=err, start_new_session=(os.name == 'posix'))
             while proc.poll() is None:
+                if a.progress_file and time.monotonic() - last_progress >= a.progress_seconds:
+                    last_progress = time.monotonic()
+                    try:
+                        if a.progress_file.is_file():
+                            with a.progress_file.open('rb') as progress_stream: raw = progress_stream.read(8193)
+                            if len(raw) > 8192: raise ValueError('progress file exceeds bound')
+                            progress = json.loads(raw)
+                            keys = ('source','profile','concurrency','execution_id','group','cell','phase',
+                                    'completed_cells','failed_cells','expected_cells','phase_started_at','phase_seconds')
+                            print(json.dumps({'benchmark_progress': {key: progress[key] for key in keys if key in progress}}),flush=True)
+                            updates += 1
+                    except (OSError, ValueError, TypeError) as error:
+                        progress_error = type(error).__name__ + ': ' + str(error)
                 if time.monotonic() - monotonic > a.timeout:
                     reason = 'timeout'; terminate(proc); break
                 if stdout.stat().st_size + stderr.stat().st_size > 16 * 1024 * 1024:
@@ -80,6 +96,9 @@ def main() -> int:
               'stdout_sha256': sha(stdout), 'stderr_sha256': sha(stderr),
               'status': 'PASS' if code == 0 and reason is None and before == after else 'FAIL',
               'termination_reason': reason, 'scope': 'command only; not whole-product release approval'}
+    if a.progress_file:
+        record['progress_observation'] = {'updates': updates, 'last_error': progress_error,
+                                          'scope': 'Best-effort diagnostics; no qualification authority.'}
     (folder/'receipt.json').write_text(json.dumps(record, indent=2)+'\n')
     manifest = ROOT/'.local/evidence/run_manifest.jsonl'
     # Single heavy writer policy also prevents concurrent append interleaving.

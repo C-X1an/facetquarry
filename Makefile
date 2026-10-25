@@ -9,13 +9,14 @@ export TMPDIR := $(CURDIR)/.cache/tmp
 export GOMAXPROCS := 2
 export PYTHONPATH := $(CURDIR)/scripts
 GO ?= go
+FQ_FILESYSTEM_FREE_FLOOR ?= 2000000000
 
 .PHONY: bootstrap build format fmt lint check test integration acceptance race property fuzz mutation security security-online benchmark-smoke benchmark demo clean-verify ci verify release-verify clean integrity disk
 
 bootstrap:
 	@mkdir -p .cache/go-build .cache/go-mod .cache/tmp .local bin
 	$(PYTHON) scripts/bootstrap.py
-	$(PYTHON) scripts/disk_guard.py --reserve 2000000000
+	$(PYTHON) scripts/disk_guard.py --reserve 2000000000 --filesystem-free-floor $(FQ_FILESYSTEM_FREE_FLOOR)
 integrity: bootstrap
 	$(PYTHON) scripts/check_integrity.py
 build: integrity

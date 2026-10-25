@@ -610,7 +610,9 @@ try:
         # Source/config equality alone is insufficient execution provenance.
         previous=sorted(p.name for p in (root/'.local/benchmarks').glob('full-*'))
         if previous:raise RuntimeError('qualified benchmark requires an empty full-profile namespace')
-        frozen=json.loads((root/'benchmarks/grid.json').read_text())['full' if config['profile']=='full' else 'smoke']
+        frozen=json.loads((root/'benchmarks/grid.json').read_text())['full' if config['profile'] in ('full','diagnostic') else 'smoke']
+        if config['profile']=='diagnostic':
+            frozen.update(n=[10000],distributions=['ties'],correlations=['independent'],seeds=[131])
         frozen['concurrency']=config['concurrency']
         cfg_hash=hashlib.sha256(json.dumps(frozen,sort_keys=True).encode()).hexdigest()[:12]
         folder='.local/benchmarks/'+config['profile']+'-'+config['source'][:12]+'-'+cfg_hash
@@ -771,7 +773,7 @@ def boot(setup, extract, root, kernel, initrd):
         # Reject commas so the path cannot inject QEMU fsdev suboptions.
         if ',' in str(path):
             raise RuntimeError('QEMU share paths cannot contain commas')
-        command += ['-fsdev', f'local,id={tag},path={path},security_model=none' + (',readonly=on' if readonly else ''),
+        command += ['-fsdev', f'local,id={tag},path={path},security_model=none,multidevs=remap' + (',readonly=on' if readonly else ''),
                     '-device', f'virtio-9p-pci,fsdev={tag},mount_tag={tag}']
     result_path = setup.args.project / '.local/reference-guest-result.json'
     if result_path.exists():
@@ -805,7 +807,7 @@ def main():
     parser.add_argument('--volume', required=True, type=Path)
     parser.add_argument('--project', required=True, type=Path)
     parser.add_argument('--mode', choices=('smoke', 'benchmark'), default='smoke')
-    parser.add_argument('--profile', choices=('smoke', 'full'), default='full')
+    parser.add_argument('--profile', choices=('smoke', 'full', 'diagnostic'), default='full')
     parser.add_argument('--concurrency', choices=(1, 4, 16), type=int, default=1)
     parser.add_argument('--timeout', type=int, default=300)
     parser.add_argument('--setup-max-bytes', type=int, default=800_000_000)

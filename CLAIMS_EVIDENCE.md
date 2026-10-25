@@ -25,3 +25,6 @@ Portable identity and owned-volume repairs were qualified on Linux at source4949
 
 
 Actual reference smoke40124290304 (commit3058/sourceffe6): supported full verification, clean committed Linux reproduction, current online scan and lossless655-member preservation/owned-image cleanup PASS. Guest benchmark FAIL before any native query: complete disk admission timed out120seconds; all21cells retained. See verification/published/reference-pipeline-c2/observation.json. Inventory metadata and ZIP admission repairs have bounded controls; actual rerun, full repaired1/4/16 matrices and manual gates remain unqualified.
+
+
+Preservation candidate03f15ea3:122local Python controls,118passed/4explicit platform skips; actualLinuxnewgeometry/recovery/current-toolchain/fullmatrix gates NOT RUN. Full40132496594 has zero artifacts and unavailable scientific raw; no recall or coverage result is inferred. See [candidate evidence](verification/published/preservation-candidate-20261025.json).

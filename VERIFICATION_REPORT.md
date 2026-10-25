@@ -78,3 +78,12 @@ GitHub then rejected that candidate's job-level `runner.temp` expressions before
 
 
 Actual reference smoke40124290304 (commit3058/sourceffe6): supported full verification, clean committed Linux reproduction, current online scan and lossless655-member preservation/owned-image cleanup PASS. Guest benchmark FAIL before any native query: complete disk admission timed out120seconds; all21cells retained. See verification/published/reference-pipeline-c2/observation.json. Inventory metadata and ZIP admission repairs have bounded controls; actual rerun, full repaired1/4/16 matrices and manual gates remain unqualified.
+
+
+## Preservation candidate and unavailable full evidence (2026-10-25)
+
+[Full attempt40132496594](https://github.com/C-X1an/facetquarry/actions/runs/40132496594), at commit6c0f/source1e514, failed after its outer guest command ran14440.066seconds. Packaging hit its1080-second deadline; the combined upload guard then refused growth. The actual run retained zero artifacts. Scientific raw cells and the inner receipt are unavailable, so cell coverage, recall and the exact inner cause remain unknown. Explicit image cleanup was skipped; terminal hosted-runner lifecycle is not byte-preserving retention.
+
+Candidate source`03f15ea35552b25656260b8f57304bdba3b1c8dd8d1249ca9dcc73a93b32f691` reserves the failed-pack branch upfront, preserves diagnostics independently, and selects one complete bundle, fixed results image, or premeasurement bootstrap. It adds bounded progress diagnostics, a separately named nonqualifying full-scale group, and an explicitly nonqualifying failed-pack/read-only-image control. It retains the frozen full matrix and all1/4/16-reader release requirements.
+
+[Candidate engineering observations](verification/published/preservation-candidate-20261025.json) retain native missing-Make failure, a syntax-checker count failure after helper extraction, the Windows metadata path failure, and their subsequent repairs. The final local Python check ran122tests:118passed and4explicit Windows/platform skips. These are contract/failure controls, not actual Linux filesystem, supported-Go, scientific benchmark, browser or owner qualification. The new2.3GBouter/1.1GBresults geometry, actual failure recovery, full-size codec timing, current candidate security scan and repaired full matrices remain NOT RUN. Earlier supported-Go1.27.3 checks and security scans remain scoped to their recorded source.

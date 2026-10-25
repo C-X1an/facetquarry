@@ -3,10 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       profile:
-        description: Frozen full matrix or explicitly nonqualifying workflow smoke
+        description: Frozen full matrix or explicitly nonqualifying smoke/diagnostic
         type: choice
-        options: [full, smoke]
+        options: [full, smoke, diagnostic]
         default: full
+        required: true
+      preservation_control:
+        description: Deliberately time out packaging to test complete frozen-image recovery (nonqualifying)
+        type: boolean
+        default: false
         required: true
       concurrency:
         description: Separate fixed-reader profile on the four-vCPU guest
@@ -31,18 +36,20 @@ jobs:
       FQ_ACCOUNTED_BASE_BYTES: ${{ inputs.accounted_base_bytes }}
       FQ_BENCH_PROFILE: ${{ inputs.profile }}
       FQ_BENCH_CONCURRENCY: ${{ inputs.concurrency }}
+      FQ_PRESERVATION_CONTROL: ${{ inputs.preservation_control }}
+      FQ_FILESYSTEM_FREE_FLOOR: "500000000"
     steps:
       - name: Initialize owned paths from the actual runner environment
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
-          printf '%s\n' "FQ_VOLUME=$RUNNER_TEMP/facetquarry-reference" "FQ_IMAGE=$RUNNER_TEMP/facetquarry-reference.img" >> "$GITHUB_ENV"
+          printf '%s\n' "FQ_VOLUME=$RUNNER_TEMP/facetquarry-reference" "FQ_IMAGE=$RUNNER_TEMP/facetquarry-reference.img" "FQ_METADATA_PACKET=$RUNNER_TEMP/facetquarry-metadata-packet" >> "$GITHUB_ENV"
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
         with:
           persist-credentials: false
-      - name: Establish the admitted 3.3 GB owned filesystem
+      - name: Establish the admitted 2.3 GB owned filesystem including the failure branch
         id: quota
         timeout-minutes: 3
         shell: bash
@@ -52,24 +59,26 @@ jobs:
           fq_volume="$RUNNER_TEMP/facetquarry-reference"
           mkdir -p "$GITHUB_WORKSPACE/.local"
           python3 - <<'PY'
-          import json,os,pathlib
+          import json,os,pathlib,sys
+          sys.path.insert(0,'scripts')
+          from reference_artifacts import growth_plan
           base=int(os.environ['FQ_ACCOUNTED_BASE_BYTES'])
-          assert os.environ['FQ_BENCH_PROFILE'] in ('full','smoke') and os.environ['FQ_BENCH_CONCURRENCY'] in ('1','4','16')
-          # The normal worst case includes a retained image if cleanup fails,
-          # the external bundle, and its cloud ZIP. A raw-failure upload has a
-          # separate actual-byte admission before it can allocate anything.
-          planned=3300000000+400000000+450000000+50000000
-          record={'base_includes_global2GB_reserve':base,'maximum_new_stage_bytes':planned,'admission_total_bytes':base+planned,'admission':'ALLOW' if 2000000000<=base and base+planned<12000000000 else 'REFUSE'}
+          assert all(0 < os.statvfs(path).f_frsize <= 4096 for path in (os.environ['GITHUB_WORKSPACE'],os.environ['RUNNER_TEMP'])),'physical metadata reservation requires allocation units no larger than4096bytes'
+          assert os.environ['FQ_BENCH_PROFILE'] in ('full','smoke','diagnostic') and os.environ['FQ_BENCH_CONCURRENCY'] in ('1','4','16')
+          assert os.environ['FQ_PRESERVATION_CONTROL'] != 'true' or os.environ['FQ_BENCH_PROFILE'] == 'smoke','failure controls require explicitly nonqualifying smoke'
+          # Reserve the largest normal or failed-pack branch BEFORE allocation.
+          # Bundle, exact image, and bootstrap uploads are mutually exclusive.
+          record=growth_plan(base,2300000000)
           (pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local/reference-admission.json').write_text(json.dumps(record,indent=2)+'\n')
           print(json.dumps(record));assert record['admission']=='ALLOW','global attribution admission refused'
           PY
           test ! -e "$fq_image" && test ! -e "$fq_volume"
           mkdir "$fq_volume"
-          fallocate -l 3300000000 "$fq_image"
+          fallocate -l 2300000000 "$fq_image"
           mkfs.ext4 -F -q "$fq_image"
           sudo -n mount -o loop "$fq_image" "$fq_volume"
           sudo -n chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
-          if fallocate -l 3400000000 "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-reference-enospc.stderr"; then
+          if fallocate -l 2400000000 "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-reference-enospc.stderr"; then
             echo 'FAIL: oversized allocation was accepted'
             exit 1
           fi
@@ -84,14 +93,14 @@ jobs:
           volume=pathlib.Path(os.environ['FQ_VOLUME']);image=pathlib.Path(os.environ['FQ_IMAGE'])
           mount=json.loads(subprocess.run(['findmnt','--json','--target',str(volume),'-o','TARGET,FSTYPE,SOURCE'],capture_output=True,text=True,check=True).stdout)['filesystems'][0]
           assert mount['target']==str(volume) and mount['fstype']=='ext4' and mount['source'].startswith('/dev/loop')
-          assert image.stat().st_size==3300000000
+          assert image.stat().st_size==2300000000
           def git(*args):return subprocess.run(['git','-C',str(volume/'source'),*args],capture_output=True,text=True,check=True).stdout.strip()
           context={'commit':git('rev-parse','HEAD'),'git_status':git('status','--porcelain'),
                    'github_run_id':os.environ['GITHUB_RUN_ID'],'github_run_attempt':os.environ['GITHUB_RUN_ATTEMPT']}
           stderr=(volume/'source/.local/enospc.stderr').read_bytes()
           assert context['git_status']=='' and b'No space left on device' in stderr
           record={'schema_version':1,'evidence_type':'reference_quota','hard_quota_enforced':True,
-                  'volume_file_bytes':image.stat().st_size,'oversized_allocation_bytes':3400000000,
+                  'volume_file_bytes':image.stat().st_size,'oversized_allocation_bytes':2400000000,
                   'oversized_allocation':'DENIED_ENOSPC','mount':mount,'volume_path':str(volume),
                   'image_path':str(image),'run_context':context,'enospc_sha256':hashlib.sha256(stderr).hexdigest(),
                   'scope':'Actual ext4 loop-image ceiling; global 2GB reserve and guest RAM filesystems are accounted separately.'}
@@ -156,9 +165,21 @@ jobs:
           set -euo pipefail
           cd "$FQ_VOLUME/source"
           python3 scripts/evidence.py --category current-reference-online-security --requirements AC-018 --timeout 120 -- make security-online
+      - name: Preserve fuzz and trim verified regenerable SDK/cache before nested results setup
+        id: results
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          python3 scripts/evidence.py --category reference-preflight-trim --requirements AC-020 --timeout 240 -- python3 scripts/reference_preflight.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+          # This operation relocates .local. Every prior writer must be closed;
+          # wrapping setup in evidence.py would strand its active output.
+          timeout --signal=TERM --kill-after=10s 100s python3 scripts/reference_results.py setup --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
       - name: Measure the frozen profile in the actual declared KVM guest
         id: measurement
-        timeout-minutes: 256
+        if: ${{ !cancelled() && steps.results.outcome == 'success' }}
+        timeout-minutes: 265
         shell: bash
         run: |
           set -euo pipefail
@@ -177,47 +198,28 @@ jobs:
               folder.rename(preflight/folder.name)
           (local/'reference-preflight-relocation.json').write_text(json.dumps({'scope':'Host verification smoke preserved separately; no inherited guest cells.','files':records},indent=2)+'\n')
           PY
-          python3 scripts/evidence.py --category actual-reference-full-benchmark --requirements AC-016,AC-017 --timeout 15240 -- python3 scripts/reference_guest.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --mode benchmark --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY" --timeout 14520 --setup-max-bytes 800000000
-      - name: Preserve actual guest and setup diagnostics, including failures
-        if: always()
+          python3 scripts/evidence.py --category actual-reference-full-benchmark --requirements AC-016,AC-017 --timeout 15840 --progress-file .local/reference-progress.json --progress-seconds 30 -- python3 scripts/reference_guest.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --mode benchmark --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY" --timeout 15120 --setup-max-bytes 800000000
+      - name: Quiesce only this execution's positively bound guest units
+        id: quiescence
+        if: ${{ always() && steps.results.outcome == 'success' }}
         timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
-          if test -d "$FQ_VOLUME/reference-guest"; then
-            mkdir -p "$FQ_VOLUME/source/.local/reference-guest-setup"
-            find "$FQ_VOLUME/reference-guest" -maxdepth 1 -type f \( -name '*.json' -o -name '*.log' -o -name '*.txt' \) -exec cp -- {} "$FQ_VOLUME/source/.local/reference-guest-setup/" \;
-            if test -d "$FQ_VOLUME/reference-guest/commands"; then
-              cp -a -- "$FQ_VOLUME/reference-guest/commands" "$FQ_VOLUME/source/.local/reference-guest-setup/commands"
-            fi
-          fi
-          if test -d "$FQ_VOLUME/source/.local"; then
-            python3 - <<'PY'
-          import hashlib,json,os,pathlib,shutil
-          source=pathlib.Path(os.environ['FQ_VOLUME'])/'source';output=source/'.local/reference-fuzz'
-          output.mkdir()
-          records=[]
-          for label,path in [('cache',source/'.cache/go-build/fuzz'),('engine-testdata',source/'internal/engine/testdata/fuzz')]:
-              if not path.exists():continue
-              assert not path.is_symlink() and path.resolve().is_relative_to(source.resolve())
-              for item in path.rglob('*'):
-                  assert not item.is_symlink()
-                  if item.is_file():
-                      assert len(records)<5000 and item.stat().st_size<=67108864
-                      records.append({'path':label+'/'+item.relative_to(path).as_posix(),'bytes':item.stat().st_size,'sha256':hashlib.sha256(item.read_bytes()).hexdigest()})
-              assert sum(r['bytes'] for r in records)<=100000000
-              shutil.copytree(path,output/label)
-          (output/'manifest.json').write_text(json.dumps({'scope':'Actual retained fuzz corpus, including any failing engine testdata.','files':records},indent=2)+'\n')
-          PY
-          fi
-          if test -f "$FQ_VOLUME/source/scripts/disk_guard.py"; then
-            cd "$FQ_VOLUME/source"
-            python3 scripts/disk_guard.py --reserve 500000000 > .local/reference-inventory.json
-          fi
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/evidence.py --category reference-guest-quiescence --requirements AC-020 --timeout 90 -- python3 scripts/reference_results.py quiesce --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Preserve actual host diagnostics externally before any child-space-dependent copy
+        if: always()
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/reference_pipeline.py diagnostics --volume "$FQ_VOLUME"
       - name: Recompute all samples and frozen five-seed intervals
         id: analysis
-        if: ${{ !cancelled() && steps.measurement.outcome == 'success' }}
-        timeout-minutes: 8
+        if: ${{ !cancelled() && inputs.profile != 'diagnostic' && steps.measurement.outcome == 'success' }}
+        timeout-minutes: 6
         shell: bash
         run: |
           set -euo pipefail
@@ -226,7 +228,7 @@ jobs:
           fq_source="$(python3 scripts/common.py)"
           fq_preview=()
           if test "$FQ_BENCH_PROFILE" = smoke; then fq_preview=(--historical-smoke-preview); fi
-          python3 scripts/evidence.py --category reference-analysis --requirements AC-016,AC-017 --timeout 420 -- python3 scripts/analyze_reference.py "$fq_folder" --grid benchmarks/grid.json --expected-source "$fq_source" --output .local/reference-analysis "${fq_preview[@]}"
+          python3 scripts/evidence.py --category reference-analysis --requirements AC-016,AC-017 --timeout 330 -- python3 scripts/analyze_reference.py "$fq_folder" --grid benchmarks/grid.json --expected-source "$fq_source" --output .local/reference-analysis "${fq_preview[@]}"
       - name: Validate the complete full-profile execution before packaging
         if: ${{ !cancelled() && inputs.profile == 'full' && steps.analysis.outcome == 'success' }}
         timeout-minutes: 2
@@ -235,127 +237,151 @@ jobs:
           set -euo pipefail
           cd "$FQ_VOLUME/source"
           python3 scripts/evidence.py --category reference-execution-qualification --requirements AC-016,AC-017 --timeout 90 -- python3 scripts/reference_qualification.py .local/reference-execution.json
-      - name: Admit bounded lossless packaging and retain its actual result
+      - name: Package complete results with bounded streams and durable failed-attempt receipts
         id: package
-        if: ${{ !cancelled() && steps.quota.outcome == 'success' }}
-        timeout-minutes: 24
+        if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
+        # 420s child +150s verification +210s inventory/termination overhead.
+        # Exclusive artifact/recovery branches keep the worst full path349min.
+        timeout-minutes: 13
         shell: bash
         run: |
           set -euo pipefail
-          cd "$FQ_VOLUME/source"
-          mkdir -p "$GITHUB_WORKSPACE/.local/reference-transport"
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p .local/reference-transport
           fq_source="$(python3 scripts/common.py)"
           fq_commit="$(git rev-parse HEAD)"
-          # All measured receipts are complete before this inventory. Include
-          # FAIL records; never archive this packer's active output stream.
-          timeout --signal=TERM --kill-after=10s 1080s python3 scripts/evidence_bundle.py pack . "$GITHUB_WORKSPACE/.local/reference-transport/reference-members.tar.xz" --source "$fq_source" --commit "$fq_commit" --run-id "$GITHUB_RUN_ID" --paths .local > "$GITHUB_WORKSPACE/.local/reference-transport/pack-result.json" 2> "$GITHUB_WORKSPACE/.local/reference-transport/pack-stderr.txt"
-          cd "$GITHUB_WORKSPACE"
-          python3 scripts/evidence.py --category reference-bundle-verification --requirements AC-020 --timeout 180 -- python3 scripts/evidence_bundle.py verify .local/reference-transport/reference-members.tar.xz
-      - name: Export bounded execution inputs before removing the image
+          fq_control=()
+          fq_deadline=420
+          if test "$FQ_PRESERVATION_CONTROL" = true; then fq_control=(--control); fq_deadline=2; fi
+          # Packer runs outside evidence.py and outside the measured .local.
+          # It records its actual subprocess streams, timeout and cleanup proof.
+          python3 scripts/reference_artifacts.py pack --root "$FQ_VOLUME/source" --output "$GITHUB_WORKSPACE/.local/reference-transport/reference-members.tar.xz" --source "$fq_source" --commit "$fq_commit" --run-id "$GITHUB_RUN_ID" --timeout "$fq_deadline" --preset 3 "${fq_control[@]}"
+          python3 scripts/evidence.py --category reference-bundle-verification --requirements AC-020 --timeout 150 -- python3 scripts/evidence_bundle.py verify .local/reference-transport/reference-members.tar.xz
+      - name: Export complete bounded execution inputs before removing the image
         id: metadata
         if: always()
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/reference_pipeline.py export --volume "$FQ_VOLUME"
+      - name: Remove only the owned image after complete external byte verification
+        id: retention
+        if: ${{ !cancelled() && steps.package.outcome == 'success' && steps.metadata.outcome == 'success' }}
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/evidence.py --category reference-owned-retention --requirements AC-020 --timeout 420 -- python3 scripts/reference_retention.py --volume "$FQ_VOLUME" --bundle "$GITHUB_WORKSPACE/.local/reference-transport/reference-members.tar.xz"
+      - name: Record every original smoke member for the deliberate packaging failure control
+        id: control_originals
+        if: ${{ always() && inputs.preservation_control && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
         timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
-          python3 - <<'PY'
-          import hashlib,json,os,pathlib,shutil,stat
-          original=pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local';original.mkdir(exist_ok=True)
-          source=pathlib.Path(os.environ['FQ_VOLUME'])/'source';local=source/'.local'
-          names=['evidence','reference-execution.json','reference-guest-result.json','reference-benchmark-start.json','reference-quota.json','reference-guest-setup','reference-analysis','clean-verify','test-failures','toolchain-download.json','govulncheck-build.txt','reference-inventory.json','enospc.stderr','reference-preflight-relocation.json','reference-fuzz/manifest.json']
-          files=[]
-          for name in names:
-              path=local/name
-              if not path.exists():continue
-              assert not path.is_symlink()
-              for item in ([path] if path.is_file() else path.rglob('*')):
-                  info=item.lstat();assert not stat.S_ISLNK(info.st_mode)
-                  if stat.S_ISDIR(info.st_mode):continue
-                  assert stat.S_ISREG(info.st_mode)
-                  files.append(item)
-          assert len(files)<=3000 and sum(p.stat().st_size for p in files)<=35000000,'curated metadata exceeds admission; full raw selection remains in bundle/volume'
-          output=original/'reference-metadata';output.mkdir()
-          records=[]
-          for path in sorted(files):
-              relative=path.relative_to(local);target=output/relative;target.parent.mkdir(parents=True,exist_ok=True)
-              before=hashlib.sha256(path.read_bytes()).hexdigest();shutil.copyfile(path,target)
-              assert hashlib.sha256(target.read_bytes()).hexdigest()==before
-              records.append({'member':path.relative_to(source).as_posix(),'path':target.relative_to(original.parent).as_posix(),'bytes':target.stat().st_size,'sha256':before})
-          (original/'reference-metadata-manifest.json').write_text(json.dumps({'scope':'Curated convenience copies; the lossless bundle selects every completed .local member, including FAIL receipts and all raw samples.','files':records},indent=2)+'\n')
-          PY
-      - name: Remove only the owned image after complete external byte verification
-        id: retention
-        if: ${{ !cancelled() && steps.package.outcome == 'success' && steps.metadata.outcome == 'success' }}
-        timeout-minutes: 10
+          python3 scripts/evidence.py --category reference-image-control-originals --requirements AC-020 --timeout 90 -- python3 scripts/reference_image_control.py prepare --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Freeze the exact fixed results image after packaging failure
+        id: frozen
+        if: ${{ always() && steps.results.outcome == 'success' && steps.package.outcome != 'success' && steps.quiescence.outcome == 'success' }}
+        timeout-minutes: 3
         shell: bash
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
-          python3 scripts/evidence.py --category reference-owned-retention --requirements AC-020 --timeout 540 -- python3 scripts/reference_retention.py --volume "$FQ_VOLUME" --bundle "$GITHUB_WORKSPACE/.local/reference-transport/reference-members.tar.xz"
-      - name: Preserve early failures outside the owned volume
+          python3 scripts/evidence.py --category reference-results-failure-freeze --requirements AC-020 --timeout 150 -- python3 scripts/reference_results.py freeze --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Recover every smoke original through the same frozen image mounted read-only
+        if: ${{ always() && inputs.preservation_control && steps.control_originals.outcome == 'success' && steps.frozen.outcome == 'success' }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/evidence.py --category reference-image-control-readonly-recovery --requirements AC-020 --timeout 210 -- python3 scripts/reference_image_control.py recover --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Rescue only original premeasurement evidence when nested setup failed
+        id: rescue
+        if: ${{ always() && steps.quota.outcome == 'success' && steps.results.outcome != 'success' }}
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/evidence.py --category reference-premeasurement-rescue --requirements AC-020 --timeout 90 -- python3 scripts/reference_results.py rescue --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Observe final actual image state without changing workload status
         if: always()
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "$GITHUB_WORKSPACE/.local"
-          mkdir -p "$GITHUB_WORKSPACE/.cache/tmp"
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p .local .cache/tmp
           printf '%s\n' "TMPDIR=$GITHUB_WORKSPACE/.cache/tmp" "TEMP=$GITHUB_WORKSPACE/.cache/tmp" "TMP=$GITHUB_WORKSPACE/.cache/tmp" "GOTMPDIR=$GITHUB_WORKSPACE/.cache/tmp" >> "$GITHUB_ENV"
-          python3 - <<'PY'
-          import json,os,pathlib,shutil
-          original=pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local'
-          image=pathlib.Path(os.environ['FQ_IMAGE']);volume=pathlib.Path(os.environ['FQ_VOLUME'])
-          record={'image_exists':image.is_file(),'image_bytes':image.stat().st_size if image.is_file() else 0,'volume_exists':volume.is_dir(),'source_exists':(volume/'source').is_dir(),'run_id':os.environ['GITHUB_RUN_ID'],'commit':os.environ['GITHUB_SHA']}
-          (original/'reference-job-state.json').write_text(json.dumps(record,indent=2)+'\n')
-          stderr=pathlib.Path(os.environ['RUNNER_TEMP'])/'facetquarry-reference-enospc.stderr'
-          if stderr.is_file():shutil.copyfile(stderr,original/'reference-enospc.stderr')
-          PY
-      - name: Admit all actual artifact bytes including a packaging-failure backup
-        id: upload_admission
+          python3 scripts/reference_pipeline.py state --volume "$FQ_VOLUME"
+      - name: Admit diagnostics independently and select at most one complete scientific artifact
+        id: artifact_admission
         if: always()
         timeout-minutes: 1
         shell: bash
-        run: |
-          set -euo pipefail
-          python3 - <<'PY'
-          import json,os,pathlib
-          root=pathlib.Path(os.environ['FQ_VOLUME']);local=root/'source/.local';original=pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local'
-          files=[p for p in original.rglob('*') if p.is_file()]
-          assert all(not p.is_symlink() for p in files)
-          total=sum(p.stat().st_size for p in files)
-          primary=total+2048*len(files)+1000000
-          backup_files=[p for p in local.rglob('*') if p.is_file()] if local.is_dir() else []
-          backup=sum(p.stat().st_size for p in backup_files)+2048*len(backup_files)+1000000 if os.environ['FQ_PACKAGE_OUTCOME']!='success' else 0
-          image=pathlib.Path(os.environ['FQ_IMAGE']);image_bytes=image.stat().st_size if image.is_file() else 0
-          # Original external files and the new cloud ZIP are separate copies.
-          admission=int(os.environ['FQ_ACCOUNTED_BASE_BYTES'])+image_bytes+total+50000000+primary+backup
-          allowed=primary<=450000000 and backup<=1200000000 and admission<12000000000
-          record={'status':'PASS' if allowed else 'FAIL','selected_bytes':total,'primary_zip_upper_bound_bytes':primary,'backup_zip_upper_bound_bytes':backup,'global_admission_bytes':admission,'exclusions':[]}
-          (original/'reference-upload-admission.json').write_text(json.dumps(record,indent=2)+'\n')
-          print(json.dumps(record));assert allowed,'actual artifact growth admission refused; no failed evidence silently excluded'
-          PY
         env:
           FQ_PACKAGE_OUTCOME: ${{ steps.package.outcome }}
-      - name: Retain the bounded bundle and packaging failure receipts
-        if: ${{ always() && steps.upload_admission.outcome == 'success' }}
-        timeout-minutes: 5
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          fq_package=()
+          if test "$FQ_PACKAGE_OUTCOME" = success; then fq_package=(--package-ok); fi
+          python3 scripts/reference_pipeline.py admit --volume "$FQ_VOLUME" "${fq_package[@]}"
+      - name: Create the independent bounded diagnostic packet including failed artifact admission
+        if: always()
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          python3 scripts/reference_artifacts.py metadata .local "$FQ_METADATA_PACKET"
+      - name: Retain diagnostics even when complete scientific preservation is refused
+        if: ${{ always() && steps.artifact_admission.outputs.metadata_allowed == 'true' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: reference-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.FQ_METADATA_PACKET }}
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 6
+      - name: Retain the verified complete bundle
+        if: ${{ always() && steps.artifact_admission.outputs.data_allowed == 'true' && steps.artifact_admission.outputs.kind == 'BUNDLE' }}
+        timeout-minutes: 3
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: reference-evidence-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ github.workspace }}/.local
-          include-hidden-files: true
+          path: ${{ steps.artifact_admission.outputs.path }}
           retention-days: 7
           if-no-files-found: error
           compression-level: 0
-      - name: Preserve complete raw results when packaging failed
-        if: ${{ always() && steps.quota.outcome == 'success' && steps.package.outcome != 'success' && steps.upload_admission.outcome == 'success' }}
-        timeout-minutes: 5
+      - name: Retain the exact unmounted fixed results image after failed packaging
+        if: ${{ always() && steps.artifact_admission.outputs.data_allowed == 'true' && steps.artifact_admission.outputs.kind == 'IMAGE' }}
+        timeout-minutes: 4
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: reference-raw-failure-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ env.FQ_VOLUME }}/source/.local
+          name: reference-results-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.artifact_admission.outputs.path }}
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 6
+      - name: Retain complete original bootstrap when measurement never started
+        if: ${{ always() && steps.artifact_admission.outputs.data_allowed == 'true' && steps.artifact_admission.outputs.kind == 'BOOTSTRAP' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: reference-premeasurement-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ steps.artifact_admission.outputs.path }}
+            ${{ env.FQ_VOLUME }}/reference-results-rescue.json
           include-hidden-files: true
           retention-days: 7
           if-no-files-found: error
-          compression-level: 0
+          compression-level: 6

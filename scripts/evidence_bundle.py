@@ -282,8 +282,9 @@ def identity(source, commit, run_id):
     require(isinstance(run_id, str) and re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}', run_id), 'invalid run identity')
 
 
-def pack(inputroot, output, source, commit, run_id, paths):
+def pack(inputroot, output, source, commit, run_id, paths, preset=6):
     identity(source, commit, run_id)
+    require(type(preset) is int and preset in (1, 3, 6), 'unsupported compression preset')
     root = no_links(inputroot)
     require(root.is_dir(), 'input root is not a directory')
     output = Path(os.path.abspath(output))
@@ -310,6 +311,7 @@ def pack(inputroot, output, source, commit, run_id, paths):
                 'source': source, 'commit': commit, 'run_id': run_id, 'selected_paths': sorted(paths),
                 'selection_assertion': 'Operator selected completed public-safe result paths.',
                 'codec_sha256': file_sha(Path(__file__)), 'zlib_version': zlib.ZLIB_VERSION,
+                'compression': {'preset': preset, 'dictionary_bytes': (16 if preset < 6 else 64) * 1024 * 1024},
                 'members': records, 'original_member_bytes': sum(e[2] for e in entries),
                 'streamed_payload_bytes': total_payload, 'recovery_scope': SCOPE,
                 'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()}
@@ -318,7 +320,7 @@ def pack(inputroot, output, source, commit, run_id, paths):
     try:
         with partial.open('xb') as raw_output:
             with lzma.LZMAFile(LimitedWriter(raw_output, MAX_OUTPUT), 'wb', check=lzma.CHECK_SHA256,
-                               filters=[{'id': lzma.FILTER_LZMA2, 'preset': 6, 'dict_size': 64 * 1024 * 1024}]) as compressed:
+                               filters=[{'id': lzma.FILTER_LZMA2, 'preset': preset, 'dict_size': (16 if preset < 6 else 64) * 1024 * 1024}]) as compressed:
                 with tarfile.open(fileobj=compressed, mode='w|', format=tarfile.USTAR_FORMAT) as tar:
                     tar_item(tar, 'manifest.json', metadata)
                     for entry, record in zip(entries, records):
@@ -444,6 +446,7 @@ def main():
     p.add_argument('output', type=Path)
     for name in ('source', 'commit', 'run-id'):
         p.add_argument('--' + name, required=True)
+    p.add_argument('--preset', type=int, choices=(1, 3, 6), default=3)
     p.add_argument('--paths', nargs='+', required=True, help='Explicit relative completed result files/directories')
     for action in ('verify', 'recover'):
         p = sub.add_parser(action)
@@ -451,7 +454,7 @@ def main():
         if action == 'recover':
             p.add_argument('output', type=Path)
     args = parser.parse_args()
-    result = (pack(args.inputroot, args.output, args.source, args.commit, args.run_id, args.paths)
+    result = (pack(args.inputroot, args.output, args.source, args.commit, args.run_id, args.paths, args.preset)
               if args.action == 'pack' else verify(args.bundle, getattr(args, 'output', None)))
     print(json.dumps(result, sort_keys=True))
 
