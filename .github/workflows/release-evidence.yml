@@ -246,9 +246,9 @@ jobs:
       - name: Package complete results with bounded streams and durable failed-attempt receipts
         id: package
         if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
-        # 420s child +150s verification +210s inventory/termination overhead.
-        # Exclusive artifact/recovery branches keep the worst full path349min.
-        timeout-minutes: 13
+        # 720s child +150s verification +210s inventory/termination overhead.
+        # Exclusive artifact/recovery branches keep the worst full path354min.
+        timeout-minutes: 18
         shell: bash
         run: |
           set -euo pipefail
@@ -257,7 +257,7 @@ jobs:
           fq_source="$(python3 scripts/common.py)"
           fq_commit="$(git rev-parse HEAD)"
           fq_control=()
-          fq_deadline=420
+          fq_deadline=720
           if test "$FQ_PRESERVATION_CONTROL" = true; then fq_control=(--control); fq_deadline=2; fi
           # Packer runs outside evidence.py and outside the measured .local.
           # It records its actual subprocess streams, timeout and cleanup proof.
@@ -396,7 +396,7 @@ jobs:
     name: Historical full-size codec control (nonqualifying)
     if: ${{ inputs.codec_control }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 40
     permissions:
       contents: read
       actions: read
@@ -436,12 +436,12 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-recovery --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py recover
-      - name: Attempt the real current preset3 full-size codec with its 420-second child deadline
-        timeout-minutes: 9
+      - name: Attempt the real current preset3 full-size codec with its 720-second child deadline
+        timeout-minutes: 15
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 510 -- python3 scripts/reference_codec_control.py pack
+          python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 810 -- python3 scripts/reference_codec_control.py pack
       - name: Reconstruct and hash every original and synthetic directory without a second raw copy
         id: codec_verification
         timeout-minutes: 4

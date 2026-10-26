@@ -398,7 +398,7 @@ def main():
     p = sub.add_parser('pack')
     for name in ('root', 'output'): p.add_argument('--' + name, type=Path, required=True)
     for name in ('source', 'commit', 'run-id'): p.add_argument('--' + name, required=True)
-    p.add_argument('--timeout', type=int, default=420); p.add_argument('--preset', type=int, choices=(1, 3, 6), default=3)
+    p.add_argument('--timeout', type=int, default=720); p.add_argument('--preset', type=int, choices=(1, 3, 6), default=3)
     p.add_argument('--control', action='store_true'); a = parser.parse_args()
     if a.action == 'plan': result = growth_plan(a.base, a.image_bytes)
     elif a.action == 'metadata': result = metadata_packet(a.local, a.output)

@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "evidence_type": "measured_fullsize_codec_failure_and_bounded_retry",
+  "run_id": 40293840858,
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/40293840858",
+  "measured_commit": "008da64ec85b12bdc42cbbc23f99d84cacf0dbfd",
+  "measured_tool_source": "53371c28d6cfb4bccaeb56e173d6e13442665945ec412bdbccb6e6ced3d0529d",
+  "candidate_source": "ba33c4fbfc95b00289a9cdd337f5620ac5e3cab5db2e8038abe59c2adf23b52f",
+  "status": "FAIL",
+  "release_qualification": false,
+  "historical_data_source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "historical_data_commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "original_members": 27738,
+  "original_member_bytes": 872837637,
+  "expanded_payload_bytes": 3684525999,
+  "mapped_members_including_synthetic_ancestors": 33366,
+  "actual_quota": {
+    "image_bytes": 2000000000,
+    "oversized_allocation_bytes": 2100000000,
+    "result": "DENIED_ENOSPC"
+  },
+  "pack": {
+    "status": "FAIL",
+    "preset": 3,
+    "duration_seconds": 438.58790392599997,
+    "termination_reason": "timeout",
+    "exit_code": -15,
+    "child_stopped": true,
+    "originals_unchanged": true,
+    "partial": {
+      "bytes": 276278663,
+      "identity": [
+        66305,
+        9438333,
+        33188,
+        276278663,
+        1793004578042004323,
+        1793004578042004323,
+        0
+      ],
+      "sha256": "39e0171f356a6c0864ddac70eb5bfa2dda1877938d470f27de983cf78ad25269"
+    },
+    "partial_removed": true,
+    "residual_package_bytes": 0
+  },
+  "retained_diagnostics": {
+    "artifact_id": 12636949594,
+    "zip_bytes": 3286923,
+    "zip_sha256": "9aa532501f8b87470d8a96665986ae4898ab909b4d320be2f73f41ab7ed1945e",
+    "files": 111,
+    "bytes": 21487044,
+    "reductions": 0,
+    "native_complete_verification": "20261026T085800Z-6aaf1f00ed"
+  },
+  "old_cloud_original_transport_retained": true,
+  "historical_modes": "UNKNOWN; actual recovered modes were separately measured and unchanged",
+  "bounded_retry": {
+    "child_seconds": 720,
+    "codec_wrapper_seconds": 810,
+    "codec_pack_step_minutes": 15,
+    "codec_declared_step_sum_minutes": 36,
+    "codec_job_minutes": 40,
+    "reference_pack_step_minutes": 18,
+    "reference_full_success_branch_minutes": 354,
+    "reference_job_minutes": 360,
+    "actual_result": "NOT RUN",
+    "success_guaranteed": false
+  },
+  "preserved_guards": [
+    "preset3/16MiB dictionary",
+    "400MB output",
+    "1MB captured pack streams",
+    "all member hashes/types/paths",
+    "owned quota and fresh global admission",
+    "original identity before partial cleanup",
+    "2s deliberate failure control"
+  ],
+  "frozen_grid_sha256": "37d376ffa53b54fd37849b0fb682a76b944cea029185a0da4771dc1d20420992",
+  "candidate_checks": [
+    {
+      "run_id": "20261026T090445Z-a892f15f69",
+      "category": "measured-codec-deadline-repair-controls",
+      "source_before": "ba33c4fbfc95b00289a9cdd337f5620ac5e3cab5db2e8038abe59c2adf23b52f",
+      "source_after": "ba33c4fbfc95b00289a9cdd337f5620ac5e3cab5db2e8038abe59c2adf23b52f",
+      "status": "PASS",
+      "duration_seconds": 0.9346806000103243,
+      "exit_code": 0,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7f3572adfe1cf4977a25078d60da21dcc2ff69173696704e59555ed010c91798"
+    },
+    {
+      "run_id": "20261026T090446Z-4845197967",
+      "category": "measured-codec-deadline-workflow-syntax",
+      "source_before": "ba33c4fbfc95b00289a9cdd337f5620ac5e3cab5db2e8038abe59c2adf23b52f",
+      "source_after": "ba33c4fbfc95b00289a9cdd337f5620ac5e3cab5db2e8038abe59c2adf23b52f",
+      "status": "PASS",
+      "duration_seconds": 0.8691029000328854,
+      "exit_code": 0,
+      "stdout_sha256": "45fe646f388be0b29f846932c4e83b190327faa3c8439b58853e7da90c351258",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "independent_review": "Read-only actual-failure diagnosis preceded the deadline repair. Reviewer caught30min codec-job/36min step mismatch before fix, then reassessed40min/36min and354min/360min bounds with no material regression or weakened assertion.",
+  "security_scope": "Prior immutable008da64 delta scan completed with zero findings/warnings; current deadline delta still requires its own review. No old scan is relabeled.",
+  "scope": "Nonqualifying historical data codec only. Failure is preserved; no new engine measurement or completed full-size codec is claimed."
+}
