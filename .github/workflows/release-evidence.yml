@@ -436,10 +436,10 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-recovery --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py recover
-      # Codec-only instrumented experiment:1800s child within1890s wrapper,
+      # Codec-only preset6/64MiB experiment:1800s child within1890s wrapper,
       # 34min step;55min total declared steps remain within the60min job.
       # Reference benchmark packaging keeps its separate720s deadline.
-      - name: Observe real preset3 full-size packing phases within the 1800-second codec-only deadline
+      - name: Observe real preset6 full-size packing phases within the 1800-second codec-only deadline
         timeout-minutes: 34
         shell: bash
         run: |

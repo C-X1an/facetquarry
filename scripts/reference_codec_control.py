@@ -50,6 +50,8 @@ HISTORICAL_MEMBERS = 27738
 IMAGE_BYTES = 2_000_000_000
 ENOSPC_BYTES = 2_100_000_000
 PACK_SECONDS = 1800
+PACK_PRESET = 6
+PACK_DICTIONARY_BYTES = 64 * 1024 * 1024
 EXTERNAL_METADATA = 200_000_000
 PACKET_BYTES = 50_000_000
 CLOUD_METADATA = 45_000_000
@@ -590,12 +592,12 @@ def pack():
     require(index == recovery['recovered_inventory'] and snapshot(p['volume'] / 'data') == before,
             'historical recovered originals or bound inventory changed before packaging')
     result = artifacts.run_pack(p['volume'] / 'data', p['output'], HISTORICAL_SOURCE,
-                                HISTORICAL_COMMIT, 'codec-control-' + os.environ['GITHUB_RUN_ID'], PACK_SECONDS, 3,
+                                HISTORICAL_COMMIT, 'codec-control-' + os.environ['GITHUB_RUN_ID'], PACK_SECONDS, PACK_PRESET,
                                 progress=True)
     write(p['metadata'] / 'pack-result.json', {**result, 'qualification': NONQUALIFYING,
           'current_tool_run_context': context(), 'scope': SCOPE})
     require(context() == ctx, 'current tool source changed during actual packaging attempt')
-    require(result['status'] == 'PASS', 'actual preset3 full-size codec attempt failed; receipt/streams retained')
+    require(result['status'] == 'PASS', f'actual preset{PACK_PRESET} full-size codec attempt failed; receipt/streams retained')
     return result
 
 
@@ -627,9 +629,10 @@ def verify():
     manifest = json.loads(manifest_raw, object_pairs_hook=bundle.unique_object)
     require(manifest['source'] == HISTORICAL_SOURCE and manifest['commit'] == HISTORICAL_COMMIT
             and manifest['run_id'] == 'codec-control-' + os.environ['GITHUB_RUN_ID']
-            and manifest['compression']['preset'] == 3
             and manifest['codec_sha256'] == recovery['current_helper_sha256']['evidence_bundle.py'],
-            'new bundle data identity/current codec/preset differs')
+            'new bundle data identity/current codec differs')
+    require(manifest['compression'] == {'preset': PACK_PRESET, 'dictionary_bytes': PACK_DICTIONARY_BYTES},
+            'new bundle compression parameters differ')
     members = {row['path']: row for row in manifest['members']}
     require(len(members) == len(manifest['members']) == len(expected), 'new full directory inventory count differs')
     fields = ('path', 'directory', 'original_bytes', 'original_sha256')
@@ -664,7 +667,8 @@ def verify():
               'original_modes': recovery['original_modes'], 'actual_recovered_modes_unchanged': True,
               'mode_scope': 'Actual recovered filesystem modes before and after packaging; historical modes remain UNKNOWN and the member codec makes no mode-reconstruction claim.',
               'current_verifier': result, 'verification_wall_seconds': time.monotonic() - tick,
-              'preset': 3, 'packer_child_deadline_seconds': PACK_SECONDS,
+              'preset': PACK_PRESET, 'dictionary_bytes': PACK_DICTIONARY_BYTES,
+              'packer_child_deadline_seconds': PACK_SECONDS,
               'missing_members': [], 'unexpected_members': [], 'skipped_members': [],
               'scientific_qualification': False, 'new_cloud_data_artifact': False}
     write(p['metadata'] / 'verification.json', record)
