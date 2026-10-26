@@ -149,13 +149,14 @@ def discard_partial(partial, expected):
         partial.unlink()
 
 
-def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=False):
+def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=False, progress=False):
     """Persist launch/termination/check failures; remove only verified cache data."""
     root = bundle.no_links(root)
     output = Path(os.path.abspath(output)); bundle.no_links(output.parent)
     require(not output.is_relative_to(root / '.local'), 'packer output must be outside measured results')
     require(type(timeout) is int and 1 <= timeout <= 1800, 'invalid pack timeout')
     require(preset in (1, 3, 6), 'unsupported compression preset')
+    require(type(progress) is bool, 'invalid pack progress option')
     partial = output.with_name(output.name + '.partial')
     receipt = output.parent / 'pack-attempt.json'
     stdout, stderr = output.parent / 'pack-stdout.txt', output.parent / 'pack-stderr.txt'
@@ -166,6 +167,8 @@ def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=Fa
     command = [sys.executable, str(root / 'scripts/evidence_bundle.py'), 'pack', str(root), str(output),
                '--source', source, '--commit', commit, '--run-id', run_id,
                '--preset', str(preset), '--paths', '.local']
+    if progress:
+        command.append('--progress')
     if control:
         command = [sys.executable, '-c',
                    'import pathlib,sys,time; pathlib.Path(sys.argv[1]).write_bytes(b"controlled-incomplete-package"); time.sleep(60)', str(partial)]
@@ -173,6 +176,7 @@ def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=Fa
     result = {'status': 'PREPARING', 'source': source, 'commit': commit, 'run_id': run_id,
               'run_attempt': os.environ.get('GITHUB_RUN_ATTEMPT'),
               'command': command, 'preset': preset, 'control': control,
+              'progress_enabled': progress and not control,
               'started_at': dt.datetime.now(dt.timezone.utc).isoformat(), 'exit_code': None,
               'termination_reason': None, 'termination_actions': [], 'errors': [],
               'originals_unchanged': False, 'partial_removed': False, 'complete_raw_preserved': False,

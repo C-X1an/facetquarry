@@ -49,7 +49,7 @@ HISTORICAL_ZIP_SHA = 'f3de649b5ac186c5514c46d84372fba67af4a1b65c7c44176c7e14286b
 HISTORICAL_MEMBERS = 27738
 IMAGE_BYTES = 2_000_000_000
 ENOSPC_BYTES = 2_100_000_000
-PACK_SECONDS = 720
+PACK_SECONDS = 1800
 EXTERNAL_METADATA = 200_000_000
 PACKET_BYTES = 50_000_000
 CLOUD_METADATA = 45_000_000
@@ -590,7 +590,8 @@ def pack():
     require(index == recovery['recovered_inventory'] and snapshot(p['volume'] / 'data') == before,
             'historical recovered originals or bound inventory changed before packaging')
     result = artifacts.run_pack(p['volume'] / 'data', p['output'], HISTORICAL_SOURCE,
-                                HISTORICAL_COMMIT, 'codec-control-' + os.environ['GITHUB_RUN_ID'], PACK_SECONDS, 3)
+                                HISTORICAL_COMMIT, 'codec-control-' + os.environ['GITHUB_RUN_ID'], PACK_SECONDS, 3,
+                                progress=True)
     write(p['metadata'] / 'pack-result.json', {**result, 'qualification': NONQUALIFYING,
           'current_tool_run_context': context(), 'scope': SCOPE})
     require(context() == ctx, 'current tool source changed during actual packaging attempt')

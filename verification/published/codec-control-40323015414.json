@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "evidence_type": "measured_instrumentation_free_fullsize_codec_timeout",
+  "run_id": 40323015414,
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/40323015414",
+  "measured_commit": "23ad715da33130be3b78bf3b977cd19f6322340d",
+  "measured_tool_source": "ba33c4fbfc95b00289a9cdd337f5620ac5e3cab5db2e8038abe59c2adf23b52f",
+  "status": "FAIL",
+  "release_qualification": false,
+  "new_engine_measurements": false,
+  "historical_data_source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+  "historical_data_commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+  "original_members": 27738,
+  "original_member_bytes": 872837637,
+  "expanded_payload_bytes": 3684525999,
+  "actual_quota": {
+    "image_bytes": 2000000000,
+    "oversized_allocation_bytes": 2100000000,
+    "result": "DENIED_ENOSPC"
+  },
+  "pack": {
+    "status": "FAIL",
+    "child_deadline_seconds": 720,
+    "preset": 3,
+    "attempt_duration_seconds": 751.609182389,
+    "termination_reason": "timeout",
+    "exit_code": -15,
+    "child_stopped": true,
+    "originals_unchanged": true,
+    "captured_stream_bytes": 0,
+    "stream_capture_complete": true,
+    "partial_bytes": 301127183,
+    "partial_sha256": "7ef7fc42c6db19f81025343e28f26d3e7980fd46b21902983d2d4e294a2ef27e",
+    "partial_removed": true,
+    "residual_package_bytes": 0
+  },
+  "retained_diagnostics": {
+    "artifact_id": 12650946622,
+    "zip_bytes": 3288833,
+    "zip_sha256": "5f957883f03e1ab212e3d33d2308c5ecb6cf5918fa77c0949b9c6336c5115de3",
+    "files": 111,
+    "bytes": 21486997,
+    "reductions": 0,
+    "native_download_receipt": "20261026T125517Z-8d51145b4c",
+    "native_complete_verification": "20261026T125638Z-c59b8617c2"
+  },
+  "old_cloud_original_transport_retained": true,
+  "original_modes": "UNKNOWN; actual recovered modes were separately measured and unchanged",
+  "full_codec_verification": "SKIPPED because pack failed",
+  "timeout_phase": "UNKNOWN: partial proves first manifest pass finished; second encoding/XZ writing versus internal verification not distinguished",
+  "independent_review": "Read-only actual failure diagnosis preceded instrumentation. Host speed varied; partial output fractions are not an ETA. One bounded instrumented codec-only attempt is justified, without promising completion.",
+  "next_experiment": {
+    "status": "NOT RUN",
+    "codec_only_child_seconds": 1800,
+    "codec_wrapper_seconds": 1890,
+    "codec_pack_step_minutes": 34,
+    "codec_job_minutes": 60,
+    "reference_pack_child_seconds_unchanged": 720,
+    "preset_output_and_quota_guards": "UNCHANGED",
+    "scope": "Actual phase timing experiment over historical full-size data; no new benchmark qualification."
+  },
+  "security_review_at_measured_source": {
+    "status": "COMPLETE",
+    "exact_range": "008da64ec85b12bdc42cbbc23f99d84cacf0dbfd..23ad715da33130be3b78bf3b977cd19f6322340d",
+    "findings": 0,
+    "coverage_warnings": 0,
+    "all_changed_paths_reviewed": 7,
+    "limitation": "Static diff review only; subsequent instrumentation requires its own review."
+  },
+  "scope": "Failure retained. No completed full-size codec, repaired-source full matrix, or full release claimed.",
+  "instrumentation_candidate": {
+    "source": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+    "runtime": "NOT RUN",
+    "new_progress_tests": {
+      "tests": 8,
+      "status": "PASS",
+      "expected_initial_failure_preserved": true
+    },
+    "unchanged_codec_tests": {
+      "tests": 15,
+      "status": "PASS"
+    },
+    "capture_retention_tests": {
+      "tests": 21,
+      "status": "PASS",
+      "explicit_platform_skips": 1
+    },
+    "fullsize_control_fixtures": {
+      "tests": 9,
+      "status": "PASS",
+      "live_integration_claim": false
+    },
+    "actual_small_child_integration": {
+      "status": "PASS",
+      "members": 4,
+      "events": 11,
+      "captured_stream_bytes": 4359,
+      "originals_unchanged": true,
+      "scope": "Real tiny subprocess only, no full-size qualification"
+    },
+    "native_full_suite": {
+      "status": "FAIL",
+      "tests": 222,
+      "errors": 4,
+      "skipped": 7,
+      "causes": [
+        "Two tests correctly refused stale native executable source identity; current supported rebuild unavailable natively.",
+        "Two Windows access-denied errors in SDK fixture rename and the unchanged benchmark progress-file replacement. Exact deny causes remain UNKNOWN."
+      ],
+      "independent_classification": "No codec regression shown by these traces; bounded Python-only codec path uses neither native benchmark executables nor the old benchmark progress-file writer. Full benchmark/release verification remains required.",
+      "tests_or_provenance_guards_removed_or_weakened": false
+    },
+    "observer_limits": {
+      "hard_events": 230,
+      "hard_line_bytes": 2048,
+      "maximum_observed_structure_at_50000_members": 211,
+      "shared_existing_capture_cap_bytes": 1000000
+    },
+    "postreview": "Independent read-only review found no material regression or weakened assertion. All callbacks finish before final metadata equality and original sole hard-link promotion. Main reference720-second packaging deadline unchanged.",
+    "security_scan": "NOT RUN for instrumentation; earlier completed scan remains bound to ba33.",
+    "checks": [
+      {
+        "run_id": "20261026T131036Z-5a2a952409",
+        "category": "codec-progress-red",
+        "source_before": "d12e4b2e7012a6176d6e3718b2b6adae8b9237b7916980db891bc83d36ab43d9",
+        "source_after": "d12e4b2e7012a6176d6e3718b2b6adae8b9237b7916980db891bc83d36ab43d9",
+        "status": "FAIL",
+        "duration_seconds": 1.4910952000063844,
+        "exit_code": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "4b7431eaff71557e972fdc0d9c1d19820c80643889a0d34810b94cf9bb590619"
+      },
+      {
+        "run_id": "20261026T131254Z-cda83ba57e",
+        "category": "codec-progress-green",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 33.52719249995425,
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "9c11b595866e91cdb6b592e2c3934cbeff016b6fc453924822645b2dd47ba4e3"
+      },
+      {
+        "run_id": "20261026T131349Z-13d1d53d4d",
+        "category": "codec-progress-regression",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 1.5541090000187978,
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "d624606c8b9e2043bf02c5c631a558fdb93ec966723dbd816cd39413eadf0001"
+      },
+      {
+        "run_id": "20261026T131517Z-a5d356d633",
+        "category": "codec-progress-full-python-controls",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "FAIL",
+        "duration_seconds": 46.30238260002807,
+        "exit_code": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "7fa89529d7bff5235e113480901d837562f92c91ff19a867e6988cb9e38df077"
+      },
+      {
+        "run_id": "20261026T131517Z-9ed01608f7",
+        "category": "codec-progress-workflow-and-python-syntax",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 0.8564328000065871,
+        "exit_code": 0,
+        "stdout_sha256": "45fe646f388be0b29f846932c4e83b190327faa3c8439b58853e7da90c351258",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "run_id": "20261026T131517Z-3e1c263345",
+        "category": "codec-progress-canonical-integrity",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 0.26028109999606386,
+        "exit_code": 0,
+        "stdout_sha256": "54257ed7ec339ba70be75f1fb4b6096f036aa922021e7c767a619daaeecd9682",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "run_id": "20261026T132018Z-408b943095",
+        "category": "codec-progress-real-child-integration",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 1.0936892000027,
+        "exit_code": 0,
+        "stdout_sha256": "f57b1cecdd30870686a4bb2a5651caf2272c5bee50666afd5ba6aff4581b80ee",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "run_id": "20261026T132018Z-914d3fdbb9",
+        "category": "codec-progress-capture-and-retention-controls",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 9.625758100009989,
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "92c12866f38a420ee803fc96227015e3afb76b77bf08835d7a8ae4ed914684aa"
+      },
+      {
+        "run_id": "20261026T132018Z-83fa3aa32d",
+        "category": "codec-progress-fullsize-control-fixtures",
+        "source_before": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "source_after": "5b4060b211b6671c4da47609ccfa6cf52edc95364d3ad4fec5bb4d0ad996ef75",
+        "status": "PASS",
+        "duration_seconds": 4.890694800007623,
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_sha256": "eb9ada2e843888627f2e42abd240a114e6a25020837576a2edd678181dd7556b"
+      }
+    ]
+  }
+}

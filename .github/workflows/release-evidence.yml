@@ -396,7 +396,7 @@ jobs:
     name: Historical full-size codec control (nonqualifying)
     if: ${{ inputs.codec_control }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     permissions:
       contents: read
       actions: read
@@ -436,12 +436,15 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-recovery --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py recover
-      - name: Attempt the real current preset3 full-size codec with its 720-second child deadline
-        timeout-minutes: 15
+      # Codec-only instrumented experiment:1800s child within1890s wrapper,
+      # 34min step;55min total declared steps remain within the60min job.
+      # Reference benchmark packaging keeps its separate720s deadline.
+      - name: Observe real preset3 full-size packing phases within the 1800-second codec-only deadline
+        timeout-minutes: 34
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 810 -- python3 scripts/reference_codec_control.py pack
+          python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 1890 -- python3 scripts/reference_codec_control.py pack
       - name: Reconstruct and hash every original and synthetic directory without a second raw copy
         id: codec_verification
         timeout-minutes: 4

@@ -20,7 +20,9 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import stat
+import sys
 import tarfile
+import time
 import zlib
 
 MAX_MEMBER = 64 * 1024 * 1024
@@ -32,6 +34,8 @@ MAX_MANIFEST = 32 * 1024 * 1024
 XZ_MEMORY = 128 * 1024 * 1024
 SCHEMA = 'facetquarry.directory-evidence.v1'
 SCOPE = 'Exact original directory member bytes; no outer ZIP reconstruction or original artifact identity.'
+MAX_PROGRESS_EVENTS = 230
+MAX_PROGRESS_EVENT_BYTES = 2048
 
 
 def require(condition, message):
@@ -113,7 +117,7 @@ def selections(paths):
     return keys
 
 
-def inventory(root, paths):
+def inventory(root, paths, on_member=None):
     selections(paths)
     entries = []
     total = 0
@@ -129,6 +133,8 @@ def inventory(root, paths):
         total += size
         require(total <= MAX_ORIGINAL and len(entries) < MAX_MEMBERS, 'original total/count exceeds admission')
         entries.append((name + ('/' if directory else ''), signature(s), size))
+        if on_member is not None:
+            on_member(len(entries))
         if directory:
             with os.scandir(path) as children:
                 names = sorted(child.name for child in children)
@@ -282,9 +288,71 @@ def identity(source, commit, run_id):
     require(isinstance(run_id, str) and re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.-]{0,127}', run_id), 'invalid run identity')
 
 
-def pack(inputroot, output, source, commit, run_id, paths, preset=6):
+class _PackProgress:
+    """Bounded observations; callbacks finish before the final publication guard.
+
+    Four member loops emit at most 50 checkpoints each at MAX_MEMBERS. Five
+    completed phases plus promotion/start add 11 events, below the hard 230
+    event / 2048-byte event limits. Complete is confirmed by pack's result;
+    there is no callback after promotion that could turn success into failure.
+    """
+    phases = frozenset(('inventory', 'manifest_encoding', 'archive_encoding_xz',
+                        'input_recheck', 'internal_verification', 'promotion', 'complete'))
+
+    def __init__(self, observer, source, commit, run_id):
+        require(observer is None or callable(observer), 'progress observer must be callable')
+        self.observer = observer
+        self.identities = {'source': source, 'commit': commit, 'run_id': run_id}
+        self.started = time.monotonic() if observer is not None else 0
+        self.events = 0
+
+    def start(self, phase, member_count=None):
+        if self.observer is None:
+            return
+        require(phase in self.phases, 'invalid progress phase')
+        self.phase, self.member_count = phase, member_count
+        self.phase_started = time.monotonic()
+        self.emit('start', 0)
+
+    def checkpoint(self, completed):
+        if self.observer is not None and completed % 1000 == 0:
+            self.emit('progress', completed)
+
+    def end(self, completed):
+        if self.observer is not None:
+            self.member_count = completed
+            self.emit('end', completed)
+
+    def emit(self, event, completed):
+        now = time.monotonic()
+        record = {'schema': 'facetquarry.pack-progress.v1', **self.identities,
+                  'phase': self.phase, 'event': event,
+                  'completed_members': completed, 'member_count': self.member_count,
+                  'phase_seconds': now - self.phase_started, 'total_seconds': now - self.started}
+        require(self.events < MAX_PROGRESS_EVENTS, 'progress event count exceeds bound')
+        require(len(json.dumps(record, sort_keys=True, separators=(',', ':')).encode()) + 1
+                <= MAX_PROGRESS_EVENT_BYTES, 'progress event exceeds byte bound')
+        self.events += 1
+        # Observer/capture exceptions propagate into pack's failure path. Never
+        # treat best-effort delivery as a reason to manufacture a successful pack.
+        self.observer(record)
+
+
+def stderr_progress(event):
+    line = json.dumps(event, sort_keys=True, separators=(',', ':')) + '\n'
+    require(sys.stderr.write(line) == len(line), 'short progress capture write')
+    sys.stderr.flush()
+
+
+def pack(inputroot, output, source, commit, run_id, paths, preset=6, progress=None):
+    """Pack exact members; optional progress receives bounded, path-free dicts.
+
+    The last observation is promotion/start. The returned PASS (the CLI's single
+    stdout JSON) confirms actual completion after all callbacks and input checks.
+    """
     identity(source, commit, run_id)
     require(type(preset) is int and preset in (1, 3, 6), 'unsupported compression preset')
+    observation = _PackProgress(progress, source, commit, run_id)
     root = no_links(inputroot)
     require(root.is_dir(), 'input root is not a directory')
     output = Path(os.path.abspath(output))
@@ -292,53 +360,80 @@ def pack(inputroot, output, source, commit, run_id, paths, preset=6):
     partial = output.with_name(output.name + '.partial')
     diagnostics = output.with_name(output.name + '.failure.json')
     require(not any(os.path.lexists(p) for p in (output, partial, diagnostics)), 'output already exists')
-    entries = inventory(root, paths)
+    selections(paths)
+    paths = list(paths)
     for name in paths:
         selected = root.joinpath(*PurePosixPath(name).parts)
         require(not output.is_relative_to(selected) and not partial.is_relative_to(selected)
                 and not diagnostics.is_relative_to(selected), 'output must be outside selected input paths')
-    records, total_payload = [], 0
-    for index, entry in enumerate(entries):
-        name, _, size = entry
-        raw = read_original(root, entry)
-        payload, recipe = encoded(raw, name)
-        total_payload += len(payload)
-        require(total_payload <= MAX_PAYLOAD, 'payload total exceeds admission')
-        records.append({'path': name, 'directory': name.endswith('/'), 'original_bytes': size,
-                        'original_sha256': sha(raw), 'payload_name': f'payload/{index:06d}',
-                        'payload_bytes': len(payload), 'payload_sha256': sha(payload), **recipe})
-    manifest = {'schema': SCHEMA, 'evidence_type': 'lossless_directory_member_transport',
-                'source': source, 'commit': commit, 'run_id': run_id, 'selected_paths': sorted(paths),
-                'selection_assertion': 'Operator selected completed public-safe result paths.',
-                'codec_sha256': file_sha(Path(__file__)), 'zlib_version': zlib.ZLIB_VERSION,
-                'compression': {'preset': preset, 'dictionary_bytes': (16 if preset < 6 else 64) * 1024 * 1024},
-                'members': records, 'original_member_bytes': sum(e[2] for e in entries),
-                'streamed_payload_bytes': total_payload, 'recovery_scope': SCOPE,
-                'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()}
-    metadata = json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode()
-    require(len(metadata) <= MAX_MANIFEST, 'manifest exceeds admission')
+    archive_started = False
     try:
+        observation.start('inventory')
+        entries = (inventory(root, paths, on_member=observation.checkpoint)
+                   if progress is not None else inventory(root, paths))
+        observation.end(len(entries))
+        observation.start('manifest_encoding', len(entries))
+        records, total_payload = [], 0
+        for index, entry in enumerate(entries):
+            name, _, size = entry
+            raw = read_original(root, entry)
+            payload, recipe = encoded(raw, name)
+            total_payload += len(payload)
+            require(total_payload <= MAX_PAYLOAD, 'payload total exceeds admission')
+            records.append({'path': name, 'directory': name.endswith('/'), 'original_bytes': size,
+                            'original_sha256': sha(raw), 'payload_name': f'payload/{index:06d}',
+                            'payload_bytes': len(payload), 'payload_sha256': sha(payload), **recipe})
+            observation.checkpoint(index + 1)
+        manifest = {'schema': SCHEMA, 'evidence_type': 'lossless_directory_member_transport',
+                    'source': source, 'commit': commit, 'run_id': run_id, 'selected_paths': sorted(paths),
+                    'selection_assertion': 'Operator selected completed public-safe result paths.',
+                    'codec_sha256': file_sha(Path(__file__)), 'zlib_version': zlib.ZLIB_VERSION,
+                    'compression': {'preset': preset, 'dictionary_bytes': (16 if preset < 6 else 64) * 1024 * 1024},
+                    'members': records, 'original_member_bytes': sum(e[2] for e in entries),
+                    'streamed_payload_bytes': total_payload, 'recovery_scope': SCOPE,
+                    'created_at': datetime.datetime.now(datetime.timezone.utc).isoformat()}
+        metadata = json.dumps(manifest, sort_keys=True, separators=(',', ':')).encode()
+        require(len(metadata) <= MAX_MANIFEST, 'manifest exceeds admission')
+        observation.end(len(records))
+        archive_started = True
+        observation.start('archive_encoding_xz', len(entries))
         with partial.open('xb') as raw_output:
             with lzma.LZMAFile(LimitedWriter(raw_output, MAX_OUTPUT), 'wb', check=lzma.CHECK_SHA256,
                                filters=[{'id': lzma.FILTER_LZMA2, 'preset': preset, 'dict_size': (16 if preset < 6 else 64) * 1024 * 1024}]) as compressed:
                 with tarfile.open(fileobj=compressed, mode='w|', format=tarfile.USTAR_FORMAT) as tar:
                     tar_item(tar, 'manifest.json', metadata)
-                    for entry, record in zip(entries, records):
+                    for index, (entry, record) in enumerate(zip(entries, records), 1):
                         raw = read_original(root, entry)
                         require(sha(raw) == record['original_sha256'], 'input SHA changed between passes')
                         payload, recipe = encoded(raw, entry[0])
                         require(sha(payload) == record['payload_sha256'] and recipe['encoding'] == record['encoding'],
                                 'payload changed between passes')
                         tar_item(tar, record['payload_name'], payload)
+                        observation.checkpoint(index)
+        observation.end(len(records))
+        observation.start('input_recheck', len(entries))
         require(inventory(root, paths) == entries, 'selected input layout/metadata changed')
-        verify(partial)
+        observation.end(len(entries))
+        observation.start('internal_verification', len(records))
+        if progress is None:
+            verify(partial)
+        else:
+            verify(partial, _member_progress=observation.checkpoint)
+        observation.end(len(records))
+        observation.start('promotion', len(records))
+        if progress is not None:
+            # Callbacks may mutate originals. Finish every observation, then
+            # recheck the original identity/layout immediately before the sole
+            # publication. No observer can fail after an output is published.
+            require(inventory(root, paths) == entries, 'selected input layout/metadata changed after progress observation')
         # Hard-link promotion has no overwrite race; unlike replace/rename on POSIX.
         os.link(partial, output)
         partial.unlink()
     except Exception as exc:
-        with diagnostics.open('x', encoding='utf-8') as stream:
-            json.dump({'status': 'FAIL', 'error_type': type(exc).__name__, 'error': str(exc),
-                       'partial_bundle': partial.name, 'originals_deleted': False}, stream)
+        if archive_started or progress is not None:
+            with diagnostics.open('x', encoding='utf-8') as stream:
+                json.dump({'status': 'FAIL', 'error_type': type(exc).__name__, 'error': str(exc),
+                           'partial_bundle': partial.name, 'originals_deleted': False}, stream)
         raise
     return {'status': 'PASS', 'bundle_bytes': output.stat().st_size, 'bundle_sha256': file_sha(output),
             'member_count': len(records), 'original_member_bytes': manifest['original_member_bytes'],
@@ -382,7 +477,7 @@ def selected_layout(paths, records):
                 'member outside selected layout')
 
 
-def verify_stream(reader, output):
+def verify_stream(reader, output, *, _member_progress=None):
     manifest = json.loads(transport_item(reader, 'manifest.json', MAX_MANIFEST), object_pairs_hook=unique_object)
     require(manifest['schema'] == SCHEMA and manifest['evidence_type'] == 'lossless_directory_member_transport'
             and manifest['recovery_scope'] == SCOPE, 'invalid manifest schema')
@@ -405,7 +500,7 @@ def verify_stream(reader, output):
             and payload_total == manifest['streamed_payload_bytes'] <= MAX_PAYLOAD, 'manifest total mismatch')
     if output is not None:
         output.mkdir()
-    for r in records:
+    for index, r in enumerate(records, 1):
         raw = decoded(transport_item(reader, r['payload_name'], r['payload_bytes']), r)
         if output is not None:
             target = output.joinpath(*PurePosixPath(r['path']).parts)
@@ -415,6 +510,8 @@ def verify_stream(reader, output):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 with target.open('xb') as stream:
                     stream.write(raw)
+        if _member_progress is not None:
+            _member_progress(index)
     require(reader.read(1024) == bytes(1024), 'unexpected extra payload or missing tar terminator')
     padding = 0
     while tail := reader.read(65536):
@@ -425,7 +522,7 @@ def verify_stream(reader, output):
             'commit': manifest['commit'], 'run_id': manifest['run_id'], 'recovery_scope': SCOPE}
 
 
-def verify(bundle, output=None):
+def verify(bundle, output=None, *, _member_progress=None):
     bundle = no_links(bundle)
     require(bundle.is_file() and bundle.stat().st_size <= MAX_OUTPUT, 'bundle size exceeds admission')
     if output is not None:
@@ -435,7 +532,7 @@ def verify(bundle, output=None):
         no_links(output.parent)
         require(not os.path.lexists(output), 'recovery directory already exists')
     with bundle.open('rb') as compressed:
-        return verify_stream(XZReader(compressed), output)
+        return verify_stream(XZReader(compressed), output, _member_progress=_member_progress)
 
 
 def main():
@@ -447,6 +544,7 @@ def main():
     for name in ('source', 'commit', 'run-id'):
         p.add_argument('--' + name, required=True)
     p.add_argument('--preset', type=int, choices=(1, 3, 6), default=3)
+    p.add_argument('--progress', action='store_true', help='Emit bounded pack phase observations as JSONL on stderr')
     p.add_argument('--paths', nargs='+', required=True, help='Explicit relative completed result files/directories')
     for action in ('verify', 'recover'):
         p = sub.add_parser(action)
@@ -454,7 +552,8 @@ def main():
         if action == 'recover':
             p.add_argument('output', type=Path)
     args = parser.parse_args()
-    result = (pack(args.inputroot, args.output, args.source, args.commit, args.run_id, args.paths, args.preset)
+    result = (pack(args.inputroot, args.output, args.source, args.commit, args.run_id, args.paths, args.preset,
+                   progress=stderr_progress if args.progress else None)
               if args.action == 'pack' else verify(args.bundle, getattr(args, 'output', None)))
     print(json.dumps(result, sort_keys=True))
 
