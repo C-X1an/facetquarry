@@ -1,5 +1,7 @@
 # Claims and evidence
 
+Current runtime/codec candidate source `53371c28d6cfb4bccaeb56e173d6e13442665945ec412bdbccb6e6ced3d0529d` passed144local controls:137passed and7explicit Windows/platform skips. Independent read-only findings preceded the guest runtime, codec proof export and Windows receipt repairs; RED/GREEN and intermediate failures remain in [the candidate evidence](verification/published/runtime-codec-candidate-20261026.json). Native Make is unavailable (actual exit127); canonical integrity and shell/Python parsing passed. Current supported-toolchain execution, full-size codec, guest smoke, current security scan, repaired full1/4/16 measurements and manual gates remain unqualified.
+
 Current qualification-tooling candidate source `ffe6a722d127d3d392c4b3c49fd1c33f9600b0d39c99c5e5043dab9926f671d1`; the engine repair was previously checked at sourcebb95. The [verification report](VERIFICATION_REPORT.md) distinguishes original failed measurements, scoped repair checks and pending current-source qualification. Earlier sources remain historical.
 
 | Claim | Evidence | Limit |
@@ -28,3 +30,5 @@ Actual reference smoke40124290304 (commit3058/sourceffe6): supported full verifi
 
 
 Preservation candidate03f15ea3:122local Python controls,118passed/4explicit platform skips; actualLinuxnewgeometry/recovery/current-toolchain/fullmatrix gates NOT RUN. Full40132496594 has zero artifacts and unavailable scientific raw; no recall or coverage result is inferred. See [candidate evidence](verification/published/preservation-candidate-20261025.json).
+
+Subsequent [actual control40227147631](verification/published/preservation-control-20261025.json) at a398/source03f passed supported verification, committed Linux reproduction, online scan, actual2.3GB/1.1GB allocation-denial controls, and complete612-member frozen-image recovery. Overall FAIL: trimmed-Go startup omitted GOROOT before guest boot; zero new guest cells. The intentional2s pack timeout and all originals remain preserved. Full-size codec, repaired full1/4/16 measurements and manual gates remain unrun.

@@ -13,6 +13,11 @@ on:
         type: boolean
         default: false
         required: true
+      codec_control:
+        description: Current codec over retained historical full-size data only (nonqualifying; no new benchmark)
+        type: boolean
+        default: false
+        required: true
       concurrency:
         description: Separate fixed-reader profile on the four-vCPU guest
         type: choice
@@ -30,6 +35,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   reference:
+    if: ${{ !inputs.codec_control }}
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
@@ -381,6 +387,97 @@ jobs:
           path: |
             ${{ steps.artifact_admission.outputs.path }}
             ${{ env.FQ_VOLUME }}/reference-results-rescue.json
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 6
+
+  codec:
+    name: Historical full-size codec control (nonqualifying)
+    if: ${{ inputs.codec_control }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    env:
+      FQ_ACCOUNTED_BASE_BYTES: ${{ inputs.accounted_base_bytes }}
+      GOTOOLCHAIN: local
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        timeout-minutes: 2
+        with:
+          persist-credentials: false
+      - name: Admit the complete historical codec branch against the fresh global baseline
+        id: codec_admission
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-admission --requirements AC-020 --timeout 40 -- python3 scripts/reference_codec_control.py plan
+      - name: Enforce the owned 2GB image and observe actual 2.1GB ENOSPC
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-quota --requirements AC-020 --timeout 90 -- python3 scripts/reference_codec_control.py quota
+      - name: Fetch only the exact authorized historical artifact into the hard quota
+        timeout-minutes: 3
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-input --requirements AC-020 --timeout 150 -- python3 scripts/reference_codec_control.py download
+      - name: Recover all 27738 exact original members through the uniform reversible mapping
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-recovery --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py recover
+      - name: Attempt the real current preset3 full-size codec with its 420-second child deadline
+        timeout-minutes: 9
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 510 -- python3 scripts/reference_codec_control.py pack
+      - name: Reconstruct and hash every original and synthetic directory without a second raw copy
+        id: codec_verification
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-verify --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py verify
+      - name: Remove only the exact newly packed file after complete original and inode proof
+        if: ${{ success() && steps.codec_verification.outcome == 'success' }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-output-retention --requirements AC-020 --timeout 45 -- python3 scripts/reference_codec_control.py remove-output
+      - name: Close only the positively bound owned mount and retain failures
+        if: always()
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category historical-codec-unmount --requirements AC-020 --timeout 45 -- python3 scripts/reference_codec_control.py unmount
+      - name: Independently admit a bounded metadata packet after success or heavy-branch refusal
+        id: codec_metadata
+        if: always()
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_codec_control.py metadata
+      - name: Retain admitted diagnostics only while existing historical cloud originals stay unchanged
+        if: ${{ always() && steps.codec_metadata.outputs.metadata_allowed == 'true' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: historical-codec-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.codec_metadata.outputs.packet_path }}
           include-hidden-files: true
           retention-days: 7
           if-no-files-found: error

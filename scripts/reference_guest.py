@@ -26,6 +26,7 @@ import uuid
 from urllib.parse import urlparse, unquote
 
 from common import ROOT, source_hash
+from reference_preflight import checked as checked_runtime, file_sha as runtime_sha, stamp as runtime_stamp
 
 GUEST_RAM = 8_000_000_000
 TMPFS_BYTES = 18 * 1024 * 1024
@@ -560,6 +561,7 @@ try:
     os.chdir(root)
     env={'PATH':'/usr/bin:/bin:/opt/go/bin','HOME':'/tmp','LANG':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1',
          'PYTHONPYCACHEPREFIX':'/tmp/pycache','GOTOOLCHAIN':'local','GOROOT':'/opt/go',
+         'GOTELEMETRY':'off','GOENV':'off',
          'FQ_CPUS':'4','FQ_WORKSPACE_ROOT':'/owned','GOMAXPROCS':'4','TMPDIR':'/project/.cache/tmp'}
     os.environ.clear();os.environ.update(env)
     sys.path.insert(0,str(root/'scripts'))
@@ -653,7 +655,63 @@ finally:
 '''
 
 
+def pinned_go_runtime(setup):
+    """Bind probes to the retained, trimmed owned SDK before any invocation."""
+    volume = setup.args.volume
+    goroot = volume / 'tools/go'
+    go = goroot / 'bin/go'
+    paths = [go, goroot / 'VERSION', goroot / 'go.env']
+    checked_runtime(volume)
+    identities = {}
+    for path in paths:
+        info = checked_runtime(path, volume)
+        if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                or hasattr(os, 'getuid') and info.st_uid != os.getuid()):
+            raise RuntimeError('retained Go runtime must contain single-link owned regular files')
+        identities[str(path)] = {'identity': list(runtime_stamp(info)),
+                                 'sha256': runtime_sha(path, runtime_stamp(info)),
+                                 'bytes': info.st_size}
+    if not os.access(go, os.X_OK):
+        raise RuntimeError('owned Go runtime is not executable')
+    version_path = goroot / 'VERSION'
+    if identities[str(version_path)]['bytes'] > 4096:
+        raise RuntimeError('retained Go VERSION exceeds admission')
+    pinned = (setup.args.project / '.go-version').read_text(encoding='ascii').strip()
+    if not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', pinned):
+        raise RuntimeError('invalid pinned Go version')
+    lines = version_path.read_text(encoding='utf-8').splitlines()
+    if not lines or lines[0] != 'go' + pinned:
+        raise RuntimeError('owned Go VERSION differs from pinned toolchain')
+    env = os.environ.copy()
+    env.update(GOROOT=str(goroot), GOTOOLCHAIN='local', GOTELEMETRY='off', GOENV='off')
+    observed = setup.run([str(go), 'env', 'GOROOT'], env=env).strip()
+    if observed != str(goroot):
+        raise RuntimeError('observed Go GOROOT differs from exact owned SDK')
+    version = setup.run([str(go), 'version'], env=env).strip()
+    if version != 'go version go' + pinned + ' linux/amd64':
+        raise RuntimeError('owned Go executable differs from pinned Linux x86_64 toolchain')
+    verify_go_runtime(identities, volume)
+    setup.manifest['retained_go_runtime'] = {
+        'goroot': str(goroot), 'version': version,
+        'explicit_environment': {key: env[key] for key in ('GOROOT', 'GOTOOLCHAIN', 'GOTELEMETRY', 'GOENV')},
+        'files': identities,
+        'scope': 'Retained version/inspection runtime after verified SDK trim; no compiler availability claim.',
+    }
+    setup.save()
+    return goroot, paths, identities
+
+
+def verify_go_runtime(identities, volume):
+    for name, record in identities.items():
+        path = Path(name)
+        if (list(runtime_stamp(checked_runtime(path, volume))) != record['identity']
+                or runtime_sha(path, record['identity']) != record['sha256']):
+            raise RuntimeError('owned Go runtime changed during probe or copy')
+
+
 def runtime(setup, extract):
+    # Validate before any PATH-selected runtime or expensive runtime copying.
+    goroot, go_paths, go_identities = pinned_go_runtime(setup)
     root = setup.base / 'rootfs'
     root.mkdir()
     for name in ('proc', 'sys', 'dev', 'tmp', 'run', 'project', 'owned', 'opt/go/bin', 'usr/bin', 'bin'):
@@ -682,13 +740,12 @@ def runtime(setup, extract):
     if git != Path('/usr/bin/git'):
         admitted_copy(setup, git, root / 'usr/bin/git', executable=True)
     shared_libraries(setup, root, git, identities)
-    go = Path(shutil.which('go') or '/missing/go').resolve()
-    goroot = Path(setup.run([str(go), 'env', 'GOROOT']).strip())
-    if not go.is_relative_to(setup.args.volume) or not goroot.is_relative_to(setup.args.volume):
-        raise RuntimeError('pinned Go executable/GOROOT must already be inside the owned volume')
-    admitted_copy(setup, go, root / 'opt/go/bin/go', executable=True)
-    admitted_copy(setup, goroot / 'VERSION', root / 'opt/go/VERSION')
-    identities[str(go)] = {'sha256': digest(go), 'bytes': go.stat().st_size}
+    verify_go_runtime(go_identities, setup.args.volume)
+    for path in go_paths:
+        admitted_copy(setup, path, root / 'opt/go' / path.relative_to(goroot),
+                      executable=path == goroot / 'bin/go')
+        identities[str(path)] = go_identities[str(path)]
+    verify_go_runtime(go_identities, setup.args.volume)
     admitted_bytes(setup, root / 'opt/guest.py', GUEST.encode())
     config = {'source': source_hash(setup.args.project), 'uid': os.getuid(), 'gid': os.getgid(),
               'execution_id': setup.manifest['execution_id'], 'run_context': setup.manifest['run_context'],

@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_failed_pack_preservation_control",
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/40227147631",
+  "commit": "a398bbf0149f2db1e41b172ec479575103dd5a75",
+  "source": "03f15ea35552b25656260b8f57304bdba3b1c8dd8d1249ca9dcc73a93b32f691",
+  "status": "FAIL",
+  "release_qualification": false,
+  "scope": "Deliberate failed-pack preservation control; guest unexpectedly failed before QEMU. No new guest benchmark cells or full-size codec qualification.",
+  "actual_job": {
+    "id": 121270822517,
+    "status": "completed",
+    "conclusion": "failure",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Initialize owned paths from the actual runner environment",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Establish the admitted 2.3 GB owned filesystem including the failure branch",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Obtain the pinned supported Go archive with official size and hash proof",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Supported source, oracle, race, fuzz, mutations, demo and smoke",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Clean committed supported-toolchain reproduction",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Install the pinned current vulnerability scanner inside the volume",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Current online vulnerability scan",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Preserve fuzz and trim verified regenerable SDK/cache before nested results setup",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Measure the frozen profile in the actual declared KVM guest",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "Quiesce only this execution's positively bound guest units",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Preserve actual host diagnostics externally before any child-space-dependent copy",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Recompute all samples and frozen five-seed intervals",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Validate the complete full-profile execution before packaging",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Package complete results with bounded streams and durable failed-attempt receipts",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "name": "Export complete bounded execution inputs before removing the image",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Remove only the owned image after complete external byte verification",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Record every original smoke member for the deliberate packaging failure control",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Freeze the exact fixed results image after packaging failure",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Recover every smoke original through the same frozen image mounted read-only",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Rescue only original premeasurement evidence when nested setup failed",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Observe final actual image state without changing workload status",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Admit diagnostics independently and select at most one complete scientific artifact",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Create the independent bounded diagnostic packet including failed artifact admission",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Retain diagnostics even when complete scientific preservation is refused",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Retain the verified complete bundle",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Retain the exact unmounted fixed results image after failed packaging",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Retain complete original bootstrap when measurement never started",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "Post Run actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "failure": {
+    "guest": "Trimmed owned Go was invoked without explicit GOROOT; command106 exit2 before QEMU.",
+    "pack": {
+      "control": true,
+      "deadline_seconds": 2,
+      "actual_duration_seconds": 2.290739115000008,
+      "exit_code": -15,
+      "termination_reason": "timeout",
+      "child_stopped": true,
+      "originals_unchanged": true,
+      "partial_bytes": 29,
+      "partial_sha256": "2e07671910a6fa3dd18d46239e6972e7ec0dd4ad3081be006273e53e6468f5fd",
+      "partial_removed_after_proof": true,
+      "scope": "Intentional small failure; no normal full-size packaging result."
+    }
+  },
+  "retained_artifacts": [
+    {
+      "id": 12612210717,
+      "name": "reference-results-image-40227147631-1",
+      "bytes": 3333189,
+      "sha256": "e699fa51e35255873b256f02808ac44723e689ec0253da929ba7b65e3771b959"
+    },
+    {
+      "id": 12611469383,
+      "name": "reference-diagnostics-40227147631-1",
+      "bytes": 321859,
+      "sha256": "e672dd06f429ea33aa3cc79145e3e217f0fc18664c62d59ae8fd31ca2e8adb55"
+    }
+  ],
+  "recovery": {
+    "status": "PASS",
+    "original_members": 612,
+    "original_bytes": 7035241,
+    "manifest_sha256": "788c7c5bdabd5c48d8c6c2241545013056a16eb791f0f3b3ff77987202f0557d",
+    "image_bytes": 1100000000,
+    "image_sha256": "dc6a5b313a82c9072f094fbc00b138fb3572c39d02883cd83fc921163fdfa42c",
+    "actual_remote_readonly_mount_all_bytes_modes_membership_equal": true,
+    "image_unmounted_after_check": true,
+    "native_streamed_zip_image_sha_verified": true,
+    "native_mount_performed": false,
+    "native_complete_recovery_receipt": "20261025T195101Z-d4cccbcef5"
+  },
+  "limitations": [
+    "Normal full-size packaging and retention remain NOT RUN.",
+    "Guest startup repair needs actual supported trimmed-SDK execution and guest smoke.",
+    "Current repaired full1/4/16-reader profiles remain NOT RUN.",
+    "Manual browser review and owner walkthrough remain unverified.",
+    "Explicit outer image unlink was skipped; terminal hosted VM lifecycle is not an unlink PASS."
+  ]
+}

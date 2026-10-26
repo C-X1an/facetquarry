@@ -61,12 +61,29 @@ def write_json(path, record, *, replace=False):
     target = path.with_name(path.name + '.tmp') if replace else path
     if replace:
         bundle.no_links(path)
-        require(path.is_file() and path.stat().st_nlink == 1, 'unsafe receipt replacement')
+        original = path.lstat()
+        require(stat.S_ISREG(original.st_mode) and original.st_nlink == 1, 'unsafe receipt replacement')
+        original_identity = bundle.signature(original)
     with target.open('x', encoding='utf-8', newline='\n') as stream:
         json.dump(record, stream, sort_keys=True, indent=2)
         stream.write('\n'); stream.flush(); os.fsync(stream.fileno())
     if replace:
-        os.replace(target, path)
+        temporary_identity = bundle.signature(target.lstat())
+        for attempt in range(11):
+            for current, expected in ((path, original_identity), (target, temporary_identity)):
+                bundle.no_links(current)
+                info = current.lstat()
+                require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1
+                        and bundle.signature(info) == expected, 'receipt changed before atomic replacement')
+            try:
+                os.replace(target, path)
+                break
+            except PermissionError as error:
+                # Actual Windows read handles can briefly deny delete sharing.
+                # Bound sleeps to0.5s; retain both records on permanent denial.
+                if os.name != 'nt' or getattr(error, 'winerror', None) not in (5, 32, 33) or attempt == 10:
+                    raise
+                time.sleep(.05)
 
 
 def original_state(root):
@@ -269,6 +286,7 @@ def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=Fa
 
 CRITICAL_SELECTIONS = [
     'reference-job-state.json', 'reference-upload-admission.json', 'reference-admission.json',
+    'reference-quota.json',
     'reference-retention.json', 'reference-results-freeze.json',
     'reference-results-rescue.json', 'reference-guest-quiescence.json',
     'reference-trim-summary.json', 'reference-diagnostics.json',
