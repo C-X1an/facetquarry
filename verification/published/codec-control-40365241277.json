@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "evidence_type": "observed_historical_full_size_codec_control",
+  "run_id": 40365241277,
+  "job_id": 121721049878,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40365241277",
+  "run_conclusion": "success",
+  "current_tool_context": {
+    "commit": "54b148f5e2a21d7a36f06194eadfd5c773ff8883",
+    "github_run_attempt": "1",
+    "github_run_id": "40365241277",
+    "repository": "C-X1an/facetquarry",
+    "tool_source_sha256": "e6f92ba8af4b9c9b93c3b4cdc103638c27ef1f9ae8af5e326ac1221cdd777f3f"
+  },
+  "qualification": "NONQUALIFYING_HISTORICAL_FULL_SIZE_CODEC_CONTROL",
+  "scientific_qualification": false,
+  "release_qualification": false,
+  "pack": {
+    "status": "PASS",
+    "duration_seconds": 1124.690792887,
+    "preset": 6,
+    "exit_code": 0,
+    "stream_capture_complete": true,
+    "captured_stream_bytes": 52733,
+    "discarded_stream_bytes": 0,
+    "originals_unchanged": true,
+    "termination_reason": null
+  },
+  "runner_verification": {
+    "status": "PASS",
+    "preset": 6,
+    "dictionary_bytes": 67108864,
+    "packer_child_deadline_seconds": 1800,
+    "verification_wall_seconds": 135.85383139700002,
+    "all_original_members_compared": 27738,
+    "all_current_members_compared": 33366,
+    "actual_recovered_modes_unchanged": true,
+    "original_modes": "UNKNOWN: historical transport did not record ZIP/filesystem modes",
+    "missing_members": [],
+    "unexpected_members": [],
+    "skipped_members": []
+  },
+  "output": {
+    "bytes": 390358312,
+    "sha256": "8472e88ecc84fbf6ad4f50b2745a379abf34215c577371ef54bbbf7cc8185c19",
+    "manifest_sha256": "fe68dcb18be2121f7e8a2bd5ac160f77eb8625e793f1e30b4529dd81940be683"
+  },
+  "guarded_output_removal": {
+    "status": "PASS",
+    "removed": true,
+    "bytes": 390358312,
+    "sha256": "8472e88ecc84fbf6ad4f50b2745a379abf34215c577371ef54bbbf7cc8185c19"
+  },
+  "quota": {
+    "hard_quota_enforced": true,
+    "image_bytes": 2000000000,
+    "oversized_allocation_bytes": 2100000000,
+    "oversized_allocation": "DENIED_ENOSPC"
+  },
+  "exact_mount_closed": true,
+  "explicit_outer_image_unlink": false,
+  "native_metadata_retention": {
+    "status": "PASS",
+    "exact_zip_bytes": 3300495,
+    "exact_zip_sha256": "fe1ec897a2daf3beb96bdb7b544e698e0d59b7512f4c25cf41c7abec9137033c",
+    "all_archive_files": 121,
+    "manifest_payload_files": 119,
+    "manifest_payload_bytes": 21561339,
+    "legacy_rows_compared": 27738,
+    "recovered_unique_rows": 33366,
+    "producer_reported_full_codec_proof_retained": true,
+    "independently_checked_full_codec_proof": false,
+    "receipt": "20261027T073659Z-89daa77807",
+    "input_record_sha256": "d579f18d12fd70e3d7cdb5cf80e09eccf29141f8f9ef81782ea96686906ce4ed",
+    "native_archive_redecoded": false,
+    "scope": "Complete metadata ZIP retention/inventory verification; the390MB archive was verified and removed on the runner and is absent from this metadata packet."
+  },
+  "historical_data": {
+    "historical_data_commit": "625582eb753e7bec76e057a8f368f62f6aaf3d1d",
+    "historical_data_source": "4949a016d1fc650cc80f18583e18b0ed487820801091508ea34b0a6b658a7dfe",
+    "full_recovery_and_hash_seconds": 138.28953106,
+    "historical_full_cells": 5400,
+    "historical_samples": 5400000,
+    "historical_target_counts": {
+      "FAIL": 12,
+      "PASS": 33
+    }
+  },
+  "scope": "Actual runner packaging and full byte verification over retained historical data, plus complete native metadata retention. No new engine measurements, current supported-Go qualification, encoder peak-RAM measurement, comparative performance or repaired full-matrix claim. Original failed runs remain preserved."
+}

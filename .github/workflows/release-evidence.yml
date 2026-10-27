@@ -18,6 +18,11 @@ on:
         type: boolean
         default: false
         required: true
+      capacity_control:
+        description: Supported verification capacity only (select smoke and one reader; no scientific full matrix)
+        type: boolean
+        default: false
+        required: true
       concurrency:
         description: Separate fixed-reader profile on the four-vCPU guest
         type: choice
@@ -35,7 +40,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   reference:
-    if: ${{ !inputs.codec_control }}
+    if: ${{ !inputs.codec_control && !inputs.capacity_control }}
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
@@ -394,7 +399,7 @@ jobs:
 
   codec:
     name: Historical full-size codec control (nonqualifying)
-    if: ${{ inputs.codec_control }}
+    if: ${{ inputs.codec_control && !inputs.capacity_control && !inputs.preservation_control }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     permissions:
@@ -485,3 +490,189 @@ jobs:
           retention-days: 7
           if-no-files-found: error
           compression-level: 6
+
+  conflicting_controls:
+    if: ${{ (inputs.codec_control && inputs.preservation_control) || (inputs.capacity_control && (inputs.codec_control || inputs.preservation_control || inputs.profile != 'smoke' || inputs.concurrency != '1')) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    steps:
+      - name: Refuse conflicting or misleading control selections
+        shell: bash
+        run: |
+          echo 'REFUSE: controls are exclusive; capacity requires smoke and one reader and never runs a scientific matrix.'
+          exit 1
+
+  reference_capacity:
+    name: Supported verification capacity control (no scientific matrix)
+    if: ${{ inputs.capacity_control && !inputs.codec_control && !inputs.preservation_control && inputs.profile == 'smoke' && inputs.concurrency == '1' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      FQ_ACCOUNTED_BASE_BYTES: ${{ inputs.accounted_base_bytes }}
+      FQ_RESERVATION_PROFILE: supported-verification-capacity-v1
+      FQ_FILESYSTEM_FREE_FLOOR: "500000000"
+      GOTOOLCHAIN: local
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        timeout-minutes: 2
+        with:
+          persist-credentials: false
+      - name: Admit the separate complete capacity branch before allocation
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category capacity-admission --requirements AC-020 --timeout 40 -- python3 scripts/reference_capacity.py plan
+      - name: Enforce a dedicated executable 2GB image and actual 2.1GB ENOSPC
+        id: capacity_quota
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          fq_image="$RUNNER_TEMP/facetquarry-capacity.img"
+          fq_volume="$RUNNER_TEMP/facetquarry-capacity"
+          test ! -e "$fq_image" && test ! -e "$fq_volume"
+          test ! -L "$fq_image" && test ! -L "$fq_volume"
+          mkdir "$fq_volume"
+          fallocate -l 2000000000 "$fq_image"
+          mkfs.ext4 -F -q "$fq_image"
+          sudo -n mount -o loop,nodev,nosuid "$fq_image" "$fq_volume"
+          sudo -n chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
+          if fallocate -l 2100000000 "$fq_volume/quota-probe" 2>"$GITHUB_WORKSPACE/.local/capacity-enospc.stderr"; then
+            echo 'FAIL: oversized capacity allocation was accepted'
+            exit 1
+          fi
+          grep -q 'No space left on device' "$GITHUB_WORKSPACE/.local/capacity-enospc.stderr"
+          rm -- "$fq_volume/quota-probe"
+          cp -a "$GITHUB_WORKSPACE" "$fq_volume/source"
+          mkdir -p "$fq_volume/tools" "$fq_volume/config" "$fq_volume/source/.cache/tmp"
+          export FQ_VOLUME="$fq_volume" FQ_IMAGE="$fq_image"
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,subprocess,sys
+          sys.path.insert(0,'scripts')
+          from reference_capacity import PROFILE,context
+          volume=pathlib.Path(os.environ['FQ_VOLUME']);image=pathlib.Path(os.environ['FQ_IMAGE'])
+          def query(args):
+              result=subprocess.run(args,capture_output=True,text=True,check=True,timeout=10)
+              assert len(result.stdout)+len(result.stderr)<=32768
+              return json.loads(result.stdout)
+          mount=query(['findmnt','--json','--target',str(volume),'-o','TARGET,FSTYPE,SOURCE'])['filesystems'][0]
+          loops=query(['sudo','-n','losetup','--json','--list','--associated',str(image),'--output','NAME,BACK-FILE'])
+          info=image.lstat();stderr=(volume/'source/.local/capacity-enospc.stderr').read_bytes()
+          assert info.st_size==2000000000 and info.st_nlink==1 and info.st_uid==os.getuid()
+          assert mount['target']==str(volume) and mount['fstype']=='ext4'
+          assert len(loops['loopdevices'])==1 and loops['loopdevices'][0]['name']==mount['source'] and loops['loopdevices'][0]['back-file']==str(image)
+          assert b'No space left on device' in stderr and len(stderr)<=32768
+          record={'schema_version':1,'evidence_type':'capacity_quota','profile':PROFILE,
+                  'hard_quota_enforced':True,'volume_file_bytes':info.st_size,
+                  'oversized_allocation_bytes':2100000000,'oversized_allocation':'DENIED_ENOSPC',
+                  'mount':mount,'volume_path':str(volume),'image_path':str(image),'loops':loops,
+                  'backing_identity':[info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_nlink,info.st_size],
+                  'run_context':context(volume/'source'),'enospc_sha256':hashlib.sha256(stderr).hexdigest(),
+                  'scope':'Actual fixed ext4 capacity ceiling only; no scientific-workload admission.'}
+          for local in (pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local',volume/'source/.local'):
+              with (local/'capacity-quota.json').open('x') as stream:json.dump(record,stream,indent=2)
+          PY
+          printf '%s\n' "FQ_VOLUME=$fq_volume" "FQ_IMAGE=$fq_image" "FQ_WORKSPACE_ROOT=$fq_volume" "FQ_CPUS=4" "TMPDIR=$fq_volume/source/.cache/tmp" "TEMP=$fq_volume/source/.cache/tmp" "TMP=$fq_volume/source/.cache/tmp" "GOPATH=$fq_volume/gopath" "GOBIN=$fq_volume/tools/bin" "GOCACHE=$fq_volume/source/.cache/go-build" "GOMODCACHE=$fq_volume/source/.cache/go-mod" "GOTMPDIR=$fq_volume/source/.cache/tmp" "XDG_CONFIG_HOME=$fq_volume/config" "XDG_CACHE_HOME=$fq_volume/cache" >> "$GITHUB_ENV"
+          printf '%s\n' "$fq_volume/tools/go/bin" "$fq_volume/tools/bin" >> "$GITHUB_PATH"
+          python3 scripts/reference_capacity.py sample --name quota-ready
+      - name: Obtain and execute only the pinned official Go toolchain inside the quota
+        id: capacity_sdk
+        timeout-minutes: 5
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_capacity.py sample --name toolchain-before
+          python3 - <<'PY'
+          import hashlib,json,os,pathlib,subprocess,tarfile,urllib.request
+          root=pathlib.Path(os.environ['FQ_VOLUME'])
+          version='go'+(root/'source/.go-version').read_text().strip().removeprefix('go')
+          metadata=json.load(urllib.request.urlopen('https://go.dev/dl/?mode=json&include=all',timeout=30))
+          item=next(f for release in metadata if release['version']==version for f in release['files'] if f['os']=='linux' and f['arch']=='amd64' and f['kind']=='archive')
+          assert 0<item['size']<100_000_000
+          path=root/'tools'/item['filename'];count=0;h=hashlib.sha256()
+          with urllib.request.urlopen('https://go.dev/dl/'+item['filename'],timeout=90) as response,path.open('xb') as output:
+              while chunk:=response.read(1024*1024):
+                  count+=len(chunk)
+                  if count>item['size']:raise RuntimeError('download exceeds admitted size')
+                  h.update(chunk);output.write(chunk)
+          assert count==item['size'] and h.hexdigest()==item['sha256']
+          with tarfile.open(path) as archive:
+              assert sum(m.size for m in archive.getmembers())<1_000_000_000
+              archive.extractall(root/'tools',filter='data')
+          with (root/'source/.local/toolchain-download.json').open('x') as stream:json.dump(item,stream,indent=2)
+          path.unlink()
+          actual=subprocess.run(['go','version'],capture_output=True,text=True,check=True,timeout=10).stdout.strip()
+          executable=pathlib.Path(subprocess.run(['which','go'],capture_output=True,text=True,check=True,timeout=10).stdout.strip()).resolve()
+          assert executable==root/'tools/go/bin/go' and actual.startswith('go version '+version+' ')
+          with (root/'source/.local/toolchain-runtime.json').open('x') as stream:json.dump({'version':actual,'executable':str(executable),'uid':os.getuid()},stream,indent=2)
+          PY
+          go version
+          go telemetry off
+          python3 scripts/reference_capacity.py sample --name toolchain-ready
+      - name: Unchanged supported verification with race fuzz oracle mutations and smoke
+        id: capacity_verify
+        timeout-minutes: 14
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_capacity.py stage --name verify --timeout 780 -- make verify
+      - name: Unchanged clean committed supported reproduction
+        if: ${{ !cancelled() && steps.capacity_sdk.outcome == 'success' }}
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_capacity.py stage --name clean --timeout 300 -- make clean-verify
+      - name: Install the pinned scanner inside the capacity image
+        id: capacity_scanner
+        if: ${{ !cancelled() && steps.capacity_sdk.outcome == 'success' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_capacity.py stage --name scanner-install --timeout 120 -- go install golang.org/x/vuln/cmd/govulncheck@v1.9.0
+          go version -m "$GOBIN/govulncheck" > "$FQ_VOLUME/source/.local/govulncheck-build.txt"
+      - name: Unchanged current online vulnerability scan
+        if: ${{ !cancelled() && steps.capacity_scanner.outcome == 'success' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_capacity.py stage --name online --timeout 120 -- make security-online
+      - name: Capture complete available inner diagnostics after writers close
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Export runs outside evidence.py so its own active output is not copied.
+          python3 scripts/reference_capacity.py capture
+      - name: Close only the positively bound capacity mount including partial setup
+        if: always()
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category capacity-unmount --requirements AC-020 --timeout 45 -- python3 scripts/reference_capacity.py unmount
+      - name: Admit and verify the complete bounded capacity diagnostic packet
+        id: capacity_packet
+        if: always()
+        timeout-minutes: 2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_capacity.py packet
+      - name: Retain admitted metadata only with explicit failure and completeness state
+        if: ${{ always() && steps.capacity_packet.outputs.metadata_allowed == 'true' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: supported-capacity-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.capacity_packet.outputs.packet_path }}
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0

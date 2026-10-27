@@ -94,8 +94,14 @@ def main() -> int:
     floor = a.reserve if a.filesystem_free_floor is None else a.filesystem_free_floor
     reservation = None
     try:
+        profile = os.environ.get('FQ_RESERVATION_PROFILE', '')
+        if profile not in ('', 'supported-verification-capacity-v1'):
+            raise ValueError('unknown filesystem reservation profile')
         if floor != a.reserve:
-            from reference_reservation import verify
+            if profile == 'supported-verification-capacity-v1':
+                from reference_capacity_reservation import verify
+            else:
+                from reference_reservation import verify
             reservation = verify(root, a.reserve, floor)
         items=inventory_roots(root,external,lambda record: print(json.dumps(record),file=sys.stderr,flush=True))
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
