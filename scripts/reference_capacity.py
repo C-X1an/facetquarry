@@ -525,7 +525,8 @@ def shared_copy_budget(metadata, current_kind, additional_bytes, additional_file
             'aggregate complete-copy bytes/files including proof reservations exceeded')
 
 
-def export_tree(source, destination, kind, ctx, external_used=0):
+def export_tree(source, destination, kind, ctx, external_used=0, closed_writer_proof=True,
+                quiescence_error=None):
     """Complete originals only; any bound failure retains honest partial copies."""
     require(kind in ('volume', 'outer'), 'unsupported complete local export')
     source, destination = Path(os.path.abspath(source)), Path(os.path.abspath(destination))
@@ -541,8 +542,11 @@ def export_tree(source, destination, kind, ctx, external_used=0):
     result = {'schema_version': 1, 'profile': PROFILE, 'kind': kind,
               'source_root': str(source), 'run_context': ctx, 'status': 'FAIL',
               'enumeration_complete': False, 'complete_local_retention': False,
+              'closed_writer_proof': closed_writer_proof,
               'files': [], 'directories': [], 'logical_bytes': 0,
               'scope': 'Whole available .local only; identity copies, never prefixes or selected trees.'}
+    if quiescence_error is not None:
+        result['quiescence_error'] = quiescence_error
     identities, reserved = [], external_used + MANIFEST_BYTES + 4096
     try:
         require(os.path.lexists(source), 'local source was unavailable during partial setup')
@@ -586,7 +590,10 @@ def export_tree(source, destination, kind, ctx, external_used=0):
             # Include paths, complete identities, and worst remaining JSON delimiter.
             encode(result, MANIFEST_BYTES - 2048)
         require(tree_identity(source) == identities, 'whole local tree changed during complete capture')
-        result.update(status='PASS', enumeration_complete=True, complete_local_retention=True)
+        result.update(status='PASS' if closed_writer_proof else 'FAIL', enumeration_complete=True,
+                      complete_local_retention=closed_writer_proof)
+        if not closed_writer_proof:
+            result['error'] = quiescence_error or 'Closed-writer proof unavailable; stable diagnostic bytes only.'
     except (OSError, ValueError) as error:
         result['error'] = error_text(error)
     result['copied_files'] = len(result['files'])
@@ -646,7 +653,7 @@ def active_volume_processes(volume):
             except (FileNotFoundError, ProcessLookupError):
                 continue
             except PermissionError:
-                raise ValueError('owned process cwd could not be observed')
+                raise ValueError('same-UID process cwd unavailable; project ownership unproven; pid=' + entry.name)
     return found
 
 
@@ -725,11 +732,16 @@ def capture(root=ROOT):
               'status': 'FAIL', 'complete_local_retention': False, 'scope': SCOPE}
     try:
         assert_outside_evidence_wrapper(p)
-        result['quiescence'] = stage_quiescence(p, ctx)
+        try:
+            result['quiescence'] = stage_quiescence(p, ctx)
+        except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+            result['quiescence_error'] = error_text(error)
         if os.path.lexists(p['source']):
             require(context(p['source']) == ctx, 'inner source changed before complete capture')
         exported = export_tree(p['source'] / '.local', p['metadata'] / 'volume',
-                               'volume', ctx, external_bytes(p))
+            'volume', ctx, external_bytes(p),
+            closed_writer_proof=result.get('quiescence', {}).get('quiescent') is True,
+            quiescence_error=result.get('quiescence_error'))
         result['export'] = {key: exported[key] for key in ('status', 'copied_files',
                              'logical_bytes', 'enumeration_complete', 'complete_local_retention')}
         result['external_allocated_bytes'] = external_bytes(p)

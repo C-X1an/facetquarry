@@ -377,6 +377,39 @@ class CapacityCompleteFiles(unittest.TestCase):
             self.assertEqual(archive.read('metadata/volume/000000.bin'), b'partial interrupted copy')
             self.assertEqual(archive.read('metadata/outer/000000.bin'), b'outer failure retained\n')
 
+    def test_unproven_quiet_retains_real_inner_error_bytes_without_completeness(self):
+        (self.source / 'stderr.txt').write_bytes(b'actual inner failure fixture\n')
+        (self.source / 'stdout.txt').write_bytes(b'actual inner output fixture\n')
+        outer = self.base / 'outer'; (outer / '.local').mkdir(parents=True)
+        p = {'outer':outer, 'local':outer / '.local', 'volume':self.base / 'volume',
+             'source':self.source.parent, 'image':self.base / 'volume.img',
+             'metadata':self.metadata, 'packet':self.base / 'packet'}
+        with mock.patch.object(capacity, 'paths', return_value=p), \
+             mock.patch.object(capacity, 'context', return_value=self.ctx), \
+             mock.patch.object(capacity, 'assert_outside_evidence_wrapper'), \
+             mock.patch.object(capacity, 'stage_quiescence', side_effect=ValueError('owned process cwd could not be observed')), \
+             mock.patch.object(capacity, 'observe_mount', return_value=None), \
+             mock.patch.object(capacity, 'observe_loops', return_value=[]), \
+             mock.patch.dict(os.environ, {'FQ_ACCOUNTED_BASE_BYTES':'2000000000'}):
+            captured = capacity.capture(outer)
+            self.assertEqual(captured['status'], 'FAIL')
+            self.assertFalse(captured['complete_local_retention'])
+            self.assertTrue((self.metadata / 'volume-manifest.json').is_file())
+            manifest = capacity.load(self.metadata / 'volume-manifest.json')
+            self.assertEqual(manifest['status'], 'FAIL')
+            self.assertFalse(manifest['complete_local_retention'])
+            self.assertIn('owned process cwd', manifest['error'])
+            result = capacity.packet(outer)
+        self.assertTrue(result['metadata_allowed'], result)
+        self.assertFalse(result['complete_local_retention'])
+        self.assertEqual(result['status'], 'FAIL')
+        with zipfile.ZipFile(result['packet_path']) as archive:
+            rows = {r['source_path']:r for r in manifest['files']}
+            for name in ('stderr.txt', 'stdout.txt'):
+                data = archive.read('metadata/volume/'+rows[name]['copy'])
+                self.assertEqual(data, (self.source / name).read_bytes())
+                self.assertEqual(hashlib.sha256(data).hexdigest(), rows[name]['sha256'])
+
     def test_real_binary_above_one_megabyte_survives_complete_export_and_zip(self):
         data = bytes(range(256)) * 5000
         (self.source / 'large.bin').write_bytes(data)

@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "evidence_type": "failed_supported_verification_capacity_control",
+  "run_id": 40511106691,
+  "job_id": 122212952423,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40511106691",
+  "status": "FAIL",
+  "measured_context": {
+    "commit": "a3b4b4d6bb687577e69d81e609d2156d926e3597",
+    "git_status": "",
+    "github_run_attempt": "1",
+    "github_run_id": "40511106691",
+    "job": "reference_capacity",
+    "profile": "supported-verification-capacity-v1",
+    "repository": "C-X1an/facetquarry",
+    "repository_id": 1430604581,
+    "source": "32cc66bf60fe4fc92702511470126f20e0ca4a652ed900c21e1c70ac7d1a6f7d"
+  },
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Admit the separate complete capacity branch before allocation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Enforce a dedicated executable 2GB image and actual 2.1GB ENOSPC",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Obtain and execute only the pinned official Go toolchain inside the quota",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Unchanged supported verification with race fuzz oracle mutations and smoke",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Unchanged clean committed supported reproduction",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Install the pinned scanner inside the capacity image",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Unchanged current online vulnerability scan",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Capture complete available inner diagnostics after writers close",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Close only the positively bound capacity mount including partial setup",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Admit and verify the complete bounded capacity diagnostic packet",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Retain admitted metadata only with explicit failure and completeness state",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "stages": {
+    "verify": {
+      "status": "FAIL",
+      "command": [
+        "make",
+        "verify"
+      ],
+      "evidence_exit_code": 2,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 47,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1506377728,
+        "sampled_max_filesystem_free_bytes": 1623154688,
+        "sampled_max_filesystem_used_bytes": 471216128,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1341157376,
+        "sampled_min_filesystem_free_bytes": 1457934336,
+        "sampled_min_filesystem_used_bytes": 305995776,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "clean": {
+      "status": "FAIL",
+      "command": [
+        "make",
+        "clean-verify"
+      ],
+      "evidence_exit_code": 2,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 47,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1378177024,
+        "sampled_max_filesystem_free_bytes": 1494953984,
+        "sampled_max_filesystem_used_bytes": 607502336,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1204871168,
+        "sampled_min_filesystem_free_bytes": 1321648128,
+        "sampled_min_filesystem_used_bytes": 434196480,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "scanner-install": {
+      "status": "PASS",
+      "command": [
+        "go",
+        "install",
+        "golang.org/x/vuln/cmd/govulncheck@v1.9.0"
+      ],
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 12,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1378074624,
+        "sampled_max_filesystem_free_bytes": 1494851584,
+        "sampled_max_filesystem_used_bytes": 645877760,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1166495744,
+        "sampled_min_filesystem_free_bytes": 1283272704,
+        "sampled_min_filesystem_used_bytes": 434298880,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "online": {
+      "status": "PASS",
+      "command": [
+        "make",
+        "security-online"
+      ],
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 3,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1239597056,
+        "sampled_max_filesystem_free_bytes": 1356374016,
+        "sampled_max_filesystem_used_bytes": 573087744,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1239285760,
+        "sampled_min_filesystem_free_bytes": 1356062720,
+        "sampled_min_filesystem_used_bytes": 572776448,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    }
+  },
+  "underlying_verify_clean_cause": "UNKNOWN; inner stdout/stderr were not captured",
+  "capture": {
+    "status": "FAIL",
+    "error": "ValueError: 'owned process cwd could not be observed'",
+    "complete_local_retention": false,
+    "retained_inner_files": 0
+  },
+  "unmount": {
+    "status": "FAIL",
+    "image_unmounted": true,
+    "scope": "Exact mount/loop absence observed; failed quiet proof keeps overall cleanup FAIL."
+  },
+  "artifact": {
+    "id": 12736544377,
+    "name": "supported-capacity-metadata-40511106691-1",
+    "outer_zip_bytes": 25142,
+    "outer_zip_sha256": "acbf17cf3a3678713052c364a8cb12fb4b82fd028a4e9146d7f7fe20a4ed7f71",
+    "inner_zip_bytes": 24986,
+    "inner_zip_sha256": "13c5bb629b37d328f76b4cafb06d56efb0cd0feb2d365d5348a61f12c5898dc7",
+    "files": 26,
+    "decoded_bytes": 82642,
+    "retained_outer_files": 23,
+    "retained_inner_files": 0,
+    "producer_status": "FAIL",
+    "metadata_allowed": true,
+    "all_member_crc_size_sha_mode_checked_natively": true,
+    "complete_local_retention": false
+  },
+  "limits": [
+    "Native packet retention PASS establishes byte transport only; the producer control remains FAIL.",
+    "Stage subreaper proofs do not establish global same-user process ownership or closed-writer proof.",
+    "Sampled filesystem observations are not continuous high water or evidence that full verification fits.",
+    "Pinned official Go1.27.3 setup passed; verification and clean reproduction did not pass.",
+    "This capacity job supplies no scientific matrix or reference-host qualification.",
+    "No failure is attributed to quota exhaustion without retained inner error evidence."
+  ]
+}
