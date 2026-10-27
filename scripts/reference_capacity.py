@@ -14,6 +14,7 @@ import json
 import os
 from pathlib import Path
 import re
+import selectors
 import shutil
 import signal
 import stat
@@ -632,9 +633,116 @@ def verify_export(metadata, kind, ctx):
     return manifest
 
 
-def active_volume_processes(volume):
+def privileged_cwd_argv(pid):
+    require(type(pid) is int and 0 < pid <= 2_147_483_647, 'invalid cwd observation PID')
+    return ['/usr/bin/sudo', '-n', '--', '/usr/bin/timeout', '--signal=TERM',
+            '--kill-after=1s', '2s', '/usr/bin/readlink', '--zero', '--',
+            '/proc/' + str(pid) + '/cwd']
+
+
+def privileged_cwd_bytes(pid):
+    """Read one protected cwd under the already exercised runner sudo grant."""
+    require(sys.platform == 'linux', 'elevated cwd observation requires supported Linux')
+    argv = privileged_cwd_argv(pid)
+    # Both the root command and the parent have deadlines. The pipe consumes at
+    # most8193bytes, including an over-limit sentinel; stderr is never retained.
+    proc, selector = None, None
+    try:
+        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                stderr=subprocess.DEVNULL, start_new_session=True)
+        output, selector = bytearray(), selectors.DefaultSelector()
+        deadline = time.monotonic() + 5
+        selector.register(proc.stdout, selectors.EVENT_READ)
+        while True:
+            remaining = deadline - time.monotonic()
+            require(remaining > 0 and selector.select(remaining),
+                    'elevated cwd observation timed out')
+            chunk = os.read(proc.stdout.fileno(), min(4096, 8193 - len(output)))
+            if not chunk: break
+            output.extend(chunk)
+            require(len(output) <= 8192, 'elevated cwd observation output exceeds bound')
+        code = proc.wait(timeout=max(.001, deadline - time.monotonic()))
+        require(code == 0, 'elevated cwd observation refused; exit=' + str(code))
+        return bytes(output)
+    finally:
+        try:
+            if selector is not None: selector.close()
+        finally:
+            if proc is not None:
+                try:
+                    if proc.poll() is None:
+                        proc.terminate()
+                        try: proc.wait(timeout=1)
+                        except subprocess.TimeoutExpired:
+                            proc.kill(); proc.wait(timeout=1)
+                finally:
+                    if proc.stdout is not None: proc.stdout.close()
+
+
+def process_cwd_identity(directory):
+    name = directory.name
+    require(re.fullmatch(r'[1-9][0-9]{0,9}', name) is not None
+            and directory == Path('/proc') / name, 'invalid cwd process directory')
+    uid = directory.stat().st_uid
+    raw = (directory / 'stat').read_text()
+    require(len(raw) <= 8192, 'writer process identity exceeds bound')
+    item = parse_process_stat(raw)
+    require(item['pid'] == int(name), 'cwd process PID differs')
+    return uid, item
+
+
+def process_disappeared(directory):
+    try: directory.stat()
+    except (FileNotFoundError, ProcessLookupError): return True
+    return False
+
+
+def observed_process_cwd(directory, uid, budget):
+    """Never classify an unreadable live process as unrelated."""
+    try: before_uid, before = process_cwd_identity(directory)
+    except (FileNotFoundError, ProcessLookupError):
+        require(process_disappeared(directory), 'live process initial identity unavailable')
+        return None, {'pid': int(directory.name), 'proof': 'process directory positively absent'}
+    require(before_uid == uid, 'cwd process UID changed before observation')
+    denial, raw, error = None, None, None
+    method = 'same_uid_readlink'
+    if before['state'] not in ('Z', 'X', 'x'):
+        try: raw = os.fsencode(os.readlink(directory / 'cwd')) + b'\0'
+        except PermissionError as original:
+            denial = error_text(original)
+            budget['calls'] += 1
+            require(budget['calls'] <= 16, 'elevated cwd observation call bound exceeded')
+            method = 'existing_sudo_fixed_readlink'
+            try: raw = privileged_cwd_bytes(before['pid'])
+            except (OSError, ValueError, subprocess.SubprocessError) as failure: error = failure
+        except (FileNotFoundError, ProcessLookupError) as failure: error = failure
+    try: after_uid, after = process_cwd_identity(directory)
+    except (FileNotFoundError, ProcessLookupError):
+        require(process_disappeared(directory), 'live process final identity unavailable')
+        proof = {'pid': before['pid'], 'uid': uid, 'before': before,
+                 'proof': 'process directory positively absent after observation'}
+        if denial is not None: proof['original_denial'] = denial
+        return None, proof
+    require(after_uid == uid and all(before[key] == after[key] for key in
+            ('pid', 'start_time_ticks')), 'cwd process identity or UID changed during observation')
+    proof = {'pid': before['pid'], 'uid': uid, 'before': before, 'after': after, 'method': method}
+    if denial is not None: proof['original_denial'] = denial
+    if after['state'] in ('Z', 'X', 'x'):
+        proof['proof'] = 'same-identity process positively nonwriting zombie/dead state'
+        return None, proof
+    require(error is None and raw is not None,
+            'live process cwd unresolved; pid=' + directory.name + '; original=' +
+            str(denial) + '; observation=' + (error_text(error) if error is not None else 'missing'))
+    require(type(raw) is bytes and 1 < len(raw) <= 8192 and raw.endswith(b'\0')
+            and raw.count(b'\0') == 1 and raw.startswith(b'/')
+            and not raw[:-1].endswith(b' (deleted)'), 'ambiguous or deleted process cwd output')
+    proof['cwd_sha256'] = hashlib.sha256(raw[:-1]).hexdigest()
+    return Path(os.fsdecode(raw[:-1])), proof
+
+
+def active_volume_processes(volume, observations=None):
     """A conservative live cwd observation complements subreaper stage receipts."""
-    found, seen = [], 0
+    found, seen, budget = [], 0, {'calls': 0}
     with os.scandir('/proc') as entries:
         for entry in entries:
             if not entry.name.isdecimal() or int(entry.name) == os.getpid():
@@ -643,15 +751,23 @@ def active_volume_processes(volume):
             require(seen <= 50_000, 'writer observation process bound exceeded')
             directory = Path('/proc') / entry.name
             try:
-                if directory.stat().st_uid != os.getuid():
-                    continue
-                current = Path(os.readlink(directory / 'cwd'))
-                if current == volume or current.is_relative_to(volume):
-                    raw = (directory / 'stat').read_text()
-                    require(len(raw) <= 8192, 'writer process identity exceeds bound')
-                    found.append(parse_process_stat(raw))
+                owner = directory.stat().st_uid
             except (FileNotFoundError, ProcessLookupError):
                 continue
+            except PermissionError:
+                raise ValueError('process UID unavailable; ownership unproven; pid=' + entry.name)
+            if owner != os.getuid(): continue
+            try:
+                current, proof = observed_process_cwd(directory, owner, budget)
+                if proof is not None and observations is not None and (
+                        proof.get('method') != 'same_uid_readlink' or 'proof' in proof):
+                    require(len(observations) < 64, 'exceptional cwd proof count exceeded')
+                    observations.append(proof)
+                if current is None: continue
+                if current == volume or current.is_relative_to(volume):
+                    found.append(proof['after'])
+            except (FileNotFoundError, ProcessLookupError):
+                require(process_disappeared(directory), 'live process writer identity unavailable')
             except PermissionError:
                 raise ValueError('same-UID process cwd unavailable; project ownership unproven; pid=' + entry.name)
     return found
@@ -718,10 +834,12 @@ def stage_quiescence(p, ctx):
         require(all(before.get(key) == after.get(key) for key in
                     ('run_context','name','started_at','command','timeout_seconds')),
                 'terminal stage does not match its exact attempted command')
-    live = active_volume_processes(p['volume'])
+    observations = []
+    live = active_volume_processes(p['volume'], observations)
     require(not live, 'capacity volume still has active owned processes')
     return {'quiescent': True, 'stages': records, 'execution_complete': completed == set(STAGES),
             'active_volume_processes': live,
+            'exceptional_cwd_observations': observations,
             'scope': 'Current cwd observation plus Linux subreaper descendant receipts; no scientific qualification.'}
 
 

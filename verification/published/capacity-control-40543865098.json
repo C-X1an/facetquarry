@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "evidence_type": "diagnosed_failed_supported_capacity_control",
+  "run_id": 40543865098,
+  "job_id": 122329137668,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40543865098",
+  "status": "FAIL",
+  "measured_context": {
+    "commit": "8ae8ff943e474dd07a43c4e06ebc557685fb5659",
+    "git_status": "",
+    "github_run_attempt": "1",
+    "github_run_id": "40543865098",
+    "job": "reference_capacity",
+    "profile": "supported-verification-capacity-v1",
+    "repository": "C-X1an/facetquarry",
+    "repository_id": 1430604581,
+    "source": "83f7b95b46a5dfe2670b2321b4c79e71dfe84db98acad71424335d3effafc376"
+  },
+  "stages": {
+    "verify": {
+      "status": "FAIL",
+      "evidence_exit_code": 2,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 50,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1506336768,
+        "sampled_max_filesystem_free_bytes": 1623113728,
+        "sampled_max_filesystem_used_bytes": 471248896,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1341124608,
+        "sampled_min_filesystem_free_bytes": 1457901568,
+        "sampled_min_filesystem_used_bytes": 306036736,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "clean": {
+      "status": "FAIL",
+      "evidence_exit_code": 2,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 51,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1378131968,
+        "sampled_max_filesystem_free_bytes": 1494908928,
+        "sampled_max_filesystem_used_bytes": 608628736,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1203744768,
+        "sampled_min_filesystem_free_bytes": 1320521728,
+        "sampled_min_filesystem_used_bytes": 434241536,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "scanner-install": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 13,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1378029568,
+        "sampled_max_filesystem_free_bytes": 1494806528,
+        "sampled_max_filesystem_used_bytes": 647929856,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1164443648,
+        "sampled_min_filesystem_free_bytes": 1281220608,
+        "sampled_min_filesystem_used_bytes": 434343936,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "online": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "descendant_cleanup": {
+        "adopted": [],
+        "quiescent": true,
+        "reaped": [],
+        "residual": [],
+        "signals": []
+      },
+      "sampled_high_water": {
+        "count": 3,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1239527424,
+        "sampled_max_filesystem_free_bytes": 1356304384,
+        "sampled_max_filesystem_used_bytes": 573157376,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1239216128,
+        "sampled_min_filesystem_free_bytes": 1355993088,
+        "sampled_min_filesystem_used_bytes": 572846080,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    }
+  },
+  "diagnosis": {
+    "status": "CONFIRMED",
+    "failing_test": "CapacityWorkflow.test_dangling_image_slot_refuses_before_any_target_allocation",
+    "assertion": "Existing Linux fixture expected nonzero refusal before allocation; actual shell exit was zero.",
+    "root_cause": "Both capacity slot guards use test A && test B under set -e; failure of the left operand does not stop Bash.",
+    "python_tests": 262,
+    "failed_tests": 1,
+    "explicit_skips": 5,
+    "same_failure_independently_confirmed_in_fresh_clone": true,
+    "go_build_vet_check_test_observed_before_failure": true,
+    "full_supported_verification": "FAIL",
+    "later_race_fuzz_and_scientific_matrix": "NOT REACHED",
+    "original_run_40511106691_cause": "UNKNOWN; its missing inner logs are not reconstructed from this retry."
+  },
+  "capture": {
+    "status": "FAIL",
+    "quiescence_error": "ValueError: 'same-UID process cwd unavailable; project ownership unproven; pid=1172'",
+    "stable_copied_inner_files": 29,
+    "enumeration_complete": true,
+    "complete_local_retention": false,
+    "scope": "Diagnostic copying succeeded after failed quiet proof; this is not full closed-writer retention."
+  },
+  "cleanup": {
+    "status": "FAIL",
+    "image_unmounted": true,
+    "exact_mount_and_loop_absence_observed": true,
+    "explicit_image_unlink": false
+  },
+  "artifact": {
+    "id": 12752855218,
+    "bytes": 64389,
+    "sha256": "b15d6ca8e498616455f2c57e854a77a7df53b1722c0a047e7b3efdc8255b16af",
+    "inner_zip_bytes": 64233,
+    "inner_zip_sha256": "c20682ba17f600c42fca9a0ac4c0d463920693063aceec2cc2ebf1c9f878521a",
+    "files": 55,
+    "decoded_bytes": 233189,
+    "outer_files": 23,
+    "inner_files": 29,
+    "all_crc_size_sha_mode_checked_natively": true,
+    "producer_status": "FAIL",
+    "complete_local_retention": false
+  },
+  "limits": [
+    "No full verification fit or scientific performance claim from a failed run.",
+    "Captured PID1172 is an unresolved same-user process observation, not a known unrelated-process exemption.",
+    "Go checks reached before the Python failure do not substitute for full supported race/fuzz/acceptance.",
+    "No existing failing fixture or assertion was weakened; subsequent repairs require fresh execution."
+  ]
+}

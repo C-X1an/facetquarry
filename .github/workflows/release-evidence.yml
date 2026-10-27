@@ -533,8 +533,8 @@ jobs:
           umask 077
           fq_image="$RUNNER_TEMP/facetquarry-capacity.img"
           fq_volume="$RUNNER_TEMP/facetquarry-capacity"
-          test ! -e "$fq_image" && test ! -e "$fq_volume"
-          test ! -L "$fq_image" && test ! -L "$fq_volume"
+          test ! -e "$fq_image" && test ! -e "$fq_volume" || exit 1
+          test ! -L "$fq_image" && test ! -L "$fq_volume" || exit 1
           mkdir "$fq_volume"
           fallocate -l 2000000000 "$fq_image"
           mkfs.ext4 -F -q "$fq_image"
