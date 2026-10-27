@@ -27,6 +27,7 @@ import zipfile
 from common import ROOT, source_hash
 import evidence_bundle as bundle
 import reference_artifacts as artifacts
+import reference_capacity_fuzz as fuzz
 
 PROFILE = 'supported-verification-capacity-v1'
 REPOSITORY = 'C-X1an/facetquarry'
@@ -856,6 +857,14 @@ def capture(root=ROOT):
             result['quiescence_error'] = error_text(error)
         if os.path.lexists(p['source']):
             require(context(p['source']) == ctx, 'inner source changed before complete capture')
+        try:
+            result['fuzz_retention'] = fuzz.preserve(p['volume'], p['source'],
+                closed_writer_proof=result.get('quiescence', {}).get('quiescent') is True,
+                run_context=ctx, max_bytes=min(COPY_BYTES, CAPTURE_BYTES, fuzz.MAX_BYTES))
+        except (OSError, ValueError, KeyError) as error:
+            # A missing or failed corpus copy must not suppress available logs.
+            result['fuzz_retention'] = {'status': 'FAIL', 'run_context': ctx,
+                'campaign_qualified': False, 'error': error_text(error)}
         exported = export_tree(p['source'] / '.local', p['metadata'] / 'volume',
             'volume', ctx, external_bytes(p),
             closed_writer_proof=result.get('quiescence', {}).get('quiescent') is True,
@@ -866,7 +875,7 @@ def capture(root=ROOT):
         require(result['external_allocated_bytes'] + 16384 <= EXTERNAL_METADATA,
                 'actual external originals exceed capacity metadata admission')
         result['complete_local_retention'] = exported['complete_local_retention']
-        if exported['status'] == 'PASS':
+        if exported['status'] == 'PASS' and result['fuzz_retention']['status'] == 'PASS':
             result['status'] = 'PASS'
     except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
         result['error'] = error_text(error)
@@ -1051,7 +1060,7 @@ def make_packet(metadata, destination, ctx, execution_complete=False, volume_aut
                'mode': info.st_mode, 'identity': list(bundle.signature(info))}
         rows.append(row); expected[name] = row
     record = {'schema_version': 1, 'profile': PROFILE, 'run_context': ctx,
-              'status': 'PASS' if execution_complete and volume_authorized and all(m['complete_local_retention'] for m in manifests) else 'FAIL',
+              'status': 'PASS' if execution_complete and volume_authorized and not failures and all(m['complete_local_retention'] for m in manifests) else 'FAIL',
               'execution_complete': execution_complete,
               'complete_local_retention': volume_authorized and all(m['complete_local_retention'] for m in manifests),
               'failure_reasons': failures,
@@ -1078,6 +1087,66 @@ def make_packet(metadata, destination, ctx, execution_complete=False, volume_aut
     proof = verify_zip(output, expected, record)
     require(physical(destination) <= PACKET_BYTES, 'actual diagnostic packet allocation exceeds reservation')
     return output, record, proof
+
+
+def verify_captured_fuzz(p, ctx):
+    """Verify retained corpus copies after unmount, without reopening the volume."""
+    captured = load(p['local'] / 'capacity-capture.json')
+    require(type(captured) is dict and captured.get('run_context') == ctx,
+            'fuzz capture execution identity differs or is not an object')
+    proof = captured.get('fuzz_retention', {})
+    require(type(proof) is dict and proof.get('status') == 'PASS' and proof.get('run_context') == ctx
+            and proof.get('closed_writer_proof') is True
+            and proof.get('campaign_qualified') is False,
+            'complete current fuzz capture proof is absent or failed')
+    require(proof.get('manifest') == fuzz.OUTPUT + '/manifest.json', 'fuzz manifest path differs')
+    exported = verify_export(p['metadata'], 'volume', ctx)
+    require(exported.get('complete_local_retention') is True, 'fuzz export is not complete')
+    prefix = fuzz.OUTPUT.removeprefix('.local/') + '/'
+    rows = {row['source_path']: row for row in exported['files']}
+    member = prefix + 'manifest.json'
+    require(member in rows, 'current fuzz manifest was not exported')
+    row = rows[member]
+    require(row['sha256'] == proof.get('manifest_sha256'), 'fuzz manifest SHA differs')
+    manifest = load(p['metadata'] / 'volume' / row['copy'])
+    require(type(manifest) is dict and manifest.get('run_context') == ctx and manifest.get('closed_writer_proof') is True
+            and manifest.get('campaign_qualified') is False,
+            'retained fuzz manifest execution identity differs')
+    snapshot, preserved = manifest.get('snapshot'), manifest.get('preserved')
+    for value in (snapshot, preserved):
+        require(type(value) is dict and type(value.get('roots')) is list
+                and type(value.get('entries')) is list
+                and len(value['entries']) <= fuzz.MAX_ENTRIES
+                and all(type(item) is dict for item in value['roots'] + value['entries']),
+                'retained fuzz inventory is malformed or exceeds bound')
+    require(hashlib.sha256(fuzz._encode(snapshot)).hexdigest() == proof.get('snapshot_sha256')
+            and fuzz._content(snapshot) == fuzz._content(preserved)
+            and snapshot.get('roots') == proof.get('roots'),
+            'retained current fuzz snapshot content or identity differs')
+    expected, total, count = {member}, 0, 0
+    for item in snapshot['entries']:
+        name = item['path']; bundle.safe_name(name)
+        require(name.split('/')[0] in dict(fuzz.ROOTS), 'unknown fuzz corpus root')
+        if item.get('kind') == 'directory':
+            continue
+        require(item.get('kind') == 'file' and type(item.get('bytes')) is int
+                and 0 <= item['bytes'] <= fuzz.MAX_MEMBER,
+                'retained fuzz file type or byte bound differs')
+        name = prefix + name
+        require(name not in expected and name in rows, 'complete retained fuzz membership differs')
+        retained = rows[name]
+        require(retained['bytes'] == item['bytes'] and retained['sha256'] == item.get('sha256'),
+                'retained fuzz file SHA or byte count differs')
+        expected.add(name); total += item['bytes']; count += 1
+    require({name for name in rows if name.startswith(prefix)} == expected
+            and count == snapshot.get('count') == preserved.get('count') == proof.get('count')
+            and total == snapshot.get('bytes') == preserved.get('bytes') == proof.get('bytes')
+            and proof.get('corpus_observed') is (count > 0)
+            and count <= fuzz.MAX_FILES
+            and total + row['bytes'] == proof.get('retained_logical_bytes') <= fuzz.MAX_BYTES,
+            'complete fuzz count, byte or membership proof differs')
+    return {**proof, 'retained_export_verified': True,
+            'scope': 'Complete current corpus bytes in the retained packet; campaign execution remains a separate gate.'}
 
 
 def actual_admission(base, image_bytes, metadata_bytes, packet_bytes):
@@ -1133,6 +1202,12 @@ def packet(root=ROOT):
         except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
             failures.append('unmount: ' + error_text(error))
         result['cleanup_failures'] = failures
+        try:
+            result['fuzz_retention'] = verify_captured_fuzz(p, ctx)
+        except (OSError, ValueError, KeyError) as error:
+            result['fuzz_retention'] = {'status': 'FAIL', 'run_context': ctx,
+                'campaign_qualified': False, 'error': error_text(error)}
+            failures.append('fuzz retention: ' + error_text(error))
         used = external_bytes(p)
         outer = export_tree(p['local'], p['metadata'] / 'outer', 'outer', ctx, used)
         result['outer_complete_local_retention'] = outer['complete_local_retention']
@@ -1162,7 +1237,7 @@ def packet(root=ROOT):
                                      external_bytes(p) + 65536, physical(p['packet']))
         result.update(admission)
         require(result['metadata_allowed'], 'actual complete diagnostic upload admission refused')
-        result['status'] = 'PASS' if manifest['complete_local_retention'] and quiet['execution_complete'] else 'FAIL'
+        result['status'] = manifest['status']
     except (OSError, ValueError, KeyError, subprocess.SubprocessError, zipfile.BadZipFile) as error:
         result.update(status='FAIL', metadata_allowed=False, error=error_text(error))
     mkdir(p['metadata'])

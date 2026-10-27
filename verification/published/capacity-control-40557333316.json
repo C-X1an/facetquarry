@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "evidence_type": "supported_capacity_success_with_unqualified_fuzz_retention",
+  "run_id": 40557333316,
+  "job_id": 122376800547,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40557333316",
+  "workflow_status": "SUCCESS",
+  "release_status": "NOT QUALIFIED",
+  "measured_context": {
+    "commit": "6cc82367239f77f5cc930fc53bc53a234e6a529c",
+    "git_status": "",
+    "github_run_attempt": "1",
+    "github_run_id": "40557333316",
+    "job": "reference_capacity",
+    "profile": "supported-verification-capacity-v1",
+    "repository": "C-X1an/facetquarry",
+    "repository_id": 1430604581,
+    "source": "22643067c3ac8a85d2f15578afbdba1ca503ebe93d45722cfed4ee4fc39c20b3"
+  },
+  "stages": {
+    "verify": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampled_high_water": {
+        "count": 282,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1506299904,
+        "sampled_max_filesystem_free_bytes": 1623076864,
+        "sampled_max_filesystem_used_bytes": 658231296,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1154142208,
+        "sampled_min_filesystem_free_bytes": 1270919168,
+        "sampled_min_filesystem_used_bytes": 306073600,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "clean": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampled_high_water": {
+        "count": 59,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1229631488,
+        "sampled_max_filesystem_free_bytes": 1346408448,
+        "sampled_max_filesystem_used_bytes": 758398976,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1053974528,
+        "sampled_min_filesystem_free_bytes": 1170751488,
+        "sampled_min_filesystem_used_bytes": 582742016,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "scanner-install": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampled_high_water": {
+        "count": 14,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1229529088,
+        "sampled_max_filesystem_free_bytes": 1346306048,
+        "sampled_max_filesystem_used_bytes": 796352512,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1016020992,
+        "sampled_min_filesystem_free_bytes": 1132797952,
+        "sampled_min_filesystem_used_bytes": 582844416,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    },
+    "online": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampled_high_water": {
+        "count": 3,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1091104768,
+        "sampled_max_filesystem_free_bytes": 1207881728,
+        "sampled_max_filesystem_used_bytes": 721580032,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1090793472,
+        "sampled_min_filesystem_free_bytes": 1207570432,
+        "sampled_min_filesystem_used_bytes": 721268736,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      }
+    }
+  },
+  "supported_checks": {
+    "go": "go version go1.27.3 linux/amd64",
+    "make_verify": "PASS",
+    "make_clean_verify": "PASS",
+    "python_tests_in_each_main_and_clean_checkout": 279,
+    "python_passed_in_each": 274,
+    "explicit_skips_in_each": 5,
+    "skip_scope": "Windows receipt-sharing controls, explicitly skipped on Linux.",
+    "actual_linux_controls_passed_in_both": [
+      "test_dangling_image_slot_refuses_before_any_target_allocation",
+      "test_actual_detached_grandchild_is_reaped_and_unrelated_process_survives",
+      "test_actual_child_pipe_output_bound_deadline_and_reaping",
+      "test_existing_capacity_runner_grant_executes_the_fixed_readlink"
+    ],
+    "race": "PASS",
+    "independent_oracle_seeds": 1000,
+    "engine_mutation_controls": 4,
+    "integrity_controls": 2,
+    "demo_and_benchmark_smoke": "PASS; developmental smoke only",
+    "online_scanner": "govulncheck@v1.9.0 PASS"
+  },
+  "fuzz": {
+    "campaign_status": "PASS",
+    "seconds_per_target": 30,
+    "query_new_interesting_counter": 91,
+    "query_total_counter": 94,
+    "snapshot_new_interesting_counter": 3,
+    "snapshot_total_counter": 5,
+    "counter_scope": "Actual campaign counters, not an exact corpus-file inventory.",
+    "current_discovered_corpus_status": "UNAVAILABLE",
+    "ac_015": "FAIL / NOT QUALIFIED",
+    "cause": "Complete available .local was exported; generated .cache/go-build/fuzz was outside that tree and not retained before runner retirement.",
+    "required_repair": "Bounded complete current-corpus preservation with membership and SHA verification, followed by a fresh supported-toolchain campaign.",
+    "historical_corpus_substitution": false
+  },
+  "retention": {
+    "artifact_id": 12758591272,
+    "outer_zip_bytes": 369346,
+    "outer_zip_sha256": "66c29361a59766d9315fbdbe1ac2c779901422186bb4f7c074fc1d832254bf07",
+    "inner_zip_bytes": 369190,
+    "inner_zip_sha256": "5b710b4aa5dd315bac031b8e9e24bbf8ac4591c1f135c8ce84e8b8ad65183899",
+    "archive_files": 220,
+    "decoded_bytes": 999830,
+    "inner_files": 194,
+    "outer_files": 23,
+    "all_crc_size_sha_mode_membership_checked": true,
+    "complete_available_local_retention": true,
+    "completeness_scope": "Complete available .local diagnostics only; excludes the unavailable discovered fuzz-cache corpus."
+  },
+  "cleanup": {
+    "status": "PASS",
+    "exact_mount_and_loop_absence": true,
+    "image_explicitly_removed": false,
+    "retirement_scope": "Terminal hosted runner lifecycle; no claim of explicit backing-file unlink."
+  },
+  "security_diff": {
+    "scan_id": "6833d919-8131-4ec5-8221-ad91dcbb5909",
+    "status": "complete",
+    "findings": 0,
+    "warnings": [],
+    "changed_paths_reviewed": 7,
+    "usage": {
+      "cacheWriteInputTokens": 0,
+      "cachedInputTokens": 5144064,
+      "coverage": "complete",
+      "inputTokens": 5256131,
+      "outputTokens": 17862,
+      "reasoningOutputTokens": 10528,
+      "source": "codex_rollout",
+      "threadCount": 3,
+      "totalTokens": 5273993
+    },
+    "scope": "Immutable8ae8..6cc diff only; no future-change coverage or full-repository certification."
+  },
+  "commands": [
+    {
+      "run_id": "20261027T180946Z-a8b9c4f2b0",
+      "category": "capacity-admission",
+      "command": [
+        "python3",
+        "scripts/reference_capacity.py",
+        "plan"
+      ],
+      "started_at": "2026-10-27T18:09:46.207547+00:00",
+      "ended_at": "2026-10-27T18:09:47.131246+00:00",
+      "duration_seconds": 0.22083528799999996,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "83f73b011fa638a5463346e3a4449cd43df89d3e190a108bf107369386da88d5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.24.13 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      }
+    },
+    {
+      "run_id": "20261027T180954Z-a16fafbeab",
+      "category": "capacity-verify",
+      "command": [
+        "make",
+        "verify"
+      ],
+      "started_at": "2026-10-27T18:09:54.420311+00:00",
+      "ended_at": "2026-10-27T18:14:34.637394+00:00",
+      "duration_seconds": 280.19717906700004,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "cb8fd3e7bf14b160e6ab7c65a4e631162bc3715b8467aec4834a5320375b967d",
+      "stderr_sha256": "6cec49592142275fa22b96deb2a9a674ffcdd5c4e02accac14dd1a9e1dd9e3bf",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      }
+    },
+    {
+      "run_id": "20261027T181434Z-050520e0f0",
+      "category": "capacity-clean",
+      "command": [
+        "make",
+        "clean-verify"
+      ],
+      "started_at": "2026-10-27T18:14:34.923564+00:00",
+      "ended_at": "2026-10-27T18:15:32.058307+00:00",
+      "duration_seconds": 57.115216331,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "ae7f2ea21155bbdfc7ed8179f6a4bbf312d7dcdfef5589cc122f0280e35a832a",
+      "stderr_sha256": "9a2fe9141accd92f73ae823a05dc045a0a03d89fd882a36b8c9cfbbddceb3a91",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      }
+    },
+    {
+      "run_id": "20261027T181532Z-900031bb3e",
+      "category": "capacity-scanner-install",
+      "command": [
+        "go",
+        "install",
+        "golang.org/x/vuln/cmd/govulncheck@v1.9.0"
+      ],
+      "started_at": "2026-10-27T18:15:32.285151+00:00",
+      "ended_at": "2026-10-27T18:15:44.469414+00:00",
+      "duration_seconds": 12.165375229000006,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b29e788ff6170e03b088018816d02da0a2616161a187cd1a82bf16284f9c4fc1",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      }
+    },
+    {
+      "run_id": "20261027T181544Z-b810b6c8ec",
+      "category": "capacity-online",
+      "command": [
+        "make",
+        "security-online"
+      ],
+      "started_at": "2026-10-27T18:15:44.693846+00:00",
+      "ended_at": "2026-10-27T18:15:46.435963+00:00",
+      "duration_seconds": 1.72195616099998,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "fb3bf37c50e77cd1e027168a3fe4ea1c2f1e03f8d68692de8bcfb5e6e69050ed",
+      "stderr_sha256": "dcb4c550a8883a682670faff25efefdac878d472704a9e70bf800d9adf9fca0c",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "TwoGB fixed image and actual2.1GB ENOSPC plus separately bounded external metadata; no guest/reference-host/full-matrix fit proof.",
+    "Filesystem samples are not continuous high-water measurements.",
+    "Both fuzz campaigns passed, but AC015 remains unqualified because current discovered corpus was not retained.",
+    "Repaired-source full1/4/16-reader frozen matrices, actual inspector browser/keyboard review and owner walkthrough remain unmet.",
+    "Earlier40511106691 failure retains UNKNOWN inner cause; later success does not reconstruct unavailable diagnostics.",
+    "Trusted-host receipts and retained hashes are not third-party attestation."
+  ]
+}

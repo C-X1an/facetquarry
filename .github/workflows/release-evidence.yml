@@ -83,7 +83,8 @@ jobs:
           (pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local/reference-admission.json').write_text(json.dumps(record,indent=2)+'\n')
           print(json.dumps(record));assert record['admission']=='ALLOW','global attribution admission refused'
           PY
-          test ! -e "$fq_image" && test ! -e "$fq_volume"
+          test ! -e "$fq_image" && test ! -e "$fq_volume" || exit 1
+          test ! -L "$fq_image" && test ! -L "$fq_volume" || exit 1
           mkdir "$fq_volume"
           fallocate -l 2300000000 "$fq_image"
           mkfs.ext4 -F -q "$fq_image"
