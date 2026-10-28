@@ -314,8 +314,12 @@ CRITICAL_SELECTIONS = [
     'reference-transport/pack-result.json', 'reference-transport/reference-members.tar.xz.failure.json',
     'reference-transport/pack-supervisor.json', 'reference-transport/verify-supervisor.json',
     'reference-transport/reconcile-supervisor.json', 'reference-transport/verification.json',
+    'reference-transport/pack-supervisor-stdout.txt', 'reference-transport/pack-supervisor-stderr.txt',
+    'reference-transport/verify-supervisor-stdout.txt', 'reference-transport/verify-supervisor-stderr.txt',
+    'reference-transport/reconcile-supervisor-stdout.txt', 'reference-transport/reconcile-supervisor-stderr.txt',
     'reference-results-reconciled-freeze.json', 'reference-internal-trim-summary.json',
-    'reference-internal-transport-refusal.json',
+    'reference-transport-pack-refusal.json', 'reference-transport-verify-refusal.json',
+    'reference-transport-reconcile-refusal.json',
     'reference-metadata-manifest.json', 'reference-enospc.stderr',
 ]
 

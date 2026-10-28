@@ -41,10 +41,11 @@ def record_json(path, value):
     with path.open('xb') as stream: stream.write(raw)
 
 
-def copy_one(path, target, budget):
+def copy_one(path, target, budget, *, max_bytes=None):
     bundle.no_links(path); info = path.lstat()
     require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1, 'unsafe diagnostic source')
-    require(info.st_size <= COPY_BYTES, 'diagnostic source exceeds complete-copy admission')
+    limit = COPY_BYTES if max_bytes is None else min(COPY_BYTES, max_bytes)
+    require(info.st_size <= limit, 'diagnostic source exceeds complete-copy admission')
     if 'root' in budget:
         require(target.parent in {budget['root'], *(budget['root'] / name for name in FLAT_FOLDERS)},
                 'diagnostic export must use fixed flat directories')
@@ -369,7 +370,14 @@ def final_state(volume, root=ROOT, *, profile=''):
     for name in ('reference-results-freeze.json', 'reference-results-reconciled-freeze.json', 'reference-guest-quiescence.json',
                  'reference-results-rescue.json'):
         path = volume / name
-        if path.is_file():
+        if profile == 'reference-inside-outer-v1' and name in (
+                'reference-results-freeze.json', 'reference-results-reconciled-freeze.json'):
+            if os.path.lexists(path):
+                # Supervisor and candidate receipts bind the complete proof SHA.
+                # Preserve its exact bytes; a field projection changes that SHA.
+                copy_one(path, local / name, {'files': 0, 'bytes': 0},
+                         max_bytes=artifacts.CAPTURE_BYTES)
+        elif path.is_file():
             value = json.loads(path.read_text())
             record_json(local / name, {key: value.get(key) for key in
                 ('status', 'source', 'run_context', 'image_path', 'image_bytes', 'image_sha256',

@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "evidence_type": "failed_internal_transport_control",
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/40653434816",
+  "job_id": 122698701817,
+  "attempt": 1,
+  "workflow_conclusion": "failure",
+  "failed_step": "Package complete results with bounded streams and durable failed-attempt receipts",
+  "failure_trigger": "Deliberate two-second packaging-child timeout control",
+  "keepers": {
+    "diagnostics": {
+      "bytes": 786015,
+      "sha256": "1965a93be54214e43c054a9d6d0983dcd6461fe7c244da51863368bbb09ca703",
+      "artifact_id": 12801345038,
+      "name": "reference-diagnostics-40653434816-1"
+    },
+    "image": {
+      "bytes": 3817473,
+      "sha256": "65acf34e0349ac9694f707950202ba31bdfb38e37c8e4734b51741276e80e1af",
+      "artifact_id": 12801090744,
+      "name": "reference-results-image-40653434816-1"
+    }
+  },
+  "status": "FAIL",
+  "context": {
+    "commit": "6682ec9edd343342e95882a01c44971d96c14e5a",
+    "git_status": "",
+    "github_run_attempt": "1",
+    "github_run_id": "40653434816",
+    "job": "reference",
+    "profile": "reference-inside-outer-v1",
+    "repository": "C-X1an/facetquarry",
+    "repository_id": 1430604581,
+    "source": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328"
+  },
+  "all_packet_member_crc_size_sha_checked": true,
+  "packet_members": 553,
+  "packet_decoded_bytes": 3264771,
+  "complete_image_payload_verified_against_reported_digest": true,
+  "image_bytes": 1100000000,
+  "image_sha256": "2cf0da1da57c583eeb981fcf836b3129e29d31d91dcd8ec615fd2a26d983f096",
+  "native_ext4_member_walk_performed": false,
+  "reported_actual_readonly_recovery": {
+    "status": "PASS",
+    "members": 790,
+    "original_bytes": 8677066,
+    "manifest_sha256": "9bf3be87bd066abf81fdbdc05df91985a4bf109adbe3de7b56bec4c236502854",
+    "image_unmounted": true,
+    "readonly_mount": {
+      "fstype": "ext4",
+      "options": "ro,nosuid,nodev,relatime,norecovery",
+      "source": "/dev/loop1",
+      "target": "/home/runner/work/_temp/facetquarry-reference/source/.local"
+    }
+  },
+  "original_manifest_retained": true,
+  "supported_commands": [
+    {
+      "schema_version": 1,
+      "evidence_type": "command",
+      "run_id": "20261028T075748Z-a5f7d1a428",
+      "category": "supported-reference-verification",
+      "requirements": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "AC-009",
+        "AC-010",
+        "AC-011",
+        "AC-012",
+        "AC-014",
+        "AC-015",
+        "AC-018",
+        "AC-020",
+        "AC-023",
+        "AC-024"
+      ],
+      "commit": "6682ec9edd343342e95882a01c44971d96c14e5a",
+      "git_status": "",
+      "source_before": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328",
+      "source_after": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328",
+      "command": [
+        "make",
+        "verify"
+      ],
+      "cwd": "/home/runner/work/_temp/facetquarry-reference/source",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      },
+      "started_at": "2026-10-28T07:57:48.994919+00:00",
+      "ended_at": "2026-10-28T08:02:13.938471+00:00",
+      "duration_seconds": 264.928023522,
+      "exit_code": 0,
+      "stdout": ".local/evidence/20261028T075748Z-a5f7d1a428/stdout.txt",
+      "stderr": ".local/evidence/20261028T075748Z-a5f7d1a428/stderr.txt",
+      "stdout_sha256": "5ad6300597c7b2ed7c133bbe3052f6d8089d6a981905adaffbd3b4cbb619d67c",
+      "stderr_sha256": "d167e54335915b3d68750c76a4df7af0f4994de426e865af864e14b0a61680c5",
+      "status": "PASS",
+      "termination_reason": null,
+      "scope": "command only; not whole-product release approval"
+    },
+    {
+      "schema_version": 1,
+      "evidence_type": "command",
+      "run_id": "20261028T080213Z-37f37f8554",
+      "category": "clean-supported-reference",
+      "requirements": [
+        "AC-019"
+      ],
+      "commit": "6682ec9edd343342e95882a01c44971d96c14e5a",
+      "git_status": "",
+      "source_before": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328",
+      "source_after": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328",
+      "command": [
+        "make",
+        "clean-verify"
+      ],
+      "cwd": "/home/runner/work/_temp/facetquarry-reference/source",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      },
+      "started_at": "2026-10-28T08:02:13.985331+00:00",
+      "ended_at": "2026-10-28T08:03:23.217129+00:00",
+      "duration_seconds": 69.21655534300004,
+      "exit_code": 0,
+      "stdout": ".local/evidence/20261028T080213Z-37f37f8554/stdout.txt",
+      "stderr": ".local/evidence/20261028T080213Z-37f37f8554/stderr.txt",
+      "stdout_sha256": "e000a42929318aa9ac96d5da3168c098c45f2d69dcd6816c5aaf6860c57ca75e",
+      "stderr_sha256": "0728c7b1381f499ff88d2bbcd0a3805adb0817f91083110b81cf46355a9fd7ac",
+      "status": "PASS",
+      "termination_reason": null,
+      "scope": "command only; not whole-product release approval"
+    },
+    {
+      "schema_version": 1,
+      "evidence_type": "command",
+      "run_id": "20261028T080332Z-7cbe02bfb1",
+      "category": "current-reference-online-security",
+      "requirements": [
+        "AC-018"
+      ],
+      "commit": "6682ec9edd343342e95882a01c44971d96c14e5a",
+      "git_status": "",
+      "source_before": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328",
+      "source_after": "07f75f01fe368e6130f75656d39c4b4f45579702a0707f8ba9d4516c470e9328",
+      "command": [
+        "make",
+        "security-online"
+      ],
+      "cwd": "/home/runner/work/_temp/facetquarry-reference/source",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.56.0"
+        }
+      },
+      "started_at": "2026-10-28T08:03:32.785777+00:00",
+      "ended_at": "2026-10-28T08:03:34.218131+00:00",
+      "duration_seconds": 1.4172499320000043,
+      "exit_code": 0,
+      "stdout": ".local/evidence/20261028T080332Z-7cbe02bfb1/stdout.txt",
+      "stderr": ".local/evidence/20261028T080332Z-7cbe02bfb1/stderr.txt",
+      "stdout_sha256": "2603cc3d75d046003dcbbafc4c9cee8839c7d3469646fd5da5128a7ffc1d4cb0",
+      "stderr_sha256": "2a623690d8a05e8149fa41801e896e1abd1f5fd17aee4d5eb4ddbfac4cdca40e",
+      "status": "PASS",
+      "termination_reason": null,
+      "scope": "command only; not whole-product release approval"
+    }
+  ],
+  "controller_retention_gaps": [
+    {
+      "path": "reference-transport/pack-supervisor-stdout.txt",
+      "reason": "Nonempty supervisor stream omitted from actual packet.",
+      "bytes": 4147
+    },
+    {
+      "path": "reference-transport/reconcile-supervisor-stdout.txt",
+      "reason": "Nonempty supervisor stream omitted from actual packet.",
+      "bytes": 6251
+    },
+    {
+      "path": "reference-results-reconciled-freeze.json",
+      "reason": "Packet retains only a projection, not the complete bound freeze proof.",
+      "actual_projection_sha256": "3596b97de773ba97957619b7d36416f4cce012284e8810d5d15a830f9d0a9227",
+      "expected_complete_sha256": "96fb6d361ec93568f13dea6555d7bf789219145dbbd552fa4251c1935fb3be92"
+    }
+  ],
+  "omitted_empty_streams_mathematically_checked": [
+    "reference-transport/pack-supervisor-stderr.txt",
+    "reference-transport/reconcile-supervisor-stderr.txt"
+  ],
+  "derivable_but_not_retained_streams": [
+    {
+      "path": "reference-transport/pack-supervisor-stdout.txt",
+      "expected_bytes": 4147,
+      "exact_canonical_reconstruction_matches": true,
+      "original_stream_retained": false
+    }
+  ],
+  "complete_controller_retention": false,
+  "extraction_tree_created": false,
+  "scope": "Exact archives and complete streamed image digest verified. Actual remote recovery report is retained; full native controller proof is incomplete. No full matrix or release qualification.",
+  "future_repairs_do_not_requalify_this_run": true,
+  "full_matrix_or_release_qualified": false
+}
