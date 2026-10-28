@@ -23,6 +23,12 @@ on:
         type: boolean
         default: false
         required: true
+      transport_profile:
+        description: Legacy external package or separately admitted package inside the retained outer image
+        type: choice
+        options: [legacy-external, inside-outer]
+        default: legacy-external
+        required: true
       concurrency:
         description: Separate fixed-reader profile on the four-vCPU guest
         type: choice
@@ -49,12 +55,14 @@ jobs:
       FQ_BENCH_CONCURRENCY: ${{ inputs.concurrency }}
       FQ_PRESERVATION_CONTROL: ${{ inputs.preservation_control }}
       FQ_FILESYSTEM_FREE_FLOOR: "500000000"
+      FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
     steps:
       - name: Initialize owned paths from the actual runner environment
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
+          printf '%s\n' "FQ_REFERENCE_JOB_STARTED_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
           printf '%s\n' "FQ_VOLUME=$RUNNER_TEMP/facetquarry-reference" "FQ_IMAGE=$RUNNER_TEMP/facetquarry-reference.img" "FQ_METADATA_PACKET=$RUNNER_TEMP/facetquarry-metadata-packet" >> "$GITHUB_ENV"
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
@@ -80,6 +88,9 @@ jobs:
           # Reserve the largest normal or failed-pack branch BEFORE allocation.
           # Bundle, exact image, and bootstrap uploads are mutually exclusive.
           record=growth_plan(base,2300000000)
+          if os.environ.get('FQ_RESERVATION_PROFILE') == 'reference-inside-outer-v1':
+              from reference_internal_transport import growth_plan,context
+              record={**growth_plan(base,2300000000),'run_context':context()}
           (pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local/reference-admission.json').write_text(json.dumps(record,indent=2)+'\n')
           print(json.dumps(record));assert record['admission']=='ALLOW','global attribution admission refused'
           PY
@@ -101,7 +112,7 @@ jobs:
           cp -- "$RUNNER_TEMP/facetquarry-reference-enospc.stderr" "$fq_volume/source/.local/enospc.stderr"
           export FQ_VOLUME="$fq_volume" FQ_IMAGE="$fq_image"
           python3 - <<'PY'
-          import hashlib,json,os,pathlib,subprocess
+          import hashlib,json,os,pathlib,subprocess,sys
           volume=pathlib.Path(os.environ['FQ_VOLUME']);image=pathlib.Path(os.environ['FQ_IMAGE'])
           mount=json.loads(subprocess.run(['findmnt','--json','--target',str(volume),'-o','TARGET,FSTYPE,SOURCE'],capture_output=True,text=True,check=True).stdout)['filesystems'][0]
           assert mount['target']==str(volume) and mount['fstype']=='ext4' and mount['source'].startswith('/dev/loop')
@@ -116,6 +127,10 @@ jobs:
                   'oversized_allocation':'DENIED_ENOSPC','mount':mount,'volume_path':str(volume),
                   'image_path':str(image),'run_context':context,'enospc_sha256':hashlib.sha256(stderr).hexdigest(),
                   'scope':'Actual ext4 loop-image ceiling; global 2GB reserve and guest RAM filesystems are accounted separately.'}
+          if os.environ.get('FQ_RESERVATION_PROFILE') == 'reference-inside-outer-v1':
+              sys.path.insert(0,'scripts')
+              from reference_internal_transport import PROFILE,context as profile_context,image_identity
+              record.update(profile=PROFILE,profile_context=profile_context(volume/'source'),backing_identity=image_identity(image.lstat()))
           (volume/'source/.local/reference-quota.json').write_text(json.dumps(record,indent=2)+'\n')
           PY
           printf '%s\n' "FQ_BENCH_PROFILE=$FQ_BENCH_PROFILE" "FQ_BENCH_CONCURRENCY=$FQ_BENCH_CONCURRENCY" "FQ_VOLUME=$fq_volume" "FQ_IMAGE=$fq_image" "FQ_WORKSPACE_ROOT=$fq_volume" "GOTOOLCHAIN=local" "FQ_CPUS=4" "TMPDIR=$fq_volume/source/.cache/tmp" "TEMP=$fq_volume/source/.cache/tmp" "TMP=$fq_volume/source/.cache/tmp" "GOPATH=$fq_volume/gopath" "GOBIN=$fq_volume/tools/bin" "GOCACHE=$fq_volume/source/.cache/go-build" "GOMODCACHE=$fq_volume/source/.cache/go-mod" "GOTMPDIR=$fq_volume/source/.cache/tmp" "XDG_CONFIG_HOME=$fq_volume/config" "XDG_CACHE_HOME=$fq_volume/cache" >> "$GITHUB_ENV"
@@ -249,16 +264,33 @@ jobs:
           set -euo pipefail
           cd "$FQ_VOLUME/source"
           python3 scripts/evidence.py --category reference-execution-qualification --requirements AC-016,AC-017 --timeout 90 -- python3 scripts/reference_qualification.py .local/reference-execution.json
-      - name: Package complete results with bounded streams and durable failed-attempt receipts
-        id: package
-        if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
-        # 720s child +150s verification +210s inventory/termination overhead.
-        # Exclusive artifact/recovery branches keep the worst full path354min.
-        timeout-minutes: 18
+      - name: Export current convenience metadata before internal verification freezes the child
+        id: internal_metadata
+        if: ${{ !cancelled() && inputs.transport_profile == 'inside-outer' && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
+        timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
+          python3 scripts/reference_pipeline.py export --volume "$FQ_VOLUME"
+      - name: Package complete results with bounded streams and durable failed-attempt receipts
+        id: package
+        if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
+        # 720s child +150s verification +210s inventory/termination overhead.
+        # Legacy branch bounds remain unchanged. The internal branch admits
+        # actual remaining job time and supervises1710s pack plus210s verify.
+        timeout-minutes: ${{ inputs.transport_profile == 'inside-outer' && 33 || 18 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+            fq_control=()
+            if test "$FQ_PRESERVATION_CONTROL" = true; then fq_control=(--control); fi
+            python3 scripts/reference_internal_transport.py pack --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" "${fq_control[@]}"
+            python3 scripts/reference_internal_transport.py verify --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+            exit 0
+          fi
           mkdir -p .local/reference-transport
           fq_source="$(python3 scripts/common.py)"
           fq_commit="$(git rev-parse HEAD)"
@@ -271,7 +303,7 @@ jobs:
           python3 scripts/evidence.py --category reference-bundle-verification --requirements AC-020 --timeout 150 -- python3 scripts/evidence_bundle.py verify .local/reference-transport/reference-members.tar.xz
       - name: Export complete bounded execution inputs before removing the image
         id: metadata
-        if: always()
+        if: ${{ always() && inputs.transport_profile != 'inside-outer' }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -280,7 +312,7 @@ jobs:
           python3 scripts/reference_pipeline.py export --volume "$FQ_VOLUME"
       - name: Remove only the owned image after complete external byte verification
         id: retention
-        if: ${{ !cancelled() && steps.package.outcome == 'success' && steps.metadata.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.transport_profile != 'inside-outer' && steps.package.outcome == 'success' && steps.metadata.outcome == 'success' }}
         timeout-minutes: 8
         shell: bash
         run: |
@@ -299,11 +331,15 @@ jobs:
       - name: Freeze the exact fixed results image after packaging failure
         id: frozen
         if: ${{ always() && steps.results.outcome == 'success' && steps.package.outcome != 'success' && steps.quiescence.outcome == 'success' }}
-        timeout-minutes: 3
+        timeout-minutes: ${{ inputs.transport_profile == 'inside-outer' && 4 || 3 }}
         shell: bash
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+            python3 scripts/reference_internal_transport.py reconcile --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+            exit 0
+          fi
           python3 scripts/evidence.py --category reference-results-failure-freeze --requirements AC-020 --timeout 150 -- python3 scripts/reference_results.py freeze --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
       - name: Recover every smoke original through the same frozen image mounted read-only
         if: ${{ always() && inputs.preservation_control && steps.control_originals.outcome == 'success' && steps.frozen.outcome == 'success' }}

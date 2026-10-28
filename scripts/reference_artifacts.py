@@ -149,7 +149,7 @@ def discard_partial(partial, expected):
         partial.unlink()
 
 
-def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=False, progress=False):
+def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=False, progress=False, *, audit_dir=None):
     """Persist launch/termination/check failures; remove only verified cache data."""
     root = bundle.no_links(root)
     output = Path(os.path.abspath(output)); bundle.no_links(output.parent)
@@ -157,10 +157,24 @@ def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=Fa
     require(type(timeout) is int and 1 <= timeout <= 1800, 'invalid pack timeout')
     require(preset in (1, 3, 6), 'unsupported compression preset')
     require(type(progress) is bool, 'invalid pack progress option')
+    audit = output.parent
+    if audit_dir is not None:
+        require(Path(audit_dir).is_absolute(), 'pack audit directory must be absolute')
+        audit = bundle.no_links(audit_dir)
+        measured = root / '.local'
+        require(not audit.is_relative_to(measured) and not measured.is_relative_to(audit),
+                'pack audit directory overlaps measured results')
+        require(not audit.is_relative_to(output.parent) and not output.parent.is_relative_to(audit)
+                and not audit.samefile(output.parent), 'pack audit and data directories overlap')
+        owner = os.getuid() if hasattr(os, 'getuid') else root.lstat().st_uid
+        for directory in (root, output.parent, audit):
+            info = directory.lstat()
+            require(stat.S_ISDIR(info.st_mode) and info.st_uid == owner,
+                    'pack data and audit directories must be owned directories')
     partial = output.with_name(output.name + '.partial')
-    receipt = output.parent / 'pack-attempt.json'
-    stdout, stderr = output.parent / 'pack-stdout.txt', output.parent / 'pack-stderr.txt'
-    removal = output.parent / 'partial-removal.json'
+    receipt = audit / 'pack-attempt.json'
+    stdout, stderr = audit / 'pack-stdout.txt', audit / 'pack-stderr.txt'
+    removal = audit / 'partial-removal.json'
     paths = (output, partial, receipt, stdout, stderr, removal, receipt.with_name(receipt.name + '.tmp'),
              output.with_name(output.name + '.failure.json'))
     require(not any(os.path.lexists(path) for path in paths), 'refusing existing pack state')
@@ -298,6 +312,10 @@ CRITICAL_SELECTIONS = [
     'reference-transport/pack-attempt.json', 'reference-transport/partial-removal.json',
     'reference-transport/pack-stdout.txt', 'reference-transport/pack-stderr.txt',
     'reference-transport/pack-result.json', 'reference-transport/reference-members.tar.xz.failure.json',
+    'reference-transport/pack-supervisor.json', 'reference-transport/verify-supervisor.json',
+    'reference-transport/reconcile-supervisor.json', 'reference-transport/verification.json',
+    'reference-results-reconciled-freeze.json', 'reference-internal-trim-summary.json',
+    'reference-internal-transport-refusal.json',
     'reference-metadata-manifest.json', 'reference-enospc.stderr',
 ]
 

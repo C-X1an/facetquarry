@@ -1,0 +1,3201 @@
+{
+  "schema_version": 1,
+  "evidence_type": "supported_capacity_success_with_complete_current_fuzz_retention",
+  "run_id": 40623580179,
+  "job_id": 122603116447,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40623580179",
+  "workflow_status": "SUCCESS",
+  "release_status": "NOT QUALIFIED",
+  "measured_context": {
+    "commit": "8cd501c387079afd3a5a4d2990095a84a47e129c",
+    "git_status": "",
+    "github_run_attempt": "1",
+    "github_run_id": "40623580179",
+    "job": "reference_capacity",
+    "profile": "supported-verification-capacity-v1",
+    "repository": "C-X1an/facetquarry",
+    "repository_id": 1430604581,
+    "source": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9"
+  },
+  "workflow_jobs": [
+    {
+      "name": "Supported verification capacity control (no scientific matrix)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "conflicting_controls",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "reference",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Historical full-size codec control (nonqualifying)",
+      "status": "completed",
+      "conclusion": "skipped"
+    }
+  ],
+  "stages": {
+    "verify": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampler_joined": true,
+      "sampled_high_water": {
+        "count": 190,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1506205696,
+        "sampled_max_filesystem_free_bytes": 1622982656,
+        "sampled_max_filesystem_used_bytes": 658505728,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1153867776,
+        "sampled_min_filesystem_free_bytes": 1270644736,
+        "sampled_min_filesystem_used_bytes": 306167808,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      },
+      "descendant_cleanup": {
+        "quiescent": true,
+        "residual": [],
+        "signals": []
+      }
+    },
+    "clean": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampler_joined": true,
+      "sampled_high_water": {
+        "count": 40,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1229357056,
+        "sampled_max_filesystem_free_bytes": 1346134016,
+        "sampled_max_filesystem_used_bytes": 758673408,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1053700096,
+        "sampled_min_filesystem_free_bytes": 1170477056,
+        "sampled_min_filesystem_used_bytes": 583016448,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      },
+      "descendant_cleanup": {
+        "quiescent": true,
+        "residual": [],
+        "signals": []
+      }
+    },
+    "scanner-install": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampler_joined": true,
+      "sampled_high_water": {
+        "count": 9,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1229246464,
+        "sampled_max_filesystem_free_bytes": 1346023424,
+        "sampled_max_filesystem_used_bytes": 796655616,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1015717888,
+        "sampled_min_filesystem_free_bytes": 1132494848,
+        "sampled_min_filesystem_used_bytes": 583127040,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      },
+      "descendant_cleanup": {
+        "quiescent": true,
+        "residual": [],
+        "signals": []
+      }
+    },
+    "online": {
+      "status": "PASS",
+      "evidence_exit_code": 0,
+      "quiescent": true,
+      "sampler_joined": true,
+      "sampled_high_water": {
+        "count": 3,
+        "observation_errors": 0,
+        "quota_enforcement": false,
+        "sampled_max_filesystem_available_bytes": 1090801664,
+        "sampled_max_filesystem_free_bytes": 1207578624,
+        "sampled_max_filesystem_used_bytes": 721883136,
+        "sampled_max_image_allocated_bytes": 2000000000,
+        "sampled_min_filesystem_available_bytes": 1090490368,
+        "sampled_min_filesystem_free_bytes": 1207267328,
+        "sampled_min_filesystem_used_bytes": 721571840,
+        "sampled_min_image_allocated_bytes": 2000000000,
+        "scope": "Best-effort sampled statvfs and backing-file observations. Sampled high water is not a continuous maximum or quota enforcement."
+      },
+      "descendant_cleanup": {
+        "quiescent": true,
+        "residual": [],
+        "signals": []
+      }
+    }
+  },
+  "supported_checks": {
+    "go": "go version go1.27.3 linux/amd64",
+    "pinned_official_toolchain_setup": "PASS; actual workflow step completed successfully",
+    "make_verify": "PASS",
+    "make_clean_verify": "PASS",
+    "python_tests_in_each_main_and_clean_checkout": 316,
+    "python_passed_in_each": 311,
+    "explicit_skips_in_each": 5,
+    "skip_scope": "Windows receipt-sharing controls, explicitly skipped on Linux.",
+    "actual_linux_controls_passed_in_both": [
+      "test_dangling_image_slot_refuses_before_any_target_allocation",
+      "test_actual_detached_grandchild_is_reaped_and_unrelated_process_survives",
+      "test_actual_child_pipe_output_bound_deadline_and_reaping",
+      "test_existing_capacity_runner_grant_executes_the_fixed_readlink",
+      "test_complete_real_bytes_both_roots_hidden_empty_and_manifest",
+      "test_missing_roots_are_explicit_empty_observations",
+      "test_present_empty_root_does_not_invent_campaign",
+      "test_positive_closed_writer_proof_is_required_before_any_output",
+      "test_exact_context_fields_and_types_are_bound",
+      "test_wrong_volume_source_and_non_normalized_paths_are_refused",
+      "test_wrong_expected_uid_is_refused_against_actual_owned_files",
+      "test_missing_local_parent_is_an_error_not_an_empty_corpus_pass",
+      "test_existing_output_is_refused_without_clobber",
+      "test_dangling_output_link_is_still_an_output_collision",
+      "test_linked_corpus_root_is_refused",
+      "test_hardlinked_corpus_member_is_refused",
+      "test_complete_byte_cap_refuses_before_copy_instead_of_skipping",
+      "test_maximum_cannot_exceed_capacity_or_legacy_bound",
+      "test_manifest_cost_is_included_and_partial_copies_are_retained",
+      "test_file_member_entry_and_manifest_limits_are_failures",
+      "test_new_live_member_during_copy_is_rejected",
+      "test_live_byte_mutation_during_copy_is_rejected",
+      "test_same_bytes_new_live_inode_is_rejected",
+      "test_source_ancestor_substitution_during_copy_is_rejected",
+      "test_preserved_byte_mutation_is_rejected",
+      "test_new_preserved_member_is_rejected",
+      "test_unlisted_top_level_output_member_is_rejected",
+      "test_copy_error_propagates_and_keeps_actual_partial_diagnostics",
+      "test_current_corpus_bytes_manifest_and_run_proof_survive_complete_packet",
+      "test_fuzz_failure_keeps_available_diagnostics_and_cannot_report_packet_pass",
+      "test_absent_current_capture_proof_cannot_turn_complete_local_into_fuzz_success",
+      "test_late_retained_corpus_tamper_refuses_but_preserves_failure_packet",
+      "test_null_corpus_proof_still_retains_an_admitted_failure_packet",
+      "test_nonobject_capture_still_retains_an_admitted_failure_packet",
+      "test_occupied_image_file_refuses_before_any_allocation_command",
+      "test_occupied_image_directory_refuses_before_any_allocation_command",
+      "test_occupied_volume_file_refuses_before_any_allocation_command",
+      "test_occupied_volume_directory_refuses_before_any_allocation_command",
+      "test_dangling_image_link_refuses_before_any_allocation_command",
+      "test_dangling_volume_link_refuses_before_any_allocation_command",
+      "test_fresh_slots_reach_the_actual_allocation_order"
+    ],
+    "race": "PASS",
+    "independent_oracle_seeds": 1000,
+    "engine_mutation_controls": 4,
+    "integrity_controls": 2,
+    "mutation_scope": "Four intended engine assertion failures and two integrity controls with successful before/after restoration; intermediate failures are expected evidence.",
+    "demo_and_benchmark_smoke": "PASS; developmental smoke only",
+    "online_scanner": "govulncheck@v1.9.0 PASS"
+  },
+  "fuzz": {
+    "campaign_status": "PASS",
+    "campaigns": {
+      "FuzzQuery": {
+        "status": "PASS",
+        "requested_seconds": 30,
+        "observed_elapsed_seconds": 31,
+        "executions": 611062,
+        "new_interesting_counter": 110,
+        "total_counter": 113,
+        "retained_current_members": 110,
+        "package_elapsed_seconds": 31.008,
+        "command": [
+          "go",
+          "test",
+          "./internal/engine",
+          "-run",
+          "^$",
+          "-fuzz",
+          "^FuzzQuery$",
+          "-fuzztime",
+          "30s",
+          "-parallel",
+          "2"
+        ],
+        "retained_payload_bytes": 5181
+      },
+      "FuzzSnapshot": {
+        "status": "PASS",
+        "requested_seconds": 30,
+        "observed_elapsed_seconds": 31,
+        "executions": 2174224,
+        "new_interesting_counter": 3,
+        "total_counter": 5,
+        "retained_current_members": 3,
+        "package_elapsed_seconds": 31.004,
+        "command": [
+          "go",
+          "test",
+          "./internal/engine",
+          "-run",
+          "^$",
+          "-fuzz",
+          "^FuzzSnapshot$",
+          "-fuzztime",
+          "30s",
+          "-parallel",
+          "2"
+        ],
+        "retained_payload_bytes": 846
+      }
+    },
+    "current_discovered_corpus_status": "COMPLETE AND RETAINED",
+    "ac_015": "PASS within this exact source/run campaign-and-retention scope",
+    "qualification_basis": "Separate actual Go campaign command evidence plus complete current retained corpus verification; capture helper alone does not execute or qualify campaigns.",
+    "producer_helper_campaign_qualified": false,
+    "files": 113,
+    "payload_bytes": 6027,
+    "manifest_bytes": 61061,
+    "retained_corpus_plus_manifest_bytes": 67088,
+    "manifest_sha256": "b42402cf744235cdb8d497753628d39d85419ca6cb8ab4725f3af5684319abd3",
+    "snapshot_sha256": "bbd61ac06c574225aaa86687df8570f225da65a89adbdaf3f2608bc5daec1f93",
+    "roots": [
+      {
+        "label": "cache",
+        "path": ".cache/go-build/fuzz",
+        "present": true
+      },
+      {
+        "label": "engine-testdata",
+        "path": "internal/engine/testdata/fuzz",
+        "present": false
+      }
+    ],
+    "membership_inventory_entries": 119,
+    "membership_directory_entries": 6,
+    "complete_source_and_preserved_membership_size_sha_checked": true,
+    "source_and_preserved_copy_identities_checked": true,
+    "same_expected_owner_and_single_link_files_checked": true,
+    "export_copy_identity_and_exact_packet_membership_checked": true,
+    "identity_scope": "Identity attributes, ownership and link counts were checked separately against retained manifests; numeric host identities are omitted.",
+    "members": [
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/00e0d2dbcceea5db",
+        "bytes": 29,
+        "sha256": "00e0d2dbcceea5db817a23ef8c27d97e31f34193ced1c05b28d563b9e791063a",
+        "packet_member": "metadata/volume/000191.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/042154272df3523f",
+        "bytes": 37,
+        "sha256": "042154272df3523f5a2c6220cedb40243a20fc1103c1e9ef25223c6c4e8baef1",
+        "packet_member": "metadata/volume/000192.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/048b84fc5ee8cba4",
+        "bytes": 29,
+        "sha256": "048b84fc5ee8cba483188c16eb358df26c20bb1c2de9f7e80450ed8a9484939f",
+        "packet_member": "metadata/volume/000193.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/05f18e4eb07d9cbb",
+        "bytes": 29,
+        "sha256": "05f18e4eb07d9cbb49c13852f6a1b2e272ca7d4d1e6f72cdba42d0d35358eea2",
+        "packet_member": "metadata/volume/000194.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/0c1f075a1e6b8962",
+        "bytes": 36,
+        "sha256": "0c1f075a1e6b89622c1d184fe2d927c8a64733287dda75642a1326df7f14576a",
+        "packet_member": "metadata/volume/000195.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/0de432e0659e44e8",
+        "bytes": 47,
+        "sha256": "0de432e0659e44e8499b0442bba8d61383f5c2bc8deceda335b7706f7eeb1105",
+        "packet_member": "metadata/volume/000196.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/149f0f39d2a10f4f",
+        "bytes": 31,
+        "sha256": "149f0f39d2a10f4f25881ce9bdb08b24baafac2991bafd46ba074d2558cbec92",
+        "packet_member": "metadata/volume/000197.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/1ae9e9209c6e6e2e",
+        "bytes": 37,
+        "sha256": "1ae9e9209c6e6e2e2bfc044cef4da03330f91fb65d84ef0f3908058b72de745b",
+        "packet_member": "metadata/volume/000198.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2060f780c140ef6d",
+        "bytes": 36,
+        "sha256": "2060f780c140ef6dfbc350eca8bba6879650d8f59b33117d7d5fea99713a4dbb",
+        "packet_member": "metadata/volume/000199.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/26038196a979e71f",
+        "bytes": 37,
+        "sha256": "26038196a979e71fe4146c5d9a113ed8570528388dd9b1686bfd37aa8fbcbc76",
+        "packet_member": "metadata/volume/000200.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/26aeca48ffe176b9",
+        "bytes": 43,
+        "sha256": "26aeca48ffe176b9f72e6ca35828991b11dda2793ef8de528e1a8db4d7a1bac5",
+        "packet_member": "metadata/volume/000201.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/275af86156ba5fc4",
+        "bytes": 83,
+        "sha256": "275af86156ba5fc4bc5186be6ec4af0b59ff1fd889a7d9afc0f63a097652c634",
+        "packet_member": "metadata/volume/000202.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/27d3d2b0be9e121a",
+        "bytes": 40,
+        "sha256": "27d3d2b0be9e121a1e00b82c03213c6a77e5811a7e3baf532cb3019cf0adccb8",
+        "packet_member": "metadata/volume/000203.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/27e14ba97c70ed4a",
+        "bytes": 42,
+        "sha256": "27e14ba97c70ed4ab2ac6be9937c5ff96ded20c7bc54b867cff14c2239984584",
+        "packet_member": "metadata/volume/000204.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/283b7d0a6594fe8f",
+        "bytes": 36,
+        "sha256": "283b7d0a6594fe8f1ccf5b88d34bf7c1b3e11ef2b86b03130f444a8797d20480",
+        "packet_member": "metadata/volume/000205.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2a01d0b0ddd8a04a",
+        "bytes": 37,
+        "sha256": "2a01d0b0ddd8a04a1423f6ca8bbcfc032c9da4a444f2021ffda0afcdae7dcbaa",
+        "packet_member": "metadata/volume/000206.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2a47cfb04ed1319f",
+        "bytes": 47,
+        "sha256": "2a47cfb04ed1319fdc24926702070e049998a0355ace5e11a501bf319d99b505",
+        "packet_member": "metadata/volume/000207.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2aef5a1f3d970b99",
+        "bytes": 30,
+        "sha256": "2aef5a1f3d970b99f4ecd403bb14b54bff80eecb9c9a50dc670384a8f49695bc",
+        "packet_member": "metadata/volume/000208.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2b46c3ea0df11a24",
+        "bytes": 64,
+        "sha256": "2b46c3ea0df11a249bb34d34315ac2383c59ca0b3c727a2c33c60b4d440add4e",
+        "packet_member": "metadata/volume/000209.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2bdb3e6c06ffbaee",
+        "bytes": 29,
+        "sha256": "2bdb3e6c06ffbaeeff6dd2e15103e84a0b6408fbbd405bb29cf87c981e492963",
+        "packet_member": "metadata/volume/000210.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2d1a612211cec864",
+        "bytes": 34,
+        "sha256": "2d1a612211cec8642be2c92a8b2d2432c1657bf665660df34d93423f103d924a",
+        "packet_member": "metadata/volume/000211.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2d891e492b3ff7ca",
+        "bytes": 31,
+        "sha256": "2d891e492b3ff7ca113c5ce0811a90ffed5b1cc0fe98933b801781d4e693b4f9",
+        "packet_member": "metadata/volume/000212.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2d95a91f8c8c28ea",
+        "bytes": 48,
+        "sha256": "2d95a91f8c8c28ea5ac125fd84db7d0b20a518e0a36e0a7eb421de39384ba072",
+        "packet_member": "metadata/volume/000213.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/2e548cb0e1d4cf1f",
+        "bytes": 34,
+        "sha256": "2e548cb0e1d4cf1f01baa25cda134717b9a5aabde0ede92bc1d45309e25bee9e",
+        "packet_member": "metadata/volume/000214.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/310d7c7b40724225",
+        "bytes": 32,
+        "sha256": "310d7c7b40724225fb3905a2392526dd6228e607f5f746d0ab81dfaa10e02f93",
+        "packet_member": "metadata/volume/000215.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/32c095a3073b4fd4",
+        "bytes": 28,
+        "sha256": "32c095a3073b4fd41348cf8be6f1aa3359eb0a287f63ba592eda8f00942ded10",
+        "packet_member": "metadata/volume/000216.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/332de660d3586efe",
+        "bytes": 37,
+        "sha256": "332de660d3586efebc6bd52f5df134f1b1ef519f02bb7343e85676a1cfbcb551",
+        "packet_member": "metadata/volume/000217.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/335a290f5c8b1f16",
+        "bytes": 123,
+        "sha256": "335a290f5c8b1f169c5e16248776f777bd641d210785e4b2d7de00c51d933248",
+        "packet_member": "metadata/volume/000218.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/3391a53f9b2517dd",
+        "bytes": 29,
+        "sha256": "3391a53f9b2517dd0b538c9e1b28b3685faa1258693345232ca567eaec15591a",
+        "packet_member": "metadata/volume/000219.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/33c1af4c9774516b",
+        "bytes": 29,
+        "sha256": "33c1af4c9774516b8c7f1ea18ef049fb7454cfb5a06e2aadb461a4cc31fb839f",
+        "packet_member": "metadata/volume/000220.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/366fafbbff10bfb3",
+        "bytes": 48,
+        "sha256": "366fafbbff10bfb3c43aee1577e7db66c63b6192e47532ba309bcf0c191170fa",
+        "packet_member": "metadata/volume/000221.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/36bc23f2651d0d82",
+        "bytes": 32,
+        "sha256": "36bc23f2651d0d821c246e4ca91233671a13762b765b516a06787b2976629841",
+        "packet_member": "metadata/volume/000222.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/3800f0bc84cf58ae",
+        "bytes": 31,
+        "sha256": "3800f0bc84cf58aebc4c44358e6344d83d95e2bd31a4453bbf3f0b05da54f6f0",
+        "packet_member": "metadata/volume/000223.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/41d6c2f41a4c50fb",
+        "bytes": 28,
+        "sha256": "41d6c2f41a4c50fb4b5b3a207e443776f38a890ddeb0310797d974857c4b0c38",
+        "packet_member": "metadata/volume/000224.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/427c7736bcf46155",
+        "bytes": 36,
+        "sha256": "427c7736bcf46155d4c35830999baa6b024c4733fcea59fa26e1f688401cbd18",
+        "packet_member": "metadata/volume/000225.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/44308522fdcb4b80",
+        "bytes": 29,
+        "sha256": "44308522fdcb4b800caec2e352d8f11f9f908b6429037f040ba42330e45fd4e9",
+        "packet_member": "metadata/volume/000226.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/45004944e3d0a135",
+        "bytes": 45,
+        "sha256": "45004944e3d0a135b46fafd7b377c94c973d4ccf06720cb1688d62dd7c302694",
+        "packet_member": "metadata/volume/000227.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/49409096429fb938",
+        "bytes": 29,
+        "sha256": "49409096429fb9389dc61891c99255e64def9b3c9899860333e8ceb9a435d1c6",
+        "packet_member": "metadata/volume/000228.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/4af08f9a068511ee",
+        "bytes": 35,
+        "sha256": "4af08f9a068511ee9d2071ca8459a8e89efafbe7aae58e4e161042e747e0122a",
+        "packet_member": "metadata/volume/000229.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/4b60dc1924ca5803",
+        "bytes": 29,
+        "sha256": "4b60dc1924ca5803a40135fb3e3478fd09e875655ee868c983b1f1dba4326907",
+        "packet_member": "metadata/volume/000230.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/4f3acac053b0fc22",
+        "bytes": 31,
+        "sha256": "4f3acac053b0fc22ee9b527c520d72057f961ad7594c480973258ed64d411743",
+        "packet_member": "metadata/volume/000231.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/5024a078f1260ef5",
+        "bytes": 35,
+        "sha256": "5024a078f1260ef5dc56661cd9731b0ee54e9a00724e8de85aa8f6e079f31575",
+        "packet_member": "metadata/volume/000232.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/52c3f1e56db91aa1",
+        "bytes": 52,
+        "sha256": "52c3f1e56db91aa1f1084565b8600b0ecb49e414e4c9e8bd3ae1b3fc1f1bb68a",
+        "packet_member": "metadata/volume/000233.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/53ae3d9ff744c225",
+        "bytes": 31,
+        "sha256": "53ae3d9ff744c225b1e380cd9ebefb91efc698c88fe61f624ffe0e3168a77929",
+        "packet_member": "metadata/volume/000234.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/552712db26a157a7",
+        "bytes": 32,
+        "sha256": "552712db26a157a72fe5036561598dad29187c512afa9c79762cc8528cf70f85",
+        "packet_member": "metadata/volume/000235.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/57eaa96cf8f2400c",
+        "bytes": 34,
+        "sha256": "57eaa96cf8f2400c7db2806043e69982a660b1eee28fb4a7f0f828c5f2593ce0",
+        "packet_member": "metadata/volume/000236.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/582528ddfad69eb5",
+        "bytes": 28,
+        "sha256": "582528ddfad69eb57775199a43e0f9fd5c94bba343ce7bb6724d4ebafe311ed4",
+        "packet_member": "metadata/volume/000237.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/5d7c5a269af16179",
+        "bytes": 49,
+        "sha256": "5d7c5a269af16179fb96466c326a28c8c1d501f345285770b49ec5ad20734e3f",
+        "packet_member": "metadata/volume/000238.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/5f915aad57b378d4",
+        "bytes": 33,
+        "sha256": "5f915aad57b378d4a39e4606bfb1681f6c85b25e7e81b0af042d008f4a77ba71",
+        "packet_member": "metadata/volume/000239.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/5f9de81f2a712a5f",
+        "bytes": 29,
+        "sha256": "5f9de81f2a712a5f71b3430d31ab099e3786de8beb05d8620663479d5353a184",
+        "packet_member": "metadata/volume/000240.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/616f880775098ae9",
+        "bytes": 33,
+        "sha256": "616f880775098ae97aefa1bf15800d65d8377ad4b8633e4c26359cd66df677d5",
+        "packet_member": "metadata/volume/000241.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/621544fbd334fdc4",
+        "bytes": 47,
+        "sha256": "621544fbd334fdc47f3c915ad4f581e8ebae38982bc74db12f1dc129fe809461",
+        "packet_member": "metadata/volume/000242.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/63c831a7ac86188c",
+        "bytes": 29,
+        "sha256": "63c831a7ac86188c2475db47b10e3021c187078beef85a6e14355d7d4d47599b",
+        "packet_member": "metadata/volume/000243.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/6630afba96ee6809",
+        "bytes": 35,
+        "sha256": "6630afba96ee680952182c2437d2303b046edf5e5d8e97eb9f68e126535d97f0",
+        "packet_member": "metadata/volume/000244.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/6bced2300496f15c",
+        "bytes": 29,
+        "sha256": "6bced2300496f15ce6ed29c64c11403cbfa3104e42c4770a1020d792864d6416",
+        "packet_member": "metadata/volume/000245.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/6f9c29532ccb80bf",
+        "bytes": 29,
+        "sha256": "6f9c29532ccb80bf0de736adcc1e1f7fb52e1c19b61baa0093f16daa46ca39fc",
+        "packet_member": "metadata/volume/000246.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/751f67021c44baf5",
+        "bytes": 31,
+        "sha256": "751f67021c44baf50634a750eb7e5baf0f320bd761fae1966114e9b5817efcfd",
+        "packet_member": "metadata/volume/000247.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/75a472d75997859c",
+        "bytes": 37,
+        "sha256": "75a472d75997859ceb4a0fd9cf17bb2bbc1784010a708ff1ffd365b59236b137",
+        "packet_member": "metadata/volume/000248.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/792224f18ca724d8",
+        "bytes": 30,
+        "sha256": "792224f18ca724d8e2188fc4747d6faee7826ae360ca0a8159ef63875d98e993",
+        "packet_member": "metadata/volume/000249.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/7f5d78f38adf5940",
+        "bytes": 37,
+        "sha256": "7f5d78f38adf594016328e5c12d3a681890ce179f224e8979f0c7d12d14b9059",
+        "packet_member": "metadata/volume/000250.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/808dacfff2cd6505",
+        "bytes": 29,
+        "sha256": "808dacfff2cd6505601626748269ec932b03e7c2cc4d84d06d7c55bf13177930",
+        "packet_member": "metadata/volume/000251.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/8093511184ad3e25",
+        "bytes": 29,
+        "sha256": "8093511184ad3e258aa13b957e75ff26c7fae64672dae0c0bc0a9fa5b61a05e7",
+        "packet_member": "metadata/volume/000252.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/82885d674e7998bb",
+        "bytes": 29,
+        "sha256": "82885d674e7998bbd61bbff6eb36d256bef2d9cea3a7a7a00b37f932a64aa9da",
+        "packet_member": "metadata/volume/000253.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/834aa7afaeaf041e",
+        "bytes": 30,
+        "sha256": "834aa7afaeaf041ec00591b7d96d606f3a1860edf9fe9ec5489eed32ccce934d",
+        "packet_member": "metadata/volume/000254.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/84854af647676e95",
+        "bytes": 32,
+        "sha256": "84854af647676e95a5cc41d97e8775f6b3d116a63ad9cc673fbb13747c7f247e",
+        "packet_member": "metadata/volume/000255.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/88d0677fa168d552",
+        "bytes": 30,
+        "sha256": "88d0677fa168d5528170517ccfca4b65e680bcf68da7cbebec074c4bb143a995",
+        "packet_member": "metadata/volume/000256.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/8df5bdbb802afb3e",
+        "bytes": 30,
+        "sha256": "8df5bdbb802afb3e4db244a9447b2768e620776b4b42c3a10d1eb6d3e39bc131",
+        "packet_member": "metadata/volume/000257.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/916d1b270bc67219",
+        "bytes": 28,
+        "sha256": "916d1b270bc67219b1654a894268cd3d9bea7e92edb129f0f2226bae1101735b",
+        "packet_member": "metadata/volume/000258.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/91730a8c226143a7",
+        "bytes": 31,
+        "sha256": "91730a8c226143a7f595fd0aee5ca8ad37b4fa839f89efe36211af514e0350ba",
+        "packet_member": "metadata/volume/000259.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/91d1ce805ed827c4",
+        "bytes": 38,
+        "sha256": "91d1ce805ed827c473c823cbdbb3562c2e75af6ba69bca00745a50ed7dbb0ad8",
+        "packet_member": "metadata/volume/000260.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/928d08a23b2d59b7",
+        "bytes": 32,
+        "sha256": "928d08a23b2d59b7b0323d7fe2936792935879f8cf2959d4f88df94654a7145c",
+        "packet_member": "metadata/volume/000261.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/930f49fab2367014",
+        "bytes": 28,
+        "sha256": "930f49fab2367014ac1a55ba1a23bc7e612fce3b7e924a2ca67c3220fd118969",
+        "packet_member": "metadata/volume/000262.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/941832f9199465e7",
+        "bytes": 40,
+        "sha256": "941832f9199465e76a838790949f4b824b9f95d5fcc8b9bc9b07803d572141c7",
+        "packet_member": "metadata/volume/000263.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/971916429883f500",
+        "bytes": 36,
+        "sha256": "971916429883f500bb7c9cc9c55b62032f766bcafc32351726203867ac7ac350",
+        "packet_member": "metadata/volume/000264.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/971fb0976738d348",
+        "bytes": 34,
+        "sha256": "971fb0976738d3487f45ec0a5afe594f7f8bfaffd329ad16538943e9514d1e41",
+        "packet_member": "metadata/volume/000265.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/9c1ffb19ac30159a",
+        "bytes": 28,
+        "sha256": "9c1ffb19ac30159a18814da3663993aa664a9633741132b80b385c26c7091719",
+        "packet_member": "metadata/volume/000266.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/a02ef305d81877f9",
+        "bytes": 30,
+        "sha256": "a02ef305d81877f9d76eb81aa26b4a4ca178b5fe2f7cf376b26a321f10efeb37",
+        "packet_member": "metadata/volume/000267.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/a0ad30f99627c09a",
+        "bytes": 117,
+        "sha256": "a0ad30f99627c09a15cd9cde19a5b39fcabf91b83d87ab40db6c56742178639f",
+        "packet_member": "metadata/volume/000268.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/a6144b8526dd4a82",
+        "bytes": 29,
+        "sha256": "a6144b8526dd4a8284e6815abbebf6d25e2635374c4f901ba0720ceb105ad914",
+        "packet_member": "metadata/volume/000269.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/a6a8a8dbae21a11b",
+        "bytes": 1077,
+        "sha256": "a6a8a8dbae21a11b5674114b8dffd1d0596143352ad9e0a0120f857421a901c8",
+        "packet_member": "metadata/volume/000270.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/a715899503608da8",
+        "bytes": 34,
+        "sha256": "a715899503608da83f534eaa5555402573df1c7452e1cfdf06fe16263cd11655",
+        "packet_member": "metadata/volume/000271.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/a7450fd77fc7c53c",
+        "bytes": 78,
+        "sha256": "a7450fd77fc7c53cc5bd136874415dddfff5c586e662f21420caa7a94131a56a",
+        "packet_member": "metadata/volume/000272.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/ab55a0a228d0d7f8",
+        "bytes": 30,
+        "sha256": "ab55a0a228d0d7f8ee8195c2a5bad834cd609690b39d101bd47463a6c6e4b561",
+        "packet_member": "metadata/volume/000273.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/ae9a269add029de7",
+        "bytes": 46,
+        "sha256": "ae9a269add029de7347d2477c7d09c5cb13c1149febe8a7a9eaa408c0b0f5117",
+        "packet_member": "metadata/volume/000274.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/af9bedcb9e0a31e8",
+        "bytes": 29,
+        "sha256": "af9bedcb9e0a31e8e5c4c4acbc2e0c1eca0d1292a8b534df8f343a37bdbe666d",
+        "packet_member": "metadata/volume/000275.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/b4169cf0f5a60b81",
+        "bytes": 29,
+        "sha256": "b4169cf0f5a60b81b28fd97dc6077319edb1b68ad1a95bc8d280d6839eaac31b",
+        "packet_member": "metadata/volume/000276.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/b581f238d95755b9",
+        "bytes": 31,
+        "sha256": "b581f238d95755b9c770b1fd446be46cd1adc00810406f69085121d0a46731f9",
+        "packet_member": "metadata/volume/000277.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/b765a8ab9bb914e8",
+        "bytes": 40,
+        "sha256": "b765a8ab9bb914e8dd0c82dab655471bb25887bfafc02325dd54b41caeeee876",
+        "packet_member": "metadata/volume/000278.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/ba5253c47d03967f",
+        "bytes": 35,
+        "sha256": "ba5253c47d03967f67134d6ad14aa74a7ce0e606253db3a014ab4e928115de2b",
+        "packet_member": "metadata/volume/000279.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/baf07cb4ae4dfd2e",
+        "bytes": 30,
+        "sha256": "baf07cb4ae4dfd2e01bcb2a659208bdecdfd6a06292a4ccf318c844e282436e9",
+        "packet_member": "metadata/volume/000280.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/bb17fa3899f9e1ba",
+        "bytes": 28,
+        "sha256": "bb17fa3899f9e1ba52780ccdd3eedf66ca709ef1e7eff3015b0d3dabe256822d",
+        "packet_member": "metadata/volume/000281.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/c343f5523fb800b1",
+        "bytes": 37,
+        "sha256": "c343f5523fb800b1447e77763aa48353526ff3b1b68f44265fcd809211f5b46a",
+        "packet_member": "metadata/volume/000282.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/c346c7a27bc2db3b",
+        "bytes": 29,
+        "sha256": "c346c7a27bc2db3b2ac51134ec2df5be3962fa7edec7caa6451107cebdc66754",
+        "packet_member": "metadata/volume/000283.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/c48f3d166b4dda73",
+        "bytes": 35,
+        "sha256": "c48f3d166b4dda7378ef56ceab535370468362694f02642eaf5cbf8a59ef9b3f",
+        "packet_member": "metadata/volume/000284.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/c928b6d4e5018a47",
+        "bytes": 65,
+        "sha256": "c928b6d4e5018a47cdcd3e4dd07b6a422fa534868c55f4fde7b9441990d7e88e",
+        "packet_member": "metadata/volume/000285.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/ce2d19415072e0e1",
+        "bytes": 28,
+        "sha256": "ce2d19415072e0e1ec21ae088a17f5d85c73874057f8b7e35d6fceae91087516",
+        "packet_member": "metadata/volume/000286.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/d1438ee4329c0912",
+        "bytes": 28,
+        "sha256": "d1438ee4329c0912825a96cb41c02c7bb028be2babd9dabb9f9b66f6f649c935",
+        "packet_member": "metadata/volume/000287.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/da11f9a0a9b25e72",
+        "bytes": 29,
+        "sha256": "da11f9a0a9b25e7294a7f9f2d157db202d6947232d19cca0227b66af52fa3e99",
+        "packet_member": "metadata/volume/000288.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/dc600271e2e08ad4",
+        "bytes": 38,
+        "sha256": "dc600271e2e08ad4de99ca10bad85074f7eaec999ea533b7c0021aab9623b1d5",
+        "packet_member": "metadata/volume/000289.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/dce5879f4cd2b533",
+        "bytes": 71,
+        "sha256": "dce5879f4cd2b533ae2b356667bcc602235f25d8a8254328f8166c38f42ea49e",
+        "packet_member": "metadata/volume/000290.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/dd6d4a51cedb9a69",
+        "bytes": 30,
+        "sha256": "dd6d4a51cedb9a6913dd38d8a8c4b61f6c21f7c5be7d625befe9dae606dac97b",
+        "packet_member": "metadata/volume/000291.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/ddd38220bec959bb",
+        "bytes": 34,
+        "sha256": "ddd38220bec959bb756b06a70fff2744607d7a6a2f68075610be63d7f3a66b89",
+        "packet_member": "metadata/volume/000292.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/e1b20d6b1b8e1f88",
+        "bytes": 32,
+        "sha256": "e1b20d6b1b8e1f88c381fa97e8a9b6bf08ffa642f18afc6c533d76ab68780295",
+        "packet_member": "metadata/volume/000293.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/e21ae681c56c1efe",
+        "bytes": 107,
+        "sha256": "e21ae681c56c1efed79743fcc4d889631d6b7517bf3c5c3019dfeb22f052e079",
+        "packet_member": "metadata/volume/000294.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/e8b7ec3c2bfe45cd",
+        "bytes": 32,
+        "sha256": "e8b7ec3c2bfe45cd17e5156cd1b1bf1f6117cdebac6f1b7a13a7bc4137bac866",
+        "packet_member": "metadata/volume/000295.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/eb3665eb4060ece0",
+        "bytes": 37,
+        "sha256": "eb3665eb4060ece0b2448164e58bf0184ba40b9e90c02d00bae1eb7b0bd6fba9",
+        "packet_member": "metadata/volume/000296.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/f35e37c0e30ffd2e",
+        "bytes": 28,
+        "sha256": "f35e37c0e30ffd2eb769c068a8a57732488c5561974fc4c627763d52b206bb41",
+        "packet_member": "metadata/volume/000297.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/f831197bff6cf91b",
+        "bytes": 35,
+        "sha256": "f831197bff6cf91bd488b11d5eca42725135c4fab07381dd1ce09d99e1f13bc4",
+        "packet_member": "metadata/volume/000298.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/fbab04f43516aa5e",
+        "bytes": 29,
+        "sha256": "fbab04f43516aa5e2b159a4081fcca5a99a50f57e96df8ce95d58ffff75b9902",
+        "packet_member": "metadata/volume/000299.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzQuery/fdf54e3f6bb278ec",
+        "bytes": 33,
+        "sha256": "fdf54e3f6bb278ecdd3b285a7e57039170df728b0d55b8c69529a04ef70e0d8a",
+        "packet_member": "metadata/volume/000300.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzSnapshot/582528ddfad69eb5",
+        "bytes": 28,
+        "sha256": "582528ddfad69eb57775199a43e0f9fd5c94bba343ce7bb6724d4ebafe311ed4",
+        "packet_member": "metadata/volume/000301.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzSnapshot/c9f1ba40ba2d6a01",
+        "bytes": 75,
+        "sha256": "c9f1ba40ba2d6a016cddfb28f48f30cc37266885673c8cb33f03c32d1e85e3b8",
+        "packet_member": "metadata/volume/000302.bin"
+      },
+      {
+        "path": "cache/facetquarry/internal/engine/FuzzSnapshot/fbf71aec01eba03e",
+        "bytes": 743,
+        "sha256": "fbf71aec01eba03ef896b9d6d1e8553528e4887ac44e89c8ee5eee3f3340553a",
+        "packet_member": "metadata/volume/000303.bin"
+      }
+    ],
+    "counter_scope": "Campaign counters do not define corpus membership. File counts and bytes derive independently from complete retained inventories.",
+    "historical_corpus_substitution": false,
+    "prior_40557333316_corpus": "UNAVAILABLE; the current campaign does not recover or requalify it."
+  },
+  "retention": {
+    "artifact_id": 12788541820,
+    "outer_zip_bytes": 412212,
+    "outer_zip_sha256": "06893f93c5d5c22682b2bc11fb9cb66183fa0c9794a1621d357d290a2cdc855c",
+    "inner_zip_bytes": 412056,
+    "inner_zip_sha256": "b37a992e3fc2e57559419d1aef8348d46a0d7eecb8b867be69f991a414833e16",
+    "archive_files": 334,
+    "decoded_bytes": 1121667,
+    "volume_files": 308,
+    "outer_files": 23,
+    "all_crc_size_sha_mode_membership_checked": true,
+    "complete_available_local_retention": true,
+    "manifests": {
+      "outer": {
+        "files": 23,
+        "logical_bytes": 114083,
+        "enumeration_complete": true,
+        "closed_writer_proof": true,
+        "sha256": "09b7cfa915b978b75bd518449f7c89da26211618e35b2065c2f9f4b233a77d4e"
+      },
+      "volume": {
+        "files": 308,
+        "logical_bytes": 766205,
+        "enumeration_complete": true,
+        "closed_writer_proof": true,
+        "sha256": "a5cd316b29265123f359ddef56132857f95672bfc9de83f936805debca9b25ff"
+      }
+    },
+    "packet_manifest_sha256": "4e3603cc15fcf0774c5a4b7e9fb9b37455412fbc2e5b569eb1827f208b629ba5",
+    "packet_failure_reasons": [],
+    "extraction_tree_created": false,
+    "metadata_members": [
+      {
+        "member": "metadata/outer/000000.bin",
+        "bytes": 1100,
+        "sha256": "6e9ff03f5fe27fe555a7329341da6554f62a299ef3b31aa31da5130fe3222d87",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000001.bin",
+        "bytes": 3144,
+        "sha256": "e00352d6d3621bf1394887ab08264cf1dbbac39bbbcb91be685999c12371471a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000002.bin",
+        "bytes": 586,
+        "sha256": "d2d6e43f9121cfafdcb7624666abb9c3ee20a44de51c9c2c2cf373522c8cd195",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000003.bin",
+        "bytes": 15962,
+        "sha256": "81fb6b89e94cc9259614e929061dd0d71fac99b2d7bbfeb37cc2d96965834f71",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000004.bin",
+        "bytes": 590,
+        "sha256": "dd8aefac030fdfbf995b5732ac2afe589cb8bba8fd7fd91ddad7c326eeee89e8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000005.bin",
+        "bytes": 3426,
+        "sha256": "fb51ace89f72c50b1ac8a14e7ddeeff7bd91a8a16787ed251e5fde1b6a955203",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000006.bin",
+        "bytes": 967,
+        "sha256": "af8e459a531ab941887e39a765e12d6cf647a33295a2cd28117c22db7411bee3",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000007.bin",
+        "bytes": 632,
+        "sha256": "fa07f4239ef64aefddadffa6ec3029881c419b609a2de065874039ddb54eb3ae",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000008.bin",
+        "bytes": 5502,
+        "sha256": "3739386221fbb9f5698ce690ca645bf9122c926d9becacee42cea3bdac477ab6",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000009.bin",
+        "bytes": 972,
+        "sha256": "7ac7c9692e874494faa30730b17bbc6565180d01515ddcce420153d710c96a98",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000010.bin",
+        "bytes": 972,
+        "sha256": "261e6c66a5233a7ddd39ccf186a5c315fe093c66434f0467b9e75dc6f13d9a26",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000011.bin",
+        "bytes": 581,
+        "sha256": "fd7119a6df542e33aebbd8f67b5adf51f5e5a9e230a111f13237f223ec1fde45",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000012.bin",
+        "bytes": 66793,
+        "sha256": "f1e8ee43f90f488e5718e915329ef225e8fdfcccc1b4539856bfc73b8d18be10",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000013.bin",
+        "bytes": 53,
+        "sha256": "e6e26ef952e5cbddc4dcaf9bfbd8a2ad9ead9fc9ea589d06c7d19e1d85b07879",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000014.bin",
+        "bytes": 1374,
+        "sha256": "a8c636b07772f2e61b39c00b8925c003a48edc58fc0081ca1fa8c8c0f77dab10",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000015.bin",
+        "bytes": 2477,
+        "sha256": "5dc1d4e9eba998e4c00b64720f74f42053ce9bd953d3e23a4ee160ddbfd71c32",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000016.bin",
+        "bytes": 1360,
+        "sha256": "d2d97d4b60332801ca840a12272d9b4d7d91c37894b5dd94d0571d65c2d7376b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000017.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000018.bin",
+        "bytes": 1216,
+        "sha256": "580f89f42fbe31a4ee7fbf57e18cf1f2e4013911b7531651c0623326753d5607",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000019.bin",
+        "bytes": 1357,
+        "sha256": "d51f5a7da9560c279ebb4200ee435c0a16653494ca505672f05622e03014a1bd",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000020.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000021.bin",
+        "bytes": 2640,
+        "sha256": "8e535dfad36f44b08be27d830a9aa41d9d4d3dbbc5b0820f30fd7a6ef1c1c82e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer/000022.bin",
+        "bytes": 2379,
+        "sha256": "05ac987e7e879a775466decd269eeb6a3af4cc2eb65add9f93ada7425efd540c",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/outer-manifest.json",
+        "bytes": 11635,
+        "sha256": "09b7cfa915b978b75bd518449f7c89da26211618e35b2065c2f9f4b233a77d4e",
+        "mode": 33188
+      },
+      {
+        "member": "metadata/volume/000000.bin",
+        "bytes": 2531,
+        "sha256": "1547d3e664982c552e9ea8498e42034f55a25bfab86f6e3f03d2bf003d3caad0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000001.bin",
+        "bytes": 10425,
+        "sha256": "b991f3f5282a57b29a93bb9a2281dea531ef1fd5b77c382feb3475ae7167ce14",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000002.bin",
+        "bytes": 829,
+        "sha256": "213625dde59ff1007ec9c21bb8e1149e6b3320ea1a1d3a8eea0477edc93d4fe9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000003.bin",
+        "bytes": 10445,
+        "sha256": "60297fb494c0a9380aa91986a023a327aa6b37828fbb3a7df912d6f3e9c533c1",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000004.bin",
+        "bytes": 2692,
+        "sha256": "d44fd0dd6fc0e7dc76f3c1de50f3d4b9ef80b3760789df9c8d8802f1abeb3245",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000005.bin",
+        "bytes": 10406,
+        "sha256": "fec71608c72195111484dd70436d27a459a00b0088e9f92b2bef149697d0bceb",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000006.bin",
+        "bytes": 2615,
+        "sha256": "a2c24c0ef2baeb6c028733b8631f34cc1429f76e03cba899222bf64cd9fe9b72",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000007.bin",
+        "bytes": 10455,
+        "sha256": "85337d9ecfb744011ec3f7762619e970fbf089e74343e3da1ab79c59e7371903",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000008.bin",
+        "bytes": 2695,
+        "sha256": "201f89f877afcb647512fa04be34d3a9da60afbff5d28bd961a82b152a858369",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000009.bin",
+        "bytes": 10410,
+        "sha256": "432c8ebaf7db269528e37e81ca642bc65e1e0d6bb03a8120355c2d937d5c96ba",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000010.bin",
+        "bytes": 2534,
+        "sha256": "926f887e3d80b11be0c9409b4dc6652dea83ff2faf245cac9ab846601e5fc0bb",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000011.bin",
+        "bytes": 10425,
+        "sha256": "96a7d14f6e321b36685f2e1b3a87f5a5d43f74c0320b6175df6f65bf29d04b3f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000012.bin",
+        "bytes": 2536,
+        "sha256": "b3966b13c41a33e1a17a690e083e0e0f4964b50da3fa3ec4816ab094194c483e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000013.bin",
+        "bytes": 10426,
+        "sha256": "1fea23dc0862bae1c9b612d498b157f8a1f004ab0eefa3b9c5b5c79971bd60b8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000014.bin",
+        "bytes": 2555,
+        "sha256": "34d4c8a575e74d82e9bfe46f257324d2f0f4e42f00a3ee6519b3576e37c962c1",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000015.bin",
+        "bytes": 10432,
+        "sha256": "6e1acf4bea45615302190f3bc7b9c9ac660156c56eb88a6601d65522514f76dd",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000016.bin",
+        "bytes": 977,
+        "sha256": "a864f79c356e8a70ba3954930b85f54eba4dd0c465487707b8d415abdb92ee41",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000017.bin",
+        "bytes": 10461,
+        "sha256": "db8602b4462c180179e5f12cc3fb79cdf093e510651d02c9d485f93f0282403b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000018.bin",
+        "bytes": 2572,
+        "sha256": "92f9b1d6c4ff8c16344a8560841b19e56170582e7a170dc518a4d4588c47b224",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000019.bin",
+        "bytes": 10455,
+        "sha256": "6833eff14474f66ed47cf586fd0b3340aa7ace328486b011e5d856674c39f326",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000020.bin",
+        "bytes": 2551,
+        "sha256": "838de785ef4ab7b5d0ea0429a4d2d5b611cdda9b295fd0c6879cf822efe7d602",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000021.bin",
+        "bytes": 10450,
+        "sha256": "daa1da705eb1da6dd2b5e52e6161ea98a16175361e6d91564f7c15dde69af96d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000022.bin",
+        "bytes": 979,
+        "sha256": "8d9b36d6b0e37007344f5a2960f5e932f6e82cc2db90a7d6f5fabd43072d41f4",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000023.bin",
+        "bytes": 10467,
+        "sha256": "3f4206ce24f5202687a35069d720013cd27ef5900eb7c8a6562bda7674fc56ea",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000024.bin",
+        "bytes": 829,
+        "sha256": "bad3e35c0c6f0399c4793bf8b0a7f23a0340cef08cce3684912e3d40c009a216",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000025.bin",
+        "bytes": 10439,
+        "sha256": "86f9c8f027978eb1817b5cac41fb0309c1da883ac025590041bc74a8bafaafae",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000026.bin",
+        "bytes": 2699,
+        "sha256": "41ca79596274b0cd0aae5fa025639e35307d004cfdc318aeabce5f2df10264c0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000027.bin",
+        "bytes": 10416,
+        "sha256": "9ae3c09e823eaf67784b4c36466dc2c93fff59e260b3a42f246eb9be453dd8df",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000028.bin",
+        "bytes": 1021,
+        "sha256": "98e88777cecae302bf875c68dc9063394000f78560df454ac6c19b3c06560967",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000029.bin",
+        "bytes": 213,
+        "sha256": "49fac20f46f33f1d943269e085868ac72dc0b78a2e82af227c9e6a25b746b4e0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000030.bin",
+        "bytes": 387,
+        "sha256": "70ac3593901aa0a2b9cb48285d50525947eaeb92810a085eccf271a369fdc7b5",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000031.bin",
+        "bytes": 1309,
+        "sha256": "2e566becea4a658c3d17b53857551c67e1475216f4b7394114b97a914b8ded81",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000032.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000033.bin",
+        "bytes": 224,
+        "sha256": "9b1f880993bf452655fa3e5c3657be20e69e5b6ced71188d7abb85b8bb85a6e1",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000034.bin",
+        "bytes": 1418,
+        "sha256": "357647e0b9e1ca83e6f1c72d3e93e7bc57377e73149621d69e0c69c5b9ca4f10",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000035.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000036.bin",
+        "bytes": 3227,
+        "sha256": "f5adfa57ac9fcaabbd88c5a080cf847fd0b950239c67cc90eea515260a1249a8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000037.bin",
+        "bytes": 1418,
+        "sha256": "c0cf3b09dc97cb7f22c18149c76125fb2ede6982fafdb492b5399ce4f809e3a8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000038.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000039.bin",
+        "bytes": 3396,
+        "sha256": "4bb8e011da9aed1003f91e181e59dad4e33903a240bf9c6911a7c1ab2420b18b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000040.bin",
+        "bytes": 1418,
+        "sha256": "adc0827c9baaa0e46ed49b368ad4de9014661a775516ffd75864a13c39ebea4d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000041.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000042.bin",
+        "bytes": 3237,
+        "sha256": "4d28cadf720fb904ea1cfa0a17d273bb090ffea25c77a0396e2412c5cd5d4f47",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000043.bin",
+        "bytes": 1417,
+        "sha256": "e8ac74f60bb497c0dcb12d44098aa7266c2dea560d266a083facb30becedeae9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000044.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000045.bin",
+        "bytes": 3394,
+        "sha256": "bdaf6b5282712a3d2008ae2ba9ce2716f71ab2f91fb0b6bb84e9c8c3bec91920",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000046.bin",
+        "bytes": 1417,
+        "sha256": "dfa09aa159977d7ea539e3284a7f1491b6ea548ce08abeea0fedcaf2b8359638",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000047.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000048.bin",
+        "bytes": 3315,
+        "sha256": "00589a9375c5ab9f57cc1f3ebdeabdc8d19db77b18db90fd65a202b138a5a015",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000049.bin",
+        "bytes": 1417,
+        "sha256": "f4b6031db426c40ec0891a15cf454a05532f0d2f0a3a24285948b64ac83c2794",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000050.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000051.bin",
+        "bytes": 3391,
+        "sha256": "0edd1af275ad469329047c4a1029e57f08c4c7ff4c6c4606130c47d4a18ca0ab",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000052.bin",
+        "bytes": 1418,
+        "sha256": "a8f31242cfcc3f4e6692b527ff7c3c1059c2cbbc7ac7d7dd24c2cb006a06e046",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000053.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000054.bin",
+        "bytes": 3244,
+        "sha256": "fb2bf32149888eda8b159fc7f28083a5aa779b0f64807d47291d004127b3ad47",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000055.bin",
+        "bytes": 1418,
+        "sha256": "b110f6c6b20a2f602d033e2133c25d98779f2cf45cc18ea32e0df9f50a93b762",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000056.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000057.bin",
+        "bytes": 3339,
+        "sha256": "5ec52d6c25b4272099abc5edb90d9a2fd67f66918b949cb937ca596a5379dda4",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000058.bin",
+        "bytes": 1418,
+        "sha256": "ca16f3b6042c47488eef7c5f8c417b31aa1617e17e1905cd1a2e31d648a7efcf",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000059.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000060.bin",
+        "bytes": 3390,
+        "sha256": "44c4a35674b171315cb45749e7c7d11141138e2a294b365d5c7a47d5233cd313",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000061.bin",
+        "bytes": 1417,
+        "sha256": "ca4e3f1532646c2e15170383612052d945a6b4ce0b09f4cb587941a107fa1ae6",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000062.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000063.bin",
+        "bytes": 3391,
+        "sha256": "c816a30838c71ed071c41f1c54fe2d46b9c06af3a6f335c35ab894e3c6b27bba",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000064.bin",
+        "bytes": 1418,
+        "sha256": "cd9c48600a0682e2e69607122af9f58448d3ea97524eb24b00072d07be362511",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000065.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000066.bin",
+        "bytes": 1445,
+        "sha256": "3b3c55f42414407e1e053c7d5412f53960d9ab040a1d1d70bdc99a6ece831851",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000067.bin",
+        "bytes": 1417,
+        "sha256": "f877aefb001911347beff385c489e3cb03eab9f48a7836ef9c1327e3d6f095f5",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000068.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000069.bin",
+        "bytes": 3270,
+        "sha256": "7656923acb31b81d4958e89f722c30c1a0ee34627e76e27bc5a68e0f8a02a152",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000070.bin",
+        "bytes": 1418,
+        "sha256": "6edbceba57cc53ad3ee25ae4b3fffd03a5616211f743e4a85d0c48d526462456",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000071.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000072.bin",
+        "bytes": 3245,
+        "sha256": "e1da89863396e9e4b49750a68c2d30d99b8b9f29e6920f588daa8debcbb88390",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000073.bin",
+        "bytes": 1418,
+        "sha256": "653cd386f5d3e71eff7a5351631af0234c5579f2a093cbb4796b061dd53bc1e8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000074.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000075.bin",
+        "bytes": 1602,
+        "sha256": "ddf8b8ae45c8f92f61ac547cabf98858da76d76b9d608038cee60f4cdab438e0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000076.bin",
+        "bytes": 1418,
+        "sha256": "314ecbccdcf3d1bcf9cd7c22ab160a9a9aa4e49ceb6aeeb9c7fa4cd1a7d6d953",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000077.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000078.bin",
+        "bytes": 3226,
+        "sha256": "da072ed81e82142a4b3abc24e2d0f3a9cde22d18ab5aad7af14214f3d31f7d7a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000079.bin",
+        "bytes": 1417,
+        "sha256": "ba28a2ba2e99d0abc7e328f27a4c9eeb96fc98642669e0d4c4c3f1720a24fbd0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000080.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000081.bin",
+        "bytes": 3389,
+        "sha256": "e930ec950627466fad07039a9a6fa9b5f96d916eabbe5cc3f7e0825bbb32d3ee",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000082.bin",
+        "bytes": 1418,
+        "sha256": "7d7a5a4aa4e621ba49f1942522837a0d3f102663d3b835f6c3c96df75e577b4b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000083.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000084.bin",
+        "bytes": 1601,
+        "sha256": "5814ee08fcca3d7e07928356c761aa66184d30ad8fa8a4b3995208d453eff518",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000085.bin",
+        "bytes": 1418,
+        "sha256": "e57280f0bc19e8ed5acac6705903c195a2aa3425d35ff8005bac66588372ba08",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000086.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000087.bin",
+        "bytes": 1444,
+        "sha256": "7f59e64cd3f978ad259b69a3438912f663c9e6bbe22335a348937a4b8ef5cebc",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000088.bin",
+        "bytes": 1418,
+        "sha256": "9079a0d531fd6780384d76347d740b6421767298d8a3e2fae2628b01b432f834",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000089.bin",
+        "bytes": 31,
+        "sha256": "921155106edb239371e13143ec6eed3a7d21aa8ab5ab0b13a105071d748de7b9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000090.bin",
+        "bytes": 3248,
+        "sha256": "3050b414f9bd58df2b2fc8cfd7dfcde2d6985692b77133fb411f65df5cf9fb91",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000091.bin",
+        "bytes": 1418,
+        "sha256": "e41c5f395c9f0ddd83796f7f5f2e0b16f4f006985cf72e724b11d835f9cb2c98",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000092.bin",
+        "bytes": 31,
+        "sha256": "2cb0aaf72f719dc3a1a41185bada74f3910422669adcc0ee06a7883ae508a7cf",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000093.bin",
+        "bytes": 3225,
+        "sha256": "0838badef39d1d7b99ca5f3e85cb65b92a2e8c63c301f032b8bb0a667f6bb46c",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000094.bin",
+        "bytes": 1418,
+        "sha256": "fa7ad349e2820efe6279386a0cc988032b503fb5d137e5ab202b7a4367f5187f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000095.bin",
+        "bytes": 31,
+        "sha256": "2cb0aaf72f719dc3a1a41185bada74f3910422669adcc0ee06a7883ae508a7cf",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000096.bin",
+        "bytes": 3262,
+        "sha256": "43c0e69a9eac46b7941d5c659a96924d34ada929dde106f653744ff22f45dcc3",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000097.bin",
+        "bytes": 2578,
+        "sha256": "6124daa54323a458d9a2ec7c9a288ceac09aea29c91427ccb7192647f7fe801f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000098.bin",
+        "bytes": 10436,
+        "sha256": "2a0a0c8c8396da80a51ef6d8abda1de37725c5262ca8bed9d1238262340ff62a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000099.bin",
+        "bytes": 4189,
+        "sha256": "f9f05c20424bbf4dd4a2f6372632602449974d29175f1038f863e6634fe90f62",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000100.bin",
+        "bytes": 2548,
+        "sha256": "00052e56cab20b7f8f26d35914d6dfd2240137f4f73f14471d06e14f6f4a93dd",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000101.bin",
+        "bytes": 10450,
+        "sha256": "fd60538c6811f163c4cc45862b33f4a1a3c9b5919d63f81047e93c34c5218366",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000102.bin",
+        "bytes": 2697,
+        "sha256": "8c5fbdc98bfcc3c06dd5bce7c97f3701f873a6aca69923aa2d5cec6bc7d8b800",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000103.bin",
+        "bytes": 10410,
+        "sha256": "76445447a63a7cf2fddd3e0dcffbff06086b60e0e84f3534d3a8ba379e788a66",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000104.bin",
+        "bytes": 2544,
+        "sha256": "ca01df93893f99962060fdddfd0c510d2887f631c3f94e8599d8fd670bf285fc",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000105.bin",
+        "bytes": 10449,
+        "sha256": "0ea65d0ece5dfcb07c411e8724ee929a65224699940e3b2446e6744ecbe87e65",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000106.bin",
+        "bytes": 2692,
+        "sha256": "e10467569fada4715ae8ee309f87a2a722ce6aeca60f365c2129224e14b0f78f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000107.bin",
+        "bytes": 10404,
+        "sha256": "138154441f5ec577d7cff79b36cf99945c0093cc94d786d1a7ffb021e089ce14",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000108.bin",
+        "bytes": 505,
+        "sha256": "ad7b038dc5255257e2d1ab154fc223f2776615943fd0562daa3b09f9f27e3416",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000109.bin",
+        "bytes": 2645,
+        "sha256": "d6d530431a511a68f5ecd3610281087e6746596fb1672d4580b0871b3d1d703f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000110.bin",
+        "bytes": 10406,
+        "sha256": "919774c53c2514a485533c74d3b1e1d0a97ac696ead887604e58e7830fbfc166",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000111.bin",
+        "bytes": 2698,
+        "sha256": "c168a543a1811f226e89c75aae83b40bf02f42132b97d8e39479634afa8f0f5c",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000112.bin",
+        "bytes": 10410,
+        "sha256": "b5ab613362be71fc56dafab3d96743d827e6cf7008ccf1a09d3238e3ea2ef00b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000113.bin",
+        "bytes": 399,
+        "sha256": "fa3c5363d49de7c92346dd040b269d9d2d83ee1abac48ffb93512cfcbb6bcb14",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000114.bin",
+        "bytes": 2995,
+        "sha256": "51c7e140125268fbc70b6ea0f85bfbf7770e80b3ecacd8401b953ce1b4b91c29",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000115.bin",
+        "bytes": 1100,
+        "sha256": "6e9ff03f5fe27fe555a7329341da6554f62a299ef3b31aa31da5130fe3222d87",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000116.bin",
+        "bytes": 53,
+        "sha256": "e6e26ef952e5cbddc4dcaf9bfbd8a2ad9ead9fc9ea589d06c7d19e1d85b07879",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000117.bin",
+        "bytes": 1374,
+        "sha256": "a8c636b07772f2e61b39c00b8925c003a48edc58fc0081ca1fa8c8c0f77dab10",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000118.bin",
+        "bytes": 1455,
+        "sha256": "843d8be8d2e0b92fb70b941fabfb93ad2801f739270ee96885a081b861c87eea",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000119.bin",
+        "bytes": 55281,
+        "sha256": "b2d649648d160edd6f4d5c64482e553e9f9218eb5e3124fe6c7b3c812f46c68b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000120.bin",
+        "bytes": 3203,
+        "sha256": "59f7d4ea7c6fc6ec419c0ac4ff00bc0951969a35e4a4c902c961662ab769d5cc",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000121.bin",
+        "bytes": 1256,
+        "sha256": "a93eea089a1ebbbceed4f6fa81ae36b96d0d17a488cd730417c9428d1d3f4c13",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000122.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000123.bin",
+        "bytes": 1455,
+        "sha256": "843d8be8d2e0b92fb70b941fabfb93ad2801f739270ee96885a081b861c87eea",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000124.bin",
+        "bytes": 780,
+        "sha256": "6edcfa9dbd70aa44c66e8024d14318f45194d4058d6fce33a0178557c5007166",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000125.bin",
+        "bytes": 680,
+        "sha256": "bf8eef2a401507d8d79a4af9d80c3b5b378607a893ded2580e600f76efaa1399",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000126.bin",
+        "bytes": 96,
+        "sha256": "08491f223816696acc8d9b411c79fd8fdf25572cde042df63d00b00a5db5304c",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000127.bin",
+        "bytes": 97,
+        "sha256": "80ece6f1286670b5ac4b2aa47d0ea7c6af1cb9e0c97ab2442a2d481c9d19e005",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000128.bin",
+        "bytes": 102,
+        "sha256": "faf1304f14c4efb657e1b77e7acb10587d6fb0a2714b4b47fd5c8a78f2850a74",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000129.bin",
+        "bytes": 94,
+        "sha256": "a5707041b46f16eec650564a4e0599270fb714ab2a0eb61371ed6b9b44b9a974",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000130.bin",
+        "bytes": 114,
+        "sha256": "48ef18d56bfa906bd781b3c47f51783f9c24f65fba4d9a427b2561111efc6fdf",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000131.bin",
+        "bytes": 116,
+        "sha256": "b7a900c3f0db77528a2d00f69e31ccd8f6d50978840154fb00dc555b2d4d232f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000132.bin",
+        "bytes": 7558,
+        "sha256": "aefe1a36676129a3f75f7c3e7affc521b81b53c98c12351bb00bd89d35d62ea8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000133.bin",
+        "bytes": 4546,
+        "sha256": "c552a6d602631d2f5c5390d6d2ec43146bbf268234293ae4342698d9b9893f8e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000134.bin",
+        "bytes": 1360,
+        "sha256": "d2d97d4b60332801ca840a12272d9b4d7d91c37894b5dd94d0571d65c2d7376b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000135.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000136.bin",
+        "bytes": 1216,
+        "sha256": "580f89f42fbe31a4ee7fbf57e18cf1f2e4013911b7531651c0623326753d5607",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000137.bin",
+        "bytes": 1322,
+        "sha256": "eb20dd83b44fe3fa8180ac3ccee064a2351187c0795047403ea0f894c2cb39d5",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000138.bin",
+        "bytes": 54981,
+        "sha256": "f3e8bb16a217d0d48e757076b95086453c5b3534102824b5e1e73a2f9fb8ec29",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000139.bin",
+        "bytes": 10227,
+        "sha256": "83304d754df2a4d7b1fad21034024309a9edd4687ee197bd6e8206250ca50f8d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000140.bin",
+        "bytes": 1331,
+        "sha256": "cd5ba57ce0e07f4fc35dc056d2946a6eabe4d9b5e8a398eba90d963b5ee80b2b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000141.bin",
+        "bytes": 469,
+        "sha256": "dacf14688c1c82a480696ea689e2fefe1c94ee9e750da150f183567af8a98ea9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000142.bin",
+        "bytes": 2590,
+        "sha256": "77144c65ee93d8be0e6e515b0b3f204dc639023addb15d7c77e1b9c48cad1dbe",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000143.bin",
+        "bytes": 1382,
+        "sha256": "8070be86ee87aaaa7b5b1157a3b32d40bb250b3d6e852cd799014792f5c26496",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000144.bin",
+        "bytes": 241,
+        "sha256": "b29e788ff6170e03b088018816d02da0a2616161a187cd1a82bf16284f9c4fc1",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000145.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000146.bin",
+        "bytes": 1336,
+        "sha256": "d3c7772579cdfc00e50500ebcf0d9c29de95798458470a1dc5a897e86be1d944",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000147.bin",
+        "bytes": 469,
+        "sha256": "3542946fd08fdf48bf74393c35933ce61a45bece2b5b543295e8353dfdbf9e32",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000148.bin",
+        "bytes": 1822,
+        "sha256": "06dbc45686e7001c5e276388f635154ea0ad139796595565beab7c04c4a49e48",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000149.bin",
+        "bytes": 5901,
+        "sha256": "be6b90fa5c7ed430a9bd34004e5097418d1ca1d0ccca2b47385874a776424c38",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000150.bin",
+        "bytes": 813,
+        "sha256": "a2930df53dcf63def4e0eaa86dac740c10058eb38fe2449e7460b7ba0ae14e4d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000151.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000152.bin",
+        "bytes": 109,
+        "sha256": "ff013a0aa97a7e9c0a40dc68053122b6699190664f02ab33569445fefe58bd83",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000153.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000154.bin",
+        "bytes": 129,
+        "sha256": "4451d796340d33841a2d2994ebaf11cb2bb2b952215ac4144f8df734eb24a2a6",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000155.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000156.bin",
+        "bytes": 109,
+        "sha256": "ff013a0aa97a7e9c0a40dc68053122b6699190664f02ab33569445fefe58bd83",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000157.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000158.bin",
+        "bytes": 109,
+        "sha256": "ff013a0aa97a7e9c0a40dc68053122b6699190664f02ab33569445fefe58bd83",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000159.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000160.bin",
+        "bytes": 128,
+        "sha256": "b3f569ffba0c909e8a65958a29f678091c9025e81fbd7425cef9c173d1717486",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000161.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000162.bin",
+        "bytes": 109,
+        "sha256": "ff013a0aa97a7e9c0a40dc68053122b6699190664f02ab33569445fefe58bd83",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000163.bin",
+        "bytes": 1356,
+        "sha256": "1bca7e5a8eefb4885354dfaea1b9dabaa55e39ae66eea7584b2c98febf6ded58",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000164.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000165.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000166.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000167.bin",
+        "bytes": 120,
+        "sha256": "f360e853193b2a19aea0f0db78024afe0455b96e3dc719c146296546c6001f27",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000168.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000169.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000170.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000171.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000172.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000173.bin",
+        "bytes": 298,
+        "sha256": "f776849e0f430af8e90a3ce7930ee2f3253543181ebf014148b4eb28bdbbb970",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000174.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000175.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000176.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000177.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000178.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000179.bin",
+        "bytes": 365,
+        "sha256": "ed8fd8be2efc4c164d0b4d72e58ad726d9d0ed730d2694bc1899aaa8920ddc62",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000180.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000181.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000182.bin",
+        "bytes": 2445,
+        "sha256": "269e47a65fa2f2a26b74c939560c2d348234515a70bbe8e194c08123325be141",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000183.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000184.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000185.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000186.bin",
+        "bytes": 360,
+        "sha256": "e1eb2c2c7ac7dcd93e2417ff490e9152a333c5b1141ca36e4485ae7a98c1701e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000187.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000188.bin",
+        "bytes": 40,
+        "sha256": "ba2bd4fa6cbd559eeb573e3b4e3729ae93cabf6c73448485dd01e7009c08484e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000189.bin",
+        "bytes": 155673,
+        "sha256": "8f71c306dcd23f42a299f6db2ab52548560b5a8f845f60b40728147c1a24fe33",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000190.bin",
+        "bytes": 269,
+        "sha256": "4bd9251d8a18999c20a4e33076d09b3d2c84c7de0e002dd86b92f52e5426a229",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000191.bin",
+        "bytes": 29,
+        "sha256": "00e0d2dbcceea5db817a23ef8c27d97e31f34193ced1c05b28d563b9e791063a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000192.bin",
+        "bytes": 37,
+        "sha256": "042154272df3523f5a2c6220cedb40243a20fc1103c1e9ef25223c6c4e8baef1",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000193.bin",
+        "bytes": 29,
+        "sha256": "048b84fc5ee8cba483188c16eb358df26c20bb1c2de9f7e80450ed8a9484939f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000194.bin",
+        "bytes": 29,
+        "sha256": "05f18e4eb07d9cbb49c13852f6a1b2e272ca7d4d1e6f72cdba42d0d35358eea2",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000195.bin",
+        "bytes": 36,
+        "sha256": "0c1f075a1e6b89622c1d184fe2d927c8a64733287dda75642a1326df7f14576a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000196.bin",
+        "bytes": 47,
+        "sha256": "0de432e0659e44e8499b0442bba8d61383f5c2bc8deceda335b7706f7eeb1105",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000197.bin",
+        "bytes": 31,
+        "sha256": "149f0f39d2a10f4f25881ce9bdb08b24baafac2991bafd46ba074d2558cbec92",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000198.bin",
+        "bytes": 37,
+        "sha256": "1ae9e9209c6e6e2e2bfc044cef4da03330f91fb65d84ef0f3908058b72de745b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000199.bin",
+        "bytes": 36,
+        "sha256": "2060f780c140ef6dfbc350eca8bba6879650d8f59b33117d7d5fea99713a4dbb",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000200.bin",
+        "bytes": 37,
+        "sha256": "26038196a979e71fe4146c5d9a113ed8570528388dd9b1686bfd37aa8fbcbc76",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000201.bin",
+        "bytes": 43,
+        "sha256": "26aeca48ffe176b9f72e6ca35828991b11dda2793ef8de528e1a8db4d7a1bac5",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000202.bin",
+        "bytes": 83,
+        "sha256": "275af86156ba5fc4bc5186be6ec4af0b59ff1fd889a7d9afc0f63a097652c634",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000203.bin",
+        "bytes": 40,
+        "sha256": "27d3d2b0be9e121a1e00b82c03213c6a77e5811a7e3baf532cb3019cf0adccb8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000204.bin",
+        "bytes": 42,
+        "sha256": "27e14ba97c70ed4ab2ac6be9937c5ff96ded20c7bc54b867cff14c2239984584",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000205.bin",
+        "bytes": 36,
+        "sha256": "283b7d0a6594fe8f1ccf5b88d34bf7c1b3e11ef2b86b03130f444a8797d20480",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000206.bin",
+        "bytes": 37,
+        "sha256": "2a01d0b0ddd8a04a1423f6ca8bbcfc032c9da4a444f2021ffda0afcdae7dcbaa",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000207.bin",
+        "bytes": 47,
+        "sha256": "2a47cfb04ed1319fdc24926702070e049998a0355ace5e11a501bf319d99b505",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000208.bin",
+        "bytes": 30,
+        "sha256": "2aef5a1f3d970b99f4ecd403bb14b54bff80eecb9c9a50dc670384a8f49695bc",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000209.bin",
+        "bytes": 64,
+        "sha256": "2b46c3ea0df11a249bb34d34315ac2383c59ca0b3c727a2c33c60b4d440add4e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000210.bin",
+        "bytes": 29,
+        "sha256": "2bdb3e6c06ffbaeeff6dd2e15103e84a0b6408fbbd405bb29cf87c981e492963",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000211.bin",
+        "bytes": 34,
+        "sha256": "2d1a612211cec8642be2c92a8b2d2432c1657bf665660df34d93423f103d924a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000212.bin",
+        "bytes": 31,
+        "sha256": "2d891e492b3ff7ca113c5ce0811a90ffed5b1cc0fe98933b801781d4e693b4f9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000213.bin",
+        "bytes": 48,
+        "sha256": "2d95a91f8c8c28ea5ac125fd84db7d0b20a518e0a36e0a7eb421de39384ba072",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000214.bin",
+        "bytes": 34,
+        "sha256": "2e548cb0e1d4cf1f01baa25cda134717b9a5aabde0ede92bc1d45309e25bee9e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000215.bin",
+        "bytes": 32,
+        "sha256": "310d7c7b40724225fb3905a2392526dd6228e607f5f746d0ab81dfaa10e02f93",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000216.bin",
+        "bytes": 28,
+        "sha256": "32c095a3073b4fd41348cf8be6f1aa3359eb0a287f63ba592eda8f00942ded10",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000217.bin",
+        "bytes": 37,
+        "sha256": "332de660d3586efebc6bd52f5df134f1b1ef519f02bb7343e85676a1cfbcb551",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000218.bin",
+        "bytes": 123,
+        "sha256": "335a290f5c8b1f169c5e16248776f777bd641d210785e4b2d7de00c51d933248",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000219.bin",
+        "bytes": 29,
+        "sha256": "3391a53f9b2517dd0b538c9e1b28b3685faa1258693345232ca567eaec15591a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000220.bin",
+        "bytes": 29,
+        "sha256": "33c1af4c9774516b8c7f1ea18ef049fb7454cfb5a06e2aadb461a4cc31fb839f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000221.bin",
+        "bytes": 48,
+        "sha256": "366fafbbff10bfb3c43aee1577e7db66c63b6192e47532ba309bcf0c191170fa",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000222.bin",
+        "bytes": 32,
+        "sha256": "36bc23f2651d0d821c246e4ca91233671a13762b765b516a06787b2976629841",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000223.bin",
+        "bytes": 31,
+        "sha256": "3800f0bc84cf58aebc4c44358e6344d83d95e2bd31a4453bbf3f0b05da54f6f0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000224.bin",
+        "bytes": 28,
+        "sha256": "41d6c2f41a4c50fb4b5b3a207e443776f38a890ddeb0310797d974857c4b0c38",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000225.bin",
+        "bytes": 36,
+        "sha256": "427c7736bcf46155d4c35830999baa6b024c4733fcea59fa26e1f688401cbd18",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000226.bin",
+        "bytes": 29,
+        "sha256": "44308522fdcb4b800caec2e352d8f11f9f908b6429037f040ba42330e45fd4e9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000227.bin",
+        "bytes": 45,
+        "sha256": "45004944e3d0a135b46fafd7b377c94c973d4ccf06720cb1688d62dd7c302694",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000228.bin",
+        "bytes": 29,
+        "sha256": "49409096429fb9389dc61891c99255e64def9b3c9899860333e8ceb9a435d1c6",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000229.bin",
+        "bytes": 35,
+        "sha256": "4af08f9a068511ee9d2071ca8459a8e89efafbe7aae58e4e161042e747e0122a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000230.bin",
+        "bytes": 29,
+        "sha256": "4b60dc1924ca5803a40135fb3e3478fd09e875655ee868c983b1f1dba4326907",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000231.bin",
+        "bytes": 31,
+        "sha256": "4f3acac053b0fc22ee9b527c520d72057f961ad7594c480973258ed64d411743",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000232.bin",
+        "bytes": 35,
+        "sha256": "5024a078f1260ef5dc56661cd9731b0ee54e9a00724e8de85aa8f6e079f31575",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000233.bin",
+        "bytes": 52,
+        "sha256": "52c3f1e56db91aa1f1084565b8600b0ecb49e414e4c9e8bd3ae1b3fc1f1bb68a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000234.bin",
+        "bytes": 31,
+        "sha256": "53ae3d9ff744c225b1e380cd9ebefb91efc698c88fe61f624ffe0e3168a77929",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000235.bin",
+        "bytes": 32,
+        "sha256": "552712db26a157a72fe5036561598dad29187c512afa9c79762cc8528cf70f85",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000236.bin",
+        "bytes": 34,
+        "sha256": "57eaa96cf8f2400c7db2806043e69982a660b1eee28fb4a7f0f828c5f2593ce0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000237.bin",
+        "bytes": 28,
+        "sha256": "582528ddfad69eb57775199a43e0f9fd5c94bba343ce7bb6724d4ebafe311ed4",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000238.bin",
+        "bytes": 49,
+        "sha256": "5d7c5a269af16179fb96466c326a28c8c1d501f345285770b49ec5ad20734e3f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000239.bin",
+        "bytes": 33,
+        "sha256": "5f915aad57b378d4a39e4606bfb1681f6c85b25e7e81b0af042d008f4a77ba71",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000240.bin",
+        "bytes": 29,
+        "sha256": "5f9de81f2a712a5f71b3430d31ab099e3786de8beb05d8620663479d5353a184",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000241.bin",
+        "bytes": 33,
+        "sha256": "616f880775098ae97aefa1bf15800d65d8377ad4b8633e4c26359cd66df677d5",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000242.bin",
+        "bytes": 47,
+        "sha256": "621544fbd334fdc47f3c915ad4f581e8ebae38982bc74db12f1dc129fe809461",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000243.bin",
+        "bytes": 29,
+        "sha256": "63c831a7ac86188c2475db47b10e3021c187078beef85a6e14355d7d4d47599b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000244.bin",
+        "bytes": 35,
+        "sha256": "6630afba96ee680952182c2437d2303b046edf5e5d8e97eb9f68e126535d97f0",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000245.bin",
+        "bytes": 29,
+        "sha256": "6bced2300496f15ce6ed29c64c11403cbfa3104e42c4770a1020d792864d6416",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000246.bin",
+        "bytes": 29,
+        "sha256": "6f9c29532ccb80bf0de736adcc1e1f7fb52e1c19b61baa0093f16daa46ca39fc",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000247.bin",
+        "bytes": 31,
+        "sha256": "751f67021c44baf50634a750eb7e5baf0f320bd761fae1966114e9b5817efcfd",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000248.bin",
+        "bytes": 37,
+        "sha256": "75a472d75997859ceb4a0fd9cf17bb2bbc1784010a708ff1ffd365b59236b137",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000249.bin",
+        "bytes": 30,
+        "sha256": "792224f18ca724d8e2188fc4747d6faee7826ae360ca0a8159ef63875d98e993",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000250.bin",
+        "bytes": 37,
+        "sha256": "7f5d78f38adf594016328e5c12d3a681890ce179f224e8979f0c7d12d14b9059",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000251.bin",
+        "bytes": 29,
+        "sha256": "808dacfff2cd6505601626748269ec932b03e7c2cc4d84d06d7c55bf13177930",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000252.bin",
+        "bytes": 29,
+        "sha256": "8093511184ad3e258aa13b957e75ff26c7fae64672dae0c0bc0a9fa5b61a05e7",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000253.bin",
+        "bytes": 29,
+        "sha256": "82885d674e7998bbd61bbff6eb36d256bef2d9cea3a7a7a00b37f932a64aa9da",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000254.bin",
+        "bytes": 30,
+        "sha256": "834aa7afaeaf041ec00591b7d96d606f3a1860edf9fe9ec5489eed32ccce934d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000255.bin",
+        "bytes": 32,
+        "sha256": "84854af647676e95a5cc41d97e8775f6b3d116a63ad9cc673fbb13747c7f247e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000256.bin",
+        "bytes": 30,
+        "sha256": "88d0677fa168d5528170517ccfca4b65e680bcf68da7cbebec074c4bb143a995",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000257.bin",
+        "bytes": 30,
+        "sha256": "8df5bdbb802afb3e4db244a9447b2768e620776b4b42c3a10d1eb6d3e39bc131",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000258.bin",
+        "bytes": 28,
+        "sha256": "916d1b270bc67219b1654a894268cd3d9bea7e92edb129f0f2226bae1101735b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000259.bin",
+        "bytes": 31,
+        "sha256": "91730a8c226143a7f595fd0aee5ca8ad37b4fa839f89efe36211af514e0350ba",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000260.bin",
+        "bytes": 38,
+        "sha256": "91d1ce805ed827c473c823cbdbb3562c2e75af6ba69bca00745a50ed7dbb0ad8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000261.bin",
+        "bytes": 32,
+        "sha256": "928d08a23b2d59b7b0323d7fe2936792935879f8cf2959d4f88df94654a7145c",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000262.bin",
+        "bytes": 28,
+        "sha256": "930f49fab2367014ac1a55ba1a23bc7e612fce3b7e924a2ca67c3220fd118969",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000263.bin",
+        "bytes": 40,
+        "sha256": "941832f9199465e76a838790949f4b824b9f95d5fcc8b9bc9b07803d572141c7",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000264.bin",
+        "bytes": 36,
+        "sha256": "971916429883f500bb7c9cc9c55b62032f766bcafc32351726203867ac7ac350",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000265.bin",
+        "bytes": 34,
+        "sha256": "971fb0976738d3487f45ec0a5afe594f7f8bfaffd329ad16538943e9514d1e41",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000266.bin",
+        "bytes": 28,
+        "sha256": "9c1ffb19ac30159a18814da3663993aa664a9633741132b80b385c26c7091719",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000267.bin",
+        "bytes": 30,
+        "sha256": "a02ef305d81877f9d76eb81aa26b4a4ca178b5fe2f7cf376b26a321f10efeb37",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000268.bin",
+        "bytes": 117,
+        "sha256": "a0ad30f99627c09a15cd9cde19a5b39fcabf91b83d87ab40db6c56742178639f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000269.bin",
+        "bytes": 29,
+        "sha256": "a6144b8526dd4a8284e6815abbebf6d25e2635374c4f901ba0720ceb105ad914",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000270.bin",
+        "bytes": 1077,
+        "sha256": "a6a8a8dbae21a11b5674114b8dffd1d0596143352ad9e0a0120f857421a901c8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000271.bin",
+        "bytes": 34,
+        "sha256": "a715899503608da83f534eaa5555402573df1c7452e1cfdf06fe16263cd11655",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000272.bin",
+        "bytes": 78,
+        "sha256": "a7450fd77fc7c53cc5bd136874415dddfff5c586e662f21420caa7a94131a56a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000273.bin",
+        "bytes": 30,
+        "sha256": "ab55a0a228d0d7f8ee8195c2a5bad834cd609690b39d101bd47463a6c6e4b561",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000274.bin",
+        "bytes": 46,
+        "sha256": "ae9a269add029de7347d2477c7d09c5cb13c1149febe8a7a9eaa408c0b0f5117",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000275.bin",
+        "bytes": 29,
+        "sha256": "af9bedcb9e0a31e8e5c4c4acbc2e0c1eca0d1292a8b534df8f343a37bdbe666d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000276.bin",
+        "bytes": 29,
+        "sha256": "b4169cf0f5a60b81b28fd97dc6077319edb1b68ad1a95bc8d280d6839eaac31b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000277.bin",
+        "bytes": 31,
+        "sha256": "b581f238d95755b9c770b1fd446be46cd1adc00810406f69085121d0a46731f9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000278.bin",
+        "bytes": 40,
+        "sha256": "b765a8ab9bb914e8dd0c82dab655471bb25887bfafc02325dd54b41caeeee876",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000279.bin",
+        "bytes": 35,
+        "sha256": "ba5253c47d03967f67134d6ad14aa74a7ce0e606253db3a014ab4e928115de2b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000280.bin",
+        "bytes": 30,
+        "sha256": "baf07cb4ae4dfd2e01bcb2a659208bdecdfd6a06292a4ccf318c844e282436e9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000281.bin",
+        "bytes": 28,
+        "sha256": "bb17fa3899f9e1ba52780ccdd3eedf66ca709ef1e7eff3015b0d3dabe256822d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000282.bin",
+        "bytes": 37,
+        "sha256": "c343f5523fb800b1447e77763aa48353526ff3b1b68f44265fcd809211f5b46a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000283.bin",
+        "bytes": 29,
+        "sha256": "c346c7a27bc2db3b2ac51134ec2df5be3962fa7edec7caa6451107cebdc66754",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000284.bin",
+        "bytes": 35,
+        "sha256": "c48f3d166b4dda7378ef56ceab535370468362694f02642eaf5cbf8a59ef9b3f",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000285.bin",
+        "bytes": 65,
+        "sha256": "c928b6d4e5018a47cdcd3e4dd07b6a422fa534868c55f4fde7b9441990d7e88e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000286.bin",
+        "bytes": 28,
+        "sha256": "ce2d19415072e0e1ec21ae088a17f5d85c73874057f8b7e35d6fceae91087516",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000287.bin",
+        "bytes": 28,
+        "sha256": "d1438ee4329c0912825a96cb41c02c7bb028be2babd9dabb9f9b66f6f649c935",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000288.bin",
+        "bytes": 29,
+        "sha256": "da11f9a0a9b25e7294a7f9f2d157db202d6947232d19cca0227b66af52fa3e99",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000289.bin",
+        "bytes": 38,
+        "sha256": "dc600271e2e08ad4de99ca10bad85074f7eaec999ea533b7c0021aab9623b1d5",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000290.bin",
+        "bytes": 71,
+        "sha256": "dce5879f4cd2b533ae2b356667bcc602235f25d8a8254328f8166c38f42ea49e",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000291.bin",
+        "bytes": 30,
+        "sha256": "dd6d4a51cedb9a6913dd38d8a8c4b61f6c21f7c5be7d625befe9dae606dac97b",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000292.bin",
+        "bytes": 34,
+        "sha256": "ddd38220bec959bb756b06a70fff2744607d7a6a2f68075610be63d7f3a66b89",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000293.bin",
+        "bytes": 32,
+        "sha256": "e1b20d6b1b8e1f88c381fa97e8a9b6bf08ffa642f18afc6c533d76ab68780295",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000294.bin",
+        "bytes": 107,
+        "sha256": "e21ae681c56c1efed79743fcc4d889631d6b7517bf3c5c3019dfeb22f052e079",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000295.bin",
+        "bytes": 32,
+        "sha256": "e8b7ec3c2bfe45cd17e5156cd1b1bf1f6117cdebac6f1b7a13a7bc4137bac866",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000296.bin",
+        "bytes": 37,
+        "sha256": "eb3665eb4060ece0b2448164e58bf0184ba40b9e90c02d00bae1eb7b0bd6fba9",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000297.bin",
+        "bytes": 28,
+        "sha256": "f35e37c0e30ffd2eb769c068a8a57732488c5561974fc4c627763d52b206bb41",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000298.bin",
+        "bytes": 35,
+        "sha256": "f831197bff6cf91bd488b11d5eca42725135c4fab07381dd1ce09d99e1f13bc4",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000299.bin",
+        "bytes": 29,
+        "sha256": "fbab04f43516aa5e2b159a4081fcca5a99a50f57e96df8ce95d58ffff75b9902",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000300.bin",
+        "bytes": 33,
+        "sha256": "fdf54e3f6bb278ecdd3b285a7e57039170df728b0d55b8c69529a04ef70e0d8a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000301.bin",
+        "bytes": 28,
+        "sha256": "582528ddfad69eb57775199a43e0f9fd5c94bba343ce7bb6724d4ebafe311ed4",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000302.bin",
+        "bytes": 75,
+        "sha256": "c9f1ba40ba2d6a016cddfb28f48f30cc37266885673c8cb33f03c32d1e85e3b8",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000303.bin",
+        "bytes": 743,
+        "sha256": "fbf71aec01eba03ef896b9d6d1e8553528e4887ac44e89c8ee5eee3f3340553a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000304.bin",
+        "bytes": 61061,
+        "sha256": "b42402cf744235cdb8d497753628d39d85419ca6cb8ab4725f3af5684319abd3",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000305.bin",
+        "bytes": 974,
+        "sha256": "29f39f7bf1f310beb398ab410c3a27ca478a3980761c394a70496c1516f8c46a",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000306.bin",
+        "bytes": 229,
+        "sha256": "436f71fe18ffc973edd2ba0a58e93b2f7a53fb303e5a2622f9fb2e40511b1afe",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume/000307.bin",
+        "bytes": 145,
+        "sha256": "1b8e7ce02afab28d6eb8466aea47192e44d147dfb0e1b334a7d466ff2d6aab7d",
+        "mode": 33152
+      },
+      {
+        "member": "metadata/volume-manifest.json",
+        "bytes": 155904,
+        "sha256": "a5cd316b29265123f359ddef56132857f95672bfc9de83f936805debca9b25ff",
+        "mode": 33188
+      },
+      {
+        "member": "packet-manifest.json",
+        "bytes": 73840,
+        "sha256": "4e3603cc15fcf0774c5a4b7e9fb9b37455412fbc2e5b569eb1827f208b629ba5",
+        "mode": 33152
+      }
+    ],
+    "scope": "Complete supported verification, fresh clean checkout, online/control diagnostics and current fuzz corpus. This public curation contains metadata, not the binary packet."
+  },
+  "capacity": {
+    "image_bytes": 2000000000,
+    "actual_enospc_probe_bytes": 2100000000,
+    "actual_quota_and_enospc_step": "PASS",
+    "admission_peak_bytes": 10414205545,
+    "admission_ceiling_bytes": 12000000000,
+    "global_baseline_including_reserve_bytes": 8069205545,
+    "maximum_new_stage_bytes": 2345000000,
+    "reservations": {
+      "cloud_metadata_only": 45000000,
+      "diagnostic_packet": 50000000,
+      "external_metadata": 200000000,
+      "overhead": 50000000,
+      "owned_ext4_image": 2000000000
+    },
+    "scope": "Supported verification, clean reproduction and online scanner commands only. No scientific matrix, reference-host qualification or full release claim."
+  },
+  "cleanup": {
+    "status": "PASS",
+    "exact_mount_and_loop_absence": true,
+    "same_bound_image_identity_checked": true,
+    "image_explicitly_removed": false,
+    "retirement_scope": "Terminal hosted runner lifecycle; no claim of explicit backing-file unlink."
+  },
+  "security_diff": {
+    "scan_id": "95767607-2cab-4467-9ebf-d22c011a4b74",
+    "status": "complete",
+    "findings": 0,
+    "warnings": [],
+    "changed_paths_reviewed": 10,
+    "usage": {
+      "cacheWriteInputTokens": 0,
+      "cachedInputTokens": 16810496,
+      "coverage": "complete",
+      "inputTokens": 17331992,
+      "outputTokens": 32827,
+      "reasoningOutputTokens": 15022,
+      "source": "codex_rollout",
+      "threadCount": 3,
+      "totalTokens": 17364819
+    },
+    "scope": "Immutable6cc82367239f77f5cc930fc53bc53a234e6a529c..8cd501c387079afd3a5a4d2990095a84a47e129c diff only; no future transport or full-repository certification."
+  },
+  "native_verification": {
+    "status": "PASS",
+    "independent_read_only_review": "No material finding within this actual packet scope.",
+    "preserved_initial_failure": "An initial native verifier compared identity field layouts incorrectly and failed. Corrected verification compares identity attributes, ownership and link count separately; original failure remains retained.",
+    "trust_scope": "Retained hashes and trusted-host receipts are not cryptographic third-party attestation."
+  },
+  "commands": [
+    {
+      "run_id": "20261028T025355Z-f0117870b1",
+      "category": "capacity-admission",
+      "command": [
+        "python3",
+        "scripts/reference_capacity.py",
+        "plan"
+      ],
+      "started_at": "2026-10-28T02:53:55.878544+00:00",
+      "ended_at": "2026-10-28T02:53:56.921917+00:00",
+      "duration_seconds": 0.21152299999999968,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "580f89f42fbe31a4ee7fbf57e18cf1f2e4013911b7531651c0623326753d5607",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.24.13 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.55.0"
+        }
+      },
+      "source_before": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9",
+      "source_after": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9"
+    },
+    {
+      "run_id": "20261028T025402Z-e0cb2eaf57",
+      "category": "capacity-verify",
+      "command": [
+        "make",
+        "verify"
+      ],
+      "started_at": "2026-10-28T02:54:02.113127+00:00",
+      "ended_at": "2026-10-28T02:57:11.023676+00:00",
+      "duration_seconds": 188.899709417,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "83304d754df2a4d7b1fad21034024309a9edd4687ee197bd6e8206250ca50f8d",
+      "stderr_sha256": "f3e8bb16a217d0d48e757076b95086453c5b3534102824b5e1e73a2f9fb8ec29",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.55.0"
+        }
+      },
+      "source_before": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9",
+      "source_after": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9"
+    },
+    {
+      "run_id": "20261028T025711Z-1185b1dc0a",
+      "category": "capacity-clean",
+      "command": [
+        "make",
+        "clean-verify"
+      ],
+      "started_at": "2026-10-28T02:57:11.199470+00:00",
+      "ended_at": "2026-10-28T02:57:49.183842+00:00",
+      "duration_seconds": 37.97336182000004,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "77144c65ee93d8be0e6e515b0b3f204dc639023addb15d7c77e1b9c48cad1dbe",
+      "stderr_sha256": "dacf14688c1c82a480696ea689e2fefe1c94ee9e750da150f183567af8a98ea9",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.55.0"
+        }
+      },
+      "source_before": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9",
+      "source_after": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9"
+    },
+    {
+      "run_id": "20261028T025749Z-add05ca955",
+      "category": "capacity-scanner-install",
+      "command": [
+        "go",
+        "install",
+        "golang.org/x/vuln/cmd/govulncheck@v1.9.0"
+      ],
+      "started_at": "2026-10-28T02:57:49.336715+00:00",
+      "ended_at": "2026-10-28T02:57:56.501001+00:00",
+      "duration_seconds": 7.153542164999976,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "b29e788ff6170e03b088018816d02da0a2616161a187cd1a82bf16284f9c4fc1",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.55.0"
+        }
+      },
+      "source_before": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9",
+      "source_after": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9"
+    },
+    {
+      "run_id": "20261028T025756Z-e6aab8daae",
+      "category": "capacity-online",
+      "command": [
+        "make",
+        "security-online"
+      ],
+      "started_at": "2026-10-28T02:57:56.653101+00:00",
+      "ended_at": "2026-10-28T02:57:57.777892+00:00",
+      "duration_seconds": 1.1136858790000588,
+      "exit_code": 0,
+      "status": "PASS",
+      "stdout_sha256": "06dbc45686e7001c5e276388f635154ea0ad139796595565beab7c04c4a49e48",
+      "stderr_sha256": "3542946fd08fdf48bf74393c35933ce61a45bece2b5b543295e8353dfdbf9e32",
+      "environment": {
+        "system": "Linux",
+        "machine": "x86_64",
+        "versions": {
+          "go": "go version go1.27.3 linux/amd64",
+          "python": "Python 3.12.3",
+          "git": "git version 2.55.0"
+        }
+      },
+      "source_before": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9",
+      "source_after": "f1170eef9362515a83f4990495bd85720fae99dc486c579096a609164f3edbb9"
+    }
+  ],
+  "limitations": [
+    "Exact commit/source/run/attempt only; later source changes need their own qualification.",
+    "No guest smoke, repaired diagnostic matrix, frozen full1/4/16-reader matrices or reference-host fit qualification.",
+    "Sampled filesystem high water is not a continuous maximum or quota enforcement.",
+    "The three other workflow jobs were explicitly skipped; workflow success does not establish their execution.",
+    "Historical12of45 recall failures and prior capacity/control failures remain preserved; original40511106691 underlying failure remains UNKNOWN.",
+    "Actual inspector browser/keyboard review and owner walkthrough remain unmet; owner walkthrough was declined.",
+    "Historical6cc discovered corpus remains UNAVAILABLE.",
+    "No new transport, codec or release qualification."
+  ]
+}

@@ -18,6 +18,9 @@ import reference_artifacts as artifacts
 
 COPY_BYTES = 30_000_000
 COPY_FILES = 2500
+# The final<=1MB receipt is created after the allocation observation. Reserve
+# its padded allocation from the existing50MB overhead, including refusals.
+UPLOAD_RECEIPT_ALLOCATION = 1_100_000
 FLAT_FOLDERS = ('files', 'outer', 'reference-guest-setup', 'host-diagnostics')
 NAMES = ('evidence', 'reference-execution.json', 'reference-guest-result.json',
          'reference-benchmark-start.json', 'reference-quota.json', 'reference-guest-setup',
@@ -184,7 +187,31 @@ def external_inventory(local):
     return total, files
 
 
-def admission(base, image_bytes, external_bytes, selected_zip):
+def admission(base, image_bytes, external_bytes, selected_zip, *, profile=''):
+    if profile == 'reference-inside-outer-v1':
+        from reference_internal_transport import growth_plan
+        plan = growth_plan(base)
+        require(artifacts.OVERHEAD >= UPLOAD_RECEIPT_ALLOCATION,
+                'upload receipt has no independent overhead reservation')
+        require(type(image_bytes) is int and 0 <= image_bytes <= 2_300_000_000
+                and type(external_bytes) is int and external_bytes >= 0
+                and type(selected_zip) is int and 0 <= selected_zip <= artifacts.IMAGE_ZIP,
+                'invalid internal upload allocation observation')
+        metadata_peak = base + image_bytes + external_bytes + artifacts.PACKET_ALLOCATION + artifacts.METADATA_ZIP + artifacts.OVERHEAD
+        data_peak = metadata_peak + selected_zip
+        external_ok = external_bytes <= artifacts.EXTERNAL_METADATA_ALLOCATION
+        return {'profile': profile, 'metadata_allowed': external_ok and metadata_peak < artifacts.CEILING,
+                'data_allowed': external_ok and image_bytes == 2_300_000_000 and selected_zip > 0
+                    and plan['admission'] == 'ALLOW' and data_peak <= plan['peak_bytes'] < artifacts.CEILING,
+                'initial_scientific_admission': plan['admission'],
+                'metadata_peak_bytes': metadata_peak, 'scientific_peak_bytes': data_peak,
+                'selected_zip_upper_bound_bytes': selected_zip, 'external_original_bytes': external_bytes,
+                'upload_receipt_reserved_bytes': UPLOAD_RECEIPT_ALLOCATION,
+                'remaining_overhead_reserved_bytes': artifacts.OVERHEAD - UPLOAD_RECEIPT_ALLOCATION,
+                'upload_receipt_reservation_source': 'Existing50MB overhead; not an extra allocation outside the plan.',
+                'outer_image_retained_through_upload': True,
+                'scope': 'Separately admitted internal transport; one verified bundle or exact unmounted results image. Package bytes remain inside the retained outer allocation.'}
+    require(profile == '', 'unknown reference upload reservation profile')
     plan = artifacts.growth_plan(base, 2_300_000_000)
     require(type(image_bytes) is int and 0 <= image_bytes <= 15_000_000_000, 'invalid actual retained image size')
     require(0 <= external_bytes <= 15_000_000_000, 'invalid actual external original allocation')
@@ -215,7 +242,7 @@ def assert_image_unmounted(volume, image):
     return {'child_is_mountpoint': False, 'loopdevices': [], 'scope': 'Actual current observation after every recovery step.'}
 
 
-def admit_uploads(volume, package_ok, root=ROOT):
+def admit_uploads(volume, package_ok, root=ROOT, *, profile=''):
     local = root / '.local'; local.mkdir(exist_ok=True)
     result = {'status': 'FAIL', 'metadata_allowed': False, 'data_allowed': False,
               'kind': 'NONE', 'path': '', 'source': source_hash(root)}
@@ -228,7 +255,35 @@ def admit_uploads(volume, package_ok, root=ROOT):
             image_bytes = info.st_size
         selected, bound = '', 0
         package = local / 'reference-transport/reference-members.tar.xz'
-        if package_ok:
+        if profile == 'reference-inside-outer-v1':
+            from reference_upload_candidate import evaluate
+            evaluated = evaluate(volume, package_ok, root=root)
+            result['candidate_evaluation'] = evaluated
+            require(evaluated.get('status') == 'PASS'
+                    and evaluated.get('descendant_quiescence', {}).get('quiescent') is True,
+                    'scientific candidate evaluation failed or exceeded its bounded deadline')
+            candidate = evaluated['candidate']
+            require(candidate.get('source') == result['source'], 'candidate source differs from admission source')
+            if package_ok:
+                package = volume / 'reference-transport/reference-members.tar.xz'
+                require(candidate.get('status') == 'PASS' and candidate.get('selected_path') == str(package)
+                        and candidate.get('outer_image_retained_through_upload') is True,
+                        'current complete internal verification is required for bundle selection')
+                result['kind'], selected = 'BUNDLE', str(package)
+                bound = candidate['bundle_bytes'] + 1_000_000
+                require(0 < candidate['bundle_bytes'] <= bundle.MAX_OUTPUT,
+                        'internal bundle exceeds its admitted size')
+                result['internal_verification_sha256'] = candidate['verification_receipt_sha256']
+            else:
+                selected = str(volume / 'reference-results.img')
+                require(candidate.get('status') == 'PASS' and candidate.get('selected_path') == selected
+                        and candidate.get('image_unmounted') is True
+                        and candidate.get('image_bytes') == artifacts.RESULTS_IMAGE
+                        and candidate.get('zip_upper_bound_bytes') == artifacts.IMAGE_ZIP,
+                        'current complete reconciled image is required for fallback selection')
+                result['kind'], bound = 'IMAGE', artifacts.IMAGE_ZIP
+                result['image_sha256'] = candidate['image_sha256']
+        elif package_ok:
             attempt = json.loads((package.parent / 'pack-attempt.json').read_text())
             bundle.no_links(package)
             require(attempt.get('status') == 'PASS' and attempt.get('originals_unchanged') is True
@@ -263,18 +318,24 @@ def admit_uploads(volume, package_ok, root=ROOT):
                 selected = value['selected_path']; bound = value['zip_upper_bound_bytes']
                 require(bound <= 350_000_000, 'bootstrap ZIP exceeds reserved subbranch')
                 result['kind'] = 'BOOTSTRAP'
+        if profile == 'reference-inside-outer-v1':
+            from reference_internal_transport import physical_tree
+            physical_tree(local)
         external, count = external_inventory(local)
-        result.update(admission(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']), image_bytes, external, bound))
+        result.update(admission(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']), image_bytes, external, bound, profile=profile))
         result.update(status='PASS', path=selected, external_files=count)
     except Exception as error:
         # A bad scientific candidate must not suppress independently admitted
         # diagnostics. Re-inventory only bounded external originals.
         result['error'] = (type(error).__name__ + ': ' + str(error))[:1000]
         try:
+            if profile == 'reference-inside-outer-v1':
+                from reference_internal_transport import physical_tree
+                physical_tree(local)
             external, count = external_inventory(local)
             image = volume.with_name(volume.name + '.img')
             image_bytes = image.stat().st_size if image.is_file() else 0
-            result.update(admission(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']), image_bytes, external, 0))
+            result.update(admission(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']), image_bytes, external, 0, profile=profile))
         except Exception as secondary:
             result['metadata_error'] = (type(secondary).__name__ + ': ' + str(secondary))[:1000]
     record_json(local / 'reference-upload-admission.json', result)
@@ -288,7 +349,7 @@ def admit_uploads(volume, package_ok, root=ROOT):
     return result
 
 
-def final_state(volume, root=ROOT):
+def final_state(volume, root=ROOT, *, profile=''):
     local = root / '.local'; local.mkdir(exist_ok=True)
     image = volume.with_name(volume.name + '.img')
     result = {'status': 'PASS', 'image_exists': image.is_file(),
@@ -305,7 +366,7 @@ def final_state(volume, root=ROOT):
         if path.is_file():
             require(path.stat().st_size <= artifacts.CAPTURE_BYTES, 'complete image control proof exceeds packet producer bound')
             copy_one(path, local / name, {'files': 0, 'bytes': 0})
-    for name in ('reference-results-freeze.json', 'reference-guest-quiescence.json',
+    for name in ('reference-results-freeze.json', 'reference-results-reconciled-freeze.json', 'reference-guest-quiescence.json',
                  'reference-results-rescue.json'):
         path = volume / name
         if path.is_file():
@@ -313,6 +374,20 @@ def final_state(volume, root=ROOT):
             record_json(local / name, {key: value.get(key) for key in
                 ('status', 'source', 'run_context', 'image_path', 'image_bytes', 'image_sha256',
                  'image_unmounted', 'selected_path', 'zip_upper_bound_bytes', 'scope', 'error')})
+    if profile == 'reference-inside-outer-v1':
+        trim = local / 'reference-transport/guest-trim.json'
+        if os.path.lexists(trim):
+            bundle.no_links(trim); info = trim.lstat()
+            require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_size <= 8_000_000,
+                    'internal trim proof exceeds admitted producer bound')
+            raw, digest = artifacts.read_metadata(trim, info, info.st_size)
+            value = json.loads(raw)
+            record_json(local / 'reference-internal-trim-summary.json', {
+                'status': value.get('status'), 'source': value.get('source'),
+                'complete_proof_bytes': info.st_size, 'complete_proof_sha256': digest,
+                'removed_entries': len(value.get('removal_manifest', {}).get('entries', [])),
+                'removed_accounted_bytes': value.get('removal_manifest', {}).get('accounted_bytes'),
+                'scope': 'Summary only. Complete external proof is retained; the full scientific proof and provenance require the separately retained verified bundle or exact results image.'})
     record_json(local / 'reference-job-state.json', result)
     return result
 
@@ -323,7 +398,13 @@ def main():
     parser.add_argument('--volume', type=Path, required=True)
     parser.add_argument('--package-ok', action='store_true'); args = parser.parse_args()
     actions = {'diagnostics': diagnostics, 'export': export_metadata, 'state': final_state}
-    result = admit_uploads(args.volume, args.package_ok) if args.action == 'admit' else actions[args.action](args.volume)
+    profile = os.environ.get('FQ_RESERVATION_PROFILE', '')
+    if args.action == 'admit':
+        result = admit_uploads(args.volume, args.package_ok, profile=profile)
+    elif args.action == 'state':
+        result = final_state(args.volume, profile=profile)
+    else:
+        result = actions[args.action](args.volume)
     print(json.dumps(result, sort_keys=True))
     return 0 if result['status'] == 'PASS' else 1
 

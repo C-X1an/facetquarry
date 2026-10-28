@@ -74,10 +74,15 @@ def prepare(volume, project):
     return record
 
 
-def recover(volume, project):
+def recover(volume, project, *, profile=''):
     paths = control_paths(volume, project)
     before_path = paths['volume'] / 'reference-results-control-before.json'
-    before = results.read_json(before_path); frozen = results.read_json(paths['freeze'])
+    before = results.read_json(before_path)
+    if profile == 'reference-inside-outer-v1':
+        from reference_internal_transport import verified_frozen_candidate
+        frozen = verified_frozen_candidate(paths['volume'], paths['project'])
+    else:
+        frozen = results.read_json(paths['freeze'])
     proof = paths['volume'] / 'reference-results-control-recovery.json'
     record = {'status': 'PREPARING', 'evidence_type': 'actual_readonly_image_recovery',
               'source': source_hash(paths['project']), 'commands': [], 'started_at': results.utc(),
@@ -147,7 +152,8 @@ def main():
     parser.add_argument('action', choices=('prepare','recover'))
     parser.add_argument('--volume',type=Path,required=True); parser.add_argument('--project',type=Path,required=True)
     args = parser.parse_args()
-    record = (prepare if args.action == 'prepare' else recover)(args.volume,args.project)
+    record = prepare(args.volume, args.project) if args.action == 'prepare' else recover(
+        args.volume, args.project, profile=os.environ.get('FQ_RESERVATION_PROFILE', ''))
     print(json.dumps({key:record.get(key) for key in ('status','members','original_bytes','manifest_sha256','image_sha256','scope')}))
     return 0
 
