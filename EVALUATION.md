@@ -32,6 +32,8 @@ The inside-outer transport profile uses a fixed2.3GB outer ext4 image containing
 
 The zero-reserved ext4 policy candidate retains actual formatter, superblock, mounted-device, ordinary-user write/readback and process-supervision evidence. It keeps the500MB outer filesystem floor and20MB control allowance. Synthetic proof tests do not establish actual filesystem capacity. Full-result admission must account for block/inode allocation, bootstrap evidence, active working files and finalization/recovery space; checking only free space on the outer volume is insufficient. The frozen workload and target thresholds remain unchanged.
 
+Zero superblock reserved blocks do not establish equality between all free blocks and blocks available to an ordinary user. Capacity checks retain both observed counters and use the actual ordinary-user available count for the unchanged floor; the initial failed setup run and its counter repair are recorded in the verification report.
+
 ## Upstream and real-data tracks
 hnswlib is an optional Apache-2.0 comparator with a pinned release/hash and declared thread count. It uses different numeric/SIMD behavior and filter conventions; compare IDs/recall to our independent exact oracle and disclose k-shortfall exceptions. Its Python callback overhead is not evidence our graph algorithm is intrinsically faster. No ANN library is a product dependency.
 

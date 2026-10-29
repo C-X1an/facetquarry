@@ -342,6 +342,7 @@
     "verification/published/fresh-checkout/receipt.json",
     "verification/published/fresh-checkout/stderr.txt",
     "verification/published/fresh-checkout/stdout.txt",
+    "verification/published/forced-trim-setup-40871057615.json",
     "verification/published/full-reader1-40694717368.json",
     "verification/published/internal-control-40653434816.json",
     "verification/published/mutations/budget-before.stderr",

@@ -394,7 +394,10 @@ def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, ru
                 and fs['uid'] == uid and fs['gid'] == gid
                 and all(type(fs[k]) is int for k in ('f_frsize', 'f_blocks', 'f_bfree', 'f_bavail'))
                 and fs['f_frsize'] == g['block_size'] and 0 < fs['f_blocks'] <= g['block_count']
-                and 0 <= fs['f_bavail'] == fs['f_bfree'] <= fs['f_blocks']
+                # Ordinary available blocks can be less than total free even
+                # with zero superblock reserved blocks. Keep both observations
+                # and admit only the actual unprivileged available counter.
+                and 0 <= fs['f_bavail'] <= fs['f_bfree'] <= fs['f_blocks']
                 and fs['f_bavail'] * fs['f_frsize'] >= 520_000_000, 'inconsistent ordinary statvfs counters/floor')
         p = r['probe']; pi = p['before']
         require(p['exclusive'] is True and p['cleaned'] is True and p['before'] == p['after']

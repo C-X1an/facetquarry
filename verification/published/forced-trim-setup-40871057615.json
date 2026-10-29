@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "evidence_type": "failed_filesystem_setup_summary",
+  "commit": "cc810b4ab030e453958fc5ffbe3adfb4c41578de",
+  "source": "17966d28704fe78eab69bc0d3a0d33d1bdba545e0504366b0fa2c06bd5b59ef6",
+  "run_id": 40871057615,
+  "job_id": 123437922425,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40871057615/job/123437922425",
+  "workflow_status": "FAIL",
+  "profile": "smoke",
+  "preservation_control": true,
+  "trim_control": true,
+  "go_verification": "NOT RUN",
+  "actual_forced_trim_and_recovery": "NOT RUN",
+  "scientific_measurement": "NOT RUN",
+  "underlying_failure": "Filesystem proof validator incorrectly required f_bavail to equal f_bfree.",
+  "observed_statvfs": {
+    "f_frsize": 4096,
+    "f_blocks": 534663,
+    "f_bfree": 534657,
+    "f_bavail": 530561
+  },
+  "observed_superblock_reserved_blocks": 0,
+  "ordinary_available_bytes": 2173177856,
+  "unchanged_required_available_bytes": 520000000,
+  "collector_worker_exit_code": 1,
+  "collector_termination_reason": null,
+  "collector_descendants_quiescent": true,
+  "available_artifact": {
+    "id": 12895014069,
+    "bytes": 51932,
+    "sha256": "3f25f7f64f2f6aad97b31d26506faf33497a3e860602f8416c93eb3137f4264a",
+    "zip_members": 49,
+    "decoded_bytes": 142641,
+    "complete_identity_original_copies_verified": 48
+  },
+  "release_qualification": false,
+  "scope": "Actual failed setup and complete available diagnostic bytes only. No native ext4 mount, Go verification, forced trim/recovery, benchmark or release qualification. A later counter repair cannot change this failed run. The precise kernel cause of the free/available difference was not measured."
+}

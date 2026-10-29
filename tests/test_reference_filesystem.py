@@ -127,6 +127,25 @@ class FilesystemPolicyTests(unittest.TestCase):
         self.reject(lambda r: r['statvfs'].update(f_bfree=1, f_bavail=1))
         self.reject(lambda r: r['geometry'].update(block_count=1))
 
+    def test_run28_ext4_available_and_total_free_are_distinct(self):
+        # Actual run40871057615 counters, carried by a synthetic proof fixture.
+        # This validates counter semantics, not a new mount or quota execution.
+        for available in (530561, 126954):
+            args = self.fixture()
+            args[0]['statvfs'].update(f_blocks=534663, f_bfree=534657, f_bavail=available)
+            self.seal(args[0])
+            before = copy.deepcopy(args[0]['statvfs'])
+            fs.validate_policy(*args)
+            self.assertEqual(args[0]['statvfs'], before)
+            self.assertLess(before['f_bavail'], before['f_bfree'])
+
+    def test_available_free_order_and_ordinary_floor_stay_required(self):
+        for counters in ({'f_blocks': 534663, 'f_bfree': 534657, 'f_bavail': 534658},
+                         {'f_blocks': 534663, 'f_bfree': 534664, 'f_bavail': 530561},
+                         {'f_blocks': 534663, 'f_bfree': 534657, 'f_bavail': 126953}):
+            with self.subTest(counters=counters):
+                self.reject(lambda r: r['statvfs'].update(counters))
+
     def test_ordinary_uid_gid_context_and_owned_identities_required(self):
         for edit in (lambda r: r.pop('uid'), lambda r: r.update(uid=0),
                      lambda r: r['statvfs'].update(uid=0), lambda r: r['run_context'].update(source='c' * 64),
