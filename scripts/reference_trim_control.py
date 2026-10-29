@@ -103,6 +103,11 @@ def allocation_check(before, after, plan, observed_available):
 def check_observed_allocation(prepared, observation):
     """Persist raw facts first; a failed predicate cannot discard the observation."""
     bounded_record(prepared / 'allocation.observed.json', observation)
+    return validate_allocation_observation(observation)
+
+
+def validate_allocation_observation(observation):
+    """Shared non-writing validation for freshly observed and retained facts."""
     for phase in ('before', 'after'):
         require(observation['descriptor_' + phase] == observation['padding_' + phase],
                 'padding invariant failed: descriptor_' + phase + ' differs from pathname')
@@ -118,6 +123,23 @@ def check_observed_allocation(prepared, observation):
     # complete production observation below can establish any physical excess.
     return allocation_check(observation['padding_before'], observation['padding_after'],
                             observation['padding_plan'], counters['f_bavail'] * counters['f_frsize'])
+
+
+def retained_allocation_check(record, observation, command):
+    """Replay identical original proof without replacing its durable checkpoint."""
+    require(type(observation) is dict and observation.get('kind') == KIND
+            and observation.get('status') == 'OBSERVED_UNVALIDATED'
+            and observation.get('source') == record.get('source')
+            and observation.get('run_context') == record.get('run_context')
+            and observation == record.get('allocation_observation')
+            and all(record.get(key) == observation.get(key)
+                    for key in ('padding_before', 'padding_after', 'padding_plan')),
+            'retained allocation observation differs from preparation')
+    require(command == observation.get('command_outcome'),
+            'retained allocation command differs from original observed outcome')
+    result = validate_allocation_observation(observation)
+    require(record.get('actual_allocation') == result, 'retained allocation result differs from complete proof')
+    return result
 
 
 def complete_observed_allocation(observation):
@@ -461,8 +483,9 @@ def verify(volume, project, root=ROOT, *, started=None):
             actual = ['timeout', '--signal=TERM', '--kill-after=2s', '45s', *requested]
             bindings.verify_receipt(prepared / 'allocation.json', prepared / 'allocation.stdout',
                                    prepared / 'allocation.stderr', requested, actual)
-            allocation_check(value['padding_before'], value['padding_after'], plan,
-                             value['actual_allocation']['actual_available_after_bytes'])
+            retained_allocation_check(value,
+                transport.read_json(prepared / 'allocation.observed.json', 160_000),
+                transport.read_json(prepared / 'allocation.json', 160_000))
             return {'preparation_sha256': transport.file_sha(prepared / 'prepare.json', 160_000)}
         stage('preparation', preparation)
 
