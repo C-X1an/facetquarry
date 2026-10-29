@@ -27,6 +27,7 @@ from urllib.parse import urlparse, unquote
 
 from common import ROOT, source_hash
 from reference_preflight import checked as checked_runtime, file_sha as runtime_sha, stamp as runtime_stamp
+from reference_apt_ownership import ordinary_account, apt_request, MAX_REQUEST_BYTES
 
 GUEST_RAM = 8_000_000_000
 TMPFS_BYTES = 18 * 1024 * 1024
@@ -99,9 +100,19 @@ class Setup:
             raise RuntimeError('guest setup would consume the unchanged 500MB benchmark reserve')
         return used
 
-    def run(self, command, *, timeout=120, env=None, check=True):
+    def run(self, command, *, timeout=120, env=None, check=True, _apt_ownership_audit=False):
         timeout = min(timeout, max(1, int(self.deadline - time.monotonic())))
-        self.check()
+        if _apt_ownership_audit:
+            # Root-created, inaccessible metadata can make allocated() fail.
+            # Only the closed descriptor-based handoff may precede that walk;
+            # audit_apt reruns the unchanged full check immediately afterwards.
+            expected = ['sudo', '-n', sys.executable, '-B',
+                        str(Path(__file__).with_name('reference_apt_ownership.py')), '--request']
+            if (len(command) != 7 or command[:6] != expected
+                    or len(command[6].encode()) > MAX_REQUEST_BYTES or time.monotonic() >= self.deadline):
+                raise ValueError('only the bounded APT ownership helper may precede owned inventory')
+        else:
+            self.check()
         number = len(self.records)
         out = self.logs / f'{number:03d}.stdout'
         err = self.logs / f'{number:03d}.stderr'
@@ -374,10 +385,66 @@ def materialize_package_links(setup, extract):
     setup.check()
 
 
+def audit_apt(setup, request, observation):
+    encoded = json.dumps(request, sort_keys=True, separators=(',', ':'))
+    if len(encoded.encode()) > MAX_REQUEST_BYTES:
+        raise ValueError('APT ownership request exceeds bound')
+    raw = setup.run(['sudo', '-n', sys.executable, '-B',
+                     str(Path(__file__).with_name('reference_apt_ownership.py')),
+                     '--request', encoded], timeout=60, check=False, _apt_ownership_audit=True)
+    if len(raw.encode()) > 512_000:
+        raise ValueError('APT ownership response exceeds bound')
+    proof = json.loads(raw)
+    observation['inventory'] = proof
+    setup.save()
+    command = setup.records[-1]
+    if not isinstance(proof, dict) or proof.get('status') != 'PASS' or command.get('exit_code') != 0 or command.get('termination_reason'):
+        raise ValueError('APT ownership helper refused; complete command/inode facts retained')
+    setup.check()
+
+
+def run_apt(setup, command, request, phase, *, timeout=120):
+    observation = {'phase': phase, 'request': request, 'command_error': None, 'audit_error': None}
+    setup.manifest.setdefault('apt_ownership', []).append(observation)
+    setup.save()
+    try:
+        raw = setup.run(command, timeout=timeout)
+    except BaseException as error:
+        observation['command_error'] = (type(error).__name__ + ': ' + str(error))[:1000]
+        try:
+            audit_apt(setup, request, observation)
+        except BaseException as audit_error:
+            observation['audit_error'] = (type(audit_error).__name__ + ': ' + str(audit_error))[:1000]
+        finally:
+            setup.save()
+        raise
+    try:
+        audit_apt(setup, request, observation)
+    except BaseException as error:
+        observation['audit_error'] = (type(error).__name__ + ': ' + str(error))[:1000]
+        raise
+    finally:
+        setup.save()
+    return raw
+
+
+def retain_signed_indexes(setup):
+    releases = setup.base / 'signed-indexes'
+    releases.mkdir()
+    for path in sorted(Path('/var/lib/apt/lists').glob('*InRelease')):
+        shutil.copyfile(path, releases / path.name)
+    if not any(releases.iterdir()):
+        raise RuntimeError('no Ubuntu signed InRelease indexes retained')
+
+
 def packages(setup):
+    account = ordinary_account()
+    setup.manifest['apt_sandbox_account'] = account
+    setup.save()
     cache = setup.base / 'apt'
     cache.mkdir()
     (cache / 'partial').mkdir()
+    (cache / 'log').mkdir()
     extract = setup.base / 'packages'
     extract.mkdir()
     args = ['apt-get', '-o', 'Dir::Cache::archives=' + str(cache),
@@ -386,13 +453,15 @@ def packages(setup):
             '-o', 'Dir::Cache::srcpkgcache=' + str(cache / 'srcpkgcache.bin'),
             '-o', 'Dir::Log=' + str(cache / 'log'),
             '-o', 'Dir::Log::History=history.log', '-o', 'Dir::Log::Terminal=terminal.log',
-            '-o', 'APT::Sandbox::User=' + str(os.getuid()),
+            '-o', 'Dir::Log::Planner=eipp.log.xz',
+            '-o', 'APT::Sandbox::User=' + account['name'],
             '-o', 'Acquire::Retries=0', '-o', 'Acquire::http::Timeout=30',
             '-o', 'Acquire::https::Timeout=30', '--download-only', '--reinstall',
             '--no-install-recommends', '-y', 'install',
             'qemu-system-x86', 'qemu-system-common', 'busybox-static']
     # Print-URIs resolves the ordinary dependency set without downloading it.
-    raw = setup.run(['sudo', '-n', *args[:1], '--print-uris', *args[1:]])
+    request = apt_request(cache, account, [], setup.args.setup_max_bytes)
+    raw = run_apt(setup, ['sudo', '-n', *args[:1], '--print-uris', *args[1:]], request, 'plan')
     planned = []
     mirrors = None
     for line in raw.splitlines():
@@ -417,15 +486,13 @@ def packages(setup):
     setup.manifest['apt_mirror_file'] = mirrors
     setup.run(['apt-cache', 'policy', 'qemu-system-x86', 'qemu-system-common', 'busybox-static'])
     setup.run(['apt-get', 'indextargets'])
-    releases = setup.base / 'signed-indexes'
-    releases.mkdir()
-    for path in sorted(Path('/var/lib/apt/lists').glob('*InRelease')):
-        shutil.copyfile(path, releases / path.name)
-    if not any(releases.iterdir()):
-        raise RuntimeError('no Ubuntu signed InRelease indexes retained')
+    retain_signed_indexes(setup)
     if mirrors is not None and mirror_snapshot() != mirrors:
         raise RuntimeError('APT mirror configuration changed before download')
-    setup.run(['sudo', '-n', *args], timeout=300)
+    if ordinary_account() != account:
+        raise RuntimeError('APT ordinary account changed before download')
+    request = apt_request(cache, account, planned, setup.args.setup_max_bytes)
+    run_apt(setup, ['sudo', '-n', *args], request, 'download', timeout=300)
     if mirrors is not None and mirror_snapshot() != mirrors:
         raise RuntimeError('APT mirror configuration changed during download')
     expected = {item['filename']: item for item in planned}

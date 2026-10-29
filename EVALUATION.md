@@ -1,6 +1,8 @@
 # Evaluation and benchmark plan
 TARGETS ARE NOT RESULTS. Initial results are NOT YET MEASURED until machine receipts and raw outputs exist. A development smoke run cannot qualify the full matrix.
 
+Actual run40873328636 at249d/source02e8 passed supported Go1.27.3 verification, clean reproduction, online scanning and the21-cell/672-sample smoke. It failed forced-trim preparation and packaging before the intended timeout child. Its capacity observation was below the historical full floor. The retained exact image and diagnostic checks do not establish full1/4/16-reader or recall-target qualification; see [the source-bound evidence](verification/published/forced-trim-supported-40873328636.json) for raw-body and review limits. Later source changes require fresh execution.
+
 ## Claims and methods
 | Claim | Experiment | Baseline | Failure interpretation |
 |---|---|---|---|

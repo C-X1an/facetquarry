@@ -69,17 +69,28 @@ def owned_padding(path, volume):
     require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.getuid()
             and info.st_gid == os.getgid() and stat.S_IMODE(info.st_mode) == 0o600,
             'padding must remain an ordinary owned single-link inode')
+    return inode_facts(info)
+
+
+def inode_facts(info):
     return {'device': info.st_dev, 'inode': info.st_ino, 'mode': info.st_mode,
             'uid': info.st_uid, 'gid': info.st_gid, 'nlink': info.st_nlink,
             'bytes': info.st_size, 'physical_bytes': info.st_blocks * 512}
 
 
+def statvfs_facts(counters):
+    return {name: getattr(counters, name) for name in (
+        'f_bsize', 'f_frsize', 'f_blocks', 'f_bfree', 'f_bavail',
+        'f_files', 'f_ffree', 'f_favail', 'f_flag', 'f_namemax')}
+
+
 def allocation_check(before, after, plan, observed_available):
     identity = ('device', 'inode', 'mode', 'uid', 'gid', 'nlink')
-    require(all(before[key] == after[key] for key in identity)
-            and before['bytes'] == before['physical_bytes'] == 0
-            and after['bytes'] == after['physical_bytes'] == plan['padding_bytes'],
-            'padding inode or exact physical block allocation differs')
+    for key in identity:
+        require(before[key] == after[key], 'padding invariant failed: after.' + key)
+    for key in ('bytes', 'physical_bytes'):
+        require(before[key] == 0, 'padding invariant failed: before.' + key + ' is not zero')
+        require(after[key] == plan['padding_bytes'], 'padding invariant failed: after.' + key)
     require(type(observed_available) is int and MIN_FREE <= observed_available
             < transport.physical_admission(0)['required_available_bytes']
             and abs(observed_available - plan['predicted_available_after_bytes']) <= 1_000_000,
@@ -87,6 +98,17 @@ def allocation_check(before, after, plan, observed_available):
     return {'exact_allocated_bytes': after['physical_bytes'],
             'actual_available_after_bytes': observed_available,
             'prediction_difference_bytes': observed_available - plan['predicted_available_after_bytes']}
+
+
+def check_observed_allocation(prepared, observation):
+    """Persist raw facts first; a failed predicate cannot discard the observation."""
+    bounded_record(prepared / 'allocation.observed.json', observation)
+    for phase in ('before', 'after'):
+        require(observation['descriptor_' + phase] == observation['padding_' + phase],
+                'padding invariant failed: descriptor_' + phase + ' differs from pathname')
+    counters = observation['statvfs_after']
+    return allocation_check(observation['padding_before'], observation['padding_after'],
+                            observation['padding_plan'], counters['f_bavail'] * counters['f_frsize'])
 
 
 def envelope(directory):
@@ -177,8 +199,10 @@ def prepare(volume, project, root=ROOT, *, started=None):
             require(not os.path.lexists(padding), 'padding path already exists and must be retained')
             descriptor = os.open(padding, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
             before = owned_padding(padding, p['volume'])
-            require(os.fstat(descriptor).st_ino == before['inode'], 'new padding descriptor differs')
+            descriptor_before = inode_facts(os.fstat(descriptor))
+            require(descriptor_before == before, 'new padding descriptor differs')
             counters = os.statvfs(p['volume'])
+            counters_before = statvfs_facts(counters)
             plan = padding_plan(counters.f_bavail * counters.f_frsize, counters.f_frsize)
             record.update(padding_before=before, padding_plan=plan)
             requested = ['fallocate', '-l', str(plan['padding_bytes']), '--', str(padding)]
@@ -191,14 +215,21 @@ def prepare(volume, project, root=ROOT, *, started=None):
                 capture_bytes=CAPTURE_BYTES, environ={**os.environ, 'LC_ALL': 'C'})
             outcome.update(requested_command=requested, actual_command=actual, run_context=ctx)
             bounded_record(prepared / 'allocation.json', outcome)
+            os.fsync(descriptor)
+            after = inode_facts(os.lstat(padding))
+            observation = {'kind': KIND, 'status': 'OBSERVED_UNVALIDATED', 'source': ctx['source'],
+                'run_context': ctx, 'recorded_at': results.utc(), 'padding_before': before,
+                'padding_after': after, 'descriptor_before': descriptor_before,
+                'descriptor_after': inode_facts(os.fstat(descriptor)), 'padding_plan': plan,
+                'statvfs_before': counters_before, 'statvfs_after': statvfs_facts(os.statvfs(p['volume'])),
+                'command_outcome': outcome}
+            # This assignment deliberately precedes all allocation validation.
+            record.update(padding_after=after, allocation_observation=observation)
+            allocation = check_observed_allocation(prepared, observation)
             bindings.verify_receipt(prepared / 'allocation.json', prepared / 'allocation.stdout',
                                    prepared / 'allocation.stderr', requested, actual)
-            os.fsync(descriptor)
-            after = owned_padding(padding, p['volume'])
-            require(os.fstat(descriptor).st_ino == after['inode'], 'allocated padding descriptor differs')
-            counters = os.statvfs(p['volume'])
-            record.update(padding_after=after, actual_allocation=allocation_check(
-                before, after, plan, counters.f_bavail * counters.f_frsize))
+            require(owned_padding(padding, p['volume']) == after, 'allocated padding pathname changed')
+            record['actual_allocation'] = allocation
             transport.closed_guest(p, ctx)
             require(transport.observe_outer(p['volume'], p['project']) == reservation
                     and transport.context(p['project']) == transport.context(p['outer']) == ctx,
