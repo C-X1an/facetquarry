@@ -259,8 +259,19 @@ def validate_outer(paths, runner, context, quota_root=None):
             and quota.get('oversized_allocation') == 'DENIED_ENOSPC'
             and quota.get('mount') == binding['mount'] and quota.get('run_context') == context,
             'outer quota/mount proof differs')
-    return {'binding': binding, 'image_identity': identity(paths['outer_image']),
-            'volume_identity': identity(paths['volume'])[:5], 'quota_sha256': file_sha(quota_path)}
+    result = {'binding': binding, 'image_identity': identity(paths['outer_image']),
+              'volume_identity': identity(paths['volume'])[:5], 'quota_sha256': file_sha(quota_path)}
+    if os.environ.get('FQ_FILESYSTEM_POLICY') or quota.get('filesystem_policy'):
+        from reference_filesystem import POLICY
+        from reference_filesystem_bindings import validate
+        require(os.environ.get('FQ_FILESYSTEM_POLICY') == quota.get('filesystem_policy') == POLICY,
+                'declared filesystem policy is missing or differs')
+        proof = validate(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/outer',
+                         paths['outer_image'], paths['volume'], outer.st_size,
+                         {**context, 'source': source_hash(paths['project'])})
+        require(proof == quota.get('filesystem_proof'), 'retained outer filesystem proof changed')
+        result.update(filesystem_policy=POLICY, filesystem_proof=proof)
+    return result
 
 
 def rescue_zip_admission(root, manifest):
@@ -397,7 +408,22 @@ def setup(volume, project):
         os.close(descriptor)
         runner(['fallocate', '-l', str(IMAGE_BYTES), str(paths['image'])], timeout=60)
         record['image_identity'] = fixed_identity(paths['image'])
-        runner(['mkfs.ext4', '-F', '-q', str(paths['image'])], timeout=60)
+        policy = os.environ.get('FQ_FILESYSTEM_POLICY', '')
+        if policy:
+            from reference_filesystem import POLICY, write_exclusive
+            require(policy == POLICY, 'unknown filesystem policy')
+            directory = Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/nested'
+            checked(directory.parent)
+            directory.mkdir(mode=0o700)
+            filesystem_context = {**record['run_context'], 'source': record['source']}
+            write_exclusive(directory / 'context.json', filesystem_context)
+            helper = Path(os.environ['GITHUB_WORKSPACE']) / 'scripts/reference_filesystem_bindings.py'
+            common_args = ['--image', str(paths['image']), '--image-bytes', str(IMAGE_BYTES),
+                           '--context-json', str(directory / 'context.json'), '--directory', str(directory)]
+            runner(['timeout', '--signal=TERM', '--kill-after=2s', '30s',
+                    sys.executable, str(helper), 'format', *common_args], timeout=35)
+        else:
+            runner(['mkfs.ext4', '-F', '-q', str(paths['image'])], timeout=60)
         require(fixed_identity(paths['image']) == record['image_identity'], 'image replaced during formatting')
         runner(['sudo', '-n', 'mount', '-o', 'loop,nodev,nosuid', str(paths['image']), str(paths['mount'])])
         nested = observe_binding(paths['mount'], paths['image'], runner)
@@ -406,6 +432,14 @@ def setup(volume, project):
         runner(['sudo', '-n', 'chown', str(os.getuid()) + ':' + str(os.getgid()),
                 str(paths['mount']), str(paths['mount'] / 'lost+found')])
         record['mount_identity'] = identity(paths['mount'])[:5]
+        if policy:
+            from reference_filesystem_bindings import validate
+            runner(['timeout', '--signal=TERM', '--kill-after=2s', '112s',
+                    sys.executable, str(helper), 'collect', '--mount', str(paths['mount']),
+                    *common_args], timeout=115)
+            record.update(filesystem_policy=POLICY,
+                          filesystem_proof=validate(directory, paths['image'], paths['mount'],
+                                                    IMAGE_BYTES, filesystem_context))
         probe = paths['mount'] / 'reference-results-enospc-probe'
         require(not probe.exists() and not probe.is_symlink(), 'probe path already exists')
         observed = runner(['fallocate', '-l', str(PROBE_BYTES), str(probe)], timeout=60, accepted=(1,))
@@ -416,6 +450,17 @@ def setup(volume, project):
         probe.unlink()  # The only data deletion performed by this helper.
         record['oversized_allocation'] = 'DENIED_ENOSPC'
         copy_bootstrap(paths['bootstrap'], paths['mount'], record['bootstrap'])
+        if policy:
+            # Canonical live receipts stay outside the child through freeze.
+            # Full byte copies are also part of the scientific result image.
+            destination = paths['mount'] / 'reference-filesystem/nested'
+            require(not os.path.lexists(destination), 'nested filesystem export already exists')
+            retained = inventory(directory)
+            require(retained['logical_bytes'] <= 20_000_000 and len(retained['entries']) <= 256,
+                    'filesystem proof export exceeds its control admission')
+            checked(destination.parent)
+            destination.mkdir(mode=0o700)
+            copy_bootstrap(directory, destination, retained)
         require(source_hash(project) == record['source'], 'source changed during results setup')
         record.update(status='PASS', ended_at=utc(), retained_bootstrap=True)
         save(paths['proof'], record)

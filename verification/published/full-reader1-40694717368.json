@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "evidence_type": "failed_reference_run_summary",
+  "source": "6bc65c1d6b29f79ce8d4adc53b008a5544fb9af0c2b6eb992589e431cb44f464",
+  "commit": "b90caa7b285dbc88dfd28266d31924d82e7dac19",
+  "run_id": 40694717368,
+  "job_id": 122838353477,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40694717368/job/122838353477",
+  "status": "FAIL",
+  "profile": "full",
+  "concurrency": 1,
+  "reported_terminal_cells": 5400,
+  "reported_failed_cells": 1020,
+  "complete_scientific_raw_artifact": "UNAVAILABLE",
+  "underlying_cell_failure_cause": "UNKNOWN",
+  "measurement_command_exit_code": 1,
+  "measurement_termination_reason": null,
+  "measurement_duration_seconds": 14869.7077,
+  "available_artifact": {
+    "id": 12836827850,
+    "name": "reference-diagnostics-40694717368-1",
+    "bytes": 599123,
+    "sha256": "e18f3703c72e24bebec378f6794b76aa4b2995c11f2eb2c17ddcb5c2e9edc4fc",
+    "zip_members": 536,
+    "decoded_member_bytes": 2377787,
+    "available_byte_verification": "PASS"
+  },
+  "preservation_failures": [
+    "Observed outer free bytes489783296 were below the unchanged921000000-byte package/floor/control requirement.",
+    "Guest trim refused an inode ownership or single-link condition; the original error did not identify the offending path/property.",
+    "Reconciliation refused because the unchanged outer filesystem floor/control margin was unavailable.",
+    "Scientific artifact admission refused; only the diagnostic packet was retained."
+  ],
+  "release_qualification": false,
+  "scope": "Reported terminal counts are not verified complete samples. Diagnostic byte verification neither recovers missing scientific originals nor establishes their failure cause. Later repairs cannot qualify this run retrospectively."
+}

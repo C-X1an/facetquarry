@@ -27,7 +27,8 @@ NAMES = ('evidence', 'reference-execution.json', 'reference-guest-result.json',
          'reference-analysis', 'clean-verify', 'test-failures', 'toolchain-download.json',
          'govulncheck-build.txt', 'reference-inventory.json', 'enospc.stderr',
          'reference-preflight-relocation.json', 'reference-fuzz/manifest.json',
-         'reference-progress.json', 'reference-results-setup.json')
+         'reference-progress.json', 'reference-results-setup.json', 'reference-filesystem',
+         'reference-trim-control', 'reference-results-capacity.json', 'reference-measurement-time.json')
 
 
 def require(value, message):

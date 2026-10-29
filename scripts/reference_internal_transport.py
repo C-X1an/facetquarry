@@ -399,6 +399,15 @@ def observe_outer(volume, project, *, quota_root=None):
             'outer backing changed since its actual ENOSPC refusal')
     proof = validate_documents(volume, before.st_size, binding['mount'], loop_observed,
                                quota, plan, ctx, enospc, int(os.environ['FQ_ACCOUNTED_BASE_BYTES']))
+    if os.environ.get('FQ_FILESYSTEM_POLICY') or quota.get('filesystem_policy'):
+        from reference_filesystem import POLICY
+        from reference_filesystem_bindings import validate
+        require(os.environ.get('FQ_FILESYSTEM_POLICY') == quota.get('filesystem_policy') == POLICY,
+                'declared filesystem policy is missing or differs')
+        filesystem = validate(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/outer',
+                              image, volume, IMAGE_BYTES, {**legacy_context(ctx), 'source': ctx['source']})
+        require(filesystem == quota.get('filesystem_proof'), 'retained filesystem proof changed')
+        proof.update(filesystem_policy=POLICY, filesystem_proof=filesystem)
     require(image_identity(preflight.checked(image)) == image_identity(before),
             'outer backing changed during observation')
     return {**proof, 'binding': binding, 'backing_identity': image_identity(before)}
@@ -481,6 +490,7 @@ def closed_guest(p, ctx):
             and results.identity(owned['mount'])[:5] == canonical.get('mount_identity')
             and owned['mount'].lstat().st_dev != p['volume'].lstat().st_dev,
             'nested results mount, backing or identity differs')
+    validate_nested_filesystem(owned, canonical, ctx, live_mount=True)
     guest = p['volume'] / 'reference-guest'
     if os.path.lexists(guest):
         quiescence = results.read_json(p['volume'] / 'reference-guest-quiescence.json')
@@ -490,6 +500,24 @@ def closed_guest(p, ctx):
                 'complete current guest quiescence proof is required')
     inactive = results.assert_no_active_guest(p['volume'], p['project'], canonical, command)
     return {'canonical': canonical, 'inactive_guest': inactive}
+
+
+def validate_nested_filesystem(owned, canonical, ctx, *, live_mount):
+    """Bind actual canonical nested receipts in either lifecycle state.
+
+    Retained validation reauthenticates the original observations; the freeze
+    path separately proves unmount/loop absence and hashes the complete image.
+    """
+    if os.environ.get('FQ_FILESYSTEM_POLICY') or canonical.get('filesystem_policy'):
+        from reference_filesystem import POLICY
+        from reference_filesystem_bindings import validate, validate_retained
+        require(os.environ.get('FQ_FILESYSTEM_POLICY') == canonical.get('filesystem_policy') == POLICY,
+                'declared nested filesystem policy is missing or differs')
+        validator = validate if live_mount else validate_retained
+        summary = validator(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/nested',
+                            owned['image'], owned['mount'], artifacts.RESULTS_IMAGE,
+                            {**legacy_context(ctx), 'source': ctx['source']})
+        require(summary == canonical.get('filesystem_proof'), 'retained nested filesystem proof changed')
 
 
 def physical_tree(root, *, include_entries=False):
@@ -639,9 +667,13 @@ def owned_manifest(volume, roots):
     owner = preflight.checked(volume).st_uid
     for item in manifest['entries']:
         info = preflight.checked(volume / item['path'], volume)
-        require(info.st_uid == owner
-                and (item['kind'] == 'directory' or info.st_nlink == 1),
-                'trim or provenance member is not an owned single-link inode')
+        if info.st_uid != owner or item['kind'] != 'directory' and info.st_nlink != 1:
+            facts = {'path': item['path'][:512], 'path_truncated': len(item['path']) > 512,
+                     'expected_uid': owner, 'observed_uid': info.st_uid, 'observed_gid': info.st_gid,
+                     'observed_nlink': info.st_nlink, 'mode': info.st_mode,
+                     'device': info.st_dev, 'inode': info.st_ino}
+            raise ValueError('trim or provenance member is not an owned single-link inode: '
+                             + json.dumps(facts, sort_keys=True, separators=(',', ':')))
     return manifest
 
 
@@ -1097,6 +1129,7 @@ def frozen_base(p, ctx):
             and file_sha(owned['bootstrap'] / 'reference-quota.json', 1_000_000)
                 == canonical['outer'].get('quota_sha256') and os.path.ismount(p['volume']),
             'frozen recovery outer quota, binding or retained mount differs')
+    validate_nested_filesystem(owned, canonical, ctx, live_mount=os.path.ismount(owned['mount']))
     require(file_sha(owned['proof'], results.MAX_METADATA) == setup_sha,
             'canonical setup changed during frozen recovery binding')
     return owned, canonical, setup_sha, reservation
@@ -1187,6 +1220,7 @@ def _freeze_into(p, ctx, proof, *, reconciled):
             record['nested_binding_before_unmount'] = binding
             record['commands'].append(command(['sync', '-f', str(owned['mount'])], timeout=60))
             freeze_checkpoint('before_unmount')
+            validate_nested_filesystem(owned, canonical, ctx, live_mount=True)
             record['commands'].append(command(['sudo', '-n', 'umount', '--', str(owned['mount'])], timeout=60))
             freeze_checkpoint('after_unmount')
         else:

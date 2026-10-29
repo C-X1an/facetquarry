@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "evidence_type": "nonqualifying_reference_diagnostic_summary",
+  "source": "6bc65c1d6b29f79ce8d4adc53b008a5544fb9af0c2b6eb992589e431cb44f464",
+  "commit": "b90caa7b285dbc88dfd28266d31924d82e7dac19",
+  "run_id": 40689835157,
+  "job_id": 122821521862,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40689835157/job/122821521862",
+  "workflow_status": "PASS",
+  "profile": "diagnostic",
+  "concurrency": 1,
+  "corpus_size": 10000,
+  "dimension": 64,
+  "distribution": "ties",
+  "correlation": "independent",
+  "seed": 131,
+  "cells": 60,
+  "samples": 60000,
+  "bundle_artifact": {
+    "id": 12817071865,
+    "bytes": 3403990,
+    "sha256": "da480bb06f3fa9a2c508596142ac715cb3f6b3d4261aea9568415462928fe12b"
+  },
+  "diagnostic_artifact": {
+    "id": 12816982342,
+    "bytes": 656318,
+    "sha256": "bb047dddcb9184be0e84830e47bf211749629e1caf4c68a7254fb20762d26fd2"
+  },
+  "observed_recall_limitations": {
+    "graph_p20": 0.5,
+    "graph_p05": 0.0,
+    "graph_and20": 0.3,
+    "graph_p01_and_p001": 0.0,
+    "postfilter_all_filtered_cases": 0.0,
+    "auto_sparse_exact_p01_and_p001": 1.0,
+    "graph_unfiltered_all_ef": 1.0
+  },
+  "observed_underfilled_calls": 21000,
+  "observed_missing_hit_slots": 207000,
+  "release_qualification": false,
+  "scope": "One distribution/correlation/seed/reader diagnostic only. Complete retained bytes were independently checked; severe filtered ANN shortfall remains an observed limitation. No five-seed interval, full target or reader4/16 qualification. Earlier1000-case oracle comparisons passed without the new raw comparison retention; this summary does not fill that evidence gap."
+}

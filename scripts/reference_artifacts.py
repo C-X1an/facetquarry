@@ -304,7 +304,7 @@ def run_pack(root, output, source, commit, run_id, timeout, preset=3, control=Fa
 
 CRITICAL_SELECTIONS = [
     'reference-job-state.json', 'reference-upload-admission.json', 'reference-admission.json',
-    'reference-quota.json',
+    'reference-quota.json', 'reference-results-capacity.json', 'reference-measurement-time.json',
     'reference-retention.json', 'reference-results-freeze.json',
     'reference-results-rescue.json', 'reference-guest-quiescence.json',
     'reference-trim-summary.json', 'reference-diagnostics.json',
@@ -373,7 +373,7 @@ def metadata_packet(local, output):
     used, record_bytes, exported = 0, 0, 0
     reserve = min(16_000, MANIFEST_BYTES // 3)
     stop = False
-    for name in [*CRITICAL_SELECTIONS, 'reference-metadata', 'evidence']:
+    for name in [*CRITICAL_SELECTIONS, 'reference-filesystem', 'reference-trim-control', 'reference-metadata', 'evidence']:
         source = local / name
         if not os.path.lexists(source): continue
         try:
@@ -381,7 +381,7 @@ def metadata_packet(local, output):
             if name in CRITICAL_SELECTIONS:
                 require(stat.S_ISREG(source.lstat().st_mode), 'critical metadata selection is not a regular file')
             for path, info in metadata_files(source):
-                relative = path.relative_to(local).as_posix(); critical = name in CRITICAL_SELECTIONS
+                relative = path.relative_to(local).as_posix(); critical = name in CRITICAL_SELECTIONS or name in ('reference-filesystem', 'reference-trim-control')
                 remaining = max(0, METADATA_BYTES - MANIFEST_BYTES - used)
                 count = min(info.st_size, remaining, CAPTURE_BYTES)
                 entry = {'path': relative, 'original_bytes': info.st_size, 'original_sha256': None,

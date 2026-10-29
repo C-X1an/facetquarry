@@ -13,6 +13,11 @@ on:
         type: boolean
         default: false
         required: true
+      trim_control:
+        description: Force owned trim pressure before the smoke preservation control (requires preservation_control, inside-outer, one reader)
+        type: boolean
+        default: false
+        required: true
       codec_control:
         description: Current codec over retained historical full-size data only (nonqualifying; no new benchmark)
         type: boolean
@@ -54,8 +59,10 @@ jobs:
       FQ_BENCH_PROFILE: ${{ inputs.profile }}
       FQ_BENCH_CONCURRENCY: ${{ inputs.concurrency }}
       FQ_PRESERVATION_CONTROL: ${{ inputs.preservation_control }}
+      FQ_TRIM_CONTROL: ${{ inputs.trim_control }}
       FQ_FILESYSTEM_FREE_FLOOR: "500000000"
       FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
+      FQ_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-v1' || '' }}
     steps:
       - name: Initialize owned paths from the actual runner environment
         timeout-minutes: 1
@@ -85,6 +92,7 @@ jobs:
           assert all(0 < os.statvfs(path).f_frsize <= 4096 for path in (os.environ['GITHUB_WORKSPACE'],os.environ['RUNNER_TEMP'])),'physical metadata reservation requires allocation units no larger than4096bytes'
           assert os.environ['FQ_BENCH_PROFILE'] in ('full','smoke','diagnostic') and os.environ['FQ_BENCH_CONCURRENCY'] in ('1','4','16')
           assert os.environ['FQ_PRESERVATION_CONTROL'] != 'true' or os.environ['FQ_BENCH_PROFILE'] == 'smoke','failure controls require explicitly nonqualifying smoke'
+          assert os.environ.get('FQ_TRIM_CONTROL') != 'true' or (os.environ['FQ_PRESERVATION_CONTROL']=='true' and os.environ['FQ_BENCH_PROFILE']=='smoke' and os.environ['FQ_BENCH_CONCURRENCY']=='1' and os.environ['FQ_RESERVATION_PROFILE']=='reference-inside-outer-v1'),'trim control requires smoke, one reader, inside-outer and the preservation control'
           # Reserve the largest normal or failed-pack branch BEFORE allocation.
           # Bundle, exact image, and bootstrap uploads are mutually exclusive.
           record=growth_plan(base,2300000000)
@@ -98,7 +106,21 @@ jobs:
           test ! -L "$fq_image" && test ! -L "$fq_volume" || exit 1
           mkdir "$fq_volume"
           fallocate -l 2300000000 "$fq_image"
-          mkfs.ext4 -F -q "$fq_image"
+          if test "${FQ_FILESYSTEM_POLICY:-}" = owned-ext4-zero-reserved-v1; then
+            mkdir -p "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
+            python3 - <<'PY'
+          import os,pathlib,sys
+          sys.path.insert(0,'scripts')
+          from reference_internal_transport import context,legacy_context
+          from reference_filesystem import write_exclusive
+          ctx=context(pathlib.Path(os.environ['GITHUB_WORKSPACE']))
+          write_exclusive(pathlib.Path('.local/reference-filesystem/outer/context.json').absolute(),
+                          {**legacy_context(ctx),'source':ctx['source']})
+          PY
+            timeout --signal=TERM --kill-after=2s 30s python3 scripts/reference_filesystem_bindings.py format --image "$fq_image" --image-bytes 2300000000 --context-json "$GITHUB_WORKSPACE/.local/reference-filesystem/outer/context.json" --directory "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
+          else
+            mkfs.ext4 -F -q "$fq_image"
+          fi
           sudo -n mount -o loop "$fq_image" "$fq_volume"
           sudo -n chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
           if fallocate -l 2400000000 "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-reference-enospc.stderr"; then
@@ -107,6 +129,9 @@ jobs:
           fi
           grep -q 'No space left on device' "$RUNNER_TEMP/facetquarry-reference-enospc.stderr"
           rm -- "$fq_volume/quota-probe"
+          if test "${FQ_FILESYSTEM_POLICY:-}" = owned-ext4-zero-reserved-v1; then
+            timeout --signal=TERM --kill-after=2s 112s python3 scripts/reference_filesystem_bindings.py collect --image "$fq_image" --mount "$fq_volume" --image-bytes 2300000000 --context-json "$GITHUB_WORKSPACE/.local/reference-filesystem/outer/context.json" --directory "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
+          fi
           cp -a "$GITHUB_WORKSPACE" "$fq_volume/source"
           mkdir -p "$fq_volume/tools" "$fq_volume/config" "$fq_volume/source/.cache/tmp" "$fq_volume/source/.local"
           cp -- "$RUNNER_TEMP/facetquarry-reference-enospc.stderr" "$fq_volume/source/.local/enospc.stderr"
@@ -131,6 +156,14 @@ jobs:
               sys.path.insert(0,'scripts')
               from reference_internal_transport import PROFILE,context as profile_context,image_identity
               record.update(profile=PROFILE,profile_context=profile_context(volume/'source'),backing_identity=image_identity(image.lstat()))
+          if os.environ.get('FQ_FILESYSTEM_POLICY'):
+              from reference_filesystem import POLICY
+              from reference_filesystem_bindings import validate
+              assert os.environ['FQ_FILESYSTEM_POLICY']==POLICY
+              ctx={**context,'source':record['profile_context']['source']}
+              proof=validate(pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local/reference-filesystem/outer',
+                             image,volume,2300000000,ctx)
+              record.update(filesystem_policy=POLICY,filesystem_proof=proof)
           (volume/'source/.local/reference-quota.json').write_text(json.dumps(record,indent=2)+'\n')
           PY
           printf '%s\n' "FQ_BENCH_PROFILE=$FQ_BENCH_PROFILE" "FQ_BENCH_CONCURRENCY=$FQ_BENCH_CONCURRENCY" "FQ_VOLUME=$fq_volume" "FQ_IMAGE=$fq_image" "FQ_WORKSPACE_ROOT=$fq_volume" "GOTOOLCHAIN=local" "FQ_CPUS=4" "TMPDIR=$fq_volume/source/.cache/tmp" "TEMP=$fq_volume/source/.cache/tmp" "TMP=$fq_volume/source/.cache/tmp" "GOPATH=$fq_volume/gopath" "GOBIN=$fq_volume/tools/bin" "GOCACHE=$fq_volume/source/.cache/go-build" "GOMODCACHE=$fq_volume/source/.cache/go-mod" "GOTMPDIR=$fq_volume/source/.cache/tmp" "XDG_CONFIG_HOME=$fq_volume/config" "XDG_CACHE_HOME=$fq_volume/cache" >> "$GITHUB_ENV"
@@ -170,6 +203,13 @@ jobs:
           set -euo pipefail
           cd "$FQ_VOLUME/source"
           python3 scripts/evidence.py --category supported-reference-verification --requirements AC-001,AC-002,AC-003,AC-004,AC-005,AC-006,AC-007,AC-008,AC-009,AC-010,AC-011,AC-012,AC-014,AC-015,AC-018,AC-020,AC-023,AC-024 --timeout 780 -- make verify
+      - name: Actual foreign-read race sensitivity and restored normal control
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$FQ_VOLUME/source"
+          timeout --signal=TERM --kill-after=2s 420s python3 scripts/evidence.py --category reference-scope-instrumentation --requirements AC-005,AC-008 --timeout 414 -- python3 scripts/acceptance_instrumentation.py
       - name: Clean committed supported-toolchain reproduction
         timeout-minutes: 6
         shell: bash
@@ -194,7 +234,7 @@ jobs:
           python3 scripts/evidence.py --category current-reference-online-security --requirements AC-018 --timeout 120 -- make security-online
       - name: Preserve fuzz and trim verified regenerable SDK/cache before nested results setup
         id: results
-        timeout-minutes: 6
+        timeout-minutes: 8
         shell: bash
         run: |
           set -euo pipefail
@@ -202,10 +242,20 @@ jobs:
           python3 scripts/evidence.py --category reference-preflight-trim --requirements AC-020 --timeout 240 -- python3 scripts/reference_preflight.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
           # This operation relocates .local. Every prior writer must be closed;
           # wrapping setup in evidence.py would strand its active output.
-          timeout --signal=TERM --kill-after=10s 100s python3 scripts/reference_results.py setup --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+          timeout --signal=TERM --kill-after=10s 180s python3 scripts/reference_results.py setup --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Observe nested result capacity and reserve the complete remaining job tail
+        id: result_capacity
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+            timeout --signal=TERM --kill-after=2s 120s python3 scripts/evidence.py --category reference-nested-capacity-admission --requirements AC-020 --timeout 110 -- python3 scripts/reference_result_capacity.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+          fi
       - name: Measure the frozen profile in the actual declared KVM guest
         id: measurement
-        if: ${{ !cancelled() && steps.results.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.result_capacity.outcome == 'success' }}
         timeout-minutes: 265
         shell: bash
         run: |
@@ -225,6 +275,20 @@ jobs:
               folder.rename(preflight/folder.name)
           (local/'reference-preflight-relocation.json').write_text(json.dumps({'scope':'Host verification smoke preserved separately; no inherited guest cells.','files':records},indent=2)+'\n')
           PY
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+            python3 - <<'PY'
+          import json,os,pathlib,sys,time
+          sys.path.insert(0,'scripts')
+          from common import source_hash
+          from reference_result_capacity import time_plan
+          record={**time_plan(int(os.environ['FQ_REFERENCE_JOB_STARTED_EPOCH']),time.time()),
+                  'source':source_hash(),'github_run_id':os.environ['GITHUB_RUN_ID'],
+                  'github_run_attempt':os.environ['GITHUB_RUN_ATTEMPT']}
+          with pathlib.Path('.local/reference-measurement-time.json').open('x') as stream:
+              stream.write(json.dumps(record,indent=2)+'\n')
+          if record['admission']!='ALLOW':raise ValueError('measurement boundary lacks complete time reservation')
+          PY
+          fi
           python3 scripts/evidence.py --category actual-reference-full-benchmark --requirements AC-016,AC-017 --timeout 15840 --progress-file .local/reference-progress.json --progress-seconds 30 -- python3 scripts/reference_guest.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --mode benchmark --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY" --timeout 15120 --setup-max-bytes 800000000
       - name: Quiesce only this execution's positively bound guest units
         id: quiescence
@@ -273,6 +337,15 @@ jobs:
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
           python3 scripts/reference_pipeline.py export --volume "$FQ_VOLUME"
+      - name: Prepare bounded owned trim pressure for the explicit smoke failure control
+        id: trim_control
+        if: ${{ !cancelled() && inputs.trim_control && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          timeout --signal=TERM --kill-after=2s 170s python3 scripts/evidence.py --category reference-forced-trim-prepare --requirements AC-020 --timeout 160 -- python3 scripts/reference_trim_control.py prepare --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
       - name: Package complete results with bounded streams and durable failed-attempt receipts
         id: package
         if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
@@ -349,6 +422,14 @@ jobs:
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
           python3 scripts/evidence.py --category reference-image-control-readonly-recovery --requirements AC-020 --timeout 210 -- python3 scripts/reference_image_control.py recover --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+      - name: Check actual trim pressure and complete read-only fallback recovery
+        if: ${{ always() && inputs.trim_control && steps.trim_control.outcome == 'success' && steps.frozen.outcome == 'success' }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          timeout --signal=TERM --kill-after=2s 170s python3 scripts/evidence.py --category reference-forced-trim-retention-control --requirements AC-020 --timeout 160 -- python3 scripts/reference_trim_control.py verify --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
       - name: Rescue only original premeasurement evidence when nested setup failed
         id: rescue
         if: ${{ always() && steps.quota.outcome == 'success' && steps.results.outcome != 'success' }}
@@ -457,6 +538,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test '${{ inputs.trim_control }}' != true || { echo 'trim control is restricted to the reference smoke branch'; exit 1; }
           python3 scripts/evidence.py --category historical-codec-admission --requirements AC-020 --timeout 40 -- python3 scripts/reference_codec_control.py plan
       - name: Enforce the owned 2GB image and observe actual 2.1GB ENOSPC
         timeout-minutes: 2
@@ -560,6 +642,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test '${{ inputs.trim_control }}' != true || { echo 'trim control is restricted to the reference smoke branch'; exit 1; }
           python3 scripts/evidence.py --category capacity-admission --requirements AC-020 --timeout 40 -- python3 scripts/reference_capacity.py plan
       - name: Enforce a dedicated executable 2GB image and actual 2.1GB ENOSPC
         id: capacity_quota

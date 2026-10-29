@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "evidence_type": "failed_pack_retention_control_summary",
+  "source": "6bc65c1d6b29f79ce8d4adc53b008a5544fb9af0c2b6eb992589e431cb44f464",
+  "commit": "b90caa7b285dbc88dfd28266d31924d82e7dac19",
+  "run_id": 40685563565,
+  "job_id": 122806913015,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/40685563565/job/122806913015",
+  "workflow_status": "FAIL",
+  "intentional_failure": "Two-second packaging control timeout",
+  "scoped_retention_control": "PASS",
+  "profile": "smoke",
+  "cells": 21,
+  "samples": 672,
+  "actual_readonly_recovered_members": 771,
+  "actual_readonly_recovered_original_bytes": 8656916,
+  "exact_results_image_bytes": 1100000000,
+  "exact_results_image_sha256": "4a6142eead2dfae80ca9f04d210e364a49b632c201af4a917988861930ba20fb",
+  "image_artifact": {
+    "id": 12814488708,
+    "bytes": 3748463,
+    "sha256": "d028732944b3aad314c4fa1bba33f3f31fc8b25cdb64d1bd98c452204b386a6a"
+  },
+  "diagnostic_artifact": {
+    "id": 12814429014,
+    "bytes": 784674,
+    "sha256": "514fc0516214b57f68ba7f7394441ff28e5165824ec428a6f2121c4f745ef63b"
+  },
+  "release_qualification": false,
+  "scope": "Complete controller captures and freeze proof bytes were checked from retained originals. Linux read-only recovery was actual; native verification streamed the complete image and did not mount or walk ext4. Smoke and this failure control do not qualify the full matrix or exercise the later forced-trim branch."
+}
