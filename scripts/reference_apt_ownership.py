@@ -89,7 +89,7 @@ def anchor_identity(node):
     return tuple(node[key] for key in ('device', 'inode', 'mode', 'uid', 'gid'))
 
 
-def validate_node(path, node, archives, device, uid, gid, *, allow_root=True):
+def validate_node(path, node, archives, device, uid, gid, *, allow_root=True, partial_binding=None):
     kind, limit = path_rule(path, archives)
     require(node['device'] == device, 'APT member crosses filesystem: ' + path)
     require((stat.S_ISDIR(node['mode']) if kind == 'directory' else stat.S_ISREG(node['mode']))
@@ -98,6 +98,15 @@ def validate_node(path, node, archives, device, uid, gid, *, allow_root=True):
     require(0 <= node['bytes'] <= limit and node['allocated'] >= 0, 'APT member exceeds size admission: ' + path)
     if (node['uid'], node['gid']) == (uid, gid):
         return False
+    if allow_root and path == 'partial' and (node['uid'], node['gid']) == (uid, 0):
+        pin = partial_binding
+        require(isinstance(pin, dict) and stat.S_ISDIR(pin['mode'])
+                and not pin['mode'] & 0o7022 and (pin['uid'], pin['gid']) == (uid, gid)
+                and (pin['device'], pin['inode']) == (device, node['inode'])
+                and pin['inode'] > 0 and pin['nlink'] == node['nlink'] == 2
+                and stat.S_IMODE(node['mode']) == 0o700,
+                'APT partial directory is not the pinned private ordinary inode')
+        return True
     require(allow_root and (node['uid'], node['gid']) == (0, 0), 'APT member ownership refused: ' + path)
     return True
 
@@ -107,7 +116,11 @@ def apt_request(root, account, planned, max_bytes):
     require(root.is_absolute() and root.name == 'apt' and root.parent.name == 'reference-guest'
             and '..' not in root.parts, 'APT root is not the exact fresh producer cache')
     require(type(max_bytes) is int and 0 < max_bytes <= MAX_TOTAL_BYTES, 'APT total admission is outside limit')
-    return {'schema_version': 1, 'root': str(root), 'account': dict(account),
+    # Capture before each APT command, never infer this pin from post-command
+    # mixed ownership. A missing partial cannot authorize a later mixed inode.
+    partial = root / 'partial'
+    pin = facts(partial.lstat()) if os.path.lexists(partial) else None
+    return {'schema_version': 1, 'root': str(root), 'account': dict(account), 'partial_binding': pin,
             'archives': archive_policy(planned), 'max_bytes': max_bytes,
             'anchors': {label: facts(path.lstat()) for label, path in
                         (('volume', root.parent.parent), ('parent', root.parent), ('root', root))}}
@@ -179,7 +192,8 @@ def inventory(rootfd, request, output, *, allow_root):
             node = facts(os.stat(name, dir_fd=descriptor, follow_symlinks=False))
             require(len(output) < MAX_ENTRIES, 'APT entry count exceeds admission')
             output.append({'path': path, **node})
-            validate_node(path, node, request['archives'], device, uid, gid, allow_root=allow_root)
+            validate_node(path, node, request['archives'], device, uid, gid, allow_root=allow_root,
+                          partial_binding=request.get('partial_binding'))
             charged += max(node['bytes'], node['allocated'])
             require(charged <= request['max_bytes'], 'APT cumulative bytes exceed admission')
             if stat.S_ISDIR(node['mode']):

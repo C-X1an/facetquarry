@@ -22,6 +22,8 @@ import threading
 import uuid
 
 POLICY = 'owned-ext4-zero-reserved-v1'
+NESTED_POLICY = 'owned-ext4-zero-reserved-nested-inodes50000-v1'
+NESTED_INODES = 50_000
 MAX_STREAM = 32768
 MAX_CONTEXT = 8192
 MAX_PROOF = 200_000
@@ -298,10 +300,28 @@ def observe(argv, runner):
     return out
 
 
-def geometry(raw):
+def policy_role(policy, image_bytes):
+    require(policy in (POLICY, NESTED_POLICY), 'unknown filesystem policy')
+    require(policy != NESTED_POLICY or type(image_bytes) is int and image_bytes == 1_100_000_000,
+            'nested inode policy requires the fixed nested image role')
+
+
+def formatter_argv(image, *, policy=POLICY):
+    require(policy in (POLICY, NESTED_POLICY), 'unknown filesystem policy')
+    return ['mkfs.ext4', '-F', '-q', '-m', '0',
+            *(['-N', str(NESTED_INODES)] if policy == NESTED_POLICY else []), str(image)]
+
+
+def geometry(raw, *, policy=POLICY):
+    require(policy in (POLICY, NESTED_POLICY), 'unknown filesystem policy')
     result = {}
-    for label, key in (('Filesystem UUID', 'uuid'), ('Block size', 'block_size'),
-                       ('Block count', 'block_count'), ('Reserved block count', 'reserved_blocks')):
+    labels = [('Filesystem UUID', 'uuid'), ('Block size', 'block_size'),
+              ('Block count', 'block_count'), ('Reserved block count', 'reserved_blocks')]
+    if policy == NESTED_POLICY:
+        labels += [('Inode count', 'inode_count'), ('Inode size', 'inode_size'),
+                   ('First block', 'first_data_block'), ('Blocks per group', 'blocks_per_group'),
+                   ('Inodes per group', 'inodes_per_group'), ('Inode blocks per group', 'inode_blocks_per_group')]
+    for label, key in labels:
         values = re.findall(r'^' + re.escape(label) + r':\s*(\S+)\s*$', raw, re.MULTILINE)
         require(len(values) == 1, 'missing or duplicate superblock ' + label)
         result[key] = values[0] if key == 'uuid' else int(values[0])
@@ -310,13 +330,15 @@ def geometry(raw):
     return result
 
 
-def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, run_context: dict) -> None:
+def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, run_context: dict,
+                    *, policy=POLICY) -> None:
     """Pure validation: no I/O, and never a replacement for actual ENOSPC proof."""
     try:
         r, ctx = record, run_context
+        policy_role(policy, image_bytes)
         bounded(ctx, budget=MAX_CONTEXT, fields=128, string_limit=4096)
         bounded(r)
-        require(isinstance(r, dict) and r['policy'] == POLICY and r['limits'] == LIMITS,
+        require(isinstance(r, dict) and r['policy'] == policy and r['limits'] == LIMITS,
                 'filesystem policy/limits differ')
         require(type(image_bytes) is int and image_bytes in (2_300_000_000, 1_100_000_000),
                 'unsupported fixed image size')
@@ -344,7 +366,8 @@ def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, ru
         cmd = r['formatter_command']
         require(isinstance(cmd, list) and len(cmd) <= 16 and cmd[-1] == str(image), 'formatter image differs')
         args = cmd[2:] if cmd[:2] == ['sudo', '-n'] else cmd
-        require(args[0] == 'mkfs.ext4' and args[1:-1] in (['-F', '-q', '-m', '0'], ['-F', '-q', '-m0']),
+        require(args == formatter_argv(image, policy=policy) if policy == NESTED_POLICY else
+                args[0] == 'mkfs.ext4' and args[1:-1] in (['-F', '-q', '-m', '0'], ['-F', '-q', '-m0']),
                 'formatter must be exact mkfs.ext4 -F -q -m0 policy')
         expected = {'version': ['mkfs.ext4', '-V'], 'superblock': ['dumpe2fs', '-h', str(image)],
                     'mount': ['findmnt', '--json', '--mountpoint', str(mount_point), '-o', 'TARGET,FSTYPE,SOURCE,UUID,OPTIONS,MAJ:MIN'],
@@ -367,11 +390,13 @@ def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, ru
             owned_capture(item)
         version = r['observations']['version']
         require(re.search(r'mke2fs\s+\d+\.\d+', version['stdout'] + version['stderr']), 'missing formatter version')
-        g = geometry(r['observations']['superblock']['stdout'])
+        g = geometry(r['observations']['superblock']['stdout'], policy=policy)
         require(g == r['geometry'] and g['reserved_blocks'] == 0, 'reserved blocks are not zero')
         require(g['block_size'] in (1024, 2048, 4096) and type(g['block_count']) is int
                 and g['block_count'] > 0 and 0 <= image_bytes - g['block_count'] * g['block_size'] < g['block_size'],
                 'superblock image dimensions differ')
+        if policy == NESTED_POLICY:
+            validate_inode_geometry(r, g)
         mounts = json.loads(r['observations']['mount']['stdout'])['filesystems']
         loops = json.loads(r['observations']['loop']['stdout'])['loopdevices']
         require(len(mounts) == len(loops) == 1, 'ambiguous mount/loop observation')
@@ -399,6 +424,11 @@ def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, ru
                 # and admit only the actual unprivileged available counter.
                 and 0 <= fs['f_bavail'] <= fs['f_bfree'] <= fs['f_blocks']
                 and fs['f_bavail'] * fs['f_frsize'] >= 520_000_000, 'inconsistent ordinary statvfs counters/floor')
+        if policy == NESTED_POLICY:
+            require(all(type(fs[k]) is int for k in ('f_files', 'f_ffree', 'f_favail'))
+                    and fs['f_files'] == g['inode_count']
+                    and 0 <= fs['f_favail'] <= fs['f_ffree'] <= fs['f_files'],
+                    'inconsistent observed inode counters')
         p = r['probe']; pi = p['before']
         require(p['exclusive'] is True and p['cleaned'] is True and p['before'] == p['after']
                 and pi['device'] == r['mount_before']['device'] and pi['uid'] == uid and pi['gid'] == gid
@@ -409,23 +439,51 @@ def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, ru
         raise ValueError('missing or malformed filesystem policy proof') from failure
 
 
+def validate_inode_geometry(record, g):
+    """Check per-group rounding, retaining requested and observed inode counts.
+
+    These are authenticated historical observations, never free-space evidence.
+    Actual post-copy byte/inode/time admission remains a separate required gate.
+    """
+    require(type(record.get('requested_inode_count')) is int
+            and record['requested_inode_count'] == NESTED_INODES, 'requested inode count differs')
+    keys = ('inode_count', 'inode_size', 'first_data_block', 'blocks_per_group',
+            'inodes_per_group', 'inode_blocks_per_group')
+    require(all(type(g[k]) is int for k in keys)
+            and g['inode_size'] in (128, 256, 512, 1024) and g['inode_size'] <= g['block_size']
+            and g['first_data_block'] == (1 if g['block_size'] == 1024 else 0)
+            and 0 < g['blocks_per_group'] <= 8 * g['block_size']
+            and 0 < g['inodes_per_group'] <= 8 * g['block_size']
+            and g['inode_blocks_per_group'] > 0, 'unsupported observed inode geometry')
+    groups = (g['block_count'] - g['first_data_block'] + g['blocks_per_group'] - 1) // g['blocks_per_group']
+    per_block = g['block_size'] // g['inode_size']
+    require(g['inode_count'] == groups * g['inodes_per_group']
+            and g['inodes_per_group'] % per_block == 0
+            and g['inode_blocks_per_group'] * per_block == g['inodes_per_group']
+            and NESTED_INODES <= g['inode_count'] < NESTED_INODES + groups * per_block,
+            'observed inode count/block-group rounding differs')
+
+
 def collect_policy(image: Path, mount_point: Path, image_bytes: int, run_context: dict,
-                   formatter_command: list, runner=None) -> dict:
+                   formatter_command: list, runner=None, *, policy=POLICY) -> dict:
     """Observe existing mount; CLI/owned external parent must bind publication.
 
     Same API; every post-admission exception carries ``partial_record``. With
     OwnedRunner, append-only partial-N.json files also survive a hard exit.
     """
     bounded(run_context, budget=MAX_CONTEXT, fields=128, string_limit=4096)
+    policy_role(policy, image_bytes)
     bounded(formatter_command, budget=4096, fields=32, string_limit=2048)
     require(callable(runner) and getattr(runner, 'owned_durable', False) is True,
             'explicit durable owned runner required before command launch')
     require(sys.platform == 'linux' and os.getuid() > 0 and os.getgid() > 0, 'ordinary Linux UID/GID required')
     image, mount_point = Path(image), Path(mount_point)
-    r = {'policy': POLICY, 'limits': dict(LIMITS), 'started_at': utc(), 'platform': sys.platform,
+    r = {'policy': policy, 'limits': dict(LIMITS), 'started_at': utc(), 'platform': sys.platform,
          'uid': os.getuid(), 'gid': os.getgid(), 'image_path': str(image), 'mount_point': str(mount_point),
          'image_bytes': image_bytes, 'run_context': json.loads(json.dumps(run_context)),
          'formatter_command': list(formatter_command), 'observations': {}}
+    if policy == NESTED_POLICY:
+        r['requested_inode_count'] = NESTED_INODES
     try:
         with whole_entry(COLLECTOR_SECONDS):
             try:
@@ -496,7 +554,8 @@ def _collect_policy(r, image, mount_point, image_bytes, run_context, runner):
         r['observations'][key] = observe(argv, runner)
         checkpoint(r, runner)
     r['stage'] = 'geometry'
-    r['geometry'] = geometry(r['observations']['superblock']['stdout'])
+    raw = r['observations']['superblock']['stdout']
+    r['geometry'] = geometry(raw) if r['policy'] == POLICY else geometry(raw, policy=r['policy'])
     checkpoint(r, runner)
     r['stage'] = 'probe_open_directory'
     directory = os.open(mount_point, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
@@ -506,6 +565,8 @@ def _collect_policy(r, image, mount_point, image_bytes, run_context, runner):
         fs = os.fstatvfs(directory)
         r['statvfs'] = {'observed_at': utc(), 'uid': os.getuid(), 'gid': os.getgid(),
                         **{k: getattr(fs, k) for k in ('f_frsize', 'f_blocks', 'f_bfree', 'f_bavail')}}
+        if r['policy'] == NESTED_POLICY:
+            r['statvfs'].update({k: getattr(fs, k) for k in ('f_files', 'f_ffree', 'f_favail')})
         r['stage'] = 'filesystem_floor'
         checkpoint(r, runner)
         require(fs.f_bavail * fs.f_frsize >= 520_000_000, 'initial filesystem floor/control margin unavailable')
@@ -548,7 +609,7 @@ def _collect_policy(r, image, mount_point, image_bytes, run_context, runner):
     r.update(image_after=identity(checked(image)), mount_after=mount_identity(checked(mount_point)), ended_at=utc())
     r['stage'] = 'validation'
     r['proof_sha256'] = digest(r)
-    validate_policy(r, image, mount_point, image_bytes, run_context)
+    validate_policy(r, image, mount_point, image_bytes, run_context, policy=r['policy'])
     return r
 
 
@@ -570,8 +631,9 @@ def _main():
     for name in ('image', 'mount', 'context-json', 'proof', 'audit-dir'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--image-bytes', type=int, required=True, choices=(2_300_000_000, 1_100_000_000))
+    parser.add_argument('--policy', choices=(POLICY, NESTED_POLICY), default=POLICY)
     args = parser.parse_args()
-    failure_record = {'policy': POLICY, 'status': 'FAIL', 'started_at': utc(),
+    failure_record = {'policy': args.policy, 'status': 'FAIL', 'started_at': utc(),
                       'descendant_quiescence': {'quiescent': False, 'residual': None}}
     runner, result = None, None
     try:
@@ -590,7 +652,7 @@ def _main():
         runner = OwnedRunner(args.audit_dir)
         write_exclusive(runner.audit / 'entry.pending.json', {**failure_record, 'status': 'INCOMPLETE'})
         result = collect_policy(args.image, args.mount, args.image_bytes, context,
-                                ['mkfs.ext4', '-F', '-q', '-m', '0', str(args.image)], runner)
+                                formatter_argv(args.image, policy=args.policy), runner, policy=args.policy)
         write_exclusive(args.proof, result)
         return 0
     except BaseException as failure:

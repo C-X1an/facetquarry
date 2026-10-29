@@ -508,15 +508,21 @@ def validate_nested_filesystem(owned, canonical, ctx, *, live_mount):
     Retained validation reauthenticates the original observations; the freeze
     path separately proves unmount/loop absence and hashes the complete image.
     """
-    if os.environ.get('FQ_FILESYSTEM_POLICY') or canonical.get('filesystem_policy'):
-        from reference_filesystem import POLICY
+    selected = os.environ.get('FQ_NESTED_FILESYSTEM_POLICY', '')
+    if os.environ.get('FQ_FILESYSTEM_POLICY') or selected or canonical.get('filesystem_policy'):
+        from reference_filesystem import POLICY, NESTED_POLICY
         from reference_filesystem_bindings import validate, validate_retained
-        require(os.environ.get('FQ_FILESYSTEM_POLICY') == canonical.get('filesystem_policy') == POLICY,
+        # Legacy v1 summaries retain their original validator contract. A new
+        # nested summary always needs its separate explicit workflow selection.
+        declared = canonical.get('filesystem_policy')
+        expected = NESTED_POLICY if selected or declared == NESTED_POLICY else POLICY
+        require(os.environ.get('FQ_FILESYSTEM_POLICY') == POLICY and declared == expected
+                and (selected == NESTED_POLICY if expected == NESTED_POLICY else not selected),
                 'declared nested filesystem policy is missing or differs')
         validator = validate if live_mount else validate_retained
         summary = validator(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/nested',
                             owned['image'], owned['mount'], artifacts.RESULTS_IMAGE,
-                            {**legacy_context(ctx), 'source': ctx['source']})
+                            {**legacy_context(ctx), 'source': ctx['source']}, policy=expected)
         require(summary == canonical.get('filesystem_proof'), 'retained nested filesystem proof changed')
 
 

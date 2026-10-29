@@ -106,9 +106,92 @@ def check_observed_allocation(prepared, observation):
     for phase in ('before', 'after'):
         require(observation['descriptor_' + phase] == observation['padding_' + phase],
                 'padding invariant failed: descriptor_' + phase + ' differs from pathname')
-    counters = observation['statvfs_after']
+    before_counters, counters = observation['statvfs_before'], observation['statvfs_after']
+    require(type(before_counters) is dict and type(counters) is dict,
+            'padding allocation counters must be objects')
+    compact = {'f_bavail', 'f_frsize'}
+    if set(before_counters) - compact or set(counters) - compact:
+        return complete_observed_allocation(observation)
+    require(set(before_counters) == set(counters) == compact,
+            'padding allocation counters are incomplete')
+    # Compact facts retain the original exact-allocation contract. Only the
+    # complete production observation below can establish any physical excess.
     return allocation_check(observation['padding_before'], observation['padding_after'],
                             observation['padding_plan'], counters['f_bavail'] * counters['f_frsize'])
+
+
+def complete_observed_allocation(observation):
+    """Charge actual blocks with complete counter agreement, never substitute size.
+
+    One extra allocation block is a deliberately narrow policy supported by the
+    recorded run30 observation. Its internal purpose and any universal bound
+    are unknown. A different allocation outside this policy remains a refusal.
+    """
+    before, after = observation['padding_before'], observation['padding_after']
+    plan = observation['padding_plan']
+    old, new = observation['statvfs_before'], observation['statvfs_after']
+    fields = {'f_bsize', 'f_frsize', 'f_blocks', 'f_bfree', 'f_bavail',
+              'f_files', 'f_ffree', 'f_favail', 'f_flag', 'f_namemax'}
+    require(set(old) == set(new) == fields
+            and all(type(row[key]) is int and row[key] >= 0 for row in (old, new) for key in fields),
+            'complete allocation proof requires every exact nonnegative integer statvfs counter')
+    block = old['f_frsize']
+    require(block in (1024, 2048, 4096) and old['f_bsize'] == block
+            and all(old[key] == new[key] for key in fields - {'f_bfree', 'f_bavail'}),
+            'complete allocation geometry or inode counters changed')
+    require(all(0 <= row['f_bavail'] <= row['f_bfree'] <= row['f_blocks']
+                and 0 <= row['f_favail'] <= row['f_ffree'] <= row['f_files']
+                and row['f_blocks'] > 0 and row['f_files'] > 0 and row['f_namemax'] > 0
+                for row in (old, new)), 'complete allocation counter ordering differs')
+    require(plan == padding_plan(old['f_bavail'] * block, block),
+            'complete allocation plan differs from actual before counters')
+    inode_fields = {'device', 'inode', 'mode', 'uid', 'gid', 'nlink', 'bytes', 'physical_bytes'}
+    inode_rows = (before, after, observation['descriptor_before'], observation['descriptor_after'])
+    require(all(type(row) is dict and set(row) == inode_fields for row in inode_rows)
+            and all(type(row[key]) is int and row[key] >= 0 for row in inode_rows for key in inode_fields),
+            'complete allocation inode facts are malformed')
+    require(all(before[key] == after[key] for key in inode_fields - {'bytes', 'physical_bytes'})
+            and before['device'] > 0 and before['inode'] > 0 and before['uid'] > 0 and before['gid'] > 0
+            and stat.S_ISREG(before['mode']) and stat.S_IMODE(before['mode']) == 0o600
+            and before['nlink'] == 1 and before['bytes'] == before['physical_bytes'] == 0
+            and after['bytes'] == plan['padding_bytes'], 'complete allocation owned identity or logical size differs')
+    physical = after['physical_bytes']
+    overhead = physical - after['bytes']
+    require(after['bytes'] % block == physical % block == 0 and 0 <= overhead <= block,
+            'complete allocation physical excess exceeds the single-block policy')
+    require((old['f_bavail'] - new['f_bavail']) * block == physical
+            and (old['f_bfree'] - new['f_bfree']) * block == physical
+            and old['f_bfree'] - old['f_bavail'] == new['f_bfree'] - new['f_bavail'],
+            'complete allocation actual physical charge and both free-counter decreases differ')
+    command = observation['command_outcome']
+    require(type(command) is dict and command.get('status') == 'PASS'
+            and type(command.get('worker_exit_code')) is int and command['worker_exit_code'] == 0
+            and command.get('worker_started') is True and 'termination_reason' in command
+            and command['termination_reason'] is None
+            and command.get('errors') == [] and command.get('capture_complete') is True
+            and type(command.get('discarded_output_bytes')) is int and command['discarded_output_bytes'] == 0
+            and type(command.get('captured_output_bytes')) is int
+            and 0 <= command['captured_output_bytes'] <= CAPTURE_BYTES,
+            'complete allocation command outcome is not successful and complete')
+    quiet = command.get('descendant_quiescence')
+    capture = command.get('capture')
+    require(type(quiet) is dict and quiet.get('quiescent') is True and quiet.get('residual') == []
+            and type(capture) is dict and set(capture) == {'stdout', 'stderr'}
+            and all(type(capture[label]) is dict and type(capture[label].get('bytes')) is int
+                    and 0 <= capture[label]['bytes'] <= CAPTURE_BYTES for label in capture)
+            and sum(capture[label]['bytes'] for label in capture) == command['captured_output_bytes'],
+            'complete allocation command lacks quiescence or complete stream counts')
+    require(command.get('run_context') == observation['run_context']
+            and observation['source'] == observation['run_context'].get('source'),
+            'complete allocation command/source context differs')
+    available = new['f_bavail'] * block
+    require(MIN_FREE <= available < transport.physical_admission(0)['required_available_bytes']
+            and abs(available - plan['predicted_available_after_bytes']) <= 1_000_000,
+            'actual free space lacks controlled pressure or unchanged floor/diagnostic margin')
+    return {'exact_allocated_bytes': physical, 'physical_allocation_overhead_bytes': overhead,
+            'physical_overhead_ceiling_bytes': block, 'actual_available_after_bytes': available,
+            'prediction_difference_bytes': available - plan['predicted_available_after_bytes'],
+            'accounting': 'complete-statvfs-before-after-v1'}
 
 
 def envelope(directory):

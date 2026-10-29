@@ -409,9 +409,12 @@ def setup(volume, project):
         runner(['fallocate', '-l', str(IMAGE_BYTES), str(paths['image'])], timeout=60)
         record['image_identity'] = fixed_identity(paths['image'])
         policy = os.environ.get('FQ_FILESYSTEM_POLICY', '')
+        nested_policy = os.environ.get('FQ_NESTED_FILESYSTEM_POLICY', '')
+        require(not nested_policy or policy, 'nested filesystem policy requires declared outer policy')
         if policy:
-            from reference_filesystem import POLICY, write_exclusive
-            require(policy == POLICY, 'unknown filesystem policy')
+            from reference_filesystem import POLICY, NESTED_POLICY, write_exclusive
+            require(policy == POLICY and nested_policy == NESTED_POLICY,
+                    'missing or unknown explicit nested filesystem policy')
             directory = Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/nested'
             checked(directory.parent)
             directory.mkdir(mode=0o700)
@@ -419,6 +422,7 @@ def setup(volume, project):
             write_exclusive(directory / 'context.json', filesystem_context)
             helper = Path(os.environ['GITHUB_WORKSPACE']) / 'scripts/reference_filesystem_bindings.py'
             common_args = ['--image', str(paths['image']), '--image-bytes', str(IMAGE_BYTES),
+                           '--policy', nested_policy,
                            '--context-json', str(directory / 'context.json'), '--directory', str(directory)]
             runner(['timeout', '--signal=TERM', '--kill-after=2s', '30s',
                     sys.executable, str(helper), 'format', *common_args], timeout=35)
@@ -437,9 +441,9 @@ def setup(volume, project):
             runner(['timeout', '--signal=TERM', '--kill-after=2s', '112s',
                     sys.executable, str(helper), 'collect', '--mount', str(paths['mount']),
                     *common_args], timeout=115)
-            record.update(filesystem_policy=POLICY,
+            record.update(filesystem_policy=nested_policy,
                           filesystem_proof=validate(directory, paths['image'], paths['mount'],
-                                                    IMAGE_BYTES, filesystem_context))
+                                                    IMAGE_BYTES, filesystem_context, policy=nested_policy))
         probe = paths['mount'] / 'reference-results-enospc-probe'
         require(not probe.exists() and not probe.is_symlink(), 'probe path already exists')
         observed = runner(['fallocate', '-l', str(PROBE_BYTES), str(probe)], timeout=60, accepted=(1,))

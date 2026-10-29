@@ -63,6 +63,7 @@ jobs:
       FQ_FILESYSTEM_FREE_FLOOR: "500000000"
       FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
       FQ_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-v1' || '' }}
+      FQ_NESTED_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-nested-inodes50000-v1' || '' }}
     steps:
       - name: Initialize owned paths from the actual runner environment
         timeout-minutes: 1

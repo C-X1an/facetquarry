@@ -172,8 +172,13 @@ def stable_mount(value):
     return {key: value[key] for key in ('device', 'inode', 'mode', 'uid', 'gid', 'device_major_minor')}
 
 
-def formatter_command(image):
-    return ['mkfs.ext4', '-F', '-q', '-m', '0', str(image)]
+def policy_for_role(policy, image_bytes):
+    fs.policy_role(policy, image_bytes)
+    return policy
+
+
+def formatter_command(image, *, policy=fs.POLICY):
+    return fs.formatter_argv(image, policy=policy)
 
 
 def actual_observation(argv):
@@ -218,10 +223,12 @@ def retain_failure(directory, name, record, failure):
     fs.write_exclusive(directory / name, record)
 
 
-def validate_format(directory, image, image_bytes, context):
+def validate_format(directory, image, image_bytes, context, *, policy=fs.POLICY):
+    policy_for_role(policy, image_bytes)
     require(not os.path.lexists(directory / 'formatter.failure.json'), 'failed formatter attempt is retained')
     record, digest = read_json(directory / 'formatter.json')
-    argv = formatter_command(image)
+    argv = formatter_command(image, policy=policy)
+    require(record.get('policy', fs.POLICY) == policy, 'formatter policy selection differs')
     require(record.get('kind') == KIND and record.get('status') == 'PASS'
             and record.get('descendant_quiescence') == {'quiescent': True, 'residual': []}
             and record.get('run_context') == context and record.get('image_path') == str(image)
@@ -245,7 +252,8 @@ def validate_format(directory, image, image_bytes, context):
     return record, digest, receipt_sha
 
 
-def format_owned(image, image_bytes, context_json, directory):
+def format_owned(image, image_bytes, context_json, directory, *, policy=fs.POLICY):
+    policy_for_role(policy, image_bytes)
     with fs.whole_entry(60):
         _, directory, image, _ = layout(directory, image, image_bytes, create=True)
         context = context_file(context_json)
@@ -253,21 +261,21 @@ def format_owned(image, image_bytes, context_json, directory):
         allocation = envelope(directory.parent)
         require(max(allocation['physical_bytes'], allocation['logical_bytes']) + 6_000_000 <= ENVELOPE_BYTES,
                 'complete formatter/collector failure tail lacks control admission')
-        record = {'kind': KIND, 'status': 'INCOMPLETE', 'run_context': context, 'image_path': str(image),
+        record = {'kind': KIND, 'policy': policy, 'status': 'INCOMPLETE', 'run_context': context, 'image_path': str(image),
                   'directory': str(directory), 'image_bytes': image_bytes, 'started_at': fs.utc(),
                   'image_before': image_identity(image, image_bytes), 'descendant_quiescence': dict(UNKNOWN)}
         fs.write_exclusive(directory / 'formatter.pending.json', record)
         try:
             # Actual formatter execution belongs here, never in the pure collector.
             runner = fs.OwnedRunner(directory / 'formatter-audit')
-            record['observation'] = fs.observe(formatter_command(image), runner)
+            record['observation'] = fs.observe(formatter_command(image, policy=policy), runner)
             record['descendant_quiescence'] = record['observation']['ownership']['descendant_quiescence']
             record['image_after'] = image_identity(image, image_bytes)
             require(record['image_before'] == record['image_after'], 'formatter substituted image identity')
             current_context(context)
             record.update(status='PASS', ended_at=fs.utc())
             fs.write_exclusive(directory / 'formatter.json', record)
-            validate_format(directory, image, image_bytes, context)
+            validate_format(directory, image, image_bytes, context, policy=policy)
             envelope(directory.parent)
             return record
         except BaseException as failure:
@@ -277,27 +285,30 @@ def format_owned(image, image_bytes, context_json, directory):
             raise
 
 
-def collector_command(root, image, mount, image_bytes, context_json, directory):
+def collector_command(root, image, mount, image_bytes, context_json, directory, *, policy=fs.POLICY):
+    policy_for_role(policy, image_bytes)
     return [sys.executable, str(root / 'scripts' / 'reference_filesystem.py'),
             '--image', str(image), '--mount', str(mount), '--image-bytes', str(image_bytes),
             '--context-json', str(context_json), '--proof', str(directory / 'proof.json'),
-            '--audit-dir', str(directory / 'observations')]
+            '--audit-dir', str(directory / 'observations'),
+            *(['--policy', policy] if policy != fs.POLICY else [])]
 
 
-def collect_owned(image, mount, image_bytes, context_json, directory):
+def collect_owned(image, mount, image_bytes, context_json, directory, *, policy=fs.POLICY):
+    policy_for_role(policy, image_bytes)
     from reference_transport_supervisor import run_owned
     started = time.monotonic()
     with fs.whole_entry(ENTRY_SECONDS, started=started):
         root, directory, image, mount = layout(directory, image, image_bytes, mount)
         context = context_file(context_json)
         current_context(context)
-        validate_format(directory, image, image_bytes, context)
+        validate_format(directory, image, image_bytes, context, policy=policy)
         allocation = envelope(directory.parent)
         require(max(allocation['physical_bytes'], allocation['logical_bytes']) + 6_000_000 <= ENVELOPE_BYTES,
                 'complete collector failure tail lacks control admission')
-        requested = collector_command(root, image, mount, image_bytes, normalized(context_json), directory)
+        requested = collector_command(root, image, mount, image_bytes, normalized(context_json), directory, policy=policy)
         actual = ['timeout', '--signal=TERM', '--kill-after=2s', '80s', *requested]
-        record = {'kind': KIND, 'status': 'INCOMPLETE', 'scope': 'process-supervision-only',
+        record = {'kind': KIND, 'policy': policy, 'status': 'INCOMPLETE', 'scope': 'process-supervision-only',
                   'run_context': context, 'image_path': str(image), 'mount_point': str(mount),
                   'image_bytes': image_bytes, 'directory': str(directory), 'context_path': str(context_json),
                   'started_at': fs.utc(), 'requested_command': requested, 'actual_command': actual,
@@ -320,18 +331,18 @@ def collect_owned(image, mount, image_bytes, context_json, directory):
                     record.update(status='FAIL', binding_error=(type(error).__name__ + ': ' + str(error))[:1000])
             fs.write_exclusive(directory / 'collector-supervisor.json', record)
             require(record['status'] == 'PASS', 'actual filesystem collector supervision failed')
-            return validate(directory, image, mount, image_bytes, context)
+            return validate(directory, image, mount, image_bytes, context, policy=policy)
         except BaseException as failure:
             retain_failure(directory, 'collector.failure.json', record, failure)
             raise
 
 
-def validate(directory, image, mount, image_bytes, context):
+def validate(directory, image, mount, image_bytes, context, *, policy=fs.POLICY):
     """Authenticate live canonical files and their current mounted identity."""
-    return _validate(directory, image, mount, image_bytes, context, live_mount=True)
+    return _validate(directory, image, mount, image_bytes, context, live_mount=True, policy=policy)
 
 
-def validate_retained(directory, image, mount, image_bytes, context):
+def validate_retained(directory, image, mount, image_bytes, context, *, policy=fs.POLICY):
     """Reauthenticate retained canonical bytes after unmount.
 
     Geometry/statvfs in the identical immutable summary are historical collector
@@ -339,10 +350,11 @@ def validate_retained(directory, image, mount, image_bytes, context):
     contents or a freeze: callers still require their full-image hash, absence
     observations and independent supervisor receipts.
     """
-    return _validate(directory, image, mount, image_bytes, context, live_mount=False)
+    return _validate(directory, image, mount, image_bytes, context, live_mount=False, policy=policy)
 
 
-def _validate(directory, image, mount, image_bytes, context, *, live_mount):
+def _validate(directory, image, mount, image_bytes, context, *, live_mount, policy=fs.POLICY):
+    policy_for_role(policy, image_bytes)
     root, directory, image, mount = layout(directory, image, image_bytes, mount)
     current_context(context)
     require(os.path.ismount(mount) is live_mount, 'filesystem binding mount state differs')
@@ -350,9 +362,11 @@ def _validate(directory, image, mount, image_bytes, context, *, live_mount):
     # Both audits share this mutable allocation. Enforce it on every call, but
     # never bind legitimate nested-audit growth into the immutable proof summary.
     envelope(directory.parent)
-    formatter, formatter_sha, formatter_receipt_sha = validate_format(directory, image, image_bytes, context)
+    formatter, formatter_sha, formatter_receipt_sha = validate_format(directory, image, image_bytes, context, policy=policy)
     proof, proof_sha = read_json(directory / 'proof.json')
-    fs.validate_policy(proof, image, mount, image_bytes, context)
+    fs.validate_policy(proof, image, mount, image_bytes, context, policy=policy)
+    require(proof['formatter_command'] == formatter['observation']['command'],
+            'collector formatter command differs from authenticated formatter')
     require(proof['image_before'] == formatter['image_after'] == image_identity(image, image_bytes),
             'collector image identity differs from actual formatter')
     if live_mount:
@@ -363,11 +377,12 @@ def _validate(directory, image, mount, image_bytes, context, *, live_mount):
     require(context_path == directory / 'context.json', 'collector context path is not canonical')
     require(context_file(context_path) == context, 'collector context file changed')
     _, context_sha = read_json(context_path, fs.MAX_CONTEXT)
-    requested = collector_command(root, image, mount, image_bytes, context_path, directory)
+    requested = collector_command(root, image, mount, image_bytes, context_path, directory, policy=policy)
     actual = ['timeout', '--signal=TERM', '--kill-after=2s', '80s', *requested]
     parent, parent_sha, _ = verify_receipt(directory / 'collector-supervisor.json',
         directory / 'collector-supervisor.stdout', directory / 'collector-supervisor.stderr', requested, actual)
-    require(parent.get('kind') == KIND and parent.get('scope') == 'process-supervision-only'
+    require(parent.get('kind') == KIND and parent.get('policy', fs.POLICY) == policy
+            and parent.get('scope') == 'process-supervision-only'
             and parent.get('run_context') == context and parent.get('image_path') == str(image)
             and parent.get('mount_point') == str(mount) and parent.get('image_bytes') == image_bytes
             and parent.get('directory') == str(directory) and parent.get('total_seconds') == PARENT_SECONDS
@@ -407,13 +422,15 @@ def _validate(directory, image, mount, image_bytes, context, *, live_mount):
             and os.path.ismount(mount) is live_mount, 'image identity or mount state changed during validation')
     current_context(context)
     envelope(directory.parent)
-    result = {'kind': KIND, 'policy': fs.POLICY, 'status': 'PASS', 'run_context': context,
+    result = {'kind': KIND, 'policy': policy, 'status': 'PASS', 'run_context': context,
               'directory': str(directory), 'image_path': str(image), 'mount_point': str(mount),
               'image_bytes': image_bytes, 'proof_sha256': proof['proof_sha256'], 'proof_file_sha256': proof_sha,
               'formatter_file_sha256': formatter_sha, 'formatter_receipt_sha256': formatter_receipt_sha,
               'collector_supervisor_sha256': parent_sha, 'observation_receipts_sha256': receipts,
               'files_sha256': files,
               'geometry': proof['geometry'], 'statvfs': proof['statvfs']}
+    if policy == fs.NESTED_POLICY:
+        result['requested_inode_count'] = proof['requested_inode_count']
     fs.bounded(result)
     return result
 
@@ -426,13 +443,14 @@ def main():
             parser.add_argument('--' + name, type=Path, required=True)
         parser.add_argument('--mount', type=Path)
         parser.add_argument('--image-bytes', type=int, required=True, choices=(2_300_000_000, 1_100_000_000))
+        parser.add_argument('--policy', choices=(fs.POLICY, fs.NESTED_POLICY), default=fs.POLICY)
         args = parser.parse_args()
         if args.action == 'format':
             require(args.mount is None, 'formatter does not mount filesystems')
-            format_owned(args.image, args.image_bytes, args.context_json, args.directory)
+            format_owned(args.image, args.image_bytes, args.context_json, args.directory, policy=args.policy)
         else:
             require(args.mount is not None, 'collector mount is required')
-            collect_owned(args.image, args.mount, args.image_bytes, args.context_json, args.directory)
+            collect_owned(args.image, args.mount, args.image_bytes, args.context_json, args.directory, policy=args.policy)
     return 0
 
 
