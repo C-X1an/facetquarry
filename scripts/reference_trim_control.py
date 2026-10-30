@@ -27,6 +27,8 @@ CONTROL_BYTES = 1_000_000
 CONTROL_ENTRIES = 32
 CAPTURE_BYTES = 64_000
 TARGET_FREE = 600_000_000
+LEGACY_PRESSURE_POLICY = 'reference-trim-pressure-600mb-v1'
+PRESSURE_POLICY = 'reference-trim-pressure-700mb-v1'
 DIAGNOSTIC_MARGIN = 70_000_000
 MIN_FREE = transport.FILESYSTEM_FLOOR + transport.CONTROL_ALLOCATION + DIAGNOSTIC_MARGIN
 ENTRY_SECONDS = 150
@@ -49,19 +51,36 @@ def explicit_control(environ):
             'trim control requires explicit preservation, smoke, one reader and inside-outer profile')
 
 
-def padding_plan(available, block_size):
+def pressure_target(policy):
+    require(type(policy) is str and policy in (LEGACY_PRESSURE_POLICY, PRESSURE_POLICY),
+            'unknown or missing trim pressure policy')
+    return TARGET_FREE if policy == LEGACY_PRESSURE_POLICY else 700_000_000
+
+
+def selected_pressure_policy(environ):
+    policy = environ.get('FQ_TRIM_PRESSURE_POLICY')
+    pressure_target(policy)
+    return policy
+
+
+def padding_plan(available, block_size, *, policy=LEGACY_PRESSURE_POLICY):
     """Exact whole-block arithmetic; not evidence of actual free space."""
+    target = pressure_target(policy)
     require(type(available) is int and type(block_size) is int and block_size in (1024, 2048, 4096)
-            and available > TARGET_FREE + block_size, 'insufficient controlled-padding headroom')
-    amount = (available - TARGET_FREE) // block_size * block_size
+            and available > target + block_size, 'insufficient controlled-padding headroom')
+    amount = (available - target) // block_size * block_size
     remaining = available - amount
     pressure = transport.physical_admission(remaining)
-    require(0 < amount < transport.IMAGE_BYTES and MIN_FREE <= remaining < TARGET_FREE + block_size
+    require(0 < amount < transport.IMAGE_BYTES and MIN_FREE <= remaining < target + block_size
             and pressure['allowed'] is False, 'padding cannot establish bounded branch pressure')
-    return {'available_before_bytes': available, 'block_size': block_size, 'padding_bytes': amount,
-            'predicted_available_after_bytes': remaining, 'target_available_bytes': TARGET_FREE,
+    result = {'available_before_bytes': available, 'block_size': block_size, 'padding_bytes': amount,
+            'predicted_available_after_bytes': remaining, 'target_available_bytes': target,
             'minimum_available_bytes': MIN_FREE,
             'unchanged_package_threshold_bytes': pressure['required_available_bytes']}
+    # The two-argument legacy API and its exact original output stay unchanged.
+    if policy != LEGACY_PRESSURE_POLICY:
+        result['pressure_policy'] = policy
+    return result
 
 
 def owned_padding(path, volume):
@@ -108,6 +127,8 @@ def check_observed_allocation(prepared, observation):
 
 def validate_allocation_observation(observation):
     """Shared non-writing validation for freshly observed and retained facts."""
+    policy = observation.get('pressure_policy', LEGACY_PRESSURE_POLICY)
+    pressure_target(policy)
     for phase in ('before', 'after'):
         require(observation['descriptor_' + phase] == observation['padding_' + phase],
                 'padding invariant failed: descriptor_' + phase + ' differs from pathname')
@@ -119,15 +140,19 @@ def validate_allocation_observation(observation):
         return complete_observed_allocation(observation)
     require(set(before_counters) == set(counters) == compact,
             'padding allocation counters are incomplete')
+    require(policy == LEGACY_PRESSURE_POLICY, 'named pressure policy requires complete original counters')
     # Compact facts retain the original exact-allocation contract. Only the
     # complete production observation below can establish any physical excess.
     return allocation_check(observation['padding_before'], observation['padding_after'],
                             observation['padding_plan'], counters['f_bavail'] * counters['f_frsize'])
 
 
-def retained_allocation_check(record, observation, command):
+def retained_allocation_check(record, observation, command, *, expected_policy=LEGACY_PRESSURE_POLICY):
     """Replay identical original proof without replacing its durable checkpoint."""
+    pressure_target(expected_policy)
     require(type(observation) is dict and observation.get('kind') == KIND
+            and record.get('pressure_policy', LEGACY_PRESSURE_POLICY) == expected_policy
+            and observation.get('pressure_policy', LEGACY_PRESSURE_POLICY) == expected_policy
             and observation.get('status') == 'OBSERVED_UNVALIDATED'
             and observation.get('source') == record.get('source')
             and observation.get('run_context') == record.get('run_context')
@@ -165,7 +190,8 @@ def complete_observed_allocation(observation):
                 and 0 <= row['f_favail'] <= row['f_ffree'] <= row['f_files']
                 and row['f_blocks'] > 0 and row['f_files'] > 0 and row['f_namemax'] > 0
                 for row in (old, new)), 'complete allocation counter ordering differs')
-    require(plan == padding_plan(old['f_bavail'] * block, block),
+    policy = observation.get('pressure_policy', LEGACY_PRESSURE_POLICY)
+    require(plan == padding_plan(old['f_bavail'] * block, block, policy=policy),
             'complete allocation plan differs from actual before counters')
     inode_fields = {'device', 'inode', 'mode', 'uid', 'gid', 'nlink', 'bytes', 'physical_bytes'}
     inode_rows = (before, after, observation['descriptor_before'], observation['descriptor_after'])
@@ -235,6 +261,9 @@ def setup(volume, project, root):
     explicit_control(os.environ)
     bindings.ordinary()
     p = transport.paths(volume, project, root)
+    # Only the production setup reads the workflow selection. Pure helpers and
+    # unchanged finite fixtures never inherit it implicitly from the process.
+    p['trim_pressure_policy'] = selected_pressure_policy(os.environ)
     ctx = transport.context(p['project'])
     require(transport.context(p['outer']) == ctx, 'trim control source/outer execution differs')
     plan = transport.growth_plan(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']))
@@ -285,6 +314,8 @@ def prepare(volume, project, root=ROOT, *, started=None):
     started = time.monotonic() if started is None else started
     with filesystem.whole_entry(ENTRY_SECONDS, started=started):
         p, ctx, growth, audit = setup(volume, project, root)
+        policy = p.get('trim_pressure_policy', LEGACY_PRESSURE_POLICY)
+        pressure_target(policy)
         transport.closed_guest(p, ctx)
         reservation = transport.observe_outer(p['volume'], p['project'])
         admitted = transport.external_admission(p)
@@ -295,6 +326,7 @@ def prepare(volume, project, root=ROOT, *, started=None):
         prepared.mkdir(mode=0o700)
         padding = p['volume'] / 'reference-trim-control-padding.bin'
         record = {'kind': KIND, 'status': 'PREPARING', 'source': ctx['source'], 'run_context': ctx,
+                  'pressure_policy': policy,
                   'volume': str(p['volume']), 'project': str(p['project']), 'padding_path': str(padding),
                   'started_at': results.utc(), 'growth_plan': growth, 'reservation': reservation,
                   'external_admission': admitted, 'padding_retained': True, 'scope': SCOPE}
@@ -308,12 +340,12 @@ def prepare(volume, project, root=ROOT, *, started=None):
             require(descriptor_before == before, 'new padding descriptor differs')
             counters = os.statvfs(p['volume'])
             counters_before = statvfs_facts(counters)
-            plan = padding_plan(counters.f_bavail * counters.f_frsize, counters.f_frsize)
+            plan = padding_plan(counters.f_bavail * counters.f_frsize, counters.f_frsize, policy=policy)
             record.update(padding_before=before, padding_plan=plan)
             requested = ['fallocate', '-l', str(plan['padding_bytes']), '--', str(padding)]
             actual = ['timeout', '--signal=TERM', '--kill-after=2s', '45s', *requested]
             bounded_record(prepared / 'allocation.pending.json', {
-                'status': 'INCOMPLETE', 'run_context': ctx, 'requested_command': requested,
+                'status': 'INCOMPLETE', 'pressure_policy': policy, 'run_context': ctx, 'requested_command': requested,
                 'actual_command': actual, 'descendant_quiescence': {'quiescent': False, 'residual': None}})
             outcome = supervisor.run_owned(actual, prepared / 'allocation.stdout', prepared / 'allocation.stderr',
                 started=started, total_seconds=PARENT_SECONDS, cleanup_seconds=6, receipt_seconds=2,
@@ -323,6 +355,7 @@ def prepare(volume, project, root=ROOT, *, started=None):
             os.fsync(descriptor)
             after = inode_facts(os.lstat(padding))
             observation = {'kind': KIND, 'status': 'OBSERVED_UNVALIDATED', 'source': ctx['source'],
+                'pressure_policy': policy,
                 'run_context': ctx, 'recorded_at': results.utc(), 'padding_before': before,
                 'padding_after': after, 'descriptor_before': descriptor_before,
                 'descriptor_after': inode_facts(os.fstat(descriptor)), 'padding_plan': plan,
@@ -447,11 +480,14 @@ def verify(volume, project, root=ROOT, *, started=None):
     started = time.monotonic() if started is None else started
     with filesystem.whole_entry(ENTRY_SECONDS, started=started):
         p, ctx, _, audit = setup(volume, project, root)
+        policy = p.get('trim_pressure_policy', LEGACY_PRESSURE_POLICY)
+        pressure_target(policy)
         transport.preflight.checked(audit)
         require(not os.path.lexists(audit / 'verify.json') and not os.path.lexists(audit / 'verify.pending.json'),
                 'previous trim verification is retained; blind retry forbidden')
         admitted = verification_admission(envelope(audit), os.statvfs(audit).f_frsize)
         record = {'kind': KIND, 'status': 'PREPARING', 'source': ctx['source'], 'run_context': ctx,
+                  'pressure_policy': policy,
                   'started_at': results.utc(), 'stages': {name: {'status': 'PENDING'} for name in VERIFY_STAGES},
                   'errors': [], 'inode_refusals': [], 'checkpoint_admission': admitted, 'scope': SCOPE}
         bounded_record(audit / 'verify.pending.json', record)
@@ -473,19 +509,22 @@ def verify(volume, project, root=ROOT, *, started=None):
             require(not os.path.lexists(prepared / 'failure.json'), 'preparation retained a failure')
             value = transport.read_json(prepared / 'prepare.json', 160_000)
             require(value.get('kind') == KIND and value.get('status') == 'PASS' and value.get('run_context') == ctx
+                    and value.get('source') == ctx['source']
+                    and value.get('pressure_policy', LEGACY_PRESSURE_POLICY) == policy
                     and value.get('padding_path') == str(p['volume'] / 'reference-trim-control-padding.bin'),
                     'complete current preparation is required')
             require(owned_padding(Path(value['padding_path']), p['volume']) == value.get('padding_after'),
                     'retained padding inode or allocated blocks changed')
             plan = value['padding_plan']
-            require(plan == padding_plan(plan['available_before_bytes'], plan['block_size']), 'padding plan differs')
+            require(plan == padding_plan(plan['available_before_bytes'], plan['block_size'], policy=policy),
+                    'padding plan differs from declared pressure policy')
             requested = ['fallocate', '-l', str(plan['padding_bytes']), '--', value['padding_path']]
             actual = ['timeout', '--signal=TERM', '--kill-after=2s', '45s', *requested]
             bindings.verify_receipt(prepared / 'allocation.json', prepared / 'allocation.stdout',
                                    prepared / 'allocation.stderr', requested, actual)
             retained_allocation_check(value,
                 transport.read_json(prepared / 'allocation.observed.json', 160_000),
-                transport.read_json(prepared / 'allocation.json', 160_000))
+                transport.read_json(prepared / 'allocation.json', 160_000), expected_policy=policy)
             return {'preparation_sha256': transport.file_sha(prepared / 'prepare.json', 160_000)}
         stage('preparation', preparation)
 

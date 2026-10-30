@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_forced_trim_posttrim_space_failure",
+  "repository": "C-X1an/facetquarry",
+  "run_id": 41008670963,
+  "job_id": 123909329999,
+  "run_attempt": 1,
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/41008670963",
+  "commit": "cdf3f84691e3968fbf4156e7c5d6c582021a7fa2",
+  "source": "93d9d64ec178271a30e086fbef85b8ddad8cded8d0217ee55e8521b930e769f9",
+  "overall_status": "FAIL",
+  "release_qualified": false,
+  "scope": "Nonqualifying smoke/control and available-byte verification only. Later pressure-planning repairs require separate execution. No full matrix, native ext4 member walk, raw scientific replay or manual/release qualification.",
+  "supported_toolchain": "go version go1.27.3 linux/amd64",
+  "supported_commands": [
+    {
+      "command": [
+        "make",
+        "verify"
+      ],
+      "run_id": "20261030T052908Z-223afe1f43",
+      "status": "PASS",
+      "stdout_sha256": "0bdb72aa03c05bb7caf1963531ee9c6ce43d1c9dfffb7f7ae7f7dfa604a01650",
+      "stderr_sha256": "9a9588377660c7476e96532555f55a81d69bbd3a84f831b570d6e4cd73b9c2bb"
+    },
+    {
+      "command": [
+        "make",
+        "clean-verify"
+      ],
+      "run_id": "20261030T053314Z-fa15917795",
+      "status": "PASS",
+      "stdout_sha256": "25bed23951879d330ba37191d892112cdf26554d00393cbbb1c5dc311d965258",
+      "stderr_sha256": "605d4fab943e895084661ffa1ea85cef86c6660a9141afcfd85d52d605e58ce5"
+    },
+    {
+      "command": [
+        "make",
+        "security-online"
+      ],
+      "run_id": "20261030T053425Z-7c2d95774a",
+      "status": "PASS",
+      "stdout_sha256": "83bafcc44f6e6d1cf42fd8cac4bc7ec049196e3fd7764ffd6e06d37f5455e3db",
+      "stderr_sha256": "3114e877d480659476cd80ad7c48c2f10937115d93b3d0f2bfc541ed220591ed"
+    }
+  ],
+  "supported_main_python_tests": {
+    "run": 495,
+    "passed": 488,
+    "explicit_skips": 7
+  },
+  "apt_cache_control": {
+    "all_20_recorded_apt_commands_successful_with_both_empty_cache_options": true,
+    "binary_caches_absent_in_inspected_owned_apt_inventories_and_complete_selections": true,
+    "scope": "Inspected owned trees; not a whole-host filesystem audit."
+  },
+  "selection_checkpoint": {
+    "complete_manifests_encoded_bytes": 366447,
+    "complete_manifests_retained": true,
+    "complete_manifests_sha256": "059b53ab66bcf4830b7728f01456a7546a17719a5199fe66808d2ca158c991b7",
+    "provenance_entries": 253,
+    "provenance_logical_bytes": 1777069,
+    "provenance_accounted_bytes": 2138112,
+    "logical_byte_limit": 80000000,
+    "entry_limit": 10000
+  },
+  "physical_allocation": {
+    "accounting": "complete-statvfs-before-after-v1",
+    "actual_available_after_bytes": 599998464,
+    "exact_allocated_bytes": 1120174080,
+    "physical_allocation_overhead_bytes": 4096,
+    "physical_overhead_ceiling_bytes": 4096,
+    "prediction_difference_bytes": -4096
+  },
+  "guest_trim": {
+    "status": "PASS",
+    "removed_entries": 1142,
+    "removed_accounted_bytes": 284250112,
+    "reported_complete_proof_sha256": "5d496e5bd47a96c32f099cb14cb0c608daeac1d36b01598ba6011e595df957d2",
+    "scope": "Reported complete proof is in the retained image; actual runner verification and recovery bind its SHA. No native ext4 traversal."
+  },
+  "pack_failure": {
+    "errors": [
+      "ValueError: internal package would consume the unchanged 500MB filesystem floor"
+    ],
+    "physical_before": {
+      "actual_available_bytes": 599965696,
+      "allowed": false,
+      "control_allocation_bytes": 20000000,
+      "filesystem_free_floor_bytes": 500000000,
+      "package_allocation_bytes": 401000000,
+      "required_available_bytes": 921000000
+    },
+    "physical_after_trim": {
+      "actual_available_bytes": 881876992,
+      "allowed": false,
+      "control_allocation_bytes": 20000000,
+      "filesystem_free_floor_bytes": 500000000,
+      "package_allocation_bytes": 401000000,
+      "required_available_bytes": 921000000
+    },
+    "net_available_gain_bytes": 281911296,
+    "actual_admission_deficit_bytes": 39123008,
+    "intended_timeout_child": "NOT RUN",
+    "accounted_removal_is_not_guaranteed_free_space_credit": true
+  },
+  "final_trim_control": {
+    "status": "FAIL",
+    "stages": {
+      "actual_branch_pressure": "PASS",
+      "actual_guest_trim": "PASS",
+      "exact_image_readonly_retention": "PASS",
+      "failed_pack_parent_quiescence": "PASS",
+      "final_context_and_envelope": "PASS",
+      "intentional_failed_child": "FAIL",
+      "preparation": "PASS"
+    },
+    "remaining_failure": "No intentional child attempt receipt exists; post-trim space refusal happened before launch."
+  },
+  "capacity": {
+    "admission": "ALLOW",
+    "available_bytes": 1017548800,
+    "available_inodes": 49627,
+    "full_reference_floor_met": true,
+    "profile": "smoke",
+    "reference_floor": {
+      "active_working_allowance_bytes": 32000000,
+      "directory_allowance_bytes": 22872064,
+      "guaranteed_current_output_upper_bound": false,
+      "historical_4096_rounded_file_bytes": 941305856,
+      "historical_full_files": 27544,
+      "historical_full_logical_bytes": 872241572,
+      "historical_source_prefix": "4949a016",
+      "recovery_allowance_bytes": 20000000,
+      "required_available_bytes": 1016177920,
+      "required_available_inodes": 33384
+    },
+    "scope": "Initial nested capacity observation/reference floor only; no full-run fit or benchmark qualification."
+  },
+  "smoke_analysis": {
+    "schema_version": 1,
+    "evidence_type": "benchmark_reanalysis",
+    "source": "93d9d64ec178271a30e086fbef85b8ddad8cded8d0217ee55e8521b930e769f9",
+    "created_at": "2026-10-30T05:35:35.967986+00:00",
+    "profile": "smoke",
+    "concurrency": 1,
+    "qualification": "HISTORICAL_SCHEMA_PREVIEW_ONLY",
+    "analysis_script_sha256": "ab6f22f6d52766c82b54d6b6485fc09e8a38b60c9afda47c61cbf1e907e0fede",
+    "input_coverage_sha256": "85f9dbcb9d707adf637ce5640df7f22e08877ea26a88e8289ac93f0df7ce6b37",
+    "locked_grid_sha256": "37d376ffa53b54fd37849b0fb682a76b944cea029185a0da4771dc1d20420992",
+    "expected_cells": 21,
+    "present_cells": 21,
+    "missing_cells": [],
+    "unexpected_cells": [],
+    "analysis_failed_cells": [],
+    "baseline_errors": [],
+    "sample_count": 672,
+    "successful_samples": 672,
+    "error_calls": 0,
+    "zero_duration_count": 0,
+    "five_seed_groups": 21,
+    "complete_five_seed_groups": 0,
+    "target_cells": 0,
+    "target_pass_cells": 0,
+    "target_outcome": "NOT_RUN",
+    "target_status_counts": {},
+    "paired_comparison_groups": 18,
+    "status": "PASS",
+    "method": {
+      "quantiles": "nearest rank ceil(q*N); per full cell ranks500/950/990 of1000timings",
+      "ci": "95% percentile bootstrap interval for mean of five per-seed statistic summaries; nearest-rank bootstrap endpoints",
+      "resampling_unit": "workload/build seed (joint corpus, queries and graph)",
+      "bootstrap_replicates": 2000,
+      "bootstrap_seed": 20261023,
+      "ordering": "one shuffled cell order per group; five contiguous repetitions inside each cell",
+      "throughput": "successful queries / actual dispatch-to-completion interval including queue and streaming JSON backpressure"
+    },
+    "limitations": [
+      "Five seeds provide weak uncertainty estimates; repeated timings are not independent datasets.",
+      "Shared-host drift, power state and competing workload not controlled; no dedicated reference-host approval.",
+      "This reanalysis checks exact-baseline intersections. The collector independently enumerated exhaustive target IDs and checked exact ID/order and eligible-set membership. It did not compare returned distances with independent numerical distances; the separate oracle gate performs finite numerical-tolerance comparisons.",
+      "Invalid/foreign ID checks use frozen synthetic rNNNNNN IDs/range; collector filter violations remain separately reported.",
+      "Build metrics are one shared build per workload group, repeated in cell summaries; do not sum them across cells.",
+      "Methods pair within workload/build seed by frozen collector construction, shared corpus SHA and generation; query JSON hashes include method/ef and cannot directly establish vector identity. Never pair query indices across correlation conditions."
+    ]
+  },
+  "retained_fuzz": {
+    "files": 110,
+    "original_bytes": 4958,
+    "manifest_sha256": "189a882bc93a184be0b46f979ea1db129bf588528b22b4393de7c4a79af63e4a",
+    "raw_member_bodies": "Inventoried in retained image; no native raw corpus replay."
+  },
+  "retained_oracle": {
+    "original_bytes": 7971243,
+    "sha256": "a9a02f18dea9028177a126f2b563bdc90f74e5228a269b02692c8b4fa0c38212",
+    "scope": "Actual oracle command PASS; raw comparisons inventoried in image. No native independent replay."
+  },
+  "byte_verification": {
+    "status": "PASS",
+    "native_receipt_id": "20261030T054151Z-8d67500b50",
+    "diagnostic_members": 762,
+    "identity_originals": 761,
+    "decoded_packet_bytes": 4579338,
+    "metadata_copies": 376,
+    "image_bytes": 1100000000,
+    "image_sha256": "75a79bd519af8398a847545192293d92361bba5397d3a45e98169cf93ee5761c",
+    "whole_downloaded_image_sha_and_crc_checked": true,
+    "runner_readonly_recovery_status": "PASS",
+    "runner_original_members": 1149,
+    "runner_original_bytes": 19133375,
+    "runner_image_unmounted": true,
+    "complete_controller_retention": false,
+    "native_ext4_member_walk": false
+  },
+  "artifacts": [
+    {
+      "id": 12956308295,
+      "name": "reference-diagnostics-41008670963-1",
+      "size_in_bytes": 1128165,
+      "digest": "sha256:60178c1b769bc2fb0121747318a266a42ec2243f17b2bcc6114b4e23ede0ee83",
+      "created_at": "2026-10-30T05:35:52Z",
+      "expires_at": "2026-11-06T05:35:50Z"
+    },
+    {
+      "id": 12956303289,
+      "name": "reference-results-image-41008670963-1",
+      "size_in_bytes": 5555161,
+      "digest": "sha256:6c98be7ed58d58c6c358f335b831076a57782675391656d36fc76709787df843",
+      "created_at": "2026-10-30T05:35:55Z",
+      "expires_at": "2026-11-06T05:35:52Z"
+    }
+  ],
+  "historical_failures_preserved": true,
+  "full_reader_profiles_1_4_16": "NOT RUN on this source",
+  "manual_gates": "Browser policy dependency and declined owner walkthrough remain unmet."
+}

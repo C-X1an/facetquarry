@@ -60,6 +60,7 @@ jobs:
       FQ_BENCH_CONCURRENCY: ${{ inputs.concurrency }}
       FQ_PRESERVATION_CONTROL: ${{ inputs.preservation_control }}
       FQ_TRIM_CONTROL: ${{ inputs.trim_control }}
+      FQ_TRIM_PRESSURE_POLICY: ${{ inputs.trim_control && 'reference-trim-pressure-700mb-v1' || '' }}
       FQ_FILESYSTEM_FREE_FLOOR: "500000000"
       FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
       FQ_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-v1' || '' }}
