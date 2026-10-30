@@ -25,6 +25,7 @@ PACKET_ALLOCATION = 50_000_000
 PACKAGE_ALLOCATION = 401_000_000
 MANIFEST_BYTES = 1_000_000
 CAPTURE_BYTES = 1_000_000
+GUEST_SELECTION_MANIFEST_BYTES = 8_000_000
 METADATA_SOURCE_BYTES = 35_000_000
 RESULTS_IMAGE = 1_100_000_000
 IMAGE_ZIP = RESULTS_IMAGE + 1_000_000
@@ -312,6 +313,7 @@ CRITICAL_SELECTIONS = [
     'reference-transport/pack-attempt.json', 'reference-transport/partial-removal.json',
     'reference-transport/pack-stdout.txt', 'reference-transport/pack-stderr.txt',
     'reference-transport/pack-result.json', 'reference-transport/reference-members.tar.xz.failure.json',
+    'reference-transport/guest-selection-observed.json', 'reference-transport/guest-selection-manifests.json',
     'reference-transport/pack-supervisor.json', 'reference-transport/verify-supervisor.json',
     'reference-transport/reconcile-supervisor.json', 'reference-transport/verification.json',
     'reference-transport/pack-supervisor-stdout.txt', 'reference-transport/pack-supervisor-stderr.txt',
@@ -383,7 +385,13 @@ def metadata_packet(local, output):
             for path, info in metadata_files(source):
                 relative = path.relative_to(local).as_posix(); critical = name in CRITICAL_SELECTIONS or name in ('reference-filesystem', 'reference-trim-control')
                 remaining = max(0, METADATA_BYTES - MANIFEST_BYTES - used)
-                count = min(info.st_size, remaining, CAPTURE_BYTES)
+                # This complete pre-copy observation can be larger than a
+                # command capture. Its narrow cap stays within the unchanged
+                # complete packet/allocation budgets and never applies to logs.
+                member_limit = (GUEST_SELECTION_MANIFEST_BYTES
+                                if relative == 'reference-transport/guest-selection-manifests.json'
+                                else CAPTURE_BYTES)
+                count = min(info.st_size, remaining, member_limit)
                 entry = {'path': relative, 'original_bytes': info.st_size, 'original_sha256': None,
                          'export_path': 'files/%06d.bin' % exported, 'export_bytes': count, 'export_sha256': '0' * 64,
                          'transformation': 'identity' if count == info.st_size else 'explicit bounded prefix; complete original availability is not established'}

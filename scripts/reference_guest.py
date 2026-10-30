@@ -447,10 +447,12 @@ def packages(setup):
     (cache / 'log').mkdir()
     extract = setup.base / 'packages'
     extract.mkdir()
+    # Apply to every APT command, including read-only metadata queries, so
+    # ambient cache paths cannot enable regenerable binary-cache production.
+    binary_cache_options = ['-o', 'Dir::Cache::pkgcache=', '-o', 'Dir::Cache::srcpkgcache=']
     args = ['apt-get', '-o', 'Dir::Cache::archives=' + str(cache),
             '-o', 'Dir::State::extended_states=' + str(cache / 'extended_states'),
-            '-o', 'Dir::Cache::pkgcache=' + str(cache / 'pkgcache.bin'),
-            '-o', 'Dir::Cache::srcpkgcache=' + str(cache / 'srcpkgcache.bin'),
+            *binary_cache_options,
             '-o', 'Dir::Log=' + str(cache / 'log'),
             '-o', 'Dir::Log::History=history.log', '-o', 'Dir::Log::Terminal=terminal.log',
             '-o', 'Dir::Log::Planner=eipp.log.xz',
@@ -484,8 +486,8 @@ def packages(setup):
     setup.check(sum(item['size'] for item in planned) * 3 + 100_000_000)
     setup.manifest['apt_download_plan'] = planned
     setup.manifest['apt_mirror_file'] = mirrors
-    setup.run(['apt-cache', 'policy', 'qemu-system-x86', 'qemu-system-common', 'busybox-static'])
-    setup.run(['apt-get', 'indextargets'])
+    setup.run(['apt-cache', *binary_cache_options, 'policy', 'qemu-system-x86', 'qemu-system-common', 'busybox-static'])
+    setup.run(['apt-get', *binary_cache_options, 'indextargets'])
     retain_signed_indexes(setup)
     if mirrors is not None and mirror_snapshot() != mirrors:
         raise RuntimeError('APT mirror configuration changed before download')
@@ -507,7 +509,7 @@ def packages(setup):
         values = dict(line.split(': ', 1) for line in identity.splitlines() if ': ' in line)
         package = values['Package']
         version = values['Version']
-        metadata = package_stanza(setup.run(['apt-cache', 'show', package + '=' + version]), version)
+        metadata = package_stanza(setup.run(['apt-cache', *binary_cache_options, 'show', package + '=' + version]), version)
         if path.stat().st_size != int(metadata['Size']) or digest(path) != metadata['SHA256']:
             raise RuntimeError('APT archive does not match signed-index size/SHA256: ' + path.name)
         if path.stat().st_size != expected[path.name]['size']:

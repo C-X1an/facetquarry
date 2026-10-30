@@ -744,6 +744,43 @@ def verify_provenance_copy(volume, manifest, destination):
     require(seen == set(expected), 'complete provenance copy is missing members')
 
 
+def observe_guest_selection(p, ctx, removal, provenance):
+    """Retain complete bounded selection facts before admission or deletion."""
+    admission = external_admission(p)
+    require(admission['allowed'],
+            'complete cumulative external provenance/control entries or bytes have no reservation')
+    p['audit'].mkdir(mode=0o700, exist_ok=True)
+    preflight.checked(p['audit'])
+    full = {'status': 'OBSERVED_UNVALIDATED', 'source': ctx['source'], 'run_context': ctx,
+            'removal_manifest': removal, 'provenance_manifest': provenance}
+    encoder = json.JSONEncoder(sort_keys=True, separators=(',', ':'))
+    encoded_bytes = 1 + sum(len(part.encode()) for part in encoder.iterencode(full))
+    complete = encoded_bytes < min(TRIM_PROOF_BYTES, preflight.MAX_MANIFEST_BYTES)
+    observed = {'status': 'OBSERVED_UNVALIDATED', 'source': ctx['source'], 'run_context': ctx,
+                'observed_at': results.utc(), 'external_admission': admission,
+                'provenance_entries': len(provenance['entries']),
+                'provenance_logical_bytes': provenance['logical_bytes'],
+                'provenance_accounted_bytes': provenance['accounted_bytes'],
+                'removal_entries': len(removal['entries']),
+                'logical_byte_limit': PROVENANCE_BYTES, 'entry_limit': PROVENANCE_ENTRIES,
+                'complete_manifests_encoded_bytes': encoded_bytes,
+                'complete_manifests_retained': complete,
+                'scope': 'Observed selection only; no copy, trim, deletion or admission success implied.'}
+    if complete:
+        target = p['audit'] / 'guest-selection-manifests.json'
+        preflight.write_proof(target, full, initial=True)
+        observed['complete_manifests_sha256'] = file_sha(target, TRIM_PROOF_BYTES)
+    write_small(p['audit'] / 'guest-selection-observed.json', observed)
+    if os.name == 'posix':
+        descriptor = os.open(p['audit'], os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+    require(complete, 'complete guest selection observation exceeds byte admission; summary retained')
+    return observed
+
+
 @bounded_phase(PACK_WRAPPER_SECONDS)
 def trim_guest(p, ctx):
     """Delete only exact regenerable roots after durable complete preservation.
@@ -757,6 +794,7 @@ def trim_guest(p, ctx):
     candidates, selected = guest_selections(p['volume'], ctx)
     require(candidates, 'no positively proved regenerable guest payload exists')
     removal, provenance = owned_manifest(p['volume'], candidates), owned_manifest(p['volume'], selected)
+    observe_guest_selection(p, ctx, removal, provenance)
     require(len(provenance['entries']) <= PROVENANCE_ENTRIES
             and provenance['logical_bytes'] <= PROVENANCE_BYTES, 'complete guest provenance exceeds admission')
     allocated = provenance['accounted_bytes'] + len(provenance['entries']) * 4096
