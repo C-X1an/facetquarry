@@ -230,9 +230,18 @@ def check_inner(record, inputs, members, identity):
     require(dev.get('uid') == 0 and 0 < dev.get('capacity_bytes', 0) <= 1048576
             and guest.get('unprivileged_device_controls') == 'PASS', 'actual device filesystem bound missing')
     ram = guest['ram_backed_filesystems']
-    require(isinstance(ram, list) and {x['mount'] for x in ram} == {'/dev', '/tmp', '/run'}
-            and all(type(x['bytes']) is int and x['bytes'] > 0 for x in ram)
-            and sum(x['bytes'] for x in ram) <= 33554432, 'RAM-backed filesystem bound missing')
+    from reference_source_view import LEGACY_POLICY, SOURCE_POLICY, policy, validate_proof
+    selected_policy = policy(setup.get('source_policy', LEGACY_POLICY))
+    require(guest.get('source_policy', LEGACY_POLICY) == selected_policy, 'guest source policy differs')
+    if selected_policy == SOURCE_POLICY:
+        validate_proof(setup, guest, identity, execution_id, context, documents['provenance'])
+    else:
+        require(not any(k in setup or k in guest for k in
+                        ('source_view', 'source_view_manifest', 'source_view_host_after')),
+                'new source proof is attached to legacy policy')
+        require(isinstance(ram, list) and {x['mount'] for x in ram} == {'/dev', '/tmp', '/run'}
+                and all(type(x['bytes']) is int and x['bytes'] > 0 for x in ram)
+                and sum(x['bytes'] for x in ram) <= 33554432, 'RAM-backed filesystem bound missing')
     require(guest['versions']['go']['exit_code'] == 0
             and guest['versions']['go']['stdout'].strip() == 'go version go1.27.3 linux/amd64', 'guest supported toolchain differs')
     quota = documents['quota']

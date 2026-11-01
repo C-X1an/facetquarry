@@ -33,6 +33,8 @@ import reference_artifacts as artifacts
 import reference_preflight as preflight
 import reference_results as results
 import reference_retention as retention
+import reference_transport_policy as timing
+import reference_verification_progress as verification_progress
 
 PROFILE = 'reference-inside-outer-v1'
 REPOSITORY = 'C-X1an/facetquarry'
@@ -444,12 +446,12 @@ def physical_admission(free_bytes):
             'control_allocation_bytes': CONTROL_ALLOCATION, 'required_available_bytes': required}
 
 
-def time_admission(started_epoch, now_epoch, phase='pack'):
+def time_admission(started_epoch, now_epoch, phase='pack', *, time_policy=timing.LEGACY):
     require(phase in ('pack', 'verify', 'reconcile'), 'unknown transport time phase')
     require(all(type(value) in (int, float) and math.isfinite(value) and value > 0
                 for value in (started_epoch, now_epoch)) and now_epoch >= started_epoch,
             'missing, nonfinite, future or rolled-back actual job clock')
-    phase_seconds = PACK_VERIFY_SECONDS
+    phase_seconds = timing.phase_seconds('verify', time_policy)
     if phase == 'pack':
         phase_seconds += PACK_CHILD_SECONDS + PACK_WRAPPER_SECONDS
     elif phase == 'reconcile':
@@ -466,10 +468,11 @@ def time_admission(started_epoch, now_epoch, phase='pack'):
             'failure_tail_available': now_epoch + FAILURE_TAIL_SECONDS < deadline}
 
 
-def current_time_admission(phase):
+def current_time_admission(phase, *, time_policy=timing.LEGACY):
     raw = os.environ.get('FQ_REFERENCE_JOB_STARTED_EPOCH', '')
     require(re.fullmatch('[1-9][0-9]{8,11}', raw), 'actual job initialization timestamp is required')
-    return time_admission(int(raw), time.time(), phase)
+    return {**time_admission(int(raw), time.time(), phase, time_policy=time_policy),
+            'time_policy': timing.checked(time_policy)}
 
 
 def closed_guest(p, ctx):
@@ -911,8 +914,9 @@ def validate_result_tree(project):
     return len(entries)
 
 
-def pack(volume, project, root=ROOT, control=False):
+def pack(volume, project, root=ROOT, control=False, *, time_policy=timing.LEGACY):
     """Payload API; only the independent CLI parent can qualify its result."""
+    timing.checked(time_policy)
     wrapper_started = time.monotonic()
     require(type(control) is bool, 'invalid transport failure control flag')
     p = paths(volume, project, root)
@@ -921,7 +925,7 @@ def pack(volume, project, root=ROOT, control=False):
     parent = None
     if os.environ.get('FQ_TRANSPORT_WORKER_PHASE'):
         import reference_transport_supervisor as supervisor
-        parent = supervisor.require_active_worker(p, ctx, 'pack')
+        parent = supervisor.require_active_worker(p, ctx, 'pack', time_policy=time_policy)
     require((parent is not None or not os.path.lexists(p['audit'])) and not os.path.lexists(p['data']),
             'refusing existing internal package, partial or audit state')
     admitted = parent['external_admission'] if parent else external_admission(p)
@@ -936,11 +940,11 @@ def pack(volume, project, root=ROOT, control=False):
               'run_context': ctx, 'package_path': str(p['package']), 'audit_path': str(p['audit']),
               'started_at': results.utc(), 'errors': [], 'control': control,
               'complete_scientific_preservation': False, 'external_admission': admitted,
-              'independent_supervisor_required': True, 'scope': SCOPE}
+              'independent_supervisor_required': True, 'time_policy': time_policy, 'scope': SCOPE}
     write_small(proof, record)
     try:
         record['reservation'] = observe_outer(p['volume'], p['project'])
-        record['time_admission'] = current_time_admission('pack')
+        record['time_admission'] = current_time_admission('pack', **timing.keywords(time_policy))
         require(record['time_admission']['allowed'], 'insufficient actual remaining job time for packing and complete image-recovery tail')
         closed_guest(p, ctx)
         before = physical_admission(shutil.disk_usage(p['volume']).free)
@@ -949,7 +953,7 @@ def pack(volume, project, root=ROOT, control=False):
             record['guest_trim'] = trim_guest(p, ctx)
         record['physical_admission'] = physical_admission(shutil.disk_usage(p['volume']).free)
         require(record['physical_admission']['allowed'], 'internal package would consume the unchanged 500MB filesystem floor')
-        record['time_before_launch'] = current_time_admission('pack')
+        record['time_before_launch'] = current_time_admission('pack', **timing.keywords(time_policy))
         require(record['time_before_launch']['allowed'], 'packing no longer has its complete absolute-deadline reservation')
         closed_guest(p, ctx)
         record['admitted_result_members'] = validate_result_tree(p['project'])
@@ -1039,8 +1043,9 @@ def complete_comparisons(root, project, manifest):
             'fuzz_members': retention.verify_fuzz(project, fuzz)}
 
 
-def verify_transport(volume, project, root=ROOT):
+def verify_transport(volume, project, root=ROOT, *, time_policy=timing.LEGACY):
     """Verification-only retention: freeze the child and retain the outer image."""
+    timing.checked(time_policy)
     p = paths(volume, project, root)
     preflight.checked(p['audit'])
     proof = p['audit'] / 'verification.json'
@@ -1050,7 +1055,7 @@ def verify_transport(volume, project, root=ROOT):
     require(context(p['outer']) == ctx, 'outer/source execution identity differs')
     import reference_transport_supervisor as supervisor
     supervisor.require_active_worker(p, ctx, 'verify')
-    packed_supervision = supervisor.validate_receipt(p, ctx, 'pack')
+    packed_supervision = supervisor.validate_receipt(p, ctx, 'pack', time_policy=time_policy)
     record = {'schema_version': 1, 'profile': PROFILE, 'status': 'PREPARING',
               'source': ctx['source'], 'run_context': ctx, 'commit': ctx['commit'],
               'run_id': ctx['github_run_id'], 'run_attempt': ctx['github_run_attempt'],
@@ -1058,61 +1063,71 @@ def verify_transport(volume, project, root=ROOT):
               'started_at': results.utc(), 'scope': SCOPE,
               'complete_comparisons': False, 'outer_image_retained': True,
               'pack_supervisor_receipt_sha256': packed_supervision['supervisor_receipt_sha256'],
-              'independent_supervisor_required': True}
+              'independent_supervisor_required': True, 'time_policy': time_policy}
     write_small(proof, record)
+    progress = verification_progress.Progress(proof, record, write_small, results.utc)
     try:
-        record['time_admission'] = current_time_admission('verify')
-        require(record['time_admission']['allowed'], 'insufficient remaining job time for complete verification and failure-image tail')
-        record['reservation'] = observe_outer(p['volume'], p['project'])
-        packed = verify_pack_audit(p, ctx)
-        closed = closed_guest(p, ctx)
-        info = preflight.checked(p['package'])
-        require(info.st_dev == p['volume'].lstat().st_dev and info.st_uid == os.getuid()
-                and info.st_nlink == 1 and 0 < info.st_size <= bundle.MAX_OUTPUT,
-                'internal package filesystem, owner, link count or size differs')
-        digest = file_sha(p['package'], bundle.MAX_OUTPUT)
-        verified = bundle.verify(p['package'])
-        with p['package'].open('rb') as stream:
-            raw = bundle.transport_item(bundle.XZReader(stream), 'manifest.json', bundle.MAX_MANIFEST)
-        manifest = json.loads(raw, object_pairs_hook=bundle.unique_object)
-        require(verified.get('status') == 'PASS' and verified.get('source') == ctx['source']
-                and verified.get('commit') == ctx['commit'] and verified.get('run_id') == ctx['github_run_id']
-                and digest == packed['bundle_sha256']
-                and file_sha(p['package'], bundle.MAX_OUTPUT, preflight.stamp(info)) == digest,
-                'complete bundle verification identity differs')
-        record['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
-        record['first_comparison'] = complete_comparisons(p['outer'], p['project'], manifest)
-        require(context(p['project']) == ctx and context(p['outer']) == ctx, 'source/run changed during verification')
-        require(observe_outer(p['volume'], p['project']) == record['reservation'], 'outer quota or binding changed')
-        closed_guest(p, ctx)
-        # Repeat every comparison immediately before the sole nested freeze.
-        record['final_comparison'] = complete_comparisons(p['outer'], p['project'], manifest)
-        require(record['first_comparison'] == record['final_comparison']
-                and context(p['project']) == ctx and context(p['outer']) == ctx
-                and file_sha(p['package'], bundle.MAX_OUTPUT, preflight.stamp(info)) == digest,
-                'complete comparisons or source/package changed before nested freeze')
-        supervisor.require_active_worker(p, ctx, 'verify')
-        require(supervisor.capacity.children(os.getpid()) == [],
-                'verification payload still owns children before nested freeze')
-        frozen = freeze_results(p, ctx)
-        require(frozen.get('status') == 'PASS' and frozen.get('image_unmounted') is True
-                and frozen.get('source') == ctx['source'] and frozen.get('run_context') == legacy_context(ctx)
-                and frozen.get('image_bytes') == artifacts.RESULTS_IMAGE,
-                'complete nested results freeze is required')
-        # The quota proof now lives in the exact frozen image; validate the same
-        # still-mounted outer binding without trying to read the unmounted child.
-        observed = results.observe_binding(p['volume'], p['image'], command)
-        require(observed == record['reservation']['binding']
-                and image_identity(preflight.checked(p['image'])) == record['reservation']['backing_identity']
-                and file_sha(p['package'], bundle.MAX_OUTPUT, preflight.stamp(info)) == digest
-                and os.path.ismount(p['volume']), 'outer image/package was not retained through verification')
-        freeze_path = p['volume'] / 'reference-results-freeze.json'
-        record.update(status='PASS', complete_comparisons=True, bundle_sha256=digest,
-                      bundle_bytes=info.st_size, package_identity=list(preflight.stamp(info)),
-                      nested_results_freeze={'status': 'PASS', 'image_unmounted': True,
-                          'proof_path': str(freeze_path), 'proof_sha256': file_sha(freeze_path, 16_000_000),
-                          'image_sha256': frozen['image_sha256'], 'image_bytes': frozen['image_bytes']},
-                      complete_scientific_preservation=True)
+        with progress.stage('admission'):
+            record['time_admission'] = current_time_admission('verify', **timing.keywords(time_policy))
+            require(record['time_admission']['allowed'], 'insufficient remaining job time for complete verification and failure-image tail')
+            record['reservation'] = observe_outer(p['volume'], p['project'])
+            packed = verify_pack_audit(p, ctx)
+            closed = closed_guest(p, ctx)
+            info = preflight.checked(p['package'])
+            require(info.st_dev == p['volume'].lstat().st_dev and info.st_uid == os.getuid()
+                    and info.st_nlink == 1 and 0 < info.st_size <= bundle.MAX_OUTPUT,
+                    'internal package filesystem, owner, link count or size differs')
+            digest = file_sha(p['package'], bundle.MAX_OUTPUT)
+        with progress.stage('bundle_decode'):
+            verified = bundle.verify(p['package'])
+        with progress.stage('manifest_read'):
+            with p['package'].open('rb') as stream:
+                raw = bundle.transport_item(bundle.XZReader(stream), 'manifest.json', bundle.MAX_MANIFEST)
+            manifest = json.loads(raw, object_pairs_hook=bundle.unique_object)
+            require(verified.get('status') == 'PASS' and verified.get('source') == ctx['source']
+                    and verified.get('commit') == ctx['commit'] and verified.get('run_id') == ctx['github_run_id']
+                    and digest == packed['bundle_sha256']
+                    and file_sha(p['package'], bundle.MAX_OUTPUT, preflight.stamp(info)) == digest,
+                    'complete bundle verification identity differs')
+            record['manifest_sha256'] = hashlib.sha256(raw).hexdigest()
+        with progress.stage('first_comparison'):
+            record['first_comparison'] = complete_comparisons(p['outer'], p['project'], manifest)
+        with progress.stage('revalidation'):
+            require(context(p['project']) == ctx and context(p['outer']) == ctx, 'source/run changed during verification')
+            require(observe_outer(p['volume'], p['project']) == record['reservation'], 'outer quota or binding changed')
+            closed_guest(p, ctx)
+        with progress.stage('second_comparison'):
+            # Repeat every comparison immediately before the sole nested freeze.
+            record['final_comparison'] = complete_comparisons(p['outer'], p['project'], manifest)
+            require(record['first_comparison'] == record['final_comparison']
+                    and context(p['project']) == ctx and context(p['outer']) == ctx
+                    and file_sha(p['package'], bundle.MAX_OUTPUT, preflight.stamp(info)) == digest,
+                    'complete comparisons or source/package changed before nested freeze')
+            supervisor.require_active_worker(p, ctx, 'verify')
+            require(supervisor.capacity.children(os.getpid()) == [],
+                    'verification payload still owns children before nested freeze')
+        with progress.stage('freeze'):
+            frozen = freeze_results(p, ctx)
+            require(frozen.get('status') == 'PASS' and frozen.get('image_unmounted') is True
+                    and frozen.get('source') == ctx['source'] and frozen.get('run_context') == legacy_context(ctx)
+                    and frozen.get('image_bytes') == artifacts.RESULTS_IMAGE,
+                    'complete nested results freeze is required')
+        with progress.stage('retained_outer_validation'):
+            # The quota proof now lives in the exact frozen image; validate the same
+            # still-mounted outer binding without trying to read the unmounted child.
+            observed = results.observe_binding(p['volume'], p['image'], command)
+            require(observed == record['reservation']['binding']
+                    and image_identity(preflight.checked(p['image'])) == record['reservation']['backing_identity']
+                    and file_sha(p['package'], bundle.MAX_OUTPUT, preflight.stamp(info)) == digest
+                    and os.path.ismount(p['volume']), 'outer image/package was not retained through verification')
+            freeze_path = p['volume'] / 'reference-results-freeze.json'
+            record.update(status='PASS', complete_comparisons=True, bundle_sha256=digest,
+                          bundle_bytes=info.st_size, package_identity=list(preflight.stamp(info)),
+                          nested_results_freeze={'status': 'PASS', 'image_unmounted': True,
+                              'proof_path': str(freeze_path), 'proof_sha256': file_sha(freeze_path, 16_000_000),
+                              'image_sha256': frozen['image_sha256'], 'image_bytes': frozen['image_bytes']},
+                          complete_scientific_preservation=True)
+        require(verification_progress.complete(record), 'complete ordered verification stage observations required')
     except BaseException as error:
         record.update(status='FAIL', error=(type(error).__name__ + ': ' + str(error))[:2000])
     finally:
@@ -1378,10 +1393,14 @@ def verified_candidate(volume, project, root=ROOT):
     require(context(p['outer']) == ctx, 'upload source and outer checkout differ')
     import reference_transport_supervisor as supervisor
     pack_supervision = supervisor.validate_receipt(p, ctx, 'pack')
-    verify_supervision = supervisor.validate_receipt(p, ctx, 'verify')
+    selected_policy = timing.receipt_policy(pack_supervision)
+    verify_supervision = supervisor.validate_receipt(p, ctx, 'verify', time_policy=selected_policy)
     proof = p['audit'] / 'verification.json'
     receipt_digest = file_sha(proof, 1_000_000)
     receipt = read_json(proof)
+    timing.receipt_policy(receipt, selected_policy)
+    if selected_policy != timing.LEGACY:
+        require(verification_progress.complete(receipt), 'named policy requires complete ordered verification observations')
     require(receipt.get('status') == 'PASS' and receipt.get('profile') == PROFILE
             and receipt.get('run_context') == ctx and receipt.get('source') == ctx['source']
             and receipt.get('commit') == ctx['commit'] and receipt.get('run_id') == ctx['github_run_id']
@@ -1448,6 +1467,7 @@ def main():
         action = actions.add_parser(name)
         action.add_argument('--volume', type=Path, required=True)
         action.add_argument('--project', type=Path, required=True)
+        action.add_argument('--time-policy', choices=timing.POLICIES, default=timing.LEGACY)
         if name in ('pack', '_pack_worker'):
             action.add_argument('--control', action='store_true')
     args = parser.parse_args()
@@ -1457,11 +1477,12 @@ def main():
         elif args.action in ('pack', 'verify', 'reconcile'):
             import reference_transport_supervisor as supervisor
             result = supervisor.supervise(args.action, args.volume, args.project,
-                         control=getattr(args, 'control', False), started=ENTRY_STARTED)
+                         control=getattr(args, 'control', False), started=ENTRY_STARTED,
+                         **timing.keywords(args.time_policy))
         elif args.action == '_pack_worker':
             import reference_transport_supervisor as supervisor
             supervisor.await_startup_gate()
-            result = pack(args.volume, args.project, control=args.control)
+            result = pack(args.volume, args.project, control=args.control, **timing.keywords(args.time_policy))
         elif args.action == '_reconcile_worker':
             import reference_transport_supervisor as supervisor
             supervisor.await_startup_gate()
@@ -1469,7 +1490,7 @@ def main():
         else:
             import reference_transport_supervisor as supervisor
             supervisor.await_startup_gate()
-            result = verify_transport(args.volume, args.project)
+            result = verify_transport(args.volume, args.project, **timing.keywords(args.time_policy))
     except (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError) as error:
         result = {'status': 'FAIL', 'profile': PROFILE, 'error': (type(error).__name__ + ': ' + str(error))[:2000],
                   'scope': SCOPE}

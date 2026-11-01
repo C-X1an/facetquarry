@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "scope": "Actual incomplete frozen one-reader attempt; no full or release qualification.",
+  "run_id": 41181265797,
+  "job_id": 124478968275,
+  "attempt": 1,
+  "url": "https://github.com/C-X1an/facetquarry/actions/runs/41181265797",
+  "commit": "024ceb5a2f79549b58f25ec7fb2259f3275dec0c",
+  "source": "e9d3f61469917718bb04f29784f8f08343d5a7eba176a0aa3b017b856bdc2fe3",
+  "workflow_status": "FAIL",
+  "profile": "full",
+  "concurrency": 1,
+  "measurement": {
+    "status": "FAIL",
+    "inner_receipt": "20261031T074449Z-8f6cf947c4",
+    "termination_reason": "timeout",
+    "timeout_seconds": 15000,
+    "actual_duration_seconds": 15002.826,
+    "exit_code": -15,
+    "execution_id": "51e65de4bdba46a994bbc2f76f4a0826",
+    "last_retained_progress": {
+      "completed_cells": 4407,
+      "expected_cells": 5400,
+      "failed_cells": 0,
+      "phase": "native_measurement",
+      "cell": "e115b336540d6d67e5f5",
+      "group": "clustered/negative/n10000/seed83"
+    },
+    "outer_receipt_termination": null,
+    "outer_receipt_exit_code": 1,
+    "raw_sample_count": "UNKNOWN",
+    "recall_targets": "NOT RUN / raw not inspected",
+    "scope": "Last retained progress is not a complete raw coverage analysis."
+  },
+  "phase_seconds": {
+    "total": 14998.485,
+    "native_measurement": 8273.968,
+    "admission": 1812.698,
+    "publication_proof": 1730.995,
+    "source_proof": 1643.604,
+    "oracle": 833.206
+  },
+  "pack_child": {
+    "status": "PASS",
+    "exit_code": 0,
+    "termination_reason": null,
+    "duration_seconds": 1203.371,
+    "bundle_bytes": 368883980,
+    "bundle_sha256": "e888c42afc56b8da169d9a56b68ba066c3d4a4073bbbce5abf385c1164105588",
+    "members": 28034,
+    "original_bytes": 834273364,
+    "streamed_payload_bytes": 3164987292,
+    "originals_unchanged": true,
+    "child_stopped": true,
+    "discarded_stream_bytes": 0,
+    "scope": "Successful pack precedes the independently failed verification."
+  },
+  "verification": {
+    "status": "FAIL",
+    "termination_reason": "whole_phase_payload_cutoff",
+    "worker_exit_code": -15,
+    "elapsed_seconds": 168.174,
+    "total_budget_seconds": 210,
+    "cleanup_reserved_seconds": 12,
+    "receipt_reserved_seconds": 30,
+    "payload_status": "PREPARING",
+    "complete_comparisons": false,
+    "interrupted_substage": "UNKNOWN",
+    "descendants_quiescent": true
+  },
+  "retention": {
+    "native_diagnostics": "All723identity originals /724ZIP members verified,3887259decoded bytes.",
+    "native_audit_receipt": "20261031T152953Z-815daa479c",
+    "diagnostic_artifact_id": 13041984172,
+    "diagnostic_zip_bytes": 989350,
+    "diagnostic_zip_sha256": "b8a85ddd9fd8fa1ddfe8b0f3766ae3cdc24801ea55804a7da0f364dff4157699",
+    "image_artifact_id": 13042845270,
+    "image_zip_bytes": 753697518,
+    "image_zip_sha256": "81befee8db6a62b34e133e2f8fbfaa3490a2171fb591d86b60fdde9c1d7498b8",
+    "image_native_verification": "NOT RUN; cloud-only, connector maximum536870912bytes.",
+    "raw_replay": "NOT RUN; complete raw/image analysis pending."
+  },
+  "allocation": {
+    "original_submitted_baseline_bytes": 7500739982,
+    "original_session_log_coverage": "FAIL; four attributable logs omitted11550441observed bytes.",
+    "fresh_corrected_baseline_bytes": 7515773969,
+    "corrected_worst_peak_bytes": 11261773969,
+    "correction_receipt": "20261031T074255Z-8ea02d11f0",
+    "submitted_input_rewritten": false
+  },
+  "full_matrix_qualified": false,
+  "release_qualified": false,
+  "remaining": [
+    "Current supported-source/Linux source-view execution",
+    "Frozen full1/4/16 complete measurements",
+    "Complete raw retention analysis",
+    "Actual inspector browser review",
+    "Owner walkthrough"
+  ]
+}

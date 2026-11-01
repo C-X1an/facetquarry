@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "evidence_type": "scoped_actual_named700mb_trim_timeout_recovery_control",
+  "status": "PASS_WITHIN_CONTROL_SCOPE",
+  "repository": "C-X1an/facetquarry",
+  "commit": "024ceb5a2f79549b58f25ec7fb2259f3275dec0c",
+  "source": "e9d3f61469917718bb04f29784f8f08343d5a7eba176a0aa3b017b856bdc2fe3",
+  "run_id": 41016128797,
+  "job_id": 123932754831,
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/41016128797",
+  "workflow_conclusion": "failure",
+  "only_failed_step": 20,
+  "deliberate_failed_step": "bounded packaging timeout",
+  "final_control_step": 26,
+  "final_control_status": "PASS",
+  "pressure_policy": "reference-trim-pressure-700mb-v1",
+  "padding": {
+    "padding_logical_bytes": 1020272640,
+    "padding_physical_bytes": 1020276736,
+    "retained_allocation_replay": {
+      "exact_allocated_bytes": 1020276736,
+      "physical_allocation_overhead_bytes": 4096,
+      "physical_overhead_ceiling_bytes": 4096,
+      "actual_available_after_bytes": 699998208,
+      "prediction_difference_bytes": -4096,
+      "accounting": "complete-statvfs-before-after-v1"
+    }
+  },
+  "actual_packaging_admission": {
+    "available_before_trim_bytes": 699965440,
+    "available_after_trim_bytes": 981880832,
+    "required_packaging_bytes": 921000000,
+    "net_available_gain_bytes": 281915392,
+    "posttrim_headroom_bytes": 60880832
+  },
+  "guest_trim": {
+    "status": "PASS",
+    "removed_entries": 1142,
+    "removed_accounted_bytes": 284250112,
+    "complete_proof_sha256": "37ed3c7d6921060b2de96e05e818d3f17f8f61b13c49b5fdad6a24b5171cbfca"
+  },
+  "complete_selection": {
+    "complete_selection_bytes": 366449,
+    "complete_selection_sha256": "ee63307caabd55d1a2debb37e743a003d8eaf7aed96c33f266f209056f69685d",
+    "provenance_entries": 253,
+    "provenance_logical_bytes": 1774604,
+    "provenance_accounted_bytes": 2134016,
+    "all20apt_calls_explicit_empty_binary_cache_names_and_success": true,
+    "owned_inventory_and_selection_binary_caches_absent": true
+  },
+  "intentional_child": {
+    "status": "PASS",
+    "termination_reason": "timeout",
+    "child_stopped": true,
+    "receipt_sha256": "62809dd647e707c2f5f97d0504ca52ba1946c9bb57a6db9bca8cf677d576c74f",
+    "originals_unchanged": true,
+    "partial_removed": true,
+    "residual_package_bytes": 0
+  },
+  "verification_stages": {
+    "actual_branch_pressure": "PASS",
+    "actual_guest_trim": "PASS",
+    "exact_image_readonly_retention": "PASS",
+    "failed_pack_parent_quiescence": "PASS",
+    "final_context_and_envelope": "PASS",
+    "intentional_failed_child": "PASS",
+    "preparation": "PASS"
+  },
+  "verification_sha256": "06a8ce4a13d02e4683f6bebdd313c1fb0862f673d729f212bfd36f73022f3374",
+  "actual_reported_readonly_recovery": {
+    "status": "PASS",
+    "members": 1139,
+    "original_bytes": 19115646,
+    "manifest_sha256": "2322f668f7a0727ed57d2d9e1b331bca5983bc8852e04cdb4a78146abc1ec8fb",
+    "image_unmounted": true
+  },
+  "native_retained_byte_audit": {
+    "status": "PASS",
+    "checked_stages": [
+      "keepers",
+      "actual terminal jobs",
+      "complete packet",
+      "candidate admission",
+      "actual read-only recovery",
+      "metadata mapping",
+      "supported command receipts",
+      "pack parent supervision",
+      "reconcile parent supervision",
+      "prior phase closure",
+      "intentional stopped timeout and unchanged originals",
+      "freeze dependency binding",
+      "entire image SHA and CRC",
+      "actual named700MB control and original allocation replay"
+    ],
+    "packet_members": 766,
+    "identity_originals": 765,
+    "packet_decoded_bytes": 4568449,
+    "metadata_copy_files_verified": 376,
+    "image_bytes": 1100000000,
+    "image_sha256": "b0ae49939efdea1426779d6cd19dbb1145fd4621808d286d5b038deb533796d7",
+    "image_member_crc_checked": true,
+    "native_ext4_walk": false,
+    "native_image_extraction": false
+  },
+  "artifact_zip_metadata": [
+    {
+      "id": 12959568323,
+      "name": "reference-results-image-41016128797-1",
+      "bytes": 5535771,
+      "digest": "sha256:1b601a6a7be0d630ab72652607aa4fbd1e4c60829e0b3e6d5ab98b222e0514a2"
+    },
+    {
+      "id": 12959563337,
+      "name": "reference-diagnostics-41016128797-1",
+      "bytes": 1128422,
+      "digest": "sha256:a012c71ab9af3a64e7166ff5f6d453af1017195c2c72579f8f9767f7ef5033f7"
+    }
+  ],
+  "qualification": {
+    "full_matrix": false,
+    "recall_targets": false,
+    "normal_full_size_packing": false,
+    "manual_review": false,
+    "release": false
+  },
+  "scope": "Actual current-source named700MB smoke trim/intentional-timeout/unchanged-original-byte same-image recovery control only. Independent original-byte review and native complete keeper/image SHA/CRC checks; no native ext4 member walk or scientific/full/manual/release qualification. Earlier failures remain failures."
+}

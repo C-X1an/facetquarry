@@ -16,6 +16,7 @@ from common import ROOT
 import reference_filesystem as filesystem
 import reference_internal_transport as transport
 import reference_results as results
+import reference_transport_policy as timing
 
 # Existing complete4949 inventory:27544full-profile files; these are their
 # independently summed4096-byte allocation rounding and attempt-directory count.
@@ -61,14 +62,15 @@ def decide(counters,profile):
             'scope':'Initial nested capacity observation/reference floor only; no full-run fit or benchmark qualification.'}
 
 
-def time_plan(started,now):
+def time_plan(started,now,*,time_policy=timing.LEGACY):
     require(type(started) is int and type(now) in (int,float) and math.isfinite(now)
             and started>0 and now>=started,'invalid actual reference job clock')
-    required=MEASUREMENT_SECONDS+ANALYSIS_SECONDS+transport.PACK_TOTAL_SECONDS+transport.PACK_VERIFY_SECONDS+transport.FREEZE_SECONDS+transport.FAILURE_TAIL_SECONDS+ENTRY_SECONDS+TRANSITION_SECONDS
+    required=MEASUREMENT_SECONDS+ANALYSIS_SECONDS+transport.PACK_TOTAL_SECONDS+timing.phase_seconds('verify',time_policy)+transport.FREEZE_SECONDS+transport.FAILURE_TAIL_SECONDS+ENTRY_SECONDS+TRANSITION_SECONDS
     remaining=started+transport.JOB_SECONDS-now
     return {'job_started_epoch':started,'observed_epoch':now,'remaining_seconds':remaining,
             'measurement_command_seconds':MEASUREMENT_SECONDS,'analysis_and_qualification_seconds':ANALYSIS_SECONDS,
-            'pack_seconds':transport.PACK_TOTAL_SECONDS,'verify_seconds':transport.PACK_VERIFY_SECONDS,
+            'pack_seconds':transport.PACK_TOTAL_SECONDS,'verify_seconds':timing.phase_seconds('verify',time_policy),
+            'time_policy':timing.checked(time_policy),
             'freeze_seconds':transport.FREEZE_SECONDS,'complete_failure_tail_seconds':transport.FAILURE_TAIL_SECONDS,
             'admission_entry_seconds':ENTRY_SECONDS,'transition_allowance_seconds':TRANSITION_SECONDS,
             'required_remaining_seconds':required,'admission':'ALLOW' if remaining>required else 'REFUSE'}
@@ -80,6 +82,7 @@ def main():
         parser=argparse.ArgumentParser(description=__doc__)
         parser.add_argument('--volume',type=Path,required=True)
         parser.add_argument('--project',type=Path,required=True)
+        parser.add_argument('--time-policy',choices=timing.POLICIES,default=timing.LEGACY)
         args=parser.parse_args()
         p=transport.paths(args.volume,args.project,ROOT)
         ctx=transport.context(p['project'])
@@ -96,7 +99,7 @@ def main():
             record['statvfs']=counters
             raw=os.environ.get('FQ_REFERENCE_JOB_STARTED_EPOCH','')
             require(raw.isdecimal(),'actual job initialization timestamp missing')
-            record['time_admission']=time_plan(int(raw),time.time())
+            record['time_admission']=time_plan(int(raw),time.time(),time_policy=args.time_policy)
             require(record['capacity']['admission']=='ALLOW','nested full-output reference floor not available')
             require(record['time_admission']['admission']=='ALLOW','complete remaining measurement/preservation tail not available')
             require(results.identity(p['project']/'.local')[:5]==before

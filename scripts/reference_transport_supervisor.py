@@ -26,6 +26,7 @@ import uuid
 
 from common import ROOT
 import reference_capacity as capacity
+import reference_transport_policy as timing
 
 PHASE_SECONDS = {'pack': 1710, 'verify': 210, 'reconcile': 180}
 CAPTURE_BYTES = 1_000_000  # Combined stdout+stderr, for each supervised phase.
@@ -59,12 +60,15 @@ def receipt_path(p, phase):
     return p['audit'] / (phase + '-supervisor.json')
 
 
-def require_active_worker(p, ctx, phase):
+def require_active_worker(p, ctx, phase, *, time_policy=None):
     """A worker can use its parent's reservation, but cannot mint its PASS."""
     import reference_internal_transport as transport
     require(os.environ.get('FQ_TRANSPORT_WORKER_PHASE') == phase,
             'transport worker is not inside its independently supervised phase')
     proof = transport.read_json(receipt_path(p, phase))
+    policy = timing.receipt_policy(proof, time_policy)
+    require(proof.get('total_budget_seconds') == timing.phase_seconds(phase, policy),
+            'active supervisor time policy or budget differs')
     parent = proof.get('supervisor_identity', {})
     require(proof.get('kind') == KIND and proof.get('profile') == transport.PROFILE
             and proof.get('phase') == phase and proof.get('state') == 'RUNNING'
@@ -90,11 +94,13 @@ def require_active_worker(p, ctx, phase):
     return proof
 
 
-def validate_receipt(p, ctx, phase, *, require_pass=True, bind_payload=True):
+def validate_receipt(p, ctx, phase, *, require_pass=True, bind_payload=True, time_policy=None):
     import reference_internal_transport as transport
     path = receipt_path(p, phase)
     digest = transport.file_sha(path, RECEIPT_BYTES)
     value = transport.read_json(path, RECEIPT_BYTES)
+    policy = timing.receipt_policy(value, time_policy)
+    total = timing.phase_seconds(phase, policy)
     quiet = value.get('descendant_quiescence', {})
     require(value.get('kind') == KIND and value.get('profile') == transport.PROFILE
             and value.get('phase') == phase and value.get('state') == 'COMPLETE'
@@ -104,10 +110,10 @@ def validate_receipt(p, ctx, phase, *, require_pass=True, bind_payload=True):
             and value.get('volume_path') == str(p['volume']) and value.get('project_path') == str(p['project'])
             and value.get('outer_path') == str(p['outer']) and value.get('audit_path') == str(p['audit'])
             and value.get('package_path') == str(p['package']) and value.get('terminal_receipt') is True
-            and value.get('total_budget_seconds') == PHASE_SECONDS[phase]
+            and value.get('total_budget_seconds') == total
             and value.get('whole_phase_within_budget') is True
             and type(value.get('duration_seconds')) in (int, float)
-            and 0 <= value['duration_seconds'] < PHASE_SECONDS[phase]
+            and 0 <= value['duration_seconds'] < total
             and quiet.get('quiescent') is True and quiet.get('residual') == [],
             'terminal same-execution transport supervision and positive descendant quiescence are required')
     if require_pass:
@@ -312,7 +318,7 @@ def run_owned(argv, stdout_path, stderr_path, *, started, total_seconds,
     return record
 
 
-def supervise(phase, volume, project, root=ROOT, *, control=False, started=None):
+def supervise(phase, volume, project, root=ROOT, *, control=False, started=None, time_policy=timing.LEGACY):
     """The production parent: setup, worker, cleanup and terminal receipt fit."""
     import reference_internal_transport as transport
     require(phase in PHASE_SECONDS and type(control) is bool and (not control or phase == 'pack'),
@@ -322,7 +328,7 @@ def supervise(phase, volume, project, root=ROOT, *, control=False, started=None)
     require(signal.getitimer(signal.ITIMER_REAL) == (0.0, 0.0),
             'transport supervisor cannot replace an unrelated deadline')
     started = time.monotonic() if started is None else started
-    total = PHASE_SECONDS[phase]
+    total = timing.phase_seconds(phase, time_policy)
     remaining = started + total - time.monotonic()
     require(remaining > 0, 'transport entry setup exceeded its whole-phase budget')
     old_alarm, handlers = signal.getsignal(signal.SIGALRM), {}
@@ -341,8 +347,8 @@ def supervise(phase, volume, project, root=ROOT, *, control=False, started=None)
         if not admitted['allowed']:
             return transport.preserve_refusal(p, ctx, phase, admitted,
                     'actual external metadata plus complete 20MB control reservation exceeds admission')
-        timing = transport.current_time_admission(phase)
-        if not timing['allowed']:
+        admission = transport.current_time_admission(phase, **timing.keywords(time_policy))
+        if not admission['allowed']:
             return transport.preserve_refusal(p, ctx, phase, admitted,
                     'supervisor lacks actual remaining job time and complete failure tail')
         if phase == 'pack':
@@ -366,7 +372,7 @@ def supervise(phase, volume, project, root=ROOT, *, control=False, started=None)
                   'audit_path': str(p['audit']), 'started_at': transport.results.utc(),
                   'entry_started_monotonic': started, 'total_budget_seconds': total,
                   'cleanup_reserved_seconds': CLEANUP_SECONDS, 'receipt_reserved_seconds': RECEIPT_SECONDS,
-                  'external_admission': admitted, 'time_admission': timing,
+                  'external_admission': admitted, 'time_admission': admission, 'time_policy': time_policy,
                   'supervisor_identity': parent, 'nonce': uuid.uuid4().hex,
                   'worker_started': False, 'terminal_receipt': False,
                   'descendant_quiescence': {'quiescent': False, 'residual': None},
@@ -374,6 +380,8 @@ def supervise(phase, volume, project, root=ROOT, *, control=False, started=None)
         transport.write_small(proof, record)
         argv = [sys.executable, str(p['outer'] / 'scripts/reference_internal_transport.py'),
                 '_' + phase + '_worker', '--volume', str(p['volume']), '--project', str(p['project'])]
+        if time_policy != timing.LEGACY:
+            argv.extend(['--time-policy', time_policy])
         if control:
             argv.append('--control')
         env = {**os.environ, 'FQ_TRANSPORT_WORKER_PHASE': phase,
@@ -406,6 +414,10 @@ def supervise(phase, volume, project, root=ROOT, *, control=False, started=None)
                 value = transport.read_json(payload, RECEIPT_BYTES)
                 record['payload_receipt'] = {'path': str(payload), 'status': value.get('status'),
                                             'sha256': transport.file_sha(payload, RECEIPT_BYTES)}
+                if phase == 'verify':
+                    record['payload_receipt'].update(
+                        active_verification_stage=value.get('active_verification_stage'),
+                        verification_stages=value.get('verification_stages', []))
                 expected_context = (transport.legacy_context(ctx) if phase == 'reconcile' else ctx)
                 require(value.get('source') == ctx['source'] and value.get('run_context') == expected_context,
                         'payload terminal receipt source/run differs')
@@ -451,8 +463,9 @@ def main():
     parser.add_argument('--volume', type=Path, required=True)
     parser.add_argument('--project', type=Path, required=True)
     parser.add_argument('--control', action='store_true')
+    parser.add_argument('--time-policy', choices=timing.POLICIES, default=timing.LEGACY)
     args = parser.parse_args()
-    value = supervise(args.phase, args.volume, args.project, control=args.control, started=ENTRY_STARTED)
+    value = supervise(args.phase, args.volume, args.project, control=args.control, started=ENTRY_STARTED, **timing.keywords(args.time_policy))
     print(json.dumps(value, sort_keys=True))
     return 0 if value.get('status') == 'PASS' else 1
 

@@ -28,6 +28,7 @@ from urllib.parse import urlparse, unquote
 from common import ROOT, source_hash
 from reference_preflight import checked as checked_runtime, file_sha as runtime_sha, stamp as runtime_stamp
 from reference_apt_ownership import ordinary_account, apt_request, MAX_REQUEST_BYTES
+import reference_source_view as source_view
 
 GUEST_RAM = 8_000_000_000
 TMPFS_BYTES = 18 * 1024 * 1024
@@ -85,6 +86,9 @@ class Setup:
                          'guest_ram_bytes': GUEST_RAM, 'tmpfs_limit_bytes': TMPFS_BYTES,
                          'initrd_uncompressed_limit_bytes': INITRD_MAX,
                          'reference_host_verified': False, 'status': 'PREPARING'}
+        if source_view.policy(getattr(args, 'source_policy', source_view.LEGACY_POLICY)) == source_view.SOURCE_POLICY:
+            self.manifest.update(source_policy=source_view.SOURCE_POLICY,
+                                 tmpfs_limit_bytes=source_view.RAM_BYTES)
         self.save()
 
     def save(self):
@@ -619,6 +623,14 @@ try:
     if (device_mount[2]!='devtmpfs' or 'rw' not in device_mount[3].split(',')
             or 'nodev' in device_mount[3].split(',') or not 0<device_capacity<=1048576):
         raise RuntimeError('actual devtmpfs capacity or device access differs from configuration')
+    policy=config.get('source_policy','legacy')
+    if policy!='legacy':
+        sys.dont_write_bytecode=True
+        sys.path.insert(0,'/opt')
+        import reference_source_view
+        reference_source_view.policy(policy)
+        result['source_policy']=policy
+        result['source_view']=reference_source_view.stage(config)
     os.setgroups([]);os.setgid(config['gid']);os.setuid(config['uid'])
     # These real I/O operations also check device access after dropping UID.
     with open('/dev/null','wb') as stream:stream.write(b'facetquarry-device-control')
@@ -632,6 +644,7 @@ try:
          'PYTHONPYCACHEPREFIX':'/tmp/pycache','GOTOOLCHAIN':'local','GOROOT':'/opt/go',
          'GOTELEMETRY':'off','GOENV':'off',
          'FQ_CPUS':'4','FQ_WORKSPACE_ROOT':'/owned','GOMAXPROCS':'4','TMPDIR':'/project/.cache/tmp'}
+    if policy!='legacy':env['GIT_OPTIONAL_LOCKS']='0'
     os.environ.clear();os.environ.update(env)
     sys.path.insert(0,str(root/'scripts'))
     from common import source_hash
@@ -704,6 +717,7 @@ try:
     p=subprocess.run(command,env=env,timeout=config['command_timeout']+15)
     result['command_exit_code']=p.returncode
     if source_hash()!=config['source']:raise RuntimeError('guest source changed')
+    if policy!='legacy':reference_source_view.finish(result['source_view'],config)
     if p.returncode:raise RuntimeError('guest evidenced workload failed')
     result['status']='PASS';result['reference_host_verified']=True;code=0
 except BaseException as failure:
@@ -820,6 +834,17 @@ def runtime(setup, extract):
               'execution_id': setup.manifest['execution_id'], 'run_context': setup.manifest['run_context'],
               'mode': setup.args.mode, 'profile': setup.args.profile, 'concurrency': setup.args.concurrency,
               'command_timeout': setup.args.timeout - 120}
+    if source_view.policy(getattr(setup.args, 'source_policy', source_view.LEGACY_POLICY)) == source_view.SOURCE_POLICY:
+        value = source_view.create_manifest(setup.args.project, config['source'], config['execution_id'],
+                                            config['run_context'], config['uid'], config['gid'])
+        config.update(source_policy=source_view.SOURCE_POLICY, source_view_manifest=value)
+        setup.manifest['source_view_manifest'] = value
+        (root / 'opt/source-origin').mkdir()
+        admitted_copy(setup, Path(__file__).with_name('reference_source_view.py'), root / 'opt/reference_source_view.py')
+        busybox = extract / 'bin/busybox'
+        if not busybox.is_file():
+            busybox = extract / 'usr/bin/busybox'
+        admitted_copy(setup, busybox, root / 'bin/busybox', executable=True)
     admitted_bytes(setup, root / 'opt/config.json', (json.dumps(config, indent=2)+'\n').encode())
     setup.manifest['trusted_host_runtime_files'] = identities
     setup.manifest['host_installed_package_versions'] = setup.run(['dpkg-query', '-W', '-f', '${Package}\t${Version}\t${Architecture}\n'])
@@ -867,7 +892,10 @@ def kernel_initrd(setup, extract):
         module_records.append({'host_path': str(path), 'host_sha256': digest(path),
                                'uncompressed_bytes': len(raw), 'guest_path': '/' + name})
     commands = '\n'.join('/bin/busybox insmod ' + item['guest_path'] for item in module_records)
-    entries.append(('init', INIT.replace('MODULES', commands).encode(), stat.S_IFREG | 0o755))
+    init = INIT
+    if source_view.policy(getattr(setup.args, 'source_policy', source_view.LEGACY_POLICY)) == source_view.SOURCE_POLICY:
+        init = init.replace('size=16777216,mode=1777', 'size=4194304,mode=1777')
+    entries.append(('init', init.replace('MODULES', commands).encode(), stat.S_IFREG | 0o755))
     raw = newc(entries)
     if len(raw) > INITRD_MAX:
         raise RuntimeError('initrd exceeds admitted uncompressed RAM allocation')
@@ -916,6 +944,15 @@ def boot(setup, extract, root, kernel, initrd):
         raise RuntimeError('actual guest reported failure or stale source')
     if source_hash(setup.args.project) != setup.manifest['source']:
         raise RuntimeError('host source changed during guest execution')
+    if source_view.policy(getattr(setup.args, 'source_policy', source_view.LEGACY_POLICY)) == source_view.SOURCE_POLICY:
+        value = source_view.create_manifest(setup.args.project, setup.manifest['source'],
+                                            setup.manifest['execution_id'], setup.manifest['run_context'],
+                                            os.getuid(), os.getgid())
+        if value != setup.manifest['source_view_manifest'] or result.get('source_policy') != source_view.SOURCE_POLICY:
+            raise RuntimeError('host tracked source/binaries changed or guest source policy differs')
+        setup.manifest['source_view_host_after'] = {'manifest_sha256': source_view.manifest_digest(value), 'status': 'PASS'}
+        source_view.validate_proof(setup.manifest, result, setup.manifest['source'],
+                                   setup.manifest['execution_id'], setup.manifest['run_context'])
     control = setup.args.project / '.local/reference-guest-io.bin'
     if control.read_bytes() != b'facetquarry-9p-append-fsync\n' or digest(control) != result.get('io_control_sha256'):
         raise RuntimeError('host/guest append/fsync evidence differs')
@@ -933,6 +970,7 @@ def main():
     parser.add_argument('--volume', required=True, type=Path)
     parser.add_argument('--project', required=True, type=Path)
     parser.add_argument('--mode', choices=('smoke', 'benchmark'), default='smoke')
+    parser.add_argument('--source-policy', choices=source_view.POLICIES, default=source_view.LEGACY_POLICY)
     parser.add_argument('--profile', choices=('smoke', 'full', 'diagnostic'), default='full')
     parser.add_argument('--concurrency', choices=(1, 4, 16), type=int, default=1)
     parser.add_argument('--timeout', type=int, default=300)

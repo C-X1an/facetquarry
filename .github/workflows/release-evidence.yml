@@ -61,6 +61,8 @@ jobs:
       FQ_PRESERVATION_CONTROL: ${{ inputs.preservation_control }}
       FQ_TRIM_CONTROL: ${{ inputs.trim_control }}
       FQ_TRIM_PRESSURE_POLICY: ${{ inputs.trim_control && 'reference-trim-pressure-700mb-v1' || '' }}
+      FQ_GUEST_SOURCE_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'reference-tracked-source-tmpfs-v1' || 'legacy' }}
+      FQ_TRANSPORT_TIME_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'reference-verify-600s-v1' || 'legacy' }}
       FQ_FILESYSTEM_FREE_FLOOR: "500000000"
       FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
       FQ_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-v1' || '' }}
@@ -253,7 +255,7 @@ jobs:
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
           if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
-            timeout --signal=TERM --kill-after=2s 120s python3 scripts/evidence.py --category reference-nested-capacity-admission --requirements AC-020 --timeout 110 -- python3 scripts/reference_result_capacity.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+            timeout --signal=TERM --kill-after=2s 120s python3 scripts/evidence.py --category reference-nested-capacity-admission --requirements AC-020 --timeout 110 -- python3 scripts/reference_result_capacity.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY"
           fi
       - name: Measure the frozen profile in the actual declared KVM guest
         id: measurement
@@ -283,7 +285,7 @@ jobs:
           sys.path.insert(0,'scripts')
           from common import source_hash
           from reference_result_capacity import time_plan
-          record={**time_plan(int(os.environ['FQ_REFERENCE_JOB_STARTED_EPOCH']),time.time()),
+          record={**time_plan(int(os.environ['FQ_REFERENCE_JOB_STARTED_EPOCH']),time.time(),time_policy=os.environ['FQ_TRANSPORT_TIME_POLICY']),
                   'source':source_hash(),'github_run_id':os.environ['GITHUB_RUN_ID'],
                   'github_run_attempt':os.environ['GITHUB_RUN_ATTEMPT']}
           with pathlib.Path('.local/reference-measurement-time.json').open('x') as stream:
@@ -291,7 +293,7 @@ jobs:
           if record['admission']!='ALLOW':raise ValueError('measurement boundary lacks complete time reservation')
           PY
           fi
-          python3 scripts/evidence.py --category actual-reference-full-benchmark --requirements AC-016,AC-017 --timeout 15840 --progress-file .local/reference-progress.json --progress-seconds 30 -- python3 scripts/reference_guest.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --mode benchmark --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY" --timeout 15120 --setup-max-bytes 800000000
+          python3 scripts/evidence.py --category actual-reference-full-benchmark --requirements AC-016,AC-017 --timeout 15840 --progress-file .local/reference-progress.json --progress-seconds 30 -- python3 scripts/reference_guest.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --mode benchmark --profile "$FQ_BENCH_PROFILE" --concurrency "$FQ_BENCH_CONCURRENCY" --timeout 15120 --setup-max-bytes 800000000 --source-policy "$FQ_GUEST_SOURCE_POLICY"
       - name: Quiesce only this execution's positively bound guest units
         id: quiescence
         if: ${{ always() && steps.results.outcome == 'success' }}
@@ -353,8 +355,8 @@ jobs:
         if: ${{ !cancelled() && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
         # 720s child +150s verification +210s inventory/termination overhead.
         # Legacy branch bounds remain unchanged. The internal branch admits
-        # actual remaining job time and supervises1710s pack plus210s verify.
-        timeout-minutes: ${{ inputs.transport_profile == 'inside-outer' && 33 || 18 }}
+        # actual remaining job time and supervises1710s pack plus600s verify.
+        timeout-minutes: ${{ inputs.transport_profile == 'inside-outer' && 40 || 18 }}
         shell: bash
         run: |
           set -euo pipefail
@@ -362,8 +364,8 @@ jobs:
           if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
             fq_control=()
             if test "$FQ_PRESERVATION_CONTROL" = true; then fq_control=(--control); fi
-            python3 scripts/reference_internal_transport.py pack --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" "${fq_control[@]}"
-            python3 scripts/reference_internal_transport.py verify --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+            python3 scripts/reference_internal_transport.py pack --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY" "${fq_control[@]}"
+            python3 scripts/reference_internal_transport.py verify --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY"
             exit 0
           fi
           mkdir -p .local/reference-transport
@@ -412,7 +414,7 @@ jobs:
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
           if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
-            python3 scripts/reference_internal_transport.py reconcile --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"
+            python3 scripts/reference_internal_transport.py reconcile --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY"
             exit 0
           fi
           python3 scripts/evidence.py --category reference-results-failure-freeze --requirements AC-020 --timeout 150 -- python3 scripts/reference_results.py freeze --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source"

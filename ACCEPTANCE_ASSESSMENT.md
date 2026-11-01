@@ -1,5 +1,19 @@
 # Current acceptance assessment
 
+Current technical source `1dd535c677854e65be1fa54a17ede07ed2f6b2ae0c39305d19de01df464fa8c4` is **EXPERIMENTAL / NOT RELEASE QUALIFIED**. It adds an explicitly selected, bounded read-only source view and complete-verification time policy. Native reference controls passed: 423 tests, 393 PASS and 30 explicit platform skips. Independent read-only findings, actual RED, code-only repairs, identical-test GREEN and separate closure are retained. Original tests and locked criteria remain unchanged.
+
+| Gate | Current evidence | Still required |
+|---|---|---|
+| Supported toolchain, race, fuzz, clean reproduction | Historical e9d3 results passed on Go 1.27.3 Linux | Repeat affected gates for the new technical source |
+| Source view and complete verification | Native contracts and independent static review pass | Actual Linux mount, byte/inode fit, complete verification and speed observations |
+| AC-016/017 frozen matrix | Actual run34 failed at the inner 15,000-second limit; last progress 4,407/5,400 cells | Complete source-matched full reader1, reader4 and reader16 runs; raw coverage and targets |
+| Failed-run preservation | Exact available diagnostics verified; full run34 image retained in cloud | Complete image/raw inspection; connector size cap remains explicit |
+| AC-020 resources | Owned regenerable caches retired with hash proofs; fresh inventory required per admission | Strict global budget, unchanged 2 GB reserve and actual bounded remote capacity |
+| AC-013 and AC-022 | Browser policy gate and owner-declined walkthrough remain unmet | Actual permitted evidence; no invented or waived PASS |
+| Publication and current security | Prior source was audited and published | Current immutable-source audit and security scan before publishing these repairs |
+
+Run33's seven-stage named700MBcontrol passed within its limited scope. Run34's successful pack and later failed verification are separate outcomes. See [the verification report](VERIFICATION_REPORT.md) and its exact-source summaries. Earlier sections below remain historical; their then-pending statements do not override this checkpoint.
+
 Current repair source`e9d3f61469917718bb04f29784f8f08343d5a7eba176a0aa3b017b856bdc2fe3` adds the explicit `reference-trim-pressure-700mb-v1` production policy while retaining the exact legacy600MBplanning API. The700MBtarget still forces the same pre-pack admission refusal; actual post-trim admission remains mandatory before any child launch. The500MBfloor,401MBpackage,20MBcontrol and70MBdiagnostic margins,2GBglobalreserve and all deletion/retention guards remain unchanged. Native receipt`20261030T062438Z-2f5cfda01e` ran399reference tests:372passed/27explicit skips. Both pre-branch and post-trim guard mutations were caught, restored controls passed, and independent read-only review closed the repair. Actual700MBLinux execution, current security review, frozen full1/4/16 and manual/release gates remain pending.
 
 [Run41008670963](verification/published/forced-trim-headroom-failure-41008670963.json), commit`cdf3f846`/source`93d9d64e`, passed supported Go1.27.3 verification, clean reproduction, online scanning and the21-cell/672-sample KVM smoke. Main verification ran495Python tests with7explicit skips. All20APT calls used the empty cache-name options, and the inspected owned inventories and complete selection contained neither binary cache. Complete provenance253entries/1,777,069logical bytes was retained. Guest trim passed, removing1,142entries/284,250,112accounted bytes. Its net availability gain was281,911,296bytes; accounted removal is not guaranteed free-space credit.
