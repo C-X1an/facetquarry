@@ -179,7 +179,7 @@
       "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "stderr_sha256": "e71b36bbf861abda1ece229ba0243671e6cf1d3f5e081862ddd69eb9238d368b",
       "tests": 30,
-      "explicit_platform_skips": 0,
+      "explicit_platform_skips": 1,
       "assertion_failures": 0,
       "errors": 2
     },
