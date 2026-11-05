@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "evidence_type": "failed_recovery_setup_and_repair_controls",
+  "failed_run": {
+    "id": 42127523219,
+    "job_id": 127595407590,
+    "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/42127523219",
+    "commit": "80c8d6657005021e70a2caa2a976018dc371c220",
+    "source": "90b3c3956655d49d0be01642e4c843bc19f1c662f5239c2e4fa612c2ee82ce3f",
+    "outcome": "FAIL",
+    "failed_steps": [
+      16,
+      30
+    ],
+    "download_inspection_retention": "NOT RUN",
+    "ENOSPC": "NOT RUN",
+    "diagnostic_artifact_id": 13460608135,
+    "diagnostic_zip_bytes": 64196,
+    "diagnostic_zip_sha256": "176e6c3e535a819d904b7a1aecae267828340dcea93751f80c73e661633d70b2",
+    "diagnostic_members": 119,
+    "selected_originals_verified": 118,
+    "original_bytes": 90104,
+    "actual_formatter": "e2fsprogs1.47.0",
+    "observed_disabled_field": "Fast commit length: 0",
+    "failure_cause": "Deterministic parser rejected explicit disabled zero field before mount; cleanup lacked positive ownership proof for the unmounted allocation.",
+    "exception_message_scope": "Original failure captures expose ValueError type only; cause is established from preserved command output and rejecting source predicate."
+  },
+  "diagnostic_audit": {
+    "run_id": "20261105T231717Z-ec99f57a86",
+    "status": "PASS",
+    "exit_code": 0,
+    "source_before": "8e35d58d4265bbd4278bcfe6e9aaa7d9ba16edfebfc1512919aeef92277b9521",
+    "source_after": "8e35d58d4265bbd4278bcfe6e9aaa7d9ba16edfebfc1512919aeef92277b9521",
+    "stdout_sha256": "a202cbb495cfda9225cc65099e7514fd21a2a5cf556466374fe27edb188c480c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "initial_checker_failure": {
+    "run_id": "20261105T231625Z-fce91179f2",
+    "status": "FAIL",
+    "exit_code": 1,
+    "source_before": "ad3a248436e66214a2e87a05b312e6bff06b972e696c4a32c2562dc8995ec183",
+    "source_after": "ad3a248436e66214a2e87a05b312e6bff06b972e696c4a32c2562dc8995ec183",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "2669e9d72736c1e7dbf61e6c1e1fca935d659444459b5273f77f1f6a32672d08"
+  },
+  "checker_correction": "Exact observed five-field quiescence schema retained; original failed checker remains preserved.",
+  "repair_source": "cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98",
+  "new_frozen_test_sha256": "066513e5169015541ba85745b3e70736155abc158a28e3e74d033fe765b56ae3",
+  "independent_review": {
+    "initial_read_only": true,
+    "findings_before_repairs": true,
+    "closure_read_only": true
+  },
+  "repair_controls": {
+    "red": {
+      "run_id": "20261105T231700Z-93736b4e51",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "8e35d58d4265bbd4278bcfe6e9aaa7d9ba16edfebfc1512919aeef92277b9521",
+      "source_after": "8e35d58d4265bbd4278bcfe6e9aaa7d9ba16edfebfc1512919aeef92277b9521",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5b9bb12bf0e2f07dc44d8b9bcb2b48a0c89697f9f246ccb55a27ae9061bec165",
+      "tests": 8,
+      "explicit_skips": 0,
+      "errors": 17
+    },
+    "green": {
+      "run_id": "20261105T231808Z-6a8283b0c1",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98",
+      "source_after": "cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7ed87ae4b42b1891ce6af68fd248301f07638dcb565d0e8b1271d02f54c0f645",
+      "tests": 8,
+      "explicit_skips": 0,
+      "passed": 8
+    },
+    "all_reference_controls": {
+      "run_id": "20261105T231840Z-cb4bf08ddc",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98",
+      "source_after": "cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7a2b68e75070a50c8d21033584d926ad20c63f43e36ad943daf6b7b6dc461488",
+      "tests": 485,
+      "explicit_skips": 30,
+      "passed": 455
+    }
+  },
+  "repair_behavior": [
+    "Only one exact disabled fast-commit zero report is accepted; enabled/nonzero/unknown/duplicate fields remain refused.",
+    "Fsynced exclusive descriptor creation proof precedes formatting; unmounted retention requires exact context/owner/mode/inode/size and an empty associated-loop query.",
+    "No unbound image is deleted or detached; allocation remains counted until actual runner termination."
+  ],
+  "scope": "Source-bound native controls and actual historical failed setup only. Fresh supported Linux retry, ENOSPC, old image download/inspection/chunk readback remain NOT RUN. No full/manual/release qualification.",
+  "full_matrix_qualified": false,
+  "manual_qualified": false,
+  "release_qualified": false
+}

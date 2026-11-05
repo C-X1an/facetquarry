@@ -155,8 +155,14 @@ def recovery_geometry(raw, *, lifecycle='clean'):
     lifecycle_features = {'needs_recovery'} if lifecycle == 'mounted' else set()
     require(len(features) == len(set(features)) and set(features) == FORMAT_FEATURES | lifecycle_features,
             'unexpected recovery filesystem feature set')
+    # e2fsprogs1.47.0 reports the disabled feature as an explicit zero even
+    # when fast_commit is absent. Admit only that unique disabled observation.
+    fast_commit_lines = re.findall(r'^Fast commit[^\r\n]*', raw, re.MULTILINE)
+    require(not fast_commit_lines or (len(fast_commit_lines) == 1
+            and re.fullmatch(r'Fast commit length:[ \t]*0[ \t]*', fast_commit_lines[0])),
+            'unexpected nonzero, duplicate or unknown fast-commit report')
     require(field('Journal features') == '(none)' and field('Total journal size') == '16M'
-            and not re.search(r'^(?:Fast commit|Journal block size)', raw, re.MULTILINE),
+            and not re.search(r'^Journal block size', raw, re.MULTILINE),
             'unexpected journal feature, fast-commit or block-size addition')
     journal_blocks = int(field('Total journal blocks'))
     block = geometry['block_size']
@@ -478,6 +484,13 @@ def quota():
                 'exact newly allocated outer descriptor differs')
     finally:
         os.close(descriptor)
+    # This proves creation ownership only. ENOSPC and mount binding remain
+    # separate later observations and must never be inferred from allocation.
+    save(p['local'] / 'outer-allocation.json', {
+        'status': 'PASS', 'run_context': ctx, 'outer_path': str(p['outer']),
+        'volume_path': str(p['volume']), 'image_identity': backing_identity(p['outer']),
+        'outer_bytes': OUTER_BYTES, 'created_via': 'exclusive-descriptor-fsynced-posix-fallocate-v1',
+        'hard_quota_enforced': False})
     version_out, version_err, version_proof = command(['mkfs.ext4', '-V'], 'recovery-formatter-version')
     require(re.search(rb'mke2fs [0-9]+\.[0-9]+(?:\.[0-9]+)?', version_out + version_err),
             'actual recovery formatter version missing')
@@ -1105,6 +1118,40 @@ def readback():
     return record
 
 
+def retained_unmounted_outer(p, ctx):
+    """Authenticate an owned pre-mount allocation; retain it without deletion."""
+    proof = load(p['local'] / 'outer-allocation.json')
+    info = checked(p['outer'], regular=True)
+    observed = [info.st_dev, info.st_ino, info.st_mode, info.st_uid,
+                info.st_gid, info.st_nlink, info.st_size]
+    require(set(proof) == {'status', 'run_context', 'outer_path', 'volume_path', 'image_identity',
+                          'outer_bytes', 'created_via', 'hard_quota_enforced'}
+            and proof.get('status') == 'PASS' and proof.get('run_context') == ctx
+            and proof.get('outer_path') == str(p['outer']) and proof.get('volume_path') == str(p['volume'])
+            and type(proof.get('outer_bytes')) is int and proof['outer_bytes'] == OUTER_BYTES
+            and proof.get('created_via') == 'exclusive-descriptor-fsynced-posix-fallocate-v1'
+            and proof.get('hard_quota_enforced') is False,
+            'refusing unidentified pre-mount outer allocation')
+    require(stat.S_ISREG(info.st_mode) and stat.S_IMODE(info.st_mode) == 0o600
+            and info.st_uid == os.getuid() and info.st_nlink == 1 and info.st_size == OUTER_BYTES
+            and type(proof.get('image_identity')) is list and len(proof['image_identity']) == 7
+            and all(type(value) is int for value in proof['image_identity'])
+            and proof['image_identity'] == observed and backing_identity(p['outer']) == observed
+            and not os.path.ismount(p['volume']), 'pre-mount ownership or unmounted state differs')
+    raw, _, observation = command(['sudo', '-n', 'losetup', '--json', '--list', '--associated',
+                                  str(p['outer']), '--output',
+                                  'NAME,BACK-FILE,BACK-INO,BACK-MAJ:MIN,OFFSET,SIZELIMIT,RO'],
+                                 'cleanup-unmounted-outer-loop')
+    loops = json.loads(raw, object_pairs_hook=bundle.unique_object)
+    require(type(loops) is dict and set(loops) == {'loopdevices'} and loops['loopdevices'] == []
+            and backing_identity(p['outer']) == observed and not os.path.ismount(p['volume']),
+            'unmounted allocation has an active, ambiguous or changed loop binding')
+    return {'status': 'PASS', 'state': 'OWNED_UNMOUNTED_RETAINED', 'run_context': ctx,
+            'image_identity': observed, 'allocation_proof': proof, 'loop_observation': observation,
+            'hard_quota_enforced': False, 'deleted_or_detached': False,
+            'scope': 'Positive creation ownership and no active loop only; no ENOSPC or quota claim.'}
+
+
 def cleanup():
     p, ctx = admitted(); result = {'run_context': ctx, 'status': 'PASS', 'scope': SCOPE}
     if os.path.ismount(p['mount']):
@@ -1118,8 +1165,8 @@ def cleanup():
         outer(p, 'cleanup-outer-binding')
         result['outer'] = unmount_exact(p, p['outer'], p['volume'], 'cleanup-outer',
                                          readonly=False, expected_bytes=OUTER_BYTES)
-    else:
-        require(not os.path.lexists(p['outer']), 'outer allocation exists without positively bound quota/mount')
+    elif os.path.lexists(p['outer']):
+        result['outer'] = retained_unmounted_outer(p, ctx)
     result.update(owned_outer_retained_until_runner_termination=True,
                   remote_allocation_retirement_requires_actual_job_termination=True,
                   original_cloud_and_native_keepers_untouched=True)

@@ -1,5 +1,13 @@
 # Verification report
 
+## Current recovery repair - 2026-11-05
+
+Technical source `cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Actual run36 and source-bound repair controls](verification/published/run36-recovery-setup-42127523219.json) preserve the failed Linux setup: e2fsprogs reported disabled `Fast commit length: 0`, which the parser refused before mount, ENOSPC or download. The original64196-byte diagnostic and all118selected originals were authenticated. No image recovery or retention PASS occurred.
+
+Independent read-only findings preceded implementation-only repairs. Eight unchanged new regression tests preserve RED(17errors, including absent new APIs) and GREEN(8PASS). The complete native reference suite passed485tests:455PASS/30explicit skips. All71previously tracked Python/Go test files remain byte-exact. Cleanup now authenticates pre-mount ownership and no active loop, retains the allocation without deletion and makes no quota claim.
+
+Fresh supported Linux retry, complete chunk readback, current-source toolchain/clean reproduction, frozen full1/4/16 and manual gates remain required. Earlier source checkpoints below retain their original scope and failures.
+
 ## Current integration checkpoint - 2026-11-05
 
 Technical source `90b3c3956655d49d0be01642e4c843bc19f1c662f5239c2e4fa612c2ee82ce3f` is **EXPERIMENTAL / NOT RELEASE QUALIFIED**. The [source-bound controls](verification/published/bounded-outer-image-recovery-controls-20261105.json) ran477native reference tests:447passed and30explicit platform skips. All65existing Python/Go test files and locked contracts remain byte-exact. Independent read-only findings preceded implementation repairs; unchanged new controls preserve their actual RED/GREEN failures and passes.

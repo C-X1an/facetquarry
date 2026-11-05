@@ -18,7 +18,8 @@ zero reserved blocks, an actual2200000000-byte ENOSPC probe and exact loop/mount
 observations. Its separate `recovery-ext4-inodes4096-journal16m-v1` formatter
 requests4096inodes,256-byte inodes and an exact16MiB journal. Actual formatter
 version, argv, features, inode-group rounding and journal blocks are recorded;
-unexpected features or fast-commit additions refuse. Clean formatting and bound
+unexpected enabled features refuse. One optional, unique `Fast commit length: 0`
+report is accepted; nonzero, malformed, duplicate or unknown fast-commit reports refuse. Clean formatting and bound
 read/write mounting have separate lifecycle checks: only the mounted journal's
 declared `needs_recovery` flag changes, with actual flags and mount binding retained.
 All static geometry remains exact. Original ZIP chunks, extracted image, temporary files and at most
@@ -43,7 +44,10 @@ with bounded output files and memory. Its real exit and partial/FAIL results rem
 explicit. Diagnostics identify any reduced export and omitted original output
 hashes. No current-source, recall-target or release qualification follows.
 
-Cleanup closes only positively bound owned mounts. The owned outer image remains
+A fsynced exclusive-creation ownership proof precedes formatting. If setup fails
+before mounting, cleanup authenticates exact ownership/context/inode/size and an
+empty associated-loop query, then records retained bytes without a quota claim.
+It never deletes or detaches an unidentified allocation. Cleanup closes only positively bound owned mounts. The owned outer image remains
 counted until actual hosted-job termination. Original cloud input and native
 keepers are never deleted. Fresh independent code/security review, source audit
 and actual supported Linux execution remain required.
