@@ -47,7 +47,7 @@ def explicit_control(environ):
     require(environ.get('FQ_TRIM_CONTROL') == environ.get('FQ_PRESERVATION_CONTROL') == 'true'
             and environ.get('FQ_BENCH_PROFILE') == 'smoke'
             and environ.get('FQ_BENCH_CONCURRENCY') == '1'
-            and environ.get('FQ_RESERVATION_PROFILE') == transport.PROFILE,
+            and environ.get('FQ_RESERVATION_PROFILE') == transport.active_profile(),
             'trim control requires explicit preservation, smoke, one reader and inside-outer profile')
 
 
@@ -418,7 +418,7 @@ def inode_refusals(errors):
 
 
 def pressure_check(pack, ctx):
-    require(pack.get('run_context') == ctx and pack.get('profile') == transport.PROFILE
+    require(pack.get('run_context') == ctx and pack.get('profile') == transport.active_profile()
             and pack.get('source') == ctx['source'] and pack.get('control') is True
             and pack.get('status') == 'FAIL', 'current intentional failed pack control is required')
     before = pack.get('physical_before', {})

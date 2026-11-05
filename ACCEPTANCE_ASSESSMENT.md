@@ -1,5 +1,21 @@
 # Current acceptance assessment
 
+Technical source `90b3c3956655d49d0be01642e4c843bc19f1c662f5239c2e4fa612c2ee82ce3f` is **EXPERIMENTAL / NOT RELEASE QUALIFIED**. Local infrastructure controls pass477tests with30explicit platform skips. Independent findings and implementation-only repairs are [source-bound](verification/published/bounded-outer-image-recovery-controls-20261105.json); existing tests and locked criteria remain unchanged.
+
+| Gate | Evidence at this checkpoint | Still required |
+|---|---|---|
+| Supported toolchain, race, fuzz, clean reproduction | [Run35](verification/published/source-view-smoke-41306644715.json) passed actual Go1.27.3 Linux checks atab1/1dd5 | Current integration Linux checks and clean reproduction |
+| Named2.1GB outer profile | Native proof/negative controls and independent closure | Actual geometry/ENOSPC, capacity, normal smoke transport |
+| AC-016/017 frozen matrix | Prior full run34 timed out; sourceview smoke21cells/672samples verified | Complete source-matched full reader1/4/16, raw coverage and target results |
+| Failed-run preservation | Original run34 diagnostic verified; fixed cloud image and exact recovery input declared | Execute bounded readonly recovery and every server chunk readback |
+| AC-020 resources | Whole-allocation inventory/refusal/owned archival and exact expired-cloud reconciliation retained | Fresh admission with unchanged2GBreserve and actual hard bounded capacity |
+| Current security and publication | Earlierab1 static scan and audit retain their own scope | New exact committed audit/security review; no inherited current PASS |
+| AC-013/022 manual gates | Actual inspector and owner walkthrough remain unmet | Permitted real evidence; no invented or waived PASS |
+
+Source publication and unit controls are not a completed release. [Verification report](VERIFICATION_REPORT.md) separates current checkpoint and historical results; all earlier ledger entries below remain source-bound.
+
+## Historical assessments
+
 Current technical source `1dd535c677854e65be1fa54a17ede07ed2f6b2ae0c39305d19de01df464fa8c4` is **EXPERIMENTAL / NOT RELEASE QUALIFIED**. It adds an explicitly selected, bounded read-only source view and complete-verification time policy. Native reference controls passed: 423 tests, 393 PASS and 30 explicit platform skips. Independent read-only findings, actual RED, code-only repairs, identical-test GREEN and separate closure are retained. Original tests and locked criteria remain unchanged.
 
 | Gate | Current evidence | Still required |

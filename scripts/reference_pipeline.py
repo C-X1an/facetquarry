@@ -4,6 +4,7 @@ These observations never qualify a benchmark. Metadata can survive a refused
 scientific artifact; a partial package is never an upload candidate.
 """
 from __future__ import annotations
+import reference_outer_profile as outer_profile
 import argparse
 import hashlib
 import json
@@ -190,12 +191,12 @@ def external_inventory(local):
 
 
 def admission(base, image_bytes, external_bytes, selected_zip, *, profile=''):
-    if profile == 'reference-inside-outer-v1':
+    if profile in outer_profile.PROFILES:
         from reference_internal_transport import growth_plan
-        plan = growth_plan(base)
+        plan = growth_plan(base, outer_profile.image_bytes(profile), profile=profile)
         require(artifacts.OVERHEAD >= UPLOAD_RECEIPT_ALLOCATION,
                 'upload receipt has no independent overhead reservation')
-        require(type(image_bytes) is int and 0 <= image_bytes <= 2_300_000_000
+        require(type(image_bytes) is int and 0 <= image_bytes <= outer_profile.image_bytes(profile)
                 and type(external_bytes) is int and external_bytes >= 0
                 and type(selected_zip) is int and 0 <= selected_zip <= artifacts.IMAGE_ZIP,
                 'invalid internal upload allocation observation')
@@ -203,7 +204,7 @@ def admission(base, image_bytes, external_bytes, selected_zip, *, profile=''):
         data_peak = metadata_peak + selected_zip
         external_ok = external_bytes <= artifacts.EXTERNAL_METADATA_ALLOCATION
         return {'profile': profile, 'metadata_allowed': external_ok and metadata_peak < artifacts.CEILING,
-                'data_allowed': external_ok and image_bytes == 2_300_000_000 and selected_zip > 0
+                'data_allowed': external_ok and image_bytes == outer_profile.image_bytes(profile) and selected_zip > 0
                     and plan['admission'] == 'ALLOW' and data_peak <= plan['peak_bytes'] < artifacts.CEILING,
                 'initial_scientific_admission': plan['admission'],
                 'metadata_peak_bytes': metadata_peak, 'scientific_peak_bytes': data_peak,
@@ -257,7 +258,7 @@ def admit_uploads(volume, package_ok, root=ROOT, *, profile=''):
             image_bytes = info.st_size
         selected, bound = '', 0
         package = local / 'reference-transport/reference-members.tar.xz'
-        if profile == 'reference-inside-outer-v1':
+        if profile in outer_profile.PROFILES:
             from reference_upload_candidate import evaluate
             evaluated = evaluate(volume, package_ok, root=root)
             result['candidate_evaluation'] = evaluated
@@ -320,7 +321,7 @@ def admit_uploads(volume, package_ok, root=ROOT, *, profile=''):
                 selected = value['selected_path']; bound = value['zip_upper_bound_bytes']
                 require(bound <= 350_000_000, 'bootstrap ZIP exceeds reserved subbranch')
                 result['kind'] = 'BOOTSTRAP'
-        if profile == 'reference-inside-outer-v1':
+        if profile in outer_profile.PROFILES:
             from reference_internal_transport import physical_tree
             physical_tree(local)
         external, count = external_inventory(local)
@@ -331,7 +332,7 @@ def admit_uploads(volume, package_ok, root=ROOT, *, profile=''):
         # diagnostics. Re-inventory only bounded external originals.
         result['error'] = (type(error).__name__ + ': ' + str(error))[:1000]
         try:
-            if profile == 'reference-inside-outer-v1':
+            if profile in outer_profile.PROFILES:
                 from reference_internal_transport import physical_tree
                 physical_tree(local)
             external, count = external_inventory(local)
@@ -371,7 +372,7 @@ def final_state(volume, root=ROOT, *, profile=''):
     for name in ('reference-results-freeze.json', 'reference-results-reconciled-freeze.json', 'reference-guest-quiescence.json',
                  'reference-results-rescue.json'):
         path = volume / name
-        if profile == 'reference-inside-outer-v1' and name in (
+        if profile in outer_profile.PROFILES and name in (
                 'reference-results-freeze.json', 'reference-results-reconciled-freeze.json'):
             if os.path.lexists(path):
                 # Supervisor and candidate receipts bind the complete proof SHA.
@@ -383,7 +384,7 @@ def final_state(volume, root=ROOT, *, profile=''):
             record_json(local / name, {key: value.get(key) for key in
                 ('status', 'source', 'run_context', 'image_path', 'image_bytes', 'image_sha256',
                  'image_unmounted', 'selected_path', 'zip_upper_bound_bytes', 'scope', 'error')})
-    if profile == 'reference-inside-outer-v1':
+    if profile in outer_profile.PROFILES:
         trim = local / 'reference-transport/guest-trim.json'
         if os.path.lexists(trim):
             bundle.no_links(trim); info = trim.lstat()

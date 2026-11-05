@@ -19,6 +19,7 @@ import sys
 
 from common import ROOT
 import reference_filesystem as fs
+import reference_outer_profile as outer_profile
 
 KIND = 'owned-filesystem-bindings-v1'
 KEYS = ('source', 'commit', 'git_status', 'github_run_id', 'github_run_attempt')
@@ -58,6 +59,8 @@ def layout(directory, image, image_bytes, mount=None, *, create=False):
         1_100_000_000: ('nested', temporary / 'facetquarry-reference' / 'reference-results.img',
                        temporary / 'facetquarry-reference' / 'source' / '.local'),
     }
+    if os.environ.get('FQ_RESERVATION_PROFILE') == outer_profile.STRICT_2100:
+        expected[2_100_000_000] = expected.pop(2_300_000_000)
     require(type(image_bytes) is int and image_bytes in expected, 'unsupported exact filesystem binding size')
     name, expected_image, expected_mount = expected[image_bytes]
     require(directory == base / name and image == expected_image
@@ -78,7 +81,8 @@ def layout(directory, image, image_bytes, mount=None, *, create=False):
 
 def context_shape(value):
     fs.bounded(value, budget=fs.MAX_CONTEXT, fields=128, string_limit=4096)
-    require(type(value) is dict and set(value) == set(KEYS)
+    require(type(value) is dict and (set(value) == set(KEYS)
+            or set(value) == {*KEYS, 'outer_profile'} and value['outer_profile'] == outer_profile.STRICT_2100)
             and all(type(value[k]) is str for k in KEYS)
             and re.fullmatch('[0-9a-f]{64}', value['source'])
             and re.fullmatch('[0-9a-f]{40}', value['commit']) and value['git_status'] == ''
@@ -90,6 +94,9 @@ def current_context(expected):
     """Observe both original checkout and any importing source copy live."""
     from reference_internal_transport import command, bounded_source_hash
     context_shape(expected)
+    require(expected.get('outer_profile') == (outer_profile.STRICT_2100
+            if os.environ.get('FQ_RESERVATION_PROFILE') == outer_profile.STRICT_2100 else None),
+            'filesystem context differs from selected outer profile')
     ordinary()
     require(os.environ.get('GITHUB_ACTIONS') == 'true'
             and expected['commit'] == os.environ.get('GITHUB_SHA')
@@ -225,6 +232,7 @@ def retain_failure(directory, name, record, failure):
 
 def validate_format(directory, image, image_bytes, context, *, policy=fs.POLICY):
     policy_for_role(policy, image_bytes)
+    require(outer_profile.filesystem_size(image_bytes, context), 'filesystem size/profile context differs')
     require(not os.path.lexists(directory / 'formatter.failure.json'), 'failed formatter attempt is retained')
     record, digest = read_json(directory / 'formatter.json')
     argv = formatter_command(image, policy=policy)
@@ -258,6 +266,7 @@ def format_owned(image, image_bytes, context_json, directory, *, policy=fs.POLIC
         _, directory, image, _ = layout(directory, image, image_bytes, create=True)
         context = context_file(context_json)
         current_context(context)
+        require(outer_profile.filesystem_size(image_bytes, context), 'formatter size/profile context differs')
         allocation = envelope(directory.parent)
         require(max(allocation['physical_bytes'], allocation['logical_bytes']) + 6_000_000 <= ENVELOPE_BYTES,
                 'complete formatter/collector failure tail lacks control admission')
@@ -442,7 +451,7 @@ def main():
         for name in ('image', 'context-json', 'directory'):
             parser.add_argument('--' + name, type=Path, required=True)
         parser.add_argument('--mount', type=Path)
-        parser.add_argument('--image-bytes', type=int, required=True, choices=(2_300_000_000, 1_100_000_000))
+        parser.add_argument('--image-bytes', type=int, required=True, choices=(2_300_000_000, 2_100_000_000, 1_100_000_000))
         parser.add_argument('--policy', choices=(fs.POLICY, fs.NESTED_POLICY), default=fs.POLICY)
         args = parser.parse_args()
         if args.action == 'format':

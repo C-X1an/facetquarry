@@ -1,5 +1,6 @@
 """Actual nonqualifying frozen-image round trip, with no second image allocation."""
 from __future__ import annotations
+import reference_outer_profile as outer_profile
 import argparse
 import hashlib
 import json
@@ -78,7 +79,7 @@ def recover(volume, project, *, profile=''):
     paths = control_paths(volume, project)
     before_path = paths['volume'] / 'reference-results-control-before.json'
     before = results.read_json(before_path)
-    if profile == 'reference-inside-outer-v1':
+    if profile in outer_profile.PROFILES:
         from reference_internal_transport import verified_frozen_candidate
         frozen = verified_frozen_candidate(paths['volume'], paths['project'])
     else:

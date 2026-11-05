@@ -1,0 +1,49 @@
+# Frozen run34 readonly image recovery
+
+This path is implemented but unexecuted and unqualified. Select `codec_control=true`
+to enter the existing historical-control job and `image_recovery=true` to select
+readonly recovery instead of codec packing. Set `profile=smoke`, `concurrency=1`,
+with capacity, preservation and trim controls false. Supply a fresh all-attributable
+baseline including original cloud input, every mirror and the unchanged 2GB reserve.
+This route never installs Go, executes an artifact or starts a benchmark.
+
+The frozen input is artifact13042845270 from run41181265797, a753697518-byte ZIP
+with SHA256 `81befee8db6a62b34e133e2f8fbfaa3490a2171fb591d86b60fdde9c1d7498b8`.
+Its sole `reference-results.img` member must contain1100000000 original bytes,
+SHA256 `b78c516c61e58ea414168c4a9f8b8312f49cc08144d53afa05bb5383fd6e6b4a`.
+These identities cannot be supplied or replaced by workflow input.
+
+The separate recovery allocation uses an actual2100000000-byte ext4 image,
+zero reserved blocks, an actual2200000000-byte ENOSPC probe and exact loop/mount
+observations. Its separate `recovery-ext4-inodes4096-journal16m-v1` formatter
+requests4096inodes,256-byte inodes and an exact16MiB journal. Actual formatter
+version, argv, features, inode-group rounding and journal blocks are recorded;
+unexpected features or fast-commit additions refuse. Clean formatting and bound
+read/write mounting have separate lifecycle checks: only the mounted journal's
+declared `needs_recovery` flag changes, with actual flags and mount binding retained.
+All static geometry remains exact. Original ZIP chunks, extracted image, temporary files and at most
+one101000000-byte server readback stay inside it. Before growth, actual available
+bytes and inodes must cover each remaining file rounded independently, directory
+block padding and a separate
+10MB recovery reserve. This does not alter any full-reference filesystem floor.
+Maximum new global allocation is2971697518bytes; totals at or above12GB refuse.
+
+An actual server job-start observation binds the60-minute deadline. Owned parent
+processes retain bounded captures, actual termination and descendant quiescence.
+Eight100MB-or-smaller original ZIP chunks preserve the exact compressed input.
+Every new server artifact must be read back sequentially and its sole member's
+CRC, size and SHA verified before the parent can issue complete-retention PASS.
+An upload badge or manifest alone cannot establish retention.
+
+The original image mounts `ro,nodev,nosuid,noexec,noload`. A bounded inventory
+hashes every accessible regular file and reports all traversal failures, including
+unreadable `lost+found`; those failures never become complete-inventory PASS.
+The unchanged analyzer runs against the actual old-source full-reader1 data,
+with bounded output files and memory. Its real exit and partial/FAIL results remain
+explicit. Diagnostics identify any reduced export and omitted original output
+hashes. No current-source, recall-target or release qualification follows.
+
+Cleanup closes only positively bound owned mounts. The owned outer image remains
+counted until actual hosted-job termination. Original cloud input and native
+keepers are never deleted. Fresh independent code/security review, source audit
+and actual supported Linux execution remain required.

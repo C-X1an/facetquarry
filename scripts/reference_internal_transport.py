@@ -35,6 +35,9 @@ import reference_results as results
 import reference_retention as retention
 import reference_transport_policy as timing
 import reference_verification_progress as verification_progress
+import reference_outer_profile as outer_profile
+
+active_profile = outer_profile.active
 
 PROFILE = 'reference-inside-outer-v1'
 REPOSITORY = 'C-X1an/facetquarry'
@@ -149,12 +152,13 @@ def bounded_phase(seconds):
     return decorate
 
 
-def growth_plan(base, image_bytes=IMAGE_BYTES):
+def growth_plan(base, image_bytes=IMAGE_BYTES, *, profile=PROFILE):
     """Count the contained package once, including the exact-image failure tail."""
     require(type(base) is int and base >= GLOBAL_RESERVE,
             'fresh accounted baseline must include the unchanged global 2GB reserve')
-    require(type(image_bytes) is int and image_bytes == IMAGE_BYTES,
-            'inside-outer profile requires the exact 2.3GB outer image')
+    outer_profile.checked(profile)
+    require(type(image_bytes) is int and image_bytes == outer_profile.image_bytes(profile),
+            'inside-outer profile requires its exact explicitly selected outer image')
     metadata = artifacts.EXTERNAL_METADATA_ALLOCATION + artifacts.PACKET_ALLOCATION
     branches = {
         'packing_with_live_image': image_bytes + metadata + artifacts.OVERHEAD,
@@ -164,9 +168,9 @@ def growth_plan(base, image_bytes=IMAGE_BYTES):
             + metadata + artifacts.METADATA_ZIP + artifacts.OVERHEAD,
     }
     maximum = max(branches.values())
-    return {'schema_version': 1, 'profile': PROFILE, 'scope': SCOPE,
+    return {'schema_version': 1, 'profile': profile, 'scope': SCOPE,
             'baseline_includes_global_reserve': base,
-            'outer_image_bytes': IMAGE_BYTES, 'nested_results_image_bytes': artifacts.RESULTS_IMAGE,
+            'outer_image_bytes': image_bytes, 'nested_results_image_bytes': artifacts.RESULTS_IMAGE,
             'package_allocation_inside_outer_bytes': artifacts.PACKAGE_ALLOCATION,
             'filesystem_free_floor_bytes': FILESYSTEM_FLOOR,
             'external_metadata_allocation_bytes': artifacts.EXTERNAL_METADATA_ALLOCATION,
@@ -188,7 +192,7 @@ def bind_context(environ, commit, git_status, digest, ordinary_linux):
             and environ.get('GITHUB_REPOSITORY') == REPOSITORY
             and environ.get('GITHUB_REPOSITORY_ID') == str(REPOSITORY_ID)
             and environ.get('GITHUB_JOB') == 'reference'
-            and environ.get('FQ_RESERVATION_PROFILE') == PROFILE,
+            and environ.get('FQ_RESERVATION_PROFILE') == outer_profile.active(environ),
             'inside-outer transport requires the exact repository, reference job and profile')
     run, attempt = environ.get('GITHUB_RUN_ID', ''), environ.get('GITHUB_RUN_ATTEMPT', '')
     require(all(re.fullmatch('[1-9][0-9]{0,19}', value) for value in (run, attempt)),
@@ -198,7 +202,7 @@ def bind_context(environ, commit, git_status, digest, ordinary_linux):
             'checkout must be clean and equal the actual Actions commit')
     require(isinstance(digest, str) and re.fullmatch('[0-9a-f]{64}', digest),
             'source identity must be a SHA256')
-    return {'profile': PROFILE, 'job': 'reference', 'repository': REPOSITORY,
+    return {'profile': outer_profile.active(environ), 'job': 'reference', 'repository': REPOSITORY,
             'repository_id': REPOSITORY_ID, 'source': digest, 'commit': commit,
             'git_status': '', 'github_run_id': run, 'github_run_attempt': attempt}
 
@@ -345,13 +349,17 @@ def validate_documents(volume, image_bytes, mount, loops, quota, planned, ctx,
                        enospc, expected_baseline):
     """Validate the new proof directly, without weakening a legacy plan."""
     image = volume.with_name(volume.name + '.img')
-    require(volume.name == 'facetquarry-reference' and ctx.get('profile') == PROFILE
+    require(volume.name == 'facetquarry-reference' and ctx.get('profile') in outer_profile.PROFILES
             and ctx.get('job') == 'reference' and ctx.get('repository') == REPOSITORY
             and ctx.get('repository_id') == REPOSITORY_ID
-            and quota.get('profile') == PROFILE and quota.get('profile_context') == ctx,
+            and quota.get('profile') == ctx['profile'] and quota.get('profile_context') == ctx,
             'transport reservation profile, repository, job or source differs')
-    require(image_bytes == IMAGE_BYTES and quota.get('volume_file_bytes') == IMAGE_BYTES
-            and quota.get('oversized_allocation_bytes') == PROBE_BYTES
+    if ctx['profile'] == outer_profile.STRICT_2100:
+        require(outer_profile.quota_geometry(quota, legacy_context(ctx)),
+                'strict outer complete profile context or geometry differs')
+    require(type(image_bytes) is int and image_bytes == outer_profile.image_bytes(ctx['profile'])
+            and quota.get('volume_file_bytes') == image_bytes
+            and quota.get('oversized_allocation_bytes') == outer_profile.probe_bytes(ctx['profile'])
             and quota.get('oversized_allocation') == 'DENIED_ENOSPC'
             and quota.get('hard_quota_enforced') is True
             and quota.get('enospc_sha256') == hashlib.sha256(enospc).hexdigest()
@@ -365,23 +373,23 @@ def validate_documents(volume, image_bytes, mount, loops, quota, planned, ctx,
     devices = loops.get('loopdevices', [])
     require(len(devices) == 1 and devices[0].get('name') == mount['source']
             and devices[0].get('back-file') == str(image), 'transport outer backing differs')
-    expected = {**growth_plan(expected_baseline, image_bytes), 'run_context': ctx}
+    expected = {**growth_plan(expected_baseline, image_bytes, profile=ctx['profile']), 'run_context': ctx}
     require(planned == expected and expected['admission'] == 'ALLOW',
             'inside-outer plan differs from the exact fresh baseline or is refused')
-    return {'profile': PROFILE, 'global_reserved_growth_bytes': GLOBAL_RESERVE,
+    return {'profile': ctx['profile'], 'global_reserved_growth_bytes': GLOBAL_RESERVE,
             'filesystem_free_floor_bytes': FILESYSTEM_FLOOR,
             'global_peak_bytes': expected['peak_bytes'], 'run_context': ctx, 'scope': SCOPE}
 
 
 def observe_outer(volume, project, *, quota_root=None):
     """Bind the current ENOSPC proof to the observed mount and exact backing."""
-    require(os.environ.get('FQ_RESERVATION_PROFILE') == PROFILE, 'unknown or wrong transport profile')
+    require(os.environ.get('FQ_RESERVATION_PROFILE') == active_profile(), 'unknown or wrong transport profile')
     require(volume == normalized(os.environ['RUNNER_TEMP']) / 'facetquarry-reference'
             and os.environ.get('FQ_WORKSPACE_ROOT') == str(volume), 'unexpected reservation root')
     image = volume.with_name(volume.name + '.img')
     before = preflight.checked(image)
     require(stat.S_ISREG(before.st_mode) and before.st_uid == os.getuid()
-            and before.st_nlink == 1 and before.st_size == IMAGE_BYTES,
+            and before.st_nlink == 1 and before.st_size == outer_profile.image_bytes(active_profile()),
             'outer backing type, owner, links or size differs')
     ctx = context(project)
     mount_observed = json.loads(command(['findmnt', '--json', '--target', str(volume),
@@ -401,13 +409,16 @@ def observe_outer(volume, project, *, quota_root=None):
             'outer backing changed since its actual ENOSPC refusal')
     proof = validate_documents(volume, before.st_size, binding['mount'], loop_observed,
                                quota, plan, ctx, enospc, int(os.environ['FQ_ACCOUNTED_BASE_BYTES']))
-    if os.environ.get('FQ_FILESYSTEM_POLICY') or quota.get('filesystem_policy'):
+    if (ctx['profile'] == outer_profile.STRICT_2100
+            or os.environ.get('FQ_FILESYSTEM_POLICY') or quota.get('filesystem_policy')):
         from reference_filesystem import POLICY
         from reference_filesystem_bindings import validate
         require(os.environ.get('FQ_FILESYSTEM_POLICY') == quota.get('filesystem_policy') == POLICY,
                 'declared filesystem policy is missing or differs')
         filesystem = validate(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/outer',
-                              image, volume, IMAGE_BYTES, {**legacy_context(ctx), 'source': ctx['source']})
+                              image, volume, outer_profile.image_bytes(active_profile()),
+                              outer_profile.filesystem_context(
+                                  {**legacy_context(ctx), 'source': ctx['source']}, ctx['profile']))
         require(filesystem == quota.get('filesystem_proof'), 'retained filesystem proof changed')
         proof.update(filesystem_policy=POLICY, filesystem_proof=filesystem)
     require(image_identity(preflight.checked(image)) == image_identity(before),
@@ -420,7 +431,7 @@ def verify(root, global_reserve, filesystem_floor):
     require(sys.platform == 'linux' and os.name == 'posix' and os.getuid() != 0,
             'inside-outer floor override requires an ordinary Linux runner')
     require(global_reserve == GLOBAL_RESERVE and filesystem_floor == FILESYSTEM_FLOOR
-            and os.environ.get('FQ_RESERVATION_PROFILE') == PROFILE,
+            and os.environ.get('FQ_RESERVATION_PROFILE') == active_profile(),
             'unsupported inside-outer reserve override')
     volume = normalized(os.environ['RUNNER_TEMP']) / 'facetquarry-reference'
     require(Path(root) == volume, 'inside-outer floor requires the exact volume root')
@@ -512,12 +523,16 @@ def validate_nested_filesystem(owned, canonical, ctx, *, live_mount):
     path separately proves unmount/loop absence and hashes the complete image.
     """
     selected = os.environ.get('FQ_NESTED_FILESYSTEM_POLICY', '')
-    if os.environ.get('FQ_FILESYSTEM_POLICY') or selected or canonical.get('filesystem_policy'):
+    if (ctx.get('profile') == outer_profile.STRICT_2100 or os.environ.get('FQ_FILESYSTEM_POLICY')
+            or selected or canonical.get('filesystem_policy')):
         from reference_filesystem import POLICY, NESTED_POLICY
         from reference_filesystem_bindings import validate, validate_retained
         # Legacy v1 summaries retain their original validator contract. A new
         # nested summary always needs its separate explicit workflow selection.
         declared = canonical.get('filesystem_policy')
+        if ctx.get('profile') == outer_profile.STRICT_2100:
+            require(selected == declared == NESTED_POLICY,
+                    'strict outer profile requires the explicitly named nested inode policy')
         expected = NESTED_POLICY if selected or declared == NESTED_POLICY else POLICY
         require(os.environ.get('FQ_FILESYSTEM_POLICY') == POLICY and declared == expected
                 and (selected == NESTED_POLICY if expected == NESTED_POLICY else not selected),
@@ -525,7 +540,9 @@ def validate_nested_filesystem(owned, canonical, ctx, *, live_mount):
         validator = validate if live_mount else validate_retained
         summary = validator(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/nested',
                             owned['image'], owned['mount'], artifacts.RESULTS_IMAGE,
-                            {**legacy_context(ctx), 'source': ctx['source']}, policy=expected)
+                            outer_profile.filesystem_context(
+                                {**legacy_context(ctx), 'source': ctx['source']},
+                                ctx.get('profile', PROFILE)), policy=expected)
         require(summary == canonical.get('filesystem_proof'), 'retained nested filesystem proof changed')
 
 
@@ -585,7 +602,7 @@ def provenance_entry_admission(existing_entries, manifest, guest):
 
 def preserve_refusal(p, ctx, phase, admission, error):
     """A separately admitted small refusal never creates the normal audit tree."""
-    record = {'schema_version': 1, 'profile': PROFILE, 'status': 'FAIL', 'phase': phase,
+    record = {'schema_version': 1, 'profile': active_profile(), 'status': 'FAIL', 'phase': phase,
               'source': ctx['source'], 'run_context': ctx, 'worker_started': False,
               'external_admission': admission, 'error': str(error)[:2000],
               'complete_scientific_preservation': False, 'scope': SCOPE}
@@ -814,7 +831,7 @@ def trim_guest(p, ctx):
     copy_manifest(p['volume'], provenance, inside)
     proof_path = p['audit'] / 'guest-trim.json'
     scientific = p['project'] / '.local/reference-internal-guest-trim.json'
-    proof = {'schema_version': 1, 'profile': PROFILE, 'status': 'PREPARED', 'source': ctx['source'],
+    proof = {'schema_version': 1, 'profile': active_profile(), 'status': 'PREPARED', 'source': ctx['source'],
              'run_context': ctx, 'volume': str(p['volume']), 'project': str(p['project']),
              'provenance_manifest': provenance, 'removal_manifest': removal,
              'external_entry_admission': entry_admission,
@@ -935,7 +952,7 @@ def pack(volume, project, root=ROOT, control=False, *, time_policy=timing.LEGACY
     if parent is None:
         p['audit'].mkdir()
     proof = p['audit'] / 'pack-result.json'
-    record = {'schema_version': 1, 'profile': PROFILE, 'status': 'PREPARING', 'source': ctx['source'],
+    record = {'schema_version': 1, 'profile': active_profile(), 'status': 'PREPARING', 'source': ctx['source'],
               'commit': ctx['commit'], 'run_id': ctx['github_run_id'], 'run_attempt': ctx['github_run_attempt'],
               'run_context': ctx, 'package_path': str(p['package']), 'audit_path': str(p['audit']),
               'started_at': results.utc(), 'errors': [], 'control': control,
@@ -996,7 +1013,7 @@ def verify_pack_audit(p, ctx):
     result = read_json(p['audit'] / 'pack-result.json')
     attempt_path = p['audit'] / 'pack-attempt.json'
     attempted = read_json(attempt_path)
-    require(result.get('profile') == PROFILE and result.get('status') == 'PASS'
+    require(result.get('profile') == active_profile() and result.get('status') == 'PASS'
             and result.get('run_context') == ctx and result.get('package_path') == str(p['package'])
             and result.get('audit_path') == str(p['audit']) and result.get('control') is False,
             'current internal packaging controller PASS is required')
@@ -1056,7 +1073,7 @@ def verify_transport(volume, project, root=ROOT, *, time_policy=timing.LEGACY):
     import reference_transport_supervisor as supervisor
     supervisor.require_active_worker(p, ctx, 'verify')
     packed_supervision = supervisor.validate_receipt(p, ctx, 'pack', time_policy=time_policy)
-    record = {'schema_version': 1, 'profile': PROFILE, 'status': 'PREPARING',
+    record = {'schema_version': 1, 'profile': active_profile(), 'status': 'PREPARING',
               'source': ctx['source'], 'run_context': ctx, 'commit': ctx['commit'],
               'run_id': ctx['github_run_id'], 'run_attempt': ctx['github_run_attempt'],
               'package_path': str(p['package']), 'audit_path': str(p['audit']),
@@ -1260,7 +1277,7 @@ def _freeze_into(p, ctx, proof, *, reconciled):
             'freeze control growth would consume the unchanged outer filesystem floor')
     phases = prior_phase_quiescence(p, ctx) if reconciled else {}
     record = {'schema_version': 1, 'evidence_type': ('reference_results_reconciled_freeze'
-              if reconciled else 'reference_results_freeze'), 'profile': PROFILE, 'status': 'PREPARING',
+              if reconciled else 'reference_results_freeze'), 'profile': active_profile(), 'status': 'PREPARING',
               'source': ctx['source'], 'run_context': legacy_context(ctx), 'profile_context': ctx,
               'image_path': str(owned['image']), 'image_identity': canonical['image_identity'],
               'setup_proof_sha256': setup_sha, 'outer': canonical['outer'], 'reservation': reservation,
@@ -1337,8 +1354,13 @@ def validate_frozen_proof(p, ctx, proof):
             and value.get('image_unmounted') is True and value.get('image_bytes') == artifacts.RESULTS_IMAGE
             and value.get('setup_proof_sha256') == setup_sha,
             'complete current frozen results proof is required')
+    if ctx.get('profile') == outer_profile.STRICT_2100:
+        require(value.get('profile') == ctx['profile'] and value.get('profile_context') == ctx
+                and value.get('image_identity') == canonical['image_identity']
+                and value.get('outer') == canonical['outer'] and value.get('reservation') == reservation,
+                'strict frozen proof profile or full outer identity differs')
     if proof.name == 'reference-results-reconciled-freeze.json':
-        require(value.get('profile') == PROFILE and value.get('profile_context') == ctx
+        require(value.get('profile') == active_profile() and value.get('profile_context') == ctx
                 and value.get('image_identity') == canonical['image_identity']
                 and value.get('outer') == canonical['outer'] and value.get('reservation') == reservation
                 and value.get('original_freeze_preserved') is True,
@@ -1401,7 +1423,7 @@ def verified_candidate(volume, project, root=ROOT):
     timing.receipt_policy(receipt, selected_policy)
     if selected_policy != timing.LEGACY:
         require(verification_progress.complete(receipt), 'named policy requires complete ordered verification observations')
-    require(receipt.get('status') == 'PASS' and receipt.get('profile') == PROFILE
+    require(receipt.get('status') == 'PASS' and receipt.get('profile') == active_profile()
             and receipt.get('run_context') == ctx and receipt.get('source') == ctx['source']
             and receipt.get('commit') == ctx['commit'] and receipt.get('run_id') == ctx['github_run_id']
             and receipt.get('run_attempt') == ctx['github_run_attempt']
@@ -1420,8 +1442,9 @@ def verified_candidate(volume, project, root=ROOT):
             'complete repeated live, metadata and fuzz comparison receipt differs')
     packed = verify_pack_audit(p, ctx)
     reservation = receipt.get('reservation', {})
-    plan = growth_plan(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']))
-    require(plan['admission'] == 'ALLOW' and reservation.get('profile') == PROFILE
+    plan = growth_plan(int(os.environ['FQ_ACCOUNTED_BASE_BYTES']),
+                       outer_profile.image_bytes(active_profile()), profile=active_profile())
+    require(plan['admission'] == 'ALLOW' and reservation.get('profile') == active_profile()
             and reservation.get('run_context') == ctx
             and reservation.get('global_reserved_growth_bytes') == GLOBAL_RESERVE
             and reservation.get('filesystem_free_floor_bytes') == FILESYSTEM_FLOOR
@@ -1430,7 +1453,8 @@ def verified_candidate(volume, project, root=ROOT):
     binding = results.observe_binding(p['volume'], p['image'], command)
     backing = preflight.checked(p['image'])
     require(binding == reservation.get('binding') and stat.S_ISREG(backing.st_mode)
-            and backing.st_uid == os.getuid() and backing.st_nlink == 1 and backing.st_size == IMAGE_BYTES
+            and backing.st_uid == os.getuid() and backing.st_nlink == 1
+            and backing.st_size == outer_profile.image_bytes(active_profile())
             and image_identity(backing) == reservation.get('backing_identity')
             and os.path.ismount(p['volume']), 'verified outer image was not retained with its exact mount/backing')
     package = preflight.checked(p['package'])
@@ -1463,6 +1487,7 @@ def main():
     plan = actions.add_parser('plan')
     plan.add_argument('base', type=int)
     plan.add_argument('--image-bytes', type=int, default=IMAGE_BYTES)
+    plan.add_argument('--profile', choices=outer_profile.PROFILES, default=PROFILE)
     for name in ('pack', 'verify', 'reconcile', '_pack_worker', '_verify_worker', '_reconcile_worker'):
         action = actions.add_parser(name)
         action.add_argument('--volume', type=Path, required=True)
@@ -1473,7 +1498,7 @@ def main():
     args = parser.parse_args()
     try:
         if args.action == 'plan':
-            result = growth_plan(args.base, args.image_bytes)
+            result = growth_plan(args.base, args.image_bytes, profile=args.profile)
         elif args.action in ('pack', 'verify', 'reconcile'):
             import reference_transport_supervisor as supervisor
             result = supervisor.supervise(args.action, args.volume, args.project,
@@ -1492,7 +1517,9 @@ def main():
             supervisor.await_startup_gate()
             result = verify_transport(args.volume, args.project, **timing.keywords(args.time_policy))
     except (OSError, RuntimeError, ValueError, KeyError, subprocess.SubprocessError) as error:
-        result = {'status': 'FAIL', 'profile': PROFILE, 'error': (type(error).__name__ + ': ' + str(error))[:2000],
+        result = {'status': 'FAIL',
+                  'profile': getattr(args, 'profile', os.environ.get('FQ_RESERVATION_PROFILE', PROFILE)),
+                  'error': (type(error).__name__ + ': ' + str(error))[:2000],
                   'scope': SCOPE}
     print(json.dumps(result, sort_keys=True))
     return 0 if result.get('status', result.get('admission')) in ('PASS', 'ALLOW') else 1

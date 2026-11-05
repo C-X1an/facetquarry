@@ -28,10 +28,15 @@ on:
         type: boolean
         default: false
         required: true
+      image_recovery:
+        description: Inside codec_control job, select exact run34 readonly image recovery instead of codec packing (smoke/one reader, exclusive mode)
+        type: boolean
+        default: false
+        required: true
       transport_profile:
         description: Legacy external package or separately admitted package inside the retained outer image
         type: choice
-        options: [legacy-external, inside-outer]
+        options: [legacy-external, inside-outer, inside-outer-2100]
         default: legacy-external
         required: true
       concurrency:
@@ -61,13 +66,22 @@ jobs:
       FQ_PRESERVATION_CONTROL: ${{ inputs.preservation_control }}
       FQ_TRIM_CONTROL: ${{ inputs.trim_control }}
       FQ_TRIM_PRESSURE_POLICY: ${{ inputs.trim_control && 'reference-trim-pressure-700mb-v1' || '' }}
-      FQ_GUEST_SOURCE_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'reference-tracked-source-tmpfs-v1' || 'legacy' }}
-      FQ_TRANSPORT_TIME_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'reference-verify-600s-v1' || 'legacy' }}
+      FQ_GUEST_SOURCE_POLICY: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 'reference-tracked-source-tmpfs-v1' || 'legacy' }}
+      FQ_TRANSPORT_TIME_POLICY: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 'reference-verify-600s-v1' || 'legacy' }}
       FQ_FILESYSTEM_FREE_FLOOR: "500000000"
-      FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
-      FQ_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-v1' || '' }}
-      FQ_NESTED_FILESYSTEM_POLICY: ${{ inputs.transport_profile == 'inside-outer' && 'owned-ext4-zero-reserved-nested-inodes50000-v1' || '' }}
+      FQ_RESERVATION_PROFILE: ${{ inputs.transport_profile == 'inside-outer-2100' && 'reference-inside-outer-2100-v1' || inputs.transport_profile == 'inside-outer' && 'reference-inside-outer-v1' || '' }}
+      FQ_OUTER_IMAGE_BYTES: ${{ inputs.transport_profile == 'inside-outer-2100' && '2100000000' || '2300000000' }}
+      FQ_OUTER_PROBE_BYTES: ${{ inputs.transport_profile == 'inside-outer-2100' && '2200000000' || '2400000000' }}
+      FQ_FILESYSTEM_POLICY: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 'owned-ext4-zero-reserved-v1' || '' }}
+      FQ_NESTED_FILESYSTEM_POLICY: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 'owned-ext4-zero-reserved-nested-inodes50000-v1' || '' }}
     steps:
+      - name: Refuse image recovery outside its explicitly selected codec job before growth
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          echo 'REFUSE: image_recovery requires codec_control=true, smoke, one reader and exclusive historical-image mode.'
+          exit 1
       - name: Initialize owned paths from the actual runner environment
         timeout-minutes: 1
         shell: bash
@@ -79,7 +93,7 @@ jobs:
         timeout-minutes: 2
         with:
           persist-credentials: false
-      - name: Establish the admitted 2.3 GB owned filesystem including the failure branch
+      - name: Establish the explicitly admitted owned filesystem including the failure branch
         id: quota
         timeout-minutes: 3
         shell: bash
@@ -92,49 +106,61 @@ jobs:
           import json,os,pathlib,sys
           sys.path.insert(0,'scripts')
           from reference_artifacts import growth_plan
+          import reference_outer_profile as outer_profile
+          selected=os.environ.get('FQ_RESERVATION_PROFILE','')
+          assert selected in ('', *outer_profile.PROFILES)
+          assert int(os.environ['FQ_OUTER_IMAGE_BYTES']) == (outer_profile.image_bytes(selected) if selected else 2300000000)
+          assert int(os.environ['FQ_OUTER_PROBE_BYTES']) == (outer_profile.probe_bytes(selected) if selected else 2400000000)
           base=int(os.environ['FQ_ACCOUNTED_BASE_BYTES'])
           assert all(0 < os.statvfs(path).f_frsize <= 4096 for path in (os.environ['GITHUB_WORKSPACE'],os.environ['RUNNER_TEMP'])),'physical metadata reservation requires allocation units no larger than4096bytes'
           assert os.environ['FQ_BENCH_PROFILE'] in ('full','smoke','diagnostic') and os.environ['FQ_BENCH_CONCURRENCY'] in ('1','4','16')
           assert os.environ['FQ_PRESERVATION_CONTROL'] != 'true' or os.environ['FQ_BENCH_PROFILE'] == 'smoke','failure controls require explicitly nonqualifying smoke'
-          assert os.environ.get('FQ_TRIM_CONTROL') != 'true' or (os.environ['FQ_PRESERVATION_CONTROL']=='true' and os.environ['FQ_BENCH_PROFILE']=='smoke' and os.environ['FQ_BENCH_CONCURRENCY']=='1' and os.environ['FQ_RESERVATION_PROFILE']=='reference-inside-outer-v1'),'trim control requires smoke, one reader, inside-outer and the preservation control'
+          assert os.environ.get('FQ_TRIM_CONTROL') != 'true' or (os.environ['FQ_PRESERVATION_CONTROL']=='true' and os.environ['FQ_BENCH_PROFILE']=='smoke' and os.environ['FQ_BENCH_CONCURRENCY']=='1' and os.environ['FQ_RESERVATION_PROFILE'] in outer_profile.PROFILES),'trim control requires smoke, one reader, inside-outer and the preservation control'
           # Reserve the largest normal or failed-pack branch BEFORE allocation.
           # Bundle, exact image, and bootstrap uploads are mutually exclusive.
           record=growth_plan(base,2300000000)
-          if os.environ.get('FQ_RESERVATION_PROFILE') == 'reference-inside-outer-v1':
+          if os.environ.get('FQ_RESERVATION_PROFILE') in outer_profile.PROFILES:
               from reference_internal_transport import growth_plan,context
-              record={**growth_plan(base,2300000000),'run_context':context()}
+              record={**growth_plan(base,int(os.environ['FQ_OUTER_IMAGE_BYTES']),profile=selected),'run_context':context()}
           (pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local/reference-admission.json').write_text(json.dumps(record,indent=2)+'\n')
           print(json.dumps(record));assert record['admission']=='ALLOW','global attribution admission refused'
           PY
           test ! -e "$fq_image" && test ! -e "$fq_volume" || exit 1
           test ! -L "$fq_image" && test ! -L "$fq_volume" || exit 1
           mkdir "$fq_volume"
-          fallocate -l 2300000000 "$fq_image"
+          if test "${FQ_RESERVATION_PROFILE:-}" = reference-inside-outer-2100-v1; then
+            fallocate -l 2100000000 "$fq_image"
+          else
+            fallocate -l 2300000000 "$fq_image"
+          fi
           if test "${FQ_FILESYSTEM_POLICY:-}" = owned-ext4-zero-reserved-v1; then
             mkdir -p "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
             python3 - <<'PY'
           import os,pathlib,sys
           sys.path.insert(0,'scripts')
           from reference_internal_transport import context,legacy_context
+          import reference_outer_profile as outer_profile
           from reference_filesystem import write_exclusive
           ctx=context(pathlib.Path(os.environ['GITHUB_WORKSPACE']))
           write_exclusive(pathlib.Path('.local/reference-filesystem/outer/context.json').absolute(),
-                          {**legacy_context(ctx),'source':ctx['source']})
+                          outer_profile.filesystem_context({**legacy_context(ctx),'source':ctx['source']},ctx['profile']))
           PY
-            timeout --signal=TERM --kill-after=2s 30s python3 scripts/reference_filesystem_bindings.py format --image "$fq_image" --image-bytes 2300000000 --context-json "$GITHUB_WORKSPACE/.local/reference-filesystem/outer/context.json" --directory "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
+            timeout --signal=TERM --kill-after=2s 30s python3 scripts/reference_filesystem_bindings.py format --image "$fq_image" --image-bytes "${FQ_OUTER_IMAGE_BYTES:-2300000000}" --context-json "$GITHUB_WORKSPACE/.local/reference-filesystem/outer/context.json" --directory "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
           else
             mkfs.ext4 -F -q "$fq_image"
           fi
           sudo -n mount -o loop "$fq_image" "$fq_volume"
           sudo -n chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
-          if fallocate -l 2400000000 "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-reference-enospc.stderr"; then
+          fq_probe_bytes=2400000000
+          if test "${FQ_RESERVATION_PROFILE:-}" = reference-inside-outer-2100-v1; then fq_probe_bytes=2200000000; fi
+          if fallocate -l "$fq_probe_bytes" "$fq_volume/quota-probe" 2>"$RUNNER_TEMP/facetquarry-reference-enospc.stderr"; then
             echo 'FAIL: oversized allocation was accepted'
             exit 1
           fi
           grep -q 'No space left on device' "$RUNNER_TEMP/facetquarry-reference-enospc.stderr"
           rm -- "$fq_volume/quota-probe"
           if test "${FQ_FILESYSTEM_POLICY:-}" = owned-ext4-zero-reserved-v1; then
-            timeout --signal=TERM --kill-after=2s 112s python3 scripts/reference_filesystem_bindings.py collect --image "$fq_image" --mount "$fq_volume" --image-bytes 2300000000 --context-json "$GITHUB_WORKSPACE/.local/reference-filesystem/outer/context.json" --directory "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
+            timeout --signal=TERM --kill-after=2s 112s python3 scripts/reference_filesystem_bindings.py collect --image "$fq_image" --mount "$fq_volume" --image-bytes "${FQ_OUTER_IMAGE_BYTES:-2300000000}" --context-json "$GITHUB_WORKSPACE/.local/reference-filesystem/outer/context.json" --directory "$GITHUB_WORKSPACE/.local/reference-filesystem/outer"
           fi
           cp -a "$GITHUB_WORKSPACE" "$fq_volume/source"
           mkdir -p "$fq_volume/tools" "$fq_volume/config" "$fq_volume/source/.cache/tmp" "$fq_volume/source/.local"
@@ -142,31 +168,33 @@ jobs:
           export FQ_VOLUME="$fq_volume" FQ_IMAGE="$fq_image"
           python3 - <<'PY'
           import hashlib,json,os,pathlib,subprocess,sys
+          sys.path.insert(0,'scripts')
+          import reference_outer_profile as outer_profile
           volume=pathlib.Path(os.environ['FQ_VOLUME']);image=pathlib.Path(os.environ['FQ_IMAGE'])
           mount=json.loads(subprocess.run(['findmnt','--json','--target',str(volume),'-o','TARGET,FSTYPE,SOURCE'],capture_output=True,text=True,check=True).stdout)['filesystems'][0]
           assert mount['target']==str(volume) and mount['fstype']=='ext4' and mount['source'].startswith('/dev/loop')
-          assert image.stat().st_size==2300000000
+          assert image.stat().st_size==int(os.environ['FQ_OUTER_IMAGE_BYTES'])
           def git(*args):return subprocess.run(['git','-C',str(volume/'source'),*args],capture_output=True,text=True,check=True).stdout.strip()
           context={'commit':git('rev-parse','HEAD'),'git_status':git('status','--porcelain'),
                    'github_run_id':os.environ['GITHUB_RUN_ID'],'github_run_attempt':os.environ['GITHUB_RUN_ATTEMPT']}
           stderr=(volume/'source/.local/enospc.stderr').read_bytes()
           assert context['git_status']=='' and b'No space left on device' in stderr
           record={'schema_version':1,'evidence_type':'reference_quota','hard_quota_enforced':True,
-                  'volume_file_bytes':image.stat().st_size,'oversized_allocation_bytes':2400000000,
+                  'volume_file_bytes':image.stat().st_size,'oversized_allocation_bytes':int(os.environ['FQ_OUTER_PROBE_BYTES']),
                   'oversized_allocation':'DENIED_ENOSPC','mount':mount,'volume_path':str(volume),
                   'image_path':str(image),'run_context':context,'enospc_sha256':hashlib.sha256(stderr).hexdigest(),
                   'scope':'Actual ext4 loop-image ceiling; global 2GB reserve and guest RAM filesystems are accounted separately.'}
-          if os.environ.get('FQ_RESERVATION_PROFILE') == 'reference-inside-outer-v1':
+          if os.environ.get('FQ_RESERVATION_PROFILE') in outer_profile.PROFILES:
               sys.path.insert(0,'scripts')
-              from reference_internal_transport import PROFILE,context as profile_context,image_identity
-              record.update(profile=PROFILE,profile_context=profile_context(volume/'source'),backing_identity=image_identity(image.lstat()))
+              from reference_internal_transport import active_profile,context as profile_context,image_identity
+              record.update(profile=active_profile(),profile_context=profile_context(volume/'source'),backing_identity=image_identity(image.lstat()))
           if os.environ.get('FQ_FILESYSTEM_POLICY'):
               from reference_filesystem import POLICY
               from reference_filesystem_bindings import validate
               assert os.environ['FQ_FILESYSTEM_POLICY']==POLICY
-              ctx={**context,'source':record['profile_context']['source']}
+              ctx=outer_profile.filesystem_context({**context,'source':record['profile_context']['source']},record['profile'])
               proof=validate(pathlib.Path(os.environ['GITHUB_WORKSPACE'])/'.local/reference-filesystem/outer',
-                             image,volume,2300000000,ctx)
+                             image,volume,int(os.environ['FQ_OUTER_IMAGE_BYTES']),ctx)
               record.update(filesystem_policy=POLICY,filesystem_proof=proof)
           (volume/'source/.local/reference-quota.json').write_text(json.dumps(record,indent=2)+'\n')
           PY
@@ -254,7 +282,7 @@ jobs:
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
-          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1 || test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-2100-v1; then
             timeout --signal=TERM --kill-after=2s 120s python3 scripts/evidence.py --category reference-nested-capacity-admission --requirements AC-020 --timeout 110 -- python3 scripts/reference_result_capacity.py --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY"
           fi
       - name: Measure the frozen profile in the actual declared KVM guest
@@ -279,7 +307,7 @@ jobs:
               folder.rename(preflight/folder.name)
           (local/'reference-preflight-relocation.json').write_text(json.dumps({'scope':'Host verification smoke preserved separately; no inherited guest cells.','files':records},indent=2)+'\n')
           PY
-          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1 || test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-2100-v1; then
             python3 - <<'PY'
           import json,os,pathlib,sys,time
           sys.path.insert(0,'scripts')
@@ -334,7 +362,7 @@ jobs:
           python3 scripts/evidence.py --category reference-execution-qualification --requirements AC-016,AC-017 --timeout 90 -- python3 scripts/reference_qualification.py .local/reference-execution.json
       - name: Export current convenience metadata before internal verification freezes the child
         id: internal_metadata
-        if: ${{ !cancelled() && inputs.transport_profile == 'inside-outer' && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
+        if: ${{ !cancelled() && (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && steps.results.outcome == 'success' && steps.quiescence.outcome == 'success' }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -356,12 +384,12 @@ jobs:
         # 720s child +150s verification +210s inventory/termination overhead.
         # Legacy branch bounds remain unchanged. The internal branch admits
         # actual remaining job time and supervises1710s pack plus600s verify.
-        timeout-minutes: ${{ inputs.transport_profile == 'inside-outer' && 40 || 18 }}
+        timeout-minutes: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 40 || 18 }}
         shell: bash
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
-          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1 || test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-2100-v1; then
             fq_control=()
             if test "$FQ_PRESERVATION_CONTROL" = true; then fq_control=(--control); fi
             python3 scripts/reference_internal_transport.py pack --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY" "${fq_control[@]}"
@@ -380,7 +408,7 @@ jobs:
           python3 scripts/evidence.py --category reference-bundle-verification --requirements AC-020 --timeout 150 -- python3 scripts/evidence_bundle.py verify .local/reference-transport/reference-members.tar.xz
       - name: Export complete bounded execution inputs before removing the image
         id: metadata
-        if: ${{ always() && inputs.transport_profile != 'inside-outer' }}
+        if: ${{ always() && (inputs.transport_profile != 'inside-outer' && inputs.transport_profile != 'inside-outer-2100') }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -389,7 +417,7 @@ jobs:
           python3 scripts/reference_pipeline.py export --volume "$FQ_VOLUME"
       - name: Remove only the owned image after complete external byte verification
         id: retention
-        if: ${{ !cancelled() && inputs.transport_profile != 'inside-outer' && steps.package.outcome == 'success' && steps.metadata.outcome == 'success' }}
+        if: ${{ !cancelled() && (inputs.transport_profile != 'inside-outer' && inputs.transport_profile != 'inside-outer-2100') && steps.package.outcome == 'success' && steps.metadata.outcome == 'success' }}
         timeout-minutes: 8
         shell: bash
         run: |
@@ -408,12 +436,12 @@ jobs:
       - name: Freeze the exact fixed results image after packaging failure
         id: frozen
         if: ${{ always() && steps.results.outcome == 'success' && steps.package.outcome != 'success' && steps.quiescence.outcome == 'success' }}
-        timeout-minutes: ${{ inputs.transport_profile == 'inside-outer' && 4 || 3 }}
+        timeout-minutes: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 4 || 3 }}
         shell: bash
         run: |
           set -euo pipefail
           cd "$GITHUB_WORKSPACE"
-          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1; then
+          if test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-v1 || test "$FQ_RESERVATION_PROFILE" = reference-inside-outer-2100-v1; then
             python3 scripts/reference_internal_transport.py reconcile --volume "$FQ_VOLUME" --project "$FQ_VOLUME/source" --time-policy "$FQ_TRANSPORT_TIME_POLICY"
             exit 0
           fi
@@ -520,7 +548,7 @@ jobs:
           compression-level: 6
 
   codec:
-    name: Historical full-size codec control (nonqualifying)
+    name: ${{ inputs.image_recovery && 'Historical run34 readonly image recovery (nonqualifying)' || 'Historical full-size codec control (nonqualifying)' }}
     if: ${{ inputs.codec_control && !inputs.capacity_control && !inputs.preservation_control }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
@@ -528,6 +556,7 @@ jobs:
       contents: read
       actions: read
     env:
+      FQ_IMAGE_RECOVERY: ${{ inputs.image_recovery }}
       FQ_ACCOUNTED_BASE_BYTES: ${{ inputs.accounted_base_bytes }}
       GOTOOLCHAIN: local
       PYTHONDONTWRITEBYTECODE: "1"
@@ -536,7 +565,20 @@ jobs:
         timeout-minutes: 2
         with:
           persist-credentials: false
+      - name: Validate exclusive image mode before quota, installation or artifact download
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ inputs.codec_control }}' = true
+          test '${{ inputs.capacity_control }}' = false
+          test '${{ inputs.preservation_control }}' = false
+          test '${{ inputs.trim_control }}' = false
+          test '${{ inputs.profile }}' = smoke
+          test '${{ inputs.concurrency }}' = 1
       - name: Admit the complete historical codec branch against the fresh global baseline
+        if: ${{ !inputs.image_recovery }}
         id: codec_admission
         timeout-minutes: 1
         shell: bash
@@ -545,12 +587,14 @@ jobs:
           test '${{ inputs.trim_control }}' != true || { echo 'trim control is restricted to the reference smoke branch'; exit 1; }
           python3 scripts/evidence.py --category historical-codec-admission --requirements AC-020 --timeout 40 -- python3 scripts/reference_codec_control.py plan
       - name: Enforce the owned 2GB image and observe actual 2.1GB ENOSPC
+        if: ${{ !inputs.image_recovery }}
         timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-quota --requirements AC-020 --timeout 90 -- python3 scripts/reference_codec_control.py quota
       - name: Fetch only the exact authorized historical artifact into the hard quota
+        if: ${{ !inputs.image_recovery }}
         timeout-minutes: 3
         shell: bash
         env:
@@ -559,6 +603,7 @@ jobs:
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-input --requirements AC-020 --timeout 150 -- python3 scripts/reference_codec_control.py download
       - name: Recover all 27738 exact original members through the uniform reversible mapping
+        if: ${{ !inputs.image_recovery }}
         timeout-minutes: 4
         shell: bash
         run: |
@@ -568,12 +613,14 @@ jobs:
       # 34min step;55min total declared steps remain within the60min job.
       # Reference benchmark packaging keeps its separate720s deadline.
       - name: Observe real preset6 full-size packing phases within the 1800-second codec-only deadline
+        if: ${{ !inputs.image_recovery }}
         timeout-minutes: 34
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 1890 -- python3 scripts/reference_codec_control.py pack
       - name: Reconstruct and hash every original and synthetic directory without a second raw copy
+        if: ${{ !inputs.image_recovery }}
         id: codec_verification
         timeout-minutes: 4
         shell: bash
@@ -581,14 +628,14 @@ jobs:
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-verify --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py verify
       - name: Remove only the exact newly packed file after complete original and inode proof
-        if: ${{ success() && steps.codec_verification.outcome == 'success' }}
+        if: ${{ !inputs.image_recovery && success() && steps.codec_verification.outcome == 'success' }}
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-output-retention --requirements AC-020 --timeout 45 -- python3 scripts/reference_codec_control.py remove-output
       - name: Close only the positively bound owned mount and retain failures
-        if: always()
+        if: ${{ always() && !inputs.image_recovery }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -596,19 +643,212 @@ jobs:
           python3 scripts/evidence.py --category historical-codec-unmount --requirements AC-020 --timeout 45 -- python3 scripts/reference_codec_control.py unmount
       - name: Independently admit a bounded metadata packet after success or heavy-branch refusal
         id: codec_metadata
-        if: always()
+        if: ${{ always() && !inputs.image_recovery }}
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/reference_codec_control.py metadata
       - name: Retain admitted diagnostics only while existing historical cloud originals stay unchanged
-        if: ${{ always() && steps.codec_metadata.outputs.metadata_allowed == 'true' }}
+        if: ${{ !inputs.image_recovery && always() && steps.codec_metadata.outputs.metadata_allowed == 'true' }}
         timeout-minutes: 2
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: historical-codec-metadata-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ steps.codec_metadata.outputs.packet_path }}
+          include-hidden-files: true
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 6
+
+      - name: Bind the recovery deadline to actual server job start including setup
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-clock --requirements AC-020 --timeout 45 -- python3 scripts/reference_image_recovery.py clock
+      - name: Admit only the frozen run34 recovery branch including every cloud wrapper
+        id: image_recovery_plan
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-plan --requirements AC-020 --timeout 50 -- python3 scripts/reference_image_recovery.py plan
+      - name: Create exact zero-reserved 2.1GB recovery filesystem and observe 2.2GB ENOSPC
+        id: image_recovery_quota
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-quota --requirements AC-020 --timeout 130 -- python3 scripts/reference_image_recovery.py quota
+      - name: Stream the exact original ZIP into eight fsynced bounded chunks
+        id: image_recovery_download
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 6
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-download --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py download
+      - name: Verify sole original image CRC and SHA through the bounded seekable chunk reader
+        id: image_recovery_extract
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-extract --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py extract
+      - name: Inventory exact readonly noload image and run unchanged old-source partial reanalysis
+        id: image_recovery_inspect
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 16
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-inspect --requirements AC-020 --timeout 910 -- python3 scripts/reference_image_recovery.py inspect
+      - name: Revalidate complete chunks and reserve all eight mutually exclusive uploads
+        id: image_recovery_uploads
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-uploads --requirements AC-020 --timeout 55 -- python3 scripts/reference_image_recovery.py uploads
+      - name: Retain original ZIP chunk 00 (at most100MB raw)
+        id: image_recovery_chunk_0
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-00
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-00
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 01 (at most100MB raw)
+        id: image_recovery_chunk_1
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-01
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-01
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 02 (at most100MB raw)
+        id: image_recovery_chunk_2
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-02
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-02
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 03 (at most100MB raw)
+        id: image_recovery_chunk_3
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-03
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-03
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 04 (at most100MB raw)
+        id: image_recovery_chunk_4
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-04
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-04
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 05 (at most100MB raw)
+        id: image_recovery_chunk_5
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-05
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-05
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 06 (at most100MB raw)
+        id: image_recovery_chunk_6
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-06
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-06
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Retain original ZIP chunk 07 (at most100MB raw)
+        id: image_recovery_chunk_7
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        timeout-minutes: 1
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-original-zip-${{ github.run_id }}-${{ github.run_attempt }}-chunk-07
+          path: ${{ runner.temp }}/facetquarry-image-recovery/chunks/zip.part-07
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
+      - name: Read back every actual server chunk ZIP sequentially before complete retention PASS
+        id: image_recovery_readback
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_chunk_0.outcome == 'success' && steps.image_recovery_chunk_1.outcome == 'success' && steps.image_recovery_chunk_2.outcome == 'success' && steps.image_recovery_chunk_3.outcome == 'success' && steps.image_recovery_chunk_4.outcome == 'success' && steps.image_recovery_chunk_5.outcome == 'success' && steps.image_recovery_chunk_6.outcome == 'success' && steps.image_recovery_chunk_7.outcome == 'success' }}
+        timeout-minutes: 9
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          FQ_RECOVERY_ARTIFACT_0: ${{ steps.image_recovery_chunk_0.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_1: ${{ steps.image_recovery_chunk_1.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_2: ${{ steps.image_recovery_chunk_2.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_3: ${{ steps.image_recovery_chunk_3.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_4: ${{ steps.image_recovery_chunk_4.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_5: ${{ steps.image_recovery_chunk_5.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_6: ${{ steps.image_recovery_chunk_6.outputs.artifact-id }}
+          FQ_RECOVERY_ARTIFACT_7: ${{ steps.image_recovery_chunk_7.outputs.artifact-id }}
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-readback --requirements AC-020 --timeout 490 -- python3 scripts/reference_image_recovery.py readback
+      - name: Close only the exactly bound owned readonly and outer mounts; preserve failures
+        id: image_recovery_cleanup
+        if: ${{ always() && inputs.image_recovery }}
+        timeout-minutes: 4
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-cleanup --requirements AC-020 --timeout 190 -- python3 scripts/reference_image_recovery.py cleanup
+      - name: Prepare bounded explicit diagnostics after success, partial data or refusal
+        id: image_recovery_metadata
+        if: ${{ always() && inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-metadata --requirements AC-020 --timeout 55 -- python3 scripts/reference_image_recovery.py metadata
+      - name: Retain admitted recovery diagnostics including exact chunk manifest and failure records
+        if: ${{ always() && inputs.image_recovery && steps.image_recovery_metadata.outputs.metadata_allowed == 'true' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: run34-image-recovery-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ github.workspace }}/.local/reference-image-recovery/packet
           include-hidden-files: true
           retention-days: 7
           if-no-files-found: error
@@ -637,6 +877,13 @@ jobs:
       GOTOOLCHAIN: local
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
+      - name: Refuse image recovery outside its explicitly selected codec job before growth
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          echo 'REFUSE: image_recovery requires codec_control=true, smoke, one reader and exclusive historical-image mode.'
+          exit 1
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
         with:

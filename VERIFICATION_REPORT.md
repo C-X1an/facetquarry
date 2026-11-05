@@ -1,5 +1,19 @@
 # Verification report
 
+## Current integration checkpoint - 2026-11-05
+
+Technical source `90b3c3956655d49d0be01642e4c843bc19f1c662f5239c2e4fa612c2ee82ce3f` is **EXPERIMENTAL / NOT RELEASE QUALIFIED**. The [source-bound controls](verification/published/bounded-outer-image-recovery-controls-20261105.json) ran477native reference tests:447passed and30explicit platform skips. All65existing Python/Go test files and locked contracts remain byte-exact. Independent read-only findings preceded implementation repairs; unchanged new controls preserve their actual RED/GREEN failures and passes.
+
+The named [2.1GB outer profile](REFERENCE_OUTER_2100.md) retains the frozen5400-cell/5.4million-sample workload per reader, exact2GBglobalreserve,500MBfloor and921MBpack guard. Its3546000000-byte worst-case growth requires fresh admission. Actual new Linux geometry, capacity fit, supported checks and full1/4/16 are **NOT RUN** at this checkpoint.
+
+The [historical run34 recovery path](REFERENCE_IMAGE_RECOVERY.md) is separately implemented and unexecuted. Its fixed753697518-byte ZIP is preserved as eight chunks only after actual server readback/CRC/SHA checks. The recovery-only4096-inode/16MiBjournal geometry and clean/mounted lifecycle must be observed; no fit or complete-retention PASS is inferred from fixtures.
+
+[Actual run35 smoke](verification/published/source-view-smoke-41306644715.json), at committedab1/source1dd5, passed supported Go1.27.3 Linux main verification and its distinct clean-checkout command, each526tests/519PASS/7explicit skips. Native original-byte inspection and independent review confirmed21cells/672successful samples, tracked source view, complete repeated886live/374metadata/111fuzz comparisons and normal600sverification/freeze transport. These runtime passes belong to that source; the new integration inherits no Linux/full qualification.
+
+[Run34](verification/published/full1-timeout-41181265797.json) remains **FAIL**: inner15000s timeout, last progress4407/5400cells, original raw sample/target outcomes uninspected. The connector's512MiBcap is freshly confirmed. Earlier pack PASS and verification timeout remain separate preserved outcomes. Current-source security/reproduction and actual inspector/owner gates remain unqualified. Earlier source checkpoints below retain their original then-pending statements.
+
+## Historical source checkpoints
+
 Current repair source`1dd535c677854e65be1fa54a17ede07ed2f6b2ae0c39305d19de01df464fa8c4` adds explicit `reference-tracked-source-tmpfs-v1` and `reference-verify-600s-v1` policies. The first stages the complete tracked checkout and both actual binaries in a24MiBread-only source view at the same `/project` path, with original disk-backed `.local`/`.cache` binds and read-only Git provenance. Its4MiB`/tmp` plus1MiB`/run` and1MiB`/dev` keep actual configured RAM filesystems at30MiBunder the unchanged32MiBlimit. Every per-cell source/binary check remains. Actual Linux mount behavior, capacity fit and speed are **NOT RUN** on this repair.
 
 The named verification policy reserves600s(558spayload after12scleanup and30sreceipt), propagates through the parent, workers, job admission and40minpackage step, and raises complete premeasurement time admission from19,840to20,230s. Benchmark limits, frozen cells/seeds, all bundle/live/metadata/fuzz comparisons, repeated comparisons and freeze checks remain unchanged. Ordered durable stage start/end observations identify an interruption; they cannot authorize a verification PASS. Default and legacy APIs retain210swithout reading ambient policy variables.

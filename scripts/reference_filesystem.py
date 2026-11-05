@@ -20,6 +20,7 @@ import stat
 import sys
 import threading
 import uuid
+import reference_outer_profile as outer_profile
 
 POLICY = 'owned-ext4-zero-reserved-v1'
 NESTED_POLICY = 'owned-ext4-zero-reserved-nested-inodes50000-v1'
@@ -340,7 +341,7 @@ def validate_policy(record, image: Path, mount_point: Path, image_bytes: int, ru
         bounded(r)
         require(isinstance(r, dict) and r['policy'] == policy and r['limits'] == LIMITS,
                 'filesystem policy/limits differ')
-        require(type(image_bytes) is int and image_bytes in (2_300_000_000, 1_100_000_000),
+        require(outer_profile.filesystem_size(image_bytes, ctx),
                 'unsupported fixed image size')
         require(r['image_path'] == str(image) and r['mount_point'] == str(mount_point)
                 and image.is_absolute() and mount_point.is_absolute()
@@ -544,7 +545,7 @@ def _collect_policy(r, image, mount_point, image_bytes, run_context, runner):
     checkpoint(r, runner)
     require(stat.S_ISREG(r['image_before']['mode']) and r['image_before']['uid'] == r['uid']
             and r['image_before']['nlink'] == 1 and r['image_before']['size'] == image_bytes
-            and image_bytes in (2_300_000_000, 1_100_000_000), 'exact owned image required before observation')
+            and outer_profile.filesystem_size(image_bytes, run_context), 'exact owned image required before observation')
     commands = {'version': ['mkfs.ext4', '-V'], 'superblock': ['dumpe2fs', '-h', str(image)],
                 'mount': ['findmnt', '--json', '--mountpoint', str(mount_point), '-o', 'TARGET,FSTYPE,SOURCE,UUID,OPTIONS,MAJ:MIN'],
                 'loop': ['sudo', '-n', 'losetup', '--json', '--list', '--associated', str(image),
@@ -630,7 +631,7 @@ def _main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('image', 'mount', 'context-json', 'proof', 'audit-dir'):
         parser.add_argument('--' + name, type=Path, required=True)
-    parser.add_argument('--image-bytes', type=int, required=True, choices=(2_300_000_000, 1_100_000_000))
+    parser.add_argument('--image-bytes', type=int, required=True, choices=(2_300_000_000, 2_100_000_000, 1_100_000_000))
     parser.add_argument('--policy', choices=(POLICY, NESTED_POLICY), default=POLICY)
     args = parser.parse_args()
     failure_record = {'policy': args.policy, 'status': 'FAIL', 'started_at': utc(),

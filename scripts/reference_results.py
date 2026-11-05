@@ -5,6 +5,7 @@ outside source/.local after metadata export. Local fixture tests do not claim a
 Linux mount, ENOSPC probe, guest shutdown, or recoverable filesystem measurement.
 """
 from __future__ import annotations
+import reference_outer_profile as outer_profile
 import argparse
 import datetime as dt
 import hashlib
@@ -254,6 +255,14 @@ def validate_outer(paths, runner, context, quota_root=None):
     quota_root = quota_root or paths['mount']
     quota_path = quota_root / 'reference-quota.json'
     quota = read_json(quota_path)
+    if outer.st_size == 2_100_000_000 or quota.get('profile') == outer_profile.STRICT_2100:
+        require(os.environ.get('FQ_RESERVATION_PROFILE') == outer_profile.STRICT_2100
+                and outer_profile.quota_geometry(quota, context)
+                and quota['profile_context']['source'] == source_hash(paths['project'])
+                and outer.st_size == outer_profile.image_bytes(outer_profile.STRICT_2100),
+                'strict outer size/profile/context differs')
+    elif os.environ.get('FQ_RESERVATION_PROFILE') == outer_profile.STRICT_2100:
+        raise ValueError('strict profile cannot inherit a legacy outer image')
     require(quota.get('hard_quota_enforced') is True and quota.get('volume_file_bytes') == outer.st_size
             and quota.get('volume_path') == str(paths['volume']) and quota.get('image_path') == str(paths['outer_image'])
             and quota.get('oversized_allocation') == 'DENIED_ENOSPC'
@@ -261,14 +270,16 @@ def validate_outer(paths, runner, context, quota_root=None):
             'outer quota/mount proof differs')
     result = {'binding': binding, 'image_identity': identity(paths['outer_image']),
               'volume_identity': identity(paths['volume'])[:5], 'quota_sha256': file_sha(quota_path)}
-    if os.environ.get('FQ_FILESYSTEM_POLICY') or quota.get('filesystem_policy'):
+    if (os.environ.get('FQ_RESERVATION_PROFILE') == outer_profile.STRICT_2100
+            or os.environ.get('FQ_FILESYSTEM_POLICY') or quota.get('filesystem_policy')):
         from reference_filesystem import POLICY
         from reference_filesystem_bindings import validate
         require(os.environ.get('FQ_FILESYSTEM_POLICY') == quota.get('filesystem_policy') == POLICY,
                 'declared filesystem policy is missing or differs')
         proof = validate(Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/outer',
                          paths['outer_image'], paths['volume'], outer.st_size,
-                         {**context, 'source': source_hash(paths['project'])})
+                         outer_profile.filesystem_context({**context, 'source': source_hash(paths['project'])},
+                             os.environ.get('FQ_RESERVATION_PROFILE') or outer_profile.LEGACY))
         require(proof == quota.get('filesystem_proof'), 'retained outer filesystem proof changed')
         result.update(filesystem_policy=POLICY, filesystem_proof=proof)
     return result
@@ -418,7 +429,9 @@ def setup(volume, project):
             directory = Path(os.environ['GITHUB_WORKSPACE']) / '.local/reference-filesystem/nested'
             checked(directory.parent)
             directory.mkdir(mode=0o700)
-            filesystem_context = {**record['run_context'], 'source': record['source']}
+            filesystem_context = outer_profile.filesystem_context(
+                {**record['run_context'], 'source': record['source']},
+                os.environ.get('FQ_RESERVATION_PROFILE') or outer_profile.LEGACY)
             write_exclusive(directory / 'context.json', filesystem_context)
             helper = Path(os.environ['GITHUB_WORKSPACE']) / 'scripts/reference_filesystem_bindings.py'
             common_args = ['--image', str(paths['image']), '--image-bytes', str(IMAGE_BYTES),
@@ -545,8 +558,7 @@ def rescue_setup(volume, project):
         outer = validate_outer(paths, runner, context, quota_root=selected)
         record['outer'] = outer
         quota = read_json(selected / 'reference-quota.json')
-        require(quota.get('volume_file_bytes') in (2_300_000_000, 3_300_000_000)
-                and quota.get('oversized_allocation_bytes') == quota['volume_file_bytes'] + 100_000_000,
+        require(outer_profile.quota_geometry(quota, context),
                 'rescue outer quota geometry/probe differs')
         enospc = selected / 'enospc.stderr'
         require(checked(enospc).st_size <= 32768 and file_sha(enospc) == quota.get('enospc_sha256')

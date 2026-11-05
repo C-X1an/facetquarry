@@ -95,12 +95,12 @@ def main() -> int:
     reservation = None
     try:
         profile = os.environ.get('FQ_RESERVATION_PROFILE', '')
-        if profile not in ('', 'supported-verification-capacity-v1', 'reference-inside-outer-v1'):
+        if profile not in ('', 'supported-verification-capacity-v1', 'reference-inside-outer-v1', 'reference-inside-outer-2100-v1'):
             raise ValueError('unknown filesystem reservation profile')
         if floor != a.reserve:
             if profile == 'supported-verification-capacity-v1':
                 from reference_capacity_reservation import verify
-            elif profile == 'reference-inside-outer-v1':
+            elif profile in ('reference-inside-outer-v1', 'reference-inside-outer-2100-v1'):
                 from reference_internal_transport import verify
             else:
                 from reference_reservation import verify

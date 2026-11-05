@@ -5,6 +5,7 @@ packaging; a later, external envelope binds the final bundle and GitHub artifact
 These repository-local checks are reproducible evidence, not third-party attestation.
 """
 from __future__ import annotations
+import reference_outer_profile as outer_profile
 import argparse
 import csv
 import datetime as dt
@@ -245,13 +246,14 @@ def check_inner(record, inputs, members, identity):
     require(guest['versions']['go']['exit_code'] == 0
             and guest['versions']['go']['stdout'].strip() == 'go version go1.27.3 linux/amd64', 'guest supported toolchain differs')
     quota = documents['quota']
-    require(type(quota.get('volume_file_bytes')) is int
-            and quota['volume_file_bytes'] in (2_300_000_000, 3_300_000_000)
-            and type(quota.get('oversized_allocation_bytes')) is int
-            and quota['oversized_allocation_bytes'] == quota['volume_file_bytes'] + 100_000_000
+    require(outer_profile.quota_geometry(quota, context)
             and quota.get('oversized_allocation') == 'DENIED_ENOSPC'
             and quota.get('hard_quota_enforced') is True and b'No space left on device' in inputs['enospc'],
             'actual fixed-volume refusal proof missing')
+    if quota.get('profile') == outer_profile.STRICT_2100:
+        require(quota['profile_context'].get('source') == identity
+                and selected_policy == SOURCE_POLICY, 'strict outer source policy/identity differs')
+        outer_profile.validate_strict_filesystem_summary(quota, context, identity)
     require(quota.get('run_context') == context and quota.get('mount') == mount
             and quota.get('volume_path') == mount.get('target')
             and quota.get('image_path') == quota.get('volume_path', '') + '.img'

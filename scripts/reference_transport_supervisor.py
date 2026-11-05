@@ -70,7 +70,7 @@ def require_active_worker(p, ctx, phase, *, time_policy=None):
     require(proof.get('total_budget_seconds') == timing.phase_seconds(phase, policy),
             'active supervisor time policy or budget differs')
     parent = proof.get('supervisor_identity', {})
-    require(proof.get('kind') == KIND and proof.get('profile') == transport.PROFILE
+    require(proof.get('kind') == KIND and proof.get('profile') == transport.active_profile()
             and proof.get('phase') == phase and proof.get('state') == 'RUNNING'
             and proof.get('status') == 'PREPARING' and proof.get('run_context') == ctx
             and proof.get('source') == ctx['source'] and proof.get('volume_path') == str(p['volume'])
@@ -102,7 +102,7 @@ def validate_receipt(p, ctx, phase, *, require_pass=True, bind_payload=True, tim
     policy = timing.receipt_policy(value, time_policy)
     total = timing.phase_seconds(phase, policy)
     quiet = value.get('descendant_quiescence', {})
-    require(value.get('kind') == KIND and value.get('profile') == transport.PROFILE
+    require(value.get('kind') == KIND and value.get('profile') == transport.active_profile()
             and value.get('phase') == phase and value.get('state') == 'COMPLETE'
             and value.get('status') in ('PASS', 'FAIL') and value.get('run_context') == ctx
             and value.get('source') == ctx['source'] and value.get('commit') == ctx['commit']
@@ -363,7 +363,7 @@ def supervise(phase, volume, project, root=ROOT, *, control=False, started=None,
         require(not os.path.lexists(proof) and not os.path.lexists(proof.with_name(proof.name + '.tmp')),
                 'previous supervisor receipt/state is retained')
         parent = process_identity(os.getpid())
-        record = {'schema_version': 1, 'kind': KIND, 'profile': transport.PROFILE,
+        record = {'schema_version': 1, 'kind': KIND, 'profile': transport.active_profile(),
                   'phase': phase, 'state': 'PREPARING', 'status': 'PREPARING',
                   'source': ctx['source'], 'run_context': ctx, 'commit': ctx['commit'],
                   'run_id': ctx['github_run_id'], 'run_attempt': ctx['github_run_attempt'],
