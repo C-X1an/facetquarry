@@ -33,6 +33,11 @@ on:
         type: boolean
         default: false
         required: true
+      retained_image_probe:
+        description: Readonly metadata from the fixed eight retained run38 chunks (codec/image recovery, smoke, one reader only)
+        type: boolean
+        default: false
+        required: false
       transport_profile:
         description: Legacy external package or separately admitted package inside the retained outer image
         type: choice
@@ -76,7 +81,7 @@ jobs:
       FQ_NESTED_FILESYSTEM_POLICY: ${{ (inputs.transport_profile == 'inside-outer' || inputs.transport_profile == 'inside-outer-2100') && 'owned-ext4-zero-reserved-nested-inodes50000-v1' || '' }}
     steps:
       - name: Refuse image recovery outside its explicitly selected codec job before growth
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery || inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -561,6 +566,20 @@ jobs:
       GOTOOLCHAIN: local
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
+      - name: Validate exclusive retained-image metadata mode before growth
+        if: ${{ inputs.retained_image_probe }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          test '${{ inputs.codec_control }}' = true
+          test '${{ inputs.image_recovery }}' = true
+          test '${{ inputs.capacity_control }}' = false
+          test '${{ inputs.preservation_control }}' = false
+          test '${{ inputs.trim_control }}' = false
+          test '${{ inputs.profile }}' = smoke
+          test '${{ inputs.concurrency }}' = 1
+          printf '%s\n' "FQ_PROBE_STARTED_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
         timeout-minutes: 2
         with:
@@ -578,7 +597,7 @@ jobs:
           test '${{ inputs.profile }}' = smoke
           test '${{ inputs.concurrency }}' = 1
       - name: Admit the complete historical codec branch against the fresh global baseline
-        if: ${{ !inputs.image_recovery }}
+        if: ${{ !inputs.image_recovery && !inputs.retained_image_probe }}
         id: codec_admission
         timeout-minutes: 1
         shell: bash
@@ -587,14 +606,14 @@ jobs:
           test '${{ inputs.trim_control }}' != true || { echo 'trim control is restricted to the reference smoke branch'; exit 1; }
           python3 scripts/evidence.py --category historical-codec-admission --requirements AC-020 --timeout 40 -- python3 scripts/reference_codec_control.py plan
       - name: Enforce the owned 2GB image and observe actual 2.1GB ENOSPC
-        if: ${{ !inputs.image_recovery }}
+        if: ${{ !inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 2
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-quota --requirements AC-020 --timeout 90 -- python3 scripts/reference_codec_control.py quota
       - name: Fetch only the exact authorized historical artifact into the hard quota
-        if: ${{ !inputs.image_recovery }}
+        if: ${{ !inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 3
         shell: bash
         env:
@@ -603,7 +622,7 @@ jobs:
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-input --requirements AC-020 --timeout 150 -- python3 scripts/reference_codec_control.py download
       - name: Recover all 27738 exact original members through the uniform reversible mapping
-        if: ${{ !inputs.image_recovery }}
+        if: ${{ !inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 4
         shell: bash
         run: |
@@ -613,14 +632,14 @@ jobs:
       # 34min step;55min total declared steps remain within the60min job.
       # Reference benchmark packaging keeps its separate720s deadline.
       - name: Observe real preset6 full-size packing phases within the 1800-second codec-only deadline
-        if: ${{ !inputs.image_recovery }}
+        if: ${{ !inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 34
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-pack --requirements AC-020 --timeout 1890 -- python3 scripts/reference_codec_control.py pack
       - name: Reconstruct and hash every original and synthetic directory without a second raw copy
-        if: ${{ !inputs.image_recovery }}
+        if: ${{ !inputs.image_recovery && !inputs.retained_image_probe }}
         id: codec_verification
         timeout-minutes: 4
         shell: bash
@@ -628,14 +647,14 @@ jobs:
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-verify --requirements AC-020 --timeout 210 -- python3 scripts/reference_codec_control.py verify
       - name: Remove only the exact newly packed file after complete original and inode proof
-        if: ${{ !inputs.image_recovery && success() && steps.codec_verification.outcome == 'success' }}
+        if: ${{ !inputs.image_recovery && success() && steps.codec_verification.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category historical-codec-output-retention --requirements AC-020 --timeout 45 -- python3 scripts/reference_codec_control.py remove-output
       - name: Close only the positively bound owned mount and retain failures
-        if: ${{ always() && !inputs.image_recovery }}
+        if: ${{ always() && !inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -643,14 +662,14 @@ jobs:
           python3 scripts/evidence.py --category historical-codec-unmount --requirements AC-020 --timeout 45 -- python3 scripts/reference_codec_control.py unmount
       - name: Independently admit a bounded metadata packet after success or heavy-branch refusal
         id: codec_metadata
-        if: ${{ always() && !inputs.image_recovery }}
+        if: ${{ always() && !inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/reference_codec_control.py metadata
       - name: Retain admitted diagnostics only while existing historical cloud originals stay unchanged
-        if: ${{ !inputs.image_recovery && always() && steps.codec_metadata.outputs.metadata_allowed == 'true' }}
+        if: ${{ !inputs.image_recovery && always() && steps.codec_metadata.outputs.metadata_allowed == 'true' && !inputs.retained_image_probe }}
         timeout-minutes: 2
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -662,7 +681,7 @@ jobs:
           compression-level: 6
 
       - name: Bind the recovery deadline to actual server job start including setup
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         env:
@@ -672,7 +691,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-clock --requirements AC-020 --timeout 45 -- python3 scripts/reference_image_recovery.py clock
       - name: Admit only the frozen run34 recovery branch including every cloud wrapper
         id: image_recovery_plan
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -680,7 +699,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-plan --requirements AC-020 --timeout 50 -- python3 scripts/reference_image_recovery.py plan
       - name: Create exact zero-reserved 2.1GB recovery filesystem and observe 2.2GB ENOSPC
         id: image_recovery_quota
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 3
         shell: bash
         run: |
@@ -688,7 +707,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-quota --requirements AC-020 --timeout 130 -- python3 scripts/reference_image_recovery.py quota
       - name: Stream the exact original ZIP into eight fsynced bounded chunks
         id: image_recovery_download
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 6
         shell: bash
         env:
@@ -698,7 +717,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-download --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py download
       - name: Revalidate complete chunks and reserve all eight mutually exclusive uploads
         id: image_recovery_uploads
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
@@ -706,7 +725,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-uploads --requirements AC-020 --timeout 55 -- python3 scripts/reference_image_recovery.py uploads
       - name: Retain original ZIP chunk 00 (at most100MB raw)
         id: image_recovery_chunk_0
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -717,7 +736,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 01 (at most100MB raw)
         id: image_recovery_chunk_1
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -728,7 +747,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 02 (at most100MB raw)
         id: image_recovery_chunk_2
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -739,7 +758,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 03 (at most100MB raw)
         id: image_recovery_chunk_3
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -750,7 +769,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 04 (at most100MB raw)
         id: image_recovery_chunk_4
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -761,7 +780,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 05 (at most100MB raw)
         id: image_recovery_chunk_5
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -772,7 +791,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 06 (at most100MB raw)
         id: image_recovery_chunk_6
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -783,7 +802,7 @@ jobs:
           compression-level: 0
       - name: Retain original ZIP chunk 07 (at most100MB raw)
         id: image_recovery_chunk_7
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 1
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -794,7 +813,7 @@ jobs:
           compression-level: 0
       - name: Read back every actual server chunk ZIP sequentially before complete retention PASS
         id: image_recovery_readback
-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_chunk_0.outcome == 'success' && steps.image_recovery_chunk_1.outcome == 'success' && steps.image_recovery_chunk_2.outcome == 'success' && steps.image_recovery_chunk_3.outcome == 'success' && steps.image_recovery_chunk_4.outcome == 'success' && steps.image_recovery_chunk_5.outcome == 'success' && steps.image_recovery_chunk_6.outcome == 'success' && steps.image_recovery_chunk_7.outcome == 'success' }}
+        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_chunk_0.outcome == 'success' && steps.image_recovery_chunk_1.outcome == 'success' && steps.image_recovery_chunk_2.outcome == 'success' && steps.image_recovery_chunk_3.outcome == 'success' && steps.image_recovery_chunk_4.outcome == 'success' && steps.image_recovery_chunk_5.outcome == 'success' && steps.image_recovery_chunk_6.outcome == 'success' && steps.image_recovery_chunk_7.outcome == 'success' && !inputs.retained_image_probe }}
         timeout-minutes: 9
         shell: bash
         env:
@@ -812,7 +831,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-readback --requirements AC-020 --timeout 490 -- python3 scripts/reference_image_recovery.py readback
       - name: Verify sole original image CRC and SHA through the bounded seekable chunk reader
         id: image_recovery_extract
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 6
         shell: bash
         run: |
@@ -820,7 +839,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-extract --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py extract
       - name: Inventory exact readonly noload image and run unchanged old-source partial reanalysis
         id: image_recovery_inspect
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 16
         shell: bash
         run: |
@@ -828,7 +847,7 @@ jobs:
           python3 scripts/evidence.py --category run34-image-inspect --requirements AC-020 --timeout 910 -- python3 scripts/reference_image_recovery.py inspect
       - name: Close only the exactly bound owned readonly and outer mounts; preserve failures
         id: image_recovery_cleanup
-        if: ${{ always() && inputs.image_recovery }}
+        if: ${{ always() && inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 4
         shell: bash
         run: |
@@ -836,14 +855,14 @@ jobs:
           python3 scripts/evidence.py --category run34-image-cleanup --requirements AC-020 --timeout 190 -- python3 scripts/reference_image_recovery.py cleanup
       - name: Prepare bounded explicit diagnostics after success, partial data or refusal
         id: image_recovery_metadata
-        if: ${{ always() && inputs.image_recovery }}
+        if: ${{ always() && inputs.image_recovery && !inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category run34-image-metadata --requirements AC-020 --timeout 55 -- python3 scripts/reference_image_recovery.py metadata
       - name: Retain admitted recovery diagnostics including exact chunk manifest and failure records
-        if: ${{ always() && inputs.image_recovery && steps.image_recovery_metadata.outputs.metadata_allowed == 'true' }}
+        if: ${{ always() && inputs.image_recovery && steps.image_recovery_metadata.outputs.metadata_allowed == 'true' && !inputs.retained_image_probe }}
         timeout-minutes: 2
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -853,6 +872,88 @@ jobs:
           retention-days: 7
           if-no-files-found: error
           compression-level: 6
+      - name: Retained image metadata probe - plan
+        if: ${{ inputs.retained_image_probe }}
+        timeout-minutes: 1
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py plan
+      - name: Retained image metadata probe - quota
+        if: ${{ inputs.retained_image_probe }}
+        timeout-minutes: 4
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py quota
+      - name: Retained image metadata probe - download
+        if: ${{ inputs.retained_image_probe }}
+        timeout-minutes: 9
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py download
+      - name: Retained image metadata probe - extract
+        if: ${{ inputs.retained_image_probe }}
+        timeout-minutes: 6
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py extract
+      - name: Retained image metadata probe - observe
+        if: ${{ inputs.retained_image_probe }}
+        timeout-minutes: 5
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py observe
+      - name: Retained image metadata probe - cleanup
+        if: ${{ always() && inputs.retained_image_probe }}
+        timeout-minutes: 4
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py cleanup
+      - name: Retained image metadata probe - export
+        id: retained_probe_export
+        if: ${{ always() && inputs.retained_image_probe }}
+        timeout-minutes: 3
+        shell: bash
+        env:
+          FQ_RETAINED_IMAGE_PROBE: "true"
+          FQ_RESERVATION_PROFILE: run38-retained-readonly-metadata-probe-v1
+        run: |
+          set -euo pipefail
+          python3 scripts/reference_retained_image_probe.py export
+      - name: Retain complete bounded inventory and metadata only
+        if: ${{ always() && inputs.retained_image_probe && steps.retained_probe_export.outputs.metadata_allowed == 'true' }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: retained-image-metadata-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ github.workspace }}/.local/retained-metadata-probe
+          retention-days: 7
+          if-no-files-found: error
+          compression-level: 0
 
   conflicting_controls:
     if: ${{ (inputs.codec_control && inputs.preservation_control) || (inputs.capacity_control && (inputs.codec_control || inputs.preservation_control || inputs.profile != 'smoke' || inputs.concurrency != '1')) }}
@@ -878,7 +979,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: "1"
     steps:
       - name: Refuse image recovery outside its explicitly selected codec job before growth
-        if: ${{ inputs.image_recovery }}
+        if: ${{ inputs.image_recovery || inputs.retained_image_probe }}
         timeout-minutes: 1
         shell: bash
         run: |

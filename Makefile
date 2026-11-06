@@ -35,6 +35,7 @@ test: bootstrap
 	$(GO) test -count=1 ./...
 integration: build
 	$(PYTHON) scripts/integration_environment.py
+	$(PYTHON) scripts/capacity_host_grant.py
 # Internal full-suite command specification, consumed by the neutral runner.
 python-fixtures:
 	FQ_FILESYSTEM_POLICY= FQ_NESTED_FILESYSTEM_POLICY= $(PYTHON) -m unittest discover -s tests -p 'test_*.py' -v

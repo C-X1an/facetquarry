@@ -1,0 +1,266 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_supported_commands_with_explicit_host_control_gap_and_new_probe_controls",
+  "implementation_source": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+  "run40": {
+    "status": "AUTHENTICATED_PARTIAL",
+    "all_required_runtime_controls_passed": false,
+    "required_host_grant_positive_control": "SKIPPED_NOT_RUN",
+    "outer_zip_bytes": 1203054,
+    "outer_zip_sha256": "57762771fb52e911c8ae9c98cfa37a825077ad8514e78cc4dcc511226031af85",
+    "inner_zip_bytes": 1202898,
+    "inner_zip_sha256": "0a7f88660b9f237fa798df19fac67a31c6e59670d0cc45d9207172191a9653bb",
+    "all_archive_files": 334,
+    "all_decoded_bytes": 9116349,
+    "context": {
+      "commit": "06505ed95314b8e3fa9969954617439445e1b10f",
+      "git_status": "",
+      "github_run_attempt": "1",
+      "github_run_id": "42190999613",
+      "job": "reference_capacity",
+      "profile": "supported-verification-capacity-v1",
+      "repository": "C-X1an/facetquarry",
+      "repository_id": 1430604581,
+      "source": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8"
+    },
+    "producer_packet_status": "PASS",
+    "complete_local_retention": true,
+    "outer_files": 23,
+    "volume_files": 308,
+    "all_member_crc_size_sha_mode_checked": true,
+    "required_control_not_run": "test_existing_capacity_runner_grant_executes_the_fixed_readlink",
+    "strict_checker_failure_preserved": "20261106T091025Z-47b607bd1b",
+    "verify_unittest_summary": [
+      "Ran 628 tests in 55.355s",
+      "OK (skipped=7)"
+    ]
+  },
+  "run40_url": "https://github.com/C-X1an/facetquarry/actions/runs/42190999613",
+  "actual_supported_toolchain": "go1.27.3 linux/amd64",
+  "verify_and_fresh_clean": {
+    "methods_each": 628,
+    "passed_each": 621,
+    "explicit_skips_each": 7,
+    "required_host_positive_control": "SKIPPED_NOT_RUN",
+    "complete_runtime_control_qualification": false
+  },
+  "actual_scientific_checks_at_run40_source": {
+    "oracle_comparisons": 1000,
+    "engine_mutations_killed": 4,
+    "integrity_controls_killed": 2,
+    "race": "PASS",
+    "online_vulnerability_check": "PASS",
+    "fuzz_campaigns": {
+      "FuzzQuery": {
+        "status": "PASS",
+        "requested_seconds": 30,
+        "observed_elapsed_seconds": 31,
+        "executions": 70287,
+        "new_interesting_counter": 111,
+        "total_counter": 114,
+        "retained_current_members": 111
+      },
+      "FuzzSnapshot": {
+        "status": "PASS",
+        "requested_seconds": 30,
+        "observed_elapsed_seconds": 31,
+        "executions": 1057989,
+        "new_interesting_counter": 2,
+        "total_counter": 4,
+        "retained_current_members": 2
+      }
+    },
+    "retained_current_fuzz_files": 113,
+    "retained_current_fuzz_bytes": 5105,
+    "manifest_sha256": "f0c32682d641468c832c6dbe15ba61fab20398d87f64429f31ace6f999e89db5",
+    "all_packet_corpus_members_byte_verified": true,
+    "scope": "Actual run40 source only; no current implementation or full-matrix qualification."
+  },
+  "host_repair": {
+    "separate_original_environment_process": true,
+    "fixed_leaf_only": true,
+    "requires_exactly_one_run_zero_skips": true,
+    "source_context_live_quota_and_original_environment_bound": true,
+    "whole_entry_seconds": 45,
+    "unit_methods": 9,
+    "actual_current_linux_result": "NOT_RUN"
+  },
+  "probe": {
+    "profile": "run38-retained-readonly-metadata-probe-v1",
+    "new_growth_bytes": 2210000000,
+    "hard_outer_bytes": 2100000000,
+    "actual_oversize_probe_required_bytes": 2200000000,
+    "whole_job_admission_seconds": 1800,
+    "stage_seconds_total": 1545,
+    "external_bytes": 50000000,
+    "cloud_metadata_bytes": 10000000,
+    "inventory_producer_bytes": 8000000,
+    "existing_four_job_conditions_unchanged": true,
+    "requires_all_eight_input_revalidations_before_observation": true,
+    "new_scientific_data_upload": false,
+    "analyzer_execution": false,
+    "coverage_synthesized": false,
+    "independent_findings_before_repairs": [
+      "partial quota cleanup must not require completed quota proof",
+      "inventory output must be bounded before each actual write"
+    ],
+    "independent_read_only_closure": true,
+    "actual_probe_result": "NOT_RUN"
+  },
+  "native_control_receipts": [
+    {
+      "run_id": "20261106T091025Z-47b607bd1b",
+      "category": "run40-complete-supported-capacity-authentication",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+      "source_after": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ea4d17451cc048b91792b2fc0817f41849c9bf166deebe0438df4ab79272be3e"
+    },
+    {
+      "run_id": "20261106T091858Z-b0bcb19862",
+      "category": "run40-byte-authentication-explicit-host-control-gap",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+      "source_after": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+      "termination_reason": null,
+      "stdout_sha256": "493e7676a7c19e37a1214e4710bd8fadf344ba75f0d431a9444f8631d41f8208",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run_id": "20261106T092810Z-3a2b0839c0",
+      "category": "original-parent-host-control-red",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "190d6bf5699e87d8b173ed75f50df3fcffe96711b685fb6bc6e1b3a7facc5093",
+      "source_after": "190d6bf5699e87d8b173ed75f50df3fcffe96711b685fb6bc6e1b3a7facc5093",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "033638cf8d0d69b015302515fa10de4bf440f36481d5e1b59c193025b637eb87"
+    },
+    {
+      "run_id": "20261106T092950Z-6c83708960",
+      "category": "original-parent-host-control-green",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "0b6f23d7b0629dc227a8f1fc517c61cad887b24054acd5e94f1bfc939602faec",
+      "source_after": "0b6f23d7b0629dc227a8f1fc517c61cad887b24054acd5e94f1bfc939602faec",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e6519339313b48cdb3e93d9633d1025c617bd4998b02bbd17d4f471b7876ad47"
+    },
+    {
+      "run_id": "20261106T155034Z-673674583b",
+      "category": "host-gate-affected-integration-controls",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "0b6f23d7b0629dc227a8f1fc517c61cad887b24054acd5e94f1bfc939602faec",
+      "source_after": "0b6f23d7b0629dc227a8f1fc517c61cad887b24054acd5e94f1bfc939602faec",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "732bd377f5d8aa6008690899fe328c5c3640e4b1dae47301953edb1b933f17ec"
+    },
+    {
+      "run_id": "20261106T155041Z-406ccbd1f5",
+      "category": "host-gate-legacy-make-command-control",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "0b6f23d7b0629dc227a8f1fc517c61cad887b24054acd5e94f1bfc939602faec",
+      "source_after": "0b6f23d7b0629dc227a8f1fc517c61cad887b24054acd5e94f1bfc939602faec",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "728508cf03f6cea0c1167307d818e31e41e76824a1ef27d875595bf36242f990"
+    },
+    {
+      "run_id": "20261106T155741Z-2344c30f48",
+      "category": "retained-probe-independent-findings-red",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "7e2e39d728903ef67b684b5e97689b90afc6bf741dd2c4d166b348bf16748deb",
+      "source_after": "7e2e39d728903ef67b684b5e97689b90afc6bf741dd2c4d166b348bf16748deb",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "61e42533ca057a515027f95db39e2d54eb5bcf18d70e9bc8dbd2a6971869723a"
+    },
+    {
+      "run_id": "20261106T155827Z-f515069077",
+      "category": "retained-probe-independent-findings-green",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "d97dba83d780c3f1594a51526a4f7fa4982b8382268f394344ac8b798c7408a7",
+      "source_after": "d97dba83d780c3f1594a51526a4f7fa4982b8382268f394344ac8b798c7408a7",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "cc5f5ce9ae33b316a48f7bc270f76721daaf730712613931341c843eb49b9804"
+    },
+    {
+      "run_id": "20261106T155844Z-053dda6fdb",
+      "category": "retained-probe-original-focused-controls",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "d97dba83d780c3f1594a51526a4f7fa4982b8382268f394344ac8b798c7408a7",
+      "source_after": "d97dba83d780c3f1594a51526a4f7fa4982b8382268f394344ac8b798c7408a7",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "06c1c8ec65eb8e11dcec560ec203300e2edd689ce182e6e1075a78d5a5ff47a3"
+    },
+    {
+      "run_id": "20261106T155914Z-92094d84d9",
+      "category": "retained-probe-original-focused-controls-green",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+      "source_after": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "e2e3d81c397d81d9624bfd55345be17c112173411865c47c98144802025d6d1c"
+    },
+    {
+      "run_id": "20261106T155928Z-4d7de0226b",
+      "category": "retained-probe-all-reference-compatibility",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+      "source_after": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+      "termination_reason": "timeout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "78809721ad6207a8c8ff826922d3ba9c48d5011634dbd272c4efe61a9fbc20d4"
+    },
+    {
+      "run_id": "20261106T160240Z-64b391258c",
+      "category": "retained-probe-all-reference-compatibility-bounded-retry",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+      "source_after": "625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e",
+      "termination_reason": null,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "07a5b94a3aa42f004513d9948f2937ceb9476d847f390b64d52cd50cd9afd33e"
+    }
+  ],
+  "frozen_new_test_sha256": {
+    "test_capacity_host_grant.py": "6ef43a0730e0f2aebf4b53eb78518b9d7feca4867f9a42f0c7435ae40fb8d7c9",
+    "test_reference_retained_image_probe.py": "db8f4b9fb992515f13679b26cfaf53aba829d9a54d7bd149f59f4479c22316df",
+    "test_retained_probe_preflight_findings.py": "1ee3f5262577d0e718d8f37b05af142d72363d51eab7ff3140df4bb56667b6c1"
+  },
+  "preexisting_test_files_byte_exact": 77,
+  "native_reference_compatibility": {
+    "methods": 516,
+    "passed": 486,
+    "explicit_platform_skips": 30,
+    "seconds": 184.197
+  },
+  "unrun_gates": [
+    "current supported Linux host positive control, verify, fresh clean, race and fuzz",
+    "actual retained-image metadata observation",
+    "current strict KVM smoke",
+    "complete frozen full matrix at1/4/16 readers",
+    "actual offline browser/keyboard review",
+    "owner walkthrough"
+  ],
+  "release_qualified": false,
+  "scope": "Curated actual command/byte evidence and local implementation controls. Required host leaf skipped in run40; no skip waived, no old evidence retagged. Current Linux/probe/benchmark/manual gates remain unmet."
+}
