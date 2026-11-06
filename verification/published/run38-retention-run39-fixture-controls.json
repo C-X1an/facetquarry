@@ -1,0 +1,301 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_retention_and_failed_supported_verification_with_fixture_repairs",
+  "repair_source": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+  "run38": {
+    "run_id": 42160839625,
+    "job_id": 127705860450,
+    "workflow_outcome": "FAIL_PRESERVED",
+    "zip_bytes": 357643,
+    "zip_sha256": "2943c0d59ed6f8a4e2325630a95eaf899da4dc48d190704f8607b92e8b7e347e",
+    "members": 519,
+    "selected_originals_byte_verified": 518,
+    "unique_capture_streams_verified": 304,
+    "actual_ENOSPC_probe_bytes": 2200000000,
+    "actual_owned_outer_bytes": 2100000000,
+    "compressed_byte_retention": "PASS",
+    "raw_zip_bytes": 753697518,
+    "raw_zip_sha256": "81befee8db6a62b34e133e2f8fbfaa3490a2171fb591d86b60fdde9c1d7498b8",
+    "raw_chunk_bytes_rehashed_natively": false,
+    "image_reconstruction": "PASS",
+    "image_bytes": 1100000000,
+    "image_sha256": "b78c516c61e58ea414168c4a9f8b8312f49cc08144d53afa05bb5383fd6e6b4a",
+    "zip_crc_verified": true,
+    "root_inventory": {
+      "complete": true,
+      "entries": 28034,
+      "errors": [],
+      "inventory_bytes": 5636455,
+      "inventory_sha256": "834d4d4761d118304907f69f25ac85c45b50c927c99b61bbb95f659aa0611b66",
+      "original_file_bytes": 834273364,
+      "regular_files": 23404,
+      "status": "PASS"
+    },
+    "inspection": "FAIL_BEFORE_ANALYZER",
+    "inspection_gate": "Unresolved candidate discovery/coverage load/identity gate; not an analyzer or benchmark failure.",
+    "omitted_originals": [
+      {
+        "bytes": 5636455,
+        "path": ".local/reference-image-recovery/original-file-inventory.jsonl",
+        "sha256": "834d4d4761d118304907f69f25ac85c45b50c927c99b61bbb95f659aa0611b66"
+      }
+    ],
+    "readonly_and_outer_cleanup": "PASS"
+  },
+  "retained_chunk_artifacts": [
+    {
+      "id": 13476667063,
+      "name": "run34-original-zip-42160839625-1-chunk-00",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:81c7eeb648298574b6c8fb5fd756c1ca09dd9c72de06f5c5df3bba97902fc8a9",
+      "expires_at": "2026-11-13T04:10:15Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "e453d763c104da0284d97dcfb8dc3742f1a48f947246a0d778b2ee4ecdfc974c",
+      "crc_verified": true
+    },
+    {
+      "id": 13477265192,
+      "name": "run34-original-zip-42160839625-1-chunk-01",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:1b7cf07767f6a5fbe3ffce74343569c88427d241ba39568e4688b7f964f9d371",
+      "expires_at": "2026-11-13T04:10:17Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "2cb236eb4b1dc1a013b6ecc7f42704b078827bd301f0ea784d02de301fd63c15",
+      "crc_verified": true
+    },
+    {
+      "id": 13477260207,
+      "name": "run34-original-zip-42160839625-1-chunk-02",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:569afecf8e43f12fd56a5d2f0ae42e85f22165fad416034441e1f314a6666f70",
+      "expires_at": "2026-11-13T04:10:20Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "a064c392be03ceed09e65f36b95a4dde3dff02b91879774b4111bc994d8a6fc3",
+      "crc_verified": true
+    },
+    {
+      "id": 13476976782,
+      "name": "run34-original-zip-42160839625-1-chunk-03",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:4fe04cbdc8760e055ff55d1ae5c7a3ded07e3d919a98fda6bae861c68e65e82b",
+      "expires_at": "2026-11-13T04:10:22Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "7f0c2f273c866bb657975492298cfc0d90ab14ae8f1e326903af47d3d366f287",
+      "crc_verified": true
+    },
+    {
+      "id": 13477165803,
+      "name": "run34-original-zip-42160839625-1-chunk-04",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:3da0918fd7b684988b4065493d2335750e18ea5baa8ac712b54502620b24a29e",
+      "expires_at": "2026-11-13T04:10:24Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "2209f33cb352db3b865741d72ac63164908e9f1bc40a934d5da7acfd35c3a5a1",
+      "crc_verified": true
+    },
+    {
+      "id": 13477270301,
+      "name": "run34-original-zip-42160839625-1-chunk-05",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:5e1549cb981aa115bd8c6c0e06da916dd1c5dbba1224f4429fecddc438e9af4e",
+      "expires_at": "2026-11-13T04:10:27Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "d992b6ccb44527dc20289d9a1e4108b6969a3ecbf254395423c748553c7d7a3e",
+      "crc_verified": true
+    },
+    {
+      "id": 13477145872,
+      "name": "run34-original-zip-42160839625-1-chunk-06",
+      "size_in_bytes": 100000136,
+      "digest": "sha256:092f38cf8ad9bc94d5ab87cd7b515b3887f1a2b1ef34a9b1fba65b3302a037e8",
+      "expires_at": "2026-11-13T04:10:29Z",
+      "raw_member_bytes": 100000000,
+      "raw_member_sha256": "c09eb0b3b1c2982b880435181733002b495f96d713c3fd9ba5fe3ef9c34e9581",
+      "crc_verified": true
+    },
+    {
+      "id": 13475944893,
+      "name": "run34-original-zip-42160839625-1-chunk-07",
+      "size_in_bytes": 53697654,
+      "digest": "sha256:83879eed5d041d30caf24259a15c1991d0f3493648435bd9380e85e7cf2064e4",
+      "expires_at": "2026-11-13T04:10:31Z",
+      "raw_member_bytes": 53697518,
+      "raw_member_sha256": "4843178fd0bd7e6d243504d77f9e1132e5f25e3ffedc1af618fa0051c2e84179",
+      "crc_verified": true
+    }
+  ],
+  "run39": {
+    "status": "PASS",
+    "run_id": 42161950926,
+    "workflow_outcome": "FAIL_PRESERVED",
+    "outer_zip_bytes": 90261,
+    "outer_zip_sha256": "cd4aa6d119fa83dcb64997e8894380d2875b2730ab887237de350a6dce990a7f",
+    "inner_zip_bytes": 90105,
+    "inner_zip_sha256": "f2bebe66c72e8cf807a22655a7e4a50d769cf7b39f6d8fd222c5da4867e13f34",
+    "packet_members": 55,
+    "original_exports_authenticated": 53,
+    "wrapper_receipts_authenticated": 8,
+    "wrapper_capture_hashes_authenticated": 16,
+    "supported_toolchain": "go version go1.27.3 linux/amd64",
+    "actual_owned_quota_bytes": 2000000000,
+    "actual_ENOSPC_probe_bytes": 2100000000,
+    "verify": "FAIL",
+    "distinct_clean_reproduction": "FAIL",
+    "each_integration_tests": 607,
+    "each_failures": 2,
+    "each_errors": 11,
+    "each_skips": 6,
+    "cause": "Capacity-only FQ_RESERVATION_PROFILE inherited by unrelated Python fixture subprocess; unknown profile correctly refused.",
+    "scanner_install": "PASS",
+    "online_vulnerability_scan": "PASS",
+    "race": "NOT_RUN",
+    "fuzz": "NOT_RUN",
+    "packet_status": "FAIL",
+    "execution_complete": false,
+    "complete_available_diagnostics": true,
+    "capture_and_unmount": "PASS",
+    "new_cloud_fileRef_possibleMirror_bytes_each": 90261,
+    "remote_reservation_retired_bytes": 2000000000,
+    "scope": "Actual supported5eee verification/clean failures and separate online scan success. New085c fixture repair not Linux-qualified. No scientific/fullmatrix/manual/release approval."
+  },
+  "native_controls": [
+    {
+      "run_id": "20261106T042836Z-f1fd83e408",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "387f5a0c92808b6d7ee3eadee1dc22a32a3002e26bb078da00bc3c11510f56c9",
+      "source_after": "387f5a0c92808b6d7ee3eadee1dc22a32a3002e26bb078da00bc3c11510f56c9",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "09ff80d45dead082a929ffa2995acbbe0b249814307f284b824f372de9a00f57"
+    },
+    {
+      "run_id": "20261106T042849Z-2cf833729d",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "source_after": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "363c11954f47ad2eba139ab8dc96b10103f7c2726d3b1493078f3c396f069262"
+    },
+    {
+      "run_id": "20261106T043029Z-9ce8d1bf84",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "source_after": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "acf630f9b25711e112145736a532209e432c7d8b3d1c8ab25d582a5fca08efe6"
+    },
+    {
+      "run_id": "20261106T043526Z-a3c3e85920",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "c04cb44db95ab386c58522b9c800ae1aae4c90ffd19f5cad07ef304994cf3cfa",
+      "source_after": "c04cb44db95ab386c58522b9c800ae1aae4c90ffd19f5cad07ef304994cf3cfa",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "de3703c8dfb668219c70ca897cc590e1b7171860f6bd57a76d02271243b55b2b"
+    },
+    {
+      "run_id": "20261106T043608Z-52144461a6",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "3a48716b424a41a68db53f2024a255bac74771556e0f07eec42de5c89e35cf4b",
+      "source_after": "3a48716b424a41a68db53f2024a255bac74771556e0f07eec42de5c89e35cf4b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9765982b011dfd9945e007e38e74d099d13dc8aa2fbd25729d3a2153afc9576b"
+    },
+    {
+      "run_id": "20261106T043609Z-a122ba2f45",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "3a48716b424a41a68db53f2024a255bac74771556e0f07eec42de5c89e35cf4b",
+      "source_after": "3a48716b424a41a68db53f2024a255bac74771556e0f07eec42de5c89e35cf4b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9c3775db96cc2cc657f7b57f7d6ca47ea23745f83c52acd141513ca0c9aa46f1"
+    },
+    {
+      "run_id": "20261106T043635Z-84fa56d1dc",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "3a48716b424a41a68db53f2024a255bac74771556e0f07eec42de5c89e35cf4b",
+      "source_after": "3a48716b424a41a68db53f2024a255bac74771556e0f07eec42de5c89e35cf4b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "f86ff999836b849ff7083f9cd8fbfdde12f78170e96eb42b5a5b8a07a5a401a9"
+    },
+    {
+      "run_id": "20261106T043816Z-7cef0c4afc",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "f467368131ed55d024979242faab35d2fa4c569044d9aa03ced7bfffa3572b0a",
+      "source_after": "f467368131ed55d024979242faab35d2fa4c569044d9aa03ced7bfffa3572b0a",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "26946afc09fef1b3f74b952870e851da5fd70ab174a17d1de622b45cd4515af8"
+    },
+    {
+      "run_id": "20261106T043833Z-b93678b193",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+      "source_after": "3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "004ef95109c8cb117c462a9adca82b1ba0543f394c451edca3ea02fd1105b763"
+    }
+  ],
+  "authentication_receipts": [
+    {
+      "run_id": "20261106T041641Z-2aa666036a",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+      "source_after": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+      "stdout_sha256": "33f7d72093aa8281fe79cd58bfaef6f760b07a1fabfee2a060704f61c630a8e9",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "run_id": "20261106T042948Z-531beb0bbf",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "source_after": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c2b20fa48d0be240839d61549a7af15ad2f7e5142212ca811358be6210dc7bf2"
+    },
+    {
+      "run_id": "20261106T043028Z-45061c2ec3",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "source_after": "085c4ecbc0c28c8bcbc0e2a0bfe0bdd870d59f34a35936372349a73005ed410f",
+      "stdout_sha256": "b3c4d83f873c439a312a7f016925dd5d33ba63c7e92d0dfb9a0d34010f4b72d5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "checker_correction": "Initial run39 checker incorrectly expected9receipt.json paths; actual6volume+2outer give8wrapper receipts/16captures. Original failed run preserved; exactpath audit corrected without changing evidence.",
+  "control_outcomes": {
+    "environment_red": "8methods/6failures/1error",
+    "environment_green": "8PASS",
+    "first_all_reference_suite": "504methods/1StopIteration/30skips; oldMakeparser compatibility regression preserved",
+    "recipe_red": "10methods/36subtest assertion failures",
+    "recipe_environment_green": "18PASS",
+    "old_fixture_unchanged": "1PASS",
+    "all_reference_at_3a48716b": "504methods/474PASS/30explicit platform skips",
+    "target_boundary_red": "3methods/6subtest assertion failures",
+    "final_at_repair_source": "21PASS"
+  },
+  "independent_review": {
+    "initial_read_only_findings_before_repairs": true,
+    "two_independently_authored_new_files": true,
+    "root_authored_boundary_file_from_later_read_only_finding": true,
+    "final_read_only_closure": true
+  },
+  "preexisting_test_files_byte_exact": 74,
+  "new_test_sha256": {
+    "test_integration_environment.py": "ed62c5b6af46dc695203a561542b1f57e18eab821efa276e37cc7b7fc4043809",
+    "test_integration_recipe_contract.py": "760c59c0dccfe22bdb828658bfc23e64ee75ad2312e373cd10e7341a16c5b205",
+    "test_integration_recipe_target_boundary.py": "d1728fe25da03bad97f3b552449c011ca0441c3b62cf6d44196ba13ac6ff3238"
+  },
+  "scope": "Actualrun38 compressed ZIP retention/image reconstruction and failed inspection; actualrun39 supported5eee verify/clean failures plus separate online scan success. Native repair controls only; current Linux/race/fuzz/clean/strictsmoke/full1/4/16/manual remain unqualified.",
+  "full_matrix_qualified": false,
+  "manual_qualified": false,
+  "release_qualified": false
+}

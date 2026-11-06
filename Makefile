@@ -34,7 +34,9 @@ check: bootstrap
 test: bootstrap
 	$(GO) test -count=1 ./...
 integration: build
-	@echo "Python fixture process clears both filesystem policy selections; actual workflow quota gates retain their declared policies."
+	$(PYTHON) scripts/integration_environment.py
+# Internal full-suite command specification, consumed by the neutral runner.
+python-fixtures:
 	FQ_FILESYSTEM_POLICY= FQ_NESTED_FILESYSTEM_POLICY= $(PYTHON) -m unittest discover -s tests -p 'test_*.py' -v
 acceptance: test integration
 	$(PYTHON) scripts/check_integrity.py

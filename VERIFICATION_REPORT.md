@@ -1,5 +1,13 @@
 # Verification report
 
+## Current fixture-boundary repair - 2026-11-06
+
+Technical source `3801f679e98b983e1ce29e2f5e5357cd1bb80dfcf7dcc90d48a63ef58794acc8` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Authenticated run38/run39 outcomes and repair controls](verification/published/run38-retention-run39-fixture-controls.json) preserve both actual failures. Run38 retained and read back all8chunks totaling753697518raw ZIP bytes before reconstructing the1100000000-byte image with verified CRC/SHA. Readonly inventory completed28034entries/23404regular files without errors; inspection failed at a coverage-discovery/load/identity gate before analyzer execution. Exact518originals were authenticated; the omitted5.636MBinventory is explicitly identified. Native chunk bytes were not rehashed.
+
+Run39 actually obtained Go1.27.3 Linux inside its2GBquota, but main and distinct clean integration each failed607tests with2failures/11errors/6skips because an unrelated capacity profile reached Python fixtures. Scanner and online vulnerability receipts passed separately; race/fuzz were not reached. The failed diagnostic packet completely retained all53available original exports despite execution_complete=false. Exact8wrapperreceipts/16capture hashes were authenticated after preserving an initial checker-count failure.
+
+Independent findings preceded fixture-only isolation. The runner removes only3selection keys in the copied child environment; real quota, reserve, identity and resource paths remain enforced. It consumes one real full-suite Make recipe, rejects altered/shortened commands or extra recipes, and executes fixed Python arguments once without a shell. All74previous tests remain byte-exact. Preserved native controls include the first504-suite compatibility failure, then504methods/474PASS/30explicit skips at3a48716b, and final21PASS at the current parser repair source. Three new files remain frozen across their RED/GREEN runs. Current supported Linux verification/clean/race/fuzz, strict smoke, full1/4/16 and manual gates remain required.
+
 ## Current retention-first integration - 2026-11-06
 
 Technical source `5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Actual run37 and combined controls](verification/published/run37-journal-retention-first-controls.json) authenticate the2.1GB filesystem/2.2GB ENOSPC and the quiescent8chunk ZIP download atcbb. Image reconstruction and cleanup failed before ZIP parsing when the mounted journal transitioned to checksum features. Exact130784-byte diagnostics retain232authenticated originals/132capture bindings. Original chunk bytes were not rehashed locally or retained as server chunks.
