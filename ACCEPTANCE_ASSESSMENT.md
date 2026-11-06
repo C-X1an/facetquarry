@@ -1,5 +1,13 @@
 # Current acceptance assessment
 
+## Current retention-first integration - 2026-11-06
+
+Technical source `5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Actual run37 and combined controls](verification/published/run37-journal-retention-first-controls.json) authenticate the2.1GB filesystem/2.2GB ENOSPC and the quiescent8chunk ZIP download atcbb. Image reconstruction and cleanup failed before ZIP parsing when the mounted journal transitioned to checksum features. Exact130784-byte diagnostics retain232authenticated originals/132capture bindings. Original chunk bytes were not rehashed locally or retained as server chunks.
+
+Independent findings preceded implementation-only repairs and two read-only closures. The unchanged new tests preserve JBD2 RED(8tests/3failures/4errors) and GREEN(8PASS), and retention-order RED(11tests/2failures/27errors) and GREEN(11PASS). The complete native reference suite passed504tests:474PASS/30explicit skips. All72previously tracked Python/Go tests remain byte-exact.
+
+The named ordering preserves all8compressed chunks through actual server readback before image interpretation. Later interpretation requires that exact completed proof. Clean/mounted journal states, UUID/geometry/backing checks, all individual deadlines, total3285s/3600s job and2971697518-byte growth reservation remain explicit. Bounded archive observations never admit a format. New Linux retry, image CRC/inspection, supported current toolchain/clean reproduction, full1/4/16 and manual gates remain required. Earlier source checkpoints below retain their original scope.
+
 ## Current recovery repair - 2026-11-05
 
 Technical source `cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Actual run36 and source-bound repair controls](verification/published/run36-recovery-setup-42127523219.json) preserve the failed Linux setup: e2fsprogs reported disabled `Fast commit length: 0`, which the parser refused before mount, ENOSPC or download. The original64196-byte diagnostic and all118selected originals were authenticated. No image recovery or retention PASS occurred.

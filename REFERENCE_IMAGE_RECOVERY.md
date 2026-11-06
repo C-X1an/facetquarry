@@ -1,6 +1,7 @@
 # Frozen run34 readonly image recovery
 
-This path is implemented but unexecuted and unqualified. Select `codec_control=true`
+The current repaired path is implemented and unqualified. Earlier run37 passed
+quota/download but failed before ZIP parsing; see the source-bound verification report. Select `codec_control=true`
 to enter the existing historical-control job and `image_recovery=true` to select
 readonly recovery instead of codec packing. Set `profile=smoke`, `concurrency=1`,
 with capacity, preservation and trim controls false. Supply a fresh all-attributable
@@ -20,8 +21,11 @@ requests4096inodes,256-byte inodes and an exact16MiB journal. Actual formatter
 version, argv, features, inode-group rounding and journal blocks are recorded;
 unexpected enabled features refuse. One optional, unique `Fast commit length: 0`
 report is accepted; nonzero, malformed, duplicate or unknown fast-commit reports refuse. Clean formatting and bound
-read/write mounting have separate lifecycle checks: only the mounted journal's
-declared `needs_recovery` flag changes, with actual flags and mount binding retained.
+read/write mounting have separate lifecycle checks. Clean format requires no JBD2
+features/checksum; mounted state permits none or the exact observed
+`journal_incompat_revoke journal_64bit journal_checksum_v3` set with `crc32c`, plus
+`needs_recovery`. Actual observations remain distinct from unchanged static
+UUID/geometry and mount/backing bindings. The [kernel journal format](https://www.kernel.org/doc/html/latest/filesystems/ext4/journal.html) describes these separate journal fields.
 All static geometry remains exact. Original ZIP chunks, extracted image, temporary files and at most
 one101000000-byte server readback stay inside it. Before growth, actual available
 bytes and inodes must cover each remaining file rounded independently, directory
@@ -35,6 +39,18 @@ Eight100MB-or-smaller original ZIP chunks preserve the exact compressed input.
 Every new server artifact must be read back sequentially and its sole member's
 CRC, size and SHA verified before the parent can issue complete-retention PASS.
 An upload badge or manifest alone cannot establish retention.
+
+The explicit `run34-zip-before-inspection-v1` policy completes quota, download,
+eight uploads and every server readback before extraction/inspection. Byte
+retention rejects any prior interpretation attempt and means exact compressed
+input retention only. Interpretation requires the completed current proof. Its
+failures remain failures. Individual budgets,3285s total reservations,60-minute
+job and both cleanup/metadata tails stay unchanged. The pure legacy timing API
+remains available; production explicitly selects the named ordering.
+
+After exact ZIP/chunk hashing, a bounded observation retains at most65557tail
+bytes and46central-header bytes before later parsing. It reports errors with
+`accepted=false`; it does not broaden supported archive layouts.
 
 The original image mounts `ro,nodev,nosuid,noexec,noload`. A bounded inventory
 hashes every accessible regular file and reports all traversal failures, including

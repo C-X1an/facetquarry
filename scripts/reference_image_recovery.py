@@ -9,6 +9,7 @@ import time
 ENTRY_STARTED = time.monotonic()
 
 import argparse
+import base64
 import datetime as dt
 import hashlib
 import io
@@ -65,10 +66,16 @@ FORMAT_POLICY = 'recovery-ext4-inodes4096-journal16m-v1'
 FORMAT_FEATURES = frozenset(('has_journal', 'ext_attr', 'resize_inode', 'dir_index', 'filetype',
     'extent', '64bit', 'flex_bg', 'sparse_super', 'large_file', 'huge_file', 'dir_nlink',
     'extra_isize', 'metadata_csum'))
+MOUNTED_JOURNAL_FEATURES = frozenset(('journal_incompat_revoke', 'journal_64bit', 'journal_checksum_v3'))
 SCHEDULE = {'plan': 45, 'quota': 120, 'download': 300, 'extract': 300,
             'inspect': 900, 'uploads': 720, 'readback': 480,
             'metadata': 240, 'cleanup': 180}
 ORDER = tuple(SCHEDULE)
+RETENTION_FIRST = 'run34-zip-before-inspection-v1'
+RETENTION_FIRST_SCHEDULE = {name: SCHEDULE[name] for name in
+    ('plan', 'quota', 'download', 'uploads', 'readback', 'extract', 'inspect', 'metadata', 'cleanup')}
+RETENTION_SCOPE = ('Exact frozen original compressed ZIP bytes only. Image validation and inspection '
+                   'have not run at retention time; later failures remain separate. No scientific qualification.')
 SCOPE = ('Frozen run34 compressed ZIP byte recovery and readonly inspection only. '
          'No new benchmark, supported-toolchain, current-source, target or release qualification. '
          'Historical failures and partial analysis remain failures.')
@@ -94,18 +101,26 @@ def geometry_plan(base):
             'scientific_qualification': False}
 
 
-def time_admission(stage, started_epoch, now_epoch):
+def time_admission(stage, started_epoch, now_epoch, *, policy=None):
+    # Preserve the original pure API. Production explicitly selects the new
+    # order and reserves its longer interpretation tail before byte retention.
+    require(policy in (None, RETENTION_FIRST), 'unknown explicit recovery ordering policy')
+    schedule = SCHEDULE if policy is None else RETENTION_FIRST_SCHEDULE
+    order = tuple(schedule)
     require(stage in SCHEDULE and all(type(v) in (int, float) and math.isfinite(v)
             for v in (started_epoch, now_epoch)) and 0 <= now_epoch - started_epoch <= 3600,
             'invalid actual whole-job start/current time')
     remaining = 3600 - (now_epoch - started_epoch)
     # Cleanup precedes the final diagnostic upload, so both tails remain reserved.
-    required = (SCHEDULE['cleanup'] + SCHEDULE['metadata'] if stage == 'cleanup'
-                else SCHEDULE['metadata'] if stage == 'metadata'
-                else sum(SCHEDULE[key] for key in ORDER[ORDER.index(stage):]))
-    return {'stage': stage, 'remaining_seconds': remaining, 'required_seconds': required,
+    required = (schedule['cleanup'] + schedule['metadata'] if stage == 'cleanup'
+                else schedule['metadata'] if stage == 'metadata'
+                else sum(schedule[key] for key in order[order.index(stage):]))
+    result = {'stage': stage, 'remaining_seconds': remaining, 'required_seconds': required,
             'allowed': remaining >= required, 'job_seconds': 3600,
-            'schedule_seconds': SCHEDULE, 'setup_cushion_seconds': 3600 - sum(SCHEDULE.values())}
+            'schedule_seconds': schedule, 'setup_cushion_seconds': 3600 - sum(schedule.values())}
+    if policy is not None:
+        result['retention_order_policy'] = policy
+    return result
 
 
 def space_admission(frsize, bavail, favail, remaining_bytes, entries):
@@ -161,7 +176,17 @@ def recovery_geometry(raw, *, lifecycle='clean'):
     require(not fast_commit_lines or (len(fast_commit_lines) == 1
             and re.fullmatch(r'Fast commit length:[ \t]*0[ \t]*', fast_commit_lines[0])),
             'unexpected nonzero, duplicate or unknown fast-commit report')
-    require(field('Journal features') == '(none)' and field('Total journal size') == '16M'
+    journal_text = field('Journal features')
+    journal_features = [] if journal_text == '(none)' else journal_text.split()
+    require(len(journal_features) == len(set(journal_features))
+            and (not journal_features or (lifecycle == 'mounted'
+                 and set(journal_features) == MOUNTED_JOURNAL_FEATURES)),
+            'unexpected clean or mounted journal feature set')
+    checksum_fields = re.findall(r'^Journal checksum type:', raw, re.MULTILINE)
+    journal_checksum_type = field('Journal checksum type') if journal_features else None
+    require(journal_checksum_type == 'crc32c' if journal_features else not checksum_fields,
+            'mounted journal checksum is absent, ambiguous or differs')
+    require(field('Total journal size') == '16M'
             and not re.search(r'^Journal block size', raw, re.MULTILINE),
             'unexpected journal feature, fast-commit or block-size addition')
     journal_blocks = int(field('Total journal blocks'))
@@ -185,7 +210,8 @@ def recovery_geometry(raw, *, lifecycle='clean'):
             'observed recovery requested inode count/group rounding differs')
     return {**geometry, 'policy': FORMAT_POLICY, 'features': sorted(set(features) - lifecycle_features),
             'observed_lifecycle_features': sorted(lifecycle_features),
-            'journal_features': [], 'journal_blocks': journal_blocks, 'journal_bytes': journal_blocks * block,
+            'journal_features': sorted(journal_features), 'journal_checksum_type': journal_checksum_type,
+            'journal_blocks': journal_blocks, 'journal_bytes': journal_blocks * block,
             'requested_inode_count': 4096, 'requested_inode_size': 256, 'requested_journal_mib': 16}
 
 
@@ -330,7 +356,7 @@ def context():
             and raw == b'', 'recovery checkout must be exact and clean')
     return {'profile': PROFILE, 'repository': REPOSITORY, 'repository_id': REPOSITORY_ID,
             'job': 'codec', 'github_run_id': run, 'github_run_attempt': attempt,
-            'commit': commit, 'source': source_hash(),
+            'commit': commit, 'source': source_hash(), 'retention_order_policy': RETENTION_FIRST,
             'job_started_epoch': int(os.environ['FQ_IMAGE_RECOVERY_JOB_STARTED_EPOCH'])}
 
 
@@ -441,17 +467,22 @@ def outer(p, label):
     raw, _, _ = command(['dumpe2fs', '-h', str(p['outer'])], label + '-geometry')
     observed = recovery_geometry(raw.decode(), lifecycle='mounted')
     clean = proof.get('geometry', {})
-    # Exactly one declared ext4 journal lifecycle flag changes on the bound RW
-    # mount. Every static feature and all journal/inode/block geometry stay exact.
+    # Retain only the two observed mounted journal states. Clean format proof
+    # remains exact; every UUID, static feature and size/inode/block field agrees.
+    journal_state = ('observed_lifecycle_features', 'journal_features', 'journal_checksum_type')
     require(type(clean) is dict and clean.get('observed_lifecycle_features') == []
-            and {key: value for key, value in observed.items() if key != 'observed_lifecycle_features'}
-                == {key: value for key, value in clean.items() if key != 'observed_lifecycle_features'},
+            and clean.get('journal_features') == [] and clean.get('journal_checksum_type', 'missing') is None
+            and {key: value for key, value in observed.items() if key not in journal_state}
+                == {key: value for key, value in clean.items() if key not in journal_state},
             'current recovery journal/inode/superblock geometry changed')
     current = mount_observation(p['outer'], p['volume'], label, readonly=False, expected_bytes=OUTER_BYTES)
     require(current == proof['binding'], 'outer filesystem/backing changed since actual ENOSPC')
     record = {'status': 'PASS', 'profile': PROFILE, 'run_context': proof['run_context'],
               'clean_geometry': clean, 'observed_geometry': observed, 'binding': current,
-              'declared_transition': 'clean-to-bound-rw-mounted-needs-recovery'}
+              'declared_transition': 'clean-to-bound-rw-mounted-needs-recovery',
+              'allowed_mounted_journal_features': [[], sorted(MOUNTED_JOURNAL_FEATURES)],
+              'observed_journal_features': observed['journal_features'],
+              'observed_journal_checksum_type': observed['journal_checksum_type']}
     save(p['local'] / ('lifecycle-' + label + '.json'), record)
     return record
 
@@ -677,6 +708,12 @@ def download():
     result.update(status='PASS', input_artifact=metadata, delivery_host=host,
                   run_context=ctx, scope=SCOPE)
     save(p['local'] / 'chunks.json', result)
+    # Preserve a bounded factual view before later filesystem/format parsing.
+    # A parse error here is an observation, never archive-format acceptance.
+    with ChunkReader(p['chunks'], result['chunks'], ZIP_BYTES, ZIP_SHA) as reader:
+        observed = archive_observation(reader, ZIP_BYTES)
+    save(p['local'] / 'zip-observation.json', {
+        **observed, 'run_context': ctx, 'original_zip_sha256': ZIP_SHA})
     return result
 
 
@@ -741,6 +778,50 @@ class ChunkReader(io.RawIOBase):
         for stream, _, _ in getattr(self, 'streams', []): stream.close()
         self.streams = []
         super().close()
+
+
+def archive_observation(stream, total):
+    """Retain at most65,557 tail bytes and46 header bytes; admit no format."""
+    require(type(total) is int and 1 <= total <= ZIP_BYTES, 'bounded observation size required')
+    size = min(total, 65557); start = total - size
+    stream.seek(start); tail = stream.read(size)
+    errors = []
+    def encoded(raw, offset):
+        return {'offset': offset, 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(),
+                'base64': base64.b64encode(raw).decode('ascii')}
+    result = {'status': 'OBSERVED', 'scope': 'Bounded ZIP structure observation only; no format acceptance.',
+              'total_bytes': total, 'tail': encoded(tail, start), 'eocd': None, 'central_header': None,
+              'zip64_signatures': {}, 'parse_errors': errors, 'accepted': False,
+              'scientific_qualification': False}
+    if len(tail) != size: errors.append('ShortTail')
+    for label, signature in (('eocd', b'PK\x06\x06'), ('locator', b'PK\x06\x07')):
+        offsets, position = [], 0
+        for _ in range(8):
+            found = tail.find(signature, position)
+            if found < 0: break
+            offsets.append(start + found); position = found + len(signature)
+        result['zip64_signatures'][label + '_offsets'] = offsets
+        result['zip64_signatures'][label + '_count'] = tail.count(signature)
+    offset = tail.rfind(b'PK\x05\x06')
+    if offset < 0 or offset + 22 > len(tail):
+        errors.append('EndRecordAbsentOrTruncated')
+    else:
+        _, disk, directory_disk, disk_count, count, directory_size, directory_offset, comment = struct.unpack_from(
+            '<4s4H2LH', tail, offset)
+        result['eocd'] = {'offset': start + offset, 'disk': disk, 'directory_disk': directory_disk,
+            'disk_count': disk_count, 'member_count': count, 'directory_bytes': directory_size,
+            'directory_offset': directory_offset, 'comment_bytes': comment,
+            'ends_at_input_end': offset + 22 + comment == len(tail)}
+        if not result['eocd']['ends_at_input_end']: errors.append('EndRecordLengthMismatch')
+        if 0 <= directory_offset <= total - 46:
+            stream.seek(directory_offset); header = stream.read(46)
+            result['central_header'] = encoded(header, directory_offset)
+            if len(header) != 46: errors.append('ShortCentralHeader')
+        else:
+            errors.append('CentralHeaderOutsideInput')
+    if errors: result['status'] = 'PARSE_ERROR'
+    require(len(json.dumps(result).encode()) < 100_000, 'ZIP observation exceeds bounded producer size')
+    return result
 
 
 def sole_zip(stream, total, name, size):
@@ -1043,24 +1124,84 @@ def require_stage(p, name):
     return record
 
 
+def retention_prerequisites(p):
+    """Complete compressed-byte preservation before any interpretation attempt."""
+    ctx = context()
+    require(ctx.get('retention_order_policy') == RETENTION_FIRST, 'current explicit retention policy required')
+    records = {stage: require_stage(p, stage) for stage in ('quota', 'download')}
+    require(not os.path.lexists(p['image']) and not os.path.ismount(p['mount']),
+            'retention must precede original image creation or mount')
+    require(all(not os.path.lexists(p['local'] / (prefix + stage + '.json'))
+                for prefix in ('active-', 'parent-') for stage in ('extract', 'inspect')),
+            'interpretation already attempted before byte retention')
+    return {'status': 'PASS', 'run_context': ctx, 'scope': RETENTION_SCOPE,
+            'upstream_status': {stage: value['status'] for stage, value in records.items()}}
+
+
+def require_retained_zip(p, ctx):
+    """Authenticate all eight completed readbacks before launching interpretation."""
+    path = p['local'] / 'retention.json'
+    before, digest = identity(path), hash_regular(path, MAX_JSON)
+    proof = load(path)
+    require(proof.get('status') == 'PASS' and proof.get('complete_retention') is True
+            and proof.get('run_context') == ctx and ctx.get('retention_order_policy') == RETENTION_FIRST
+            and proof.get('retention_order_policy') == RETENTION_FIRST
+            and proof.get('original_zip_bytes') == ZIP_BYTES and proof.get('original_zip_sha256') == ZIP_SHA
+            and proof.get('awaiting_parent_capture_quiescence') is False
+            and proof.get('scientific_qualification') is False,
+            'exact current compressed-byte retention proof required')
+    records, ids = proof.get('artifacts'), set()
+    require(type(records) is list and len(records) == CHUNKS, 'all eight retained artifact records required')
+    for number, (record, size) in enumerate(zip(records, chunk_sizes())):
+        require(type(record) is dict, 'retained artifact record is malformed')
+        artifact = record.get('artifact', {}); run = artifact.get('workflow_run', {})
+        aid, server_size, server_sha = artifact.get('id'), record.get('server_zip_bytes'), record.get('server_zip_sha256')
+        require(type(record.get('number')) is int and record['number'] == number
+                and type(aid) is int and aid > 0 and aid != ARTIFACT_ID and aid not in ids
+                and artifact.get('name') == 'run34-original-zip-' + ctx['github_run_id'] + '-'
+                    + ctx['github_run_attempt'] + '-chunk-' + f'{number:02d}'
+                and type(server_size) is int and size <= server_size <= min(size + 1_000_000, READBACK_BYTES)
+                and artifact.get('size_in_bytes') == server_size
+                and type(server_sha) is str and re.fullmatch('[0-9a-f]{64}', server_sha)
+                and artifact.get('digest') == 'sha256:' + server_sha and artifact.get('expired') is False
+                and run.get('id') == int(ctx['github_run_id']) and run.get('head_sha') == ctx['commit']
+                and run.get('repository_id') == run.get('head_repository_id') == REPOSITORY_ID
+                and type(record.get('member_bytes')) is int and record['member_bytes'] == size
+                and type(record.get('member_sha256')) is str
+                and re.fullmatch('[0-9a-f]{64}', record['member_sha256']) and record.get('crc_verified') is True,
+                'retained artifact identity, CRC, size or digest differs')
+        ids.add(aid)
+    readback_path = p['local'] / 'readback.json'
+    readback = load(readback_path)
+    readback_digest = hash_regular(readback_path, MAX_JSON)
+    require_stage(p, 'readback')
+    parent_digest = hash_regular(p['local'] / 'parent-readback.json', MAX_JSON)
+    expected = dict(readback)
+    expected.update(complete_retention=True, awaiting_parent_capture_quiescence=False,
+                    parent_receipt_sha256=parent_digest, readback_record_sha256=readback_digest,
+                    scientific_qualification=False)
+    require(proof == expected and identity(path) == before and hash_regular(path, MAX_JSON) == digest
+            and load(path) == proof and hash_regular(readback_path, MAX_JSON) == readback_digest,
+            'retention/readback evidence changed or lacks exact parent binding')
+    return proof
+
+
 def upload_admit():
-    p, ctx = admitted(); outer(p, 'upload-binding')
-    for stage in ('quota', 'download', 'extract', 'inspect'):
-        require_stage(p, stage)
-    require(not os.path.ismount(p['mount']), 'original readonly mount is still live before upload')
-    no_association(p['image'], 'upload-original-unmounted')
+    p, ctx = admitted(); retention_prerequisites(p); outer(p, 'upload-binding')
     chunks = load(p['local'] / 'chunks.json')
     with ChunkReader(p['chunks'], chunks['chunks'], ZIP_BYTES, ZIP_SHA): pass
     record = {'status': 'PASS', 'run_context': ctx, 'original_zip_bytes': ZIP_BYTES,
-              'original_zip_sha256': ZIP_SHA, 'original_image_sha256': IMAGE_SHA,
+              'original_zip_sha256': ZIP_SHA, 'expected_original_image_sha256': IMAGE_SHA,
+              'image_validation': 'NOT_RUN_AT_BYTE_RETENTION', 'inspection': 'NOT_RUN_AT_BYTE_RETENTION',
+              'retention_order_policy': RETENTION_FIRST,
               'chunks': chunks['chunks'], 'chunk_artifact_zip_ceiling_bytes': ZIP_BYTES + CHUNKS * 1_000_000,
-              'complete_retention': False, 'scope': SCOPE}
+              'complete_retention': False, 'scope': RETENTION_SCOPE}
     save(p['local'] / 'upload-manifest.json', record)
     return record
 
 
 def readback():
-    p, ctx = admitted(); outer(p, 'readback-binding'); require_stage(p, 'uploads')
+    p, ctx = admitted(); retention_prerequisites(p); outer(p, 'readback-binding'); require_stage(p, 'uploads')
     manifest = load(p['local'] / 'upload-manifest.json')
     require(manifest.get('run_context') == ctx and manifest.get('status') == 'PASS', 'upload manifest differs')
     ids = [os.environ.get('FQ_RECOVERY_ARTIFACT_' + str(i), '') for i in range(CHUNKS)]
@@ -1113,7 +1254,10 @@ def readback():
     with ChunkReader(p['chunks'], manifest['chunks'], ZIP_BYTES, ZIP_SHA): pass
     record = {'status': 'PASS', 'run_context': ctx, 'artifacts': records,
               'original_zip_bytes': ZIP_BYTES, 'original_zip_sha256': ZIP_SHA,
-              'complete_retention': False, 'awaiting_parent_capture_quiescence': True, 'scope': SCOPE}
+              'retention_order_policy': RETENTION_FIRST,
+              'image_validation': 'NOT_RUN_AT_BYTE_RETENTION', 'inspection': 'NOT_RUN_AT_BYTE_RETENTION',
+              'scientific_qualification': False, 'complete_retention': False,
+              'awaiting_parent_capture_quiescence': True, 'scope': RETENTION_SCOPE}
     save(p['local'] / 'readback.json', record)
     return record
 
@@ -1233,6 +1377,7 @@ def metadata():
               'selected_files': selected, 'omitted_files': omitted,
               'metadata_export_complete': not omitted, 'cloud_metadata_upper_bound_bytes': METADATA_BYTES + 1_000_000,
               'scientific_qualification': False, 'complete_data_retention_claim': False,
+              'complete_data_retention_scope': 'Exact frozen compressed ZIP bytes only; image and scientific outcomes separate.',
               'reduced_export_scope': 'Omissions and this metadata stage\'s unfinished self-receipts are explicit. Original bytes remain reconstructible only when the eight-chunk retention proof passes.'}
     if (p['local'] / 'retention.json').is_file():
         retention = load(p['local'] / 'retention.json')
@@ -1252,7 +1397,9 @@ ACTIONS = {'plan': plan, 'quota': quota, 'download': download, 'extract': extrac
 def supervise(action):
     seconds = 45 if action in ('uploads', 'metadata') else SCHEDULE[action]
     p, ctx = paths(), context()
-    timing = time_admission(action, ctx['job_started_epoch'], time.time())
+    if action in ('extract', 'inspect'):
+        require_retained_zip(p, ctx)
+    timing = time_admission(action, ctx['job_started_epoch'], time.time(), policy=RETENTION_FIRST)
     save(p['local'] / ('time-' + action + '.json'), timing)
     require(timing['allowed'], 'actual whole-job remaining time cannot preserve later stages and tails')
     external_admission(200_000)
@@ -1279,13 +1426,15 @@ def supervise(action):
     save(p['local'] / ('parent-' + action + '.json'), record)
     require(record['status'] == 'PASS', 'actual supervised recovery stage failed: ' + action)
     if action == 'readback':
-        for required in ('quota', 'download', 'extract', 'inspect', 'uploads', 'readback'):
+        retention_prerequisites(p)
+        for required in ('quota', 'download', 'uploads', 'readback'):
             require_stage(p, required)
         verified = load(p['local'] / 'readback.json')
         require(verified.get('status') == 'PASS' and verified.get('run_context') == ctx
                 and len(verified['artifacts']) == CHUNKS, 'complete eight-artifact readback proof missing')
         verified.update(complete_retention=True, awaiting_parent_capture_quiescence=False,
                         parent_receipt_sha256=hash_regular(p['local'] / 'parent-readback.json', MAX_JSON),
+                        readback_record_sha256=hash_regular(p['local'] / 'readback.json', MAX_JSON),
                         scientific_qualification=False)
         save(p['local'] / 'retention.json', verified)
     return record

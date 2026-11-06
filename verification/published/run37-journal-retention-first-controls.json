@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_failed_run_and_source_bound_control_summary",
+  "repair_source": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+  "actual_failed_run": {
+    "id": 42129642895,
+    "job_id": 127602703608,
+    "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/42129642895",
+    "commit": "46a43897196c115daef217c0e5b0deba0263deb8",
+    "source": "cbb5c6e6ab4424b0c6c250c23cd4eb6b4aa7fe1b691cbb92c3624942db8a0a98",
+    "outcome": "FAIL",
+    "actual_quota_bytes": 2100000000,
+    "actual_ENOSPC_probe_bytes": 2200000000,
+    "probe_removed": true,
+    "download_parent": "PASS",
+    "download_manifest_chunks": 8,
+    "download_manifest_bytes": 753697518,
+    "download_manifest_whole_sha256": "81befee8db6a62b34e133e2f8fbfaa3490a2171fb591d86b60fdde9c1d7498b8",
+    "chunk_bytes_rehashed_natively": false,
+    "image_CRC_inspection_server_readback": "NOT RUN",
+    "failed_steps": [
+      18,
+      30
+    ],
+    "failure_cause": "Observed mounted JBD2 feature/checksum transition rejected before archive reconstruction and cleanup unmount.",
+    "observed_mounted_journal_features": [
+      "journal_incompat_revoke",
+      "journal_64bit",
+      "journal_checksum_v3"
+    ],
+    "failed_mounted_superblock_sha256": "5de47241a2dd414e18256a2b3cbf5fc2f7cb5e82f2743aec44a794222cd27e0b",
+    "diagnostic_artifact_id": 13462781178,
+    "diagnostic_zip_bytes": 130784,
+    "diagnostic_zip_sha256": "d7af5ce7a1d6aef789cc3d2e21421fc4e64158cdb51d2f35c73f8df2092f501a",
+    "diagnostic_members": 233,
+    "selected_originals_verified": 232,
+    "capture_bindings_verified": 132,
+    "exception_scope": "Original captures expose ValueError type only; actual retained bytes and deterministic predicate establish parser mismatch."
+  },
+  "diagnostic_audit": {
+    "run_id": "20261105T234250Z-49167fc815",
+    "status": "PASS",
+    "exit_code": 0,
+    "source_before": "9ee729f8ee4ac6de5a8c2a369d5b2af218be17b6c16740abd41944f5bba4ebf9",
+    "source_after": "9ee729f8ee4ac6de5a8c2a369d5b2af218be17b6c16740abd41944f5bba4ebf9",
+    "stdout_sha256": "157d76f2f942b8c88e36f086ed5bac45a2b532a56384b2c5b5f4db413a825703",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "initial_checker_failure": {
+    "run_id": "20261105T234224Z-bb8dde5d09",
+    "status": "FAIL",
+    "exit_code": 1,
+    "source_before": "9ee729f8ee4ac6de5a8c2a369d5b2af218be17b6c16740abd41944f5bba4ebf9",
+    "source_after": "9ee729f8ee4ac6de5a8c2a369d5b2af218be17b6c16740abd41944f5bba4ebf9",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "6ef0ae20b6f7a8a82e218b7a94bf11188884b057d87e9869ad01dc3eac1b359c"
+  },
+  "checker_correction": "Match exact recorded extract-binding command label; original failed checker retained.",
+  "controls": [
+    {
+      "run_id": "20261105T233426Z-7f92c64426",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "ca8228c57d87dfed66158217b52cab83b5693dd9a39c770e5502e20d3e9fc1b8",
+      "source_after": "ca8228c57d87dfed66158217b52cab83b5693dd9a39c770e5502e20d3e9fc1b8",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "8895a1764f8b76e2c69986cee8c6af4b6c64ab5fddcf11ead0a5ccdf2f08a64b",
+      "tests": 8,
+      "explicit_skips": 0,
+      "failures": 3,
+      "errors": 4
+    },
+    {
+      "run_id": "20261105T233522Z-2cce7da7e7",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "9f0802c05da9d67fb1208854a00d7c3fb558437a51479a4f2b0ba91b4814444d",
+      "source_after": "9f0802c05da9d67fb1208854a00d7c3fb558437a51479a4f2b0ba91b4814444d",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d8c8698637adb78707e0f56452ee3d134cfa9eb7f6d3075491b559f9cec83080",
+      "tests": 8,
+      "explicit_skips": 0,
+      "passed": 8
+    },
+    {
+      "run_id": "20261105T234251Z-201db179f8",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "9ee729f8ee4ac6de5a8c2a369d5b2af218be17b6c16740abd41944f5bba4ebf9",
+      "source_after": "9ee729f8ee4ac6de5a8c2a369d5b2af218be17b6c16740abd41944f5bba4ebf9",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "fdec586197fcb06d41ff8bb4fd6dcdb48b080f84507c8933f424f0fb758efd7e",
+      "tests": 11,
+      "explicit_skips": 0,
+      "failures": 2,
+      "errors": 27
+    },
+    {
+      "run_id": "20261106T034904Z-262f9f303c",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+      "source_after": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "045aa3f021ba0944324913b10f7eccb5e149f6bfb3afe6c2b3651f1392ff55df",
+      "tests": 11,
+      "explicit_skips": 0,
+      "passed": 11
+    }
+  ],
+  "all_reference_controls": {
+    "run_id": "20261106T035131Z-4496869768",
+    "status": "PASS",
+    "exit_code": 0,
+    "source_before": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+    "source_after": "5eee6a90de90135fa8336af8ebed74b7e9cb169864f0451b4d1fd58306a1cf7b",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "593abbbda741a4513394eacf0e34cb52c7fd6c98249677b4eea74063c8a23252",
+    "tests": 504,
+    "explicit_skips": 30,
+    "passed": 474
+  },
+  "frozen_new_test_sha256": {
+    "test_reference_image_recovery_journal_transition.py": "dc8818506a38bcad2ebf559c3f34b32c2316d70bf2ea04694c210161fd8c61c3",
+    "test_reference_image_recovery_retention_first.py": "8bcc0e5c5ca846d700d0eb52fa0aa5d79f267f20259358bcbdd1f2319e9e2a93"
+  },
+  "preexisting_test_files_byte_exact": 72,
+  "independent_review": {
+    "initial_read_only": true,
+    "findings_before_integration": true,
+    "two_read_only_closures": true
+  },
+  "retention_order_policy": "run34-zip-before-inspection-v1",
+  "reserved_total_seconds": 3285,
+  "job_seconds": 3600,
+  "maximum_new_global_allocation_bytes": 2971697518,
+  "global_reserve_bytes": 2000000000,
+  "scope": "Actual failed-run quota/download metadata plus native synthetic controls only. New retention-first Linux retry, eight server readbacks, original image CRC/inspection, supported current full matrix and manual gates remain unqualified. No archive-format acceptance was broadened.",
+  "full_matrix_qualified": false,
+  "manual_qualified": false,
+  "release_qualified": false
+}

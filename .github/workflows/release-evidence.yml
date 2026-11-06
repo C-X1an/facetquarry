@@ -696,22 +696,6 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category run34-image-download --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py download
-      - name: Verify sole original image CRC and SHA through the bounded seekable chunk reader
-        id: image_recovery_extract
-        if: ${{ inputs.image_recovery }}
-        timeout-minutes: 6
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/evidence.py --category run34-image-extract --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py extract
-      - name: Inventory exact readonly noload image and run unchanged old-source partial reanalysis
-        id: image_recovery_inspect
-        if: ${{ inputs.image_recovery }}
-        timeout-minutes: 16
-        shell: bash
-        run: |
-          set -euo pipefail
-          python3 scripts/evidence.py --category run34-image-inspect --requirements AC-020 --timeout 910 -- python3 scripts/reference_image_recovery.py inspect
       - name: Revalidate complete chunks and reserve all eight mutually exclusive uploads
         id: image_recovery_uploads
         if: ${{ inputs.image_recovery }}
@@ -826,6 +810,22 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/evidence.py --category run34-image-readback --requirements AC-020 --timeout 490 -- python3 scripts/reference_image_recovery.py readback
+      - name: Verify sole original image CRC and SHA through the bounded seekable chunk reader
+        id: image_recovery_extract
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-extract --requirements AC-020 --timeout 310 -- python3 scripts/reference_image_recovery.py extract
+      - name: Inventory exact readonly noload image and run unchanged old-source partial reanalysis
+        id: image_recovery_inspect
+        if: ${{ inputs.image_recovery }}
+        timeout-minutes: 16
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/evidence.py --category run34-image-inspect --requirements AC-020 --timeout 910 -- python3 scripts/reference_image_recovery.py inspect
       - name: Close only the exactly bound owned readonly and outer mounts; preserve failures
         id: image_recovery_cleanup
         if: ${{ always() && inputs.image_recovery }}
