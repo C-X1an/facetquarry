@@ -2,6 +2,10 @@
   "schema_version": 1,
   "purpose": "Reviewed source, synthetic examples, tests, public documentation and curated execution evidence only",
   "files": [
+    "RAW_MEMBER_STORE.md",
+    "scripts/raw_member_store.py",
+    "tests/test_raw_member_store.py",
+    "verification/published/raw-member-native-controls-20261107.json",
     ".gitattributes",
     ".github/workflows/release-evidence.yml",
     ".github/workflows/verify.yml",

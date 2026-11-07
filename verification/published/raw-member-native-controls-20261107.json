@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "evidence_type": "experimental_raw_member_store_native_controls",
+  "source": "9a802ccd82c34edef86eba2fc45c495eae049cb59d116128b6a70b5302d3811a",
+  "tested_base_commit": "70794c622d07a3ab499750f56144e9a5fd7e882e",
+  "tested_state": "Working-tree candidate; only new module, test and component documentation existed. Subsequent commitment requires exact file audit.",
+  "source_files": {
+    "scripts/raw_member_store.py": "942b6d64a83096fabfab40b9446e8d1a82a38e9e606f64d10c662e9830020cab",
+    "tests/test_raw_member_store.py": "4b839ab7dda32abffe5c059f749e7eb93c789a1317d0d50352ecd852081bec4a"
+  },
+  "normalized_runtime_body_sha256": "c946ae6e9458839e1297e9d9beb09f8e9a3c8d68953791cf48c9b28efc809221",
+  "storage_protocol": "caller-raw-originals-v1",
+  "candidate_status": "EXPERIMENTAL_UNINTEGRATED",
+  "checks": [
+    {
+      "entry_path": "explicit-root CLI",
+      "run_id": "20261107T200404Z-e8c5b734b2",
+      "status": "PASS_WITH_EXPLICIT_PLATFORM_SKIPS",
+      "exit_code": 0,
+      "tests_discovered": 28,
+      "executed_passed": 4,
+      "skipped": 24,
+      "skip_reason": "actual Linux POSIX directory-fsync durability gate",
+      "stdout_sha256": "937679827601f043a8442c03adac1fbe98c16d9d73dc5545ee41d912dadd0c94",
+      "stderr_sha256": "ee7a9c9646d91d88ff15afb24e9f458fa93d519ea201722cd3cab6327eb3b6aa",
+      "python": "Python 3.13.14",
+      "system": "Windows"
+    },
+    {
+      "entry_path": "unittest discovery",
+      "run_id": "20261107T200409Z-48db0fe6ec",
+      "status": "PASS_WITH_EXPLICIT_PLATFORM_SKIPS",
+      "exit_code": 0,
+      "tests_discovered": 28,
+      "executed_passed": 4,
+      "skipped": 24,
+      "skip_reason": "actual Linux POSIX directory-fsync durability gate",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "9d25077d02b6133fb899a7f4bcda2d8fe1f405417199327ed02633df4165210d",
+      "python": "Python 3.13.14",
+      "system": "Windows"
+    }
+  ],
+  "ordered_test_identities_equal_across_entry_paths": true,
+  "scope": "Three pure contract methods and one real Windows unsupported-before-mutation control per entry path. Linux-only leaves were explicitly skipped.",
+  "source_review": {
+    "independent_first_before_execution": true,
+    "root_capacity_and_failure_tail_repairs": "CLOSED_AT_SOURCE_LEVEL_ONLY",
+    "all_27_existing_new_test_method_bodies_preserved": true
+  },
+  "posix_transactions_fsync_restore_retirement": "NOT_RUN",
+  "persistent_backing_and_ancestor_evidence": "OPEN_INTEGRATION_REQUIREMENT",
+  "actual_kill_shortwrite_enospc_failed_fsync_powerloss": "NOT_RUN",
+  "fixture_accounting": "Post-suite16MiB guard; not a prewrite OS quota or peak RSS proof. Direct Windows run retained0fixture-file bytes and1directory entry.",
+  "benchmark_engine_analyzer_and_legacy_profile_integration": false,
+  "frozen_full_5400_cells_each_readers_1_4_16": "NOT_RUN",
+  "scientific_qualification": false,
+  "storage_savings_credit_bytes": 0,
+  "project_originals_retired_bytes": 0,
+  "release_qualification": false
+}

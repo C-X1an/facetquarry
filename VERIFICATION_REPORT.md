@@ -1,5 +1,12 @@
 # Verification report
 
+## Experimental raw-byte storage: preliminary Windows controls
+
+Technical source `9a802ccd82c34edef86eba2fc45c495eae049cb59d116128b6a70b5302d3811a` adds an [unintegrated raw-member component](RAW_MEMBER_STORE.md). Its direct CLI and test-discovery entry paths each ran 28 cases on native Windows: **4 passed and 24 explicit Linux/POSIX skips**, with zero failures or errors. [Curated native evidence](verification/published/raw-member-native-controls-20261107.json) binds both actual runs and the unchanged tested module/test bytes. Independent first review found and repaired root-capacity and failure-tail defects at source level; Windows does not exercise those POSIX repair paths.
+
+Current Linux transaction/fsync/restore/retirement execution is **NOT RUN**. Persistent backing and ancestor evidence, actual failure controls, scientific backend integration and the frozen 5,400 cells for each 1/4/16-reader profile remain unqualified. The component changes no engine, legacy gzip contract, default, grid, fallback or deadline and supplies no storage-saving, project-original retirement or scientific credit. Earlier supported run 44 results belong to technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604`; they do not qualify this newer source. Release remains **EXPERIMENTAL / NOT QUALIFIED**.
+
+
 ## Actual scoped-derivation failure - 2026-11-07 UTC
 
 Technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604`, tested commit `415dc1e84bb6e274d859e489293cf58405f9ac86`, remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Run45](https://github.com/C-X1an/facetquarry/actions/runs/42389631619) failed the source-defined 1,200-second derive stage with exit -15 and `whole_phase_payload_cutoff`. Exact measured stage elapsed time is unavailable. All 62 Linux storage controls passed with zero skips; quota, download, extraction, read-only inventory, cleanup and export diagnostics were authenticated. The retained recipe is 5,067,343 bytes and ledger 8,056,963 bytes; `derivation.json` is absent and completion remains false. [Curated failed-run evidence](verification/published/run45-derived-storage-failure.json) preserves these outcomes.
