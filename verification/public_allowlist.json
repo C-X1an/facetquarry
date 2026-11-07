@@ -526,6 +526,7 @@
     "verification/published/run40-host-control-and-retained-probe-controls.json",
     "verification/published/run43-and-scoped-codec-controls.json",
     "verification/published/run44-supported-verification.json",
+    "verification/published/run45-derived-storage-failure.json",
     "verification/published/runtime-codec-candidate-20261026.json",
     "verification/published/smoke-recalculation.json",
     "verification/published/source-view-smoke-41306644715.json",

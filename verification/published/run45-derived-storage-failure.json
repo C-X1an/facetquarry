@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "evidence_type": "authenticated_failed_scoped_derivation_diagnostics",
+  "observed_date_utc": "2026-11-07",
+  "technical_source": "84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604",
+  "tested_commit": "415dc1e84bb6e274d859e489293cf58405f9ac86",
+  "status": "ACTUAL_DERIVATION_FAIL_DIAGNOSTICS_AUTHENTICATED",
+  "release_status": "EXPERIMENTAL / NOT RELEASE QUALIFIED",
+  "scientific_qualification": false,
+  "run": {
+    "id": 42389631619,
+    "attempt": 1,
+    "job_id": 128454288092,
+    "url": "https://github.com/C-X1an/facetquarry/actions/runs/42389631619",
+    "conclusion": "failure",
+    "profile": "run38-derived-storage-readonly-v1",
+    "created_at": "2026-11-07T16:06:46Z",
+    "updated_at": "2026-11-07T16:27:47Z"
+  },
+  "artifact": {
+    "id": 13581986156,
+    "bytes": 19191886,
+    "sha256": "79af4736951574d3c3c6cad84fbd1b62a5fbe1461f3a490d83fc9dd6e8378140",
+    "regular_members_crc_size_type_checked": 314,
+    "final_seal_per_entry_sha_bindings": 313,
+    "decoded_payload_bytes": 19138346,
+    "authenticated_command_receipts": 86,
+    "capture_bindings": 188,
+    "all_available_failed_output_bytes_retained": true
+  },
+  "actual_linux_storage_controls": {
+    "tests_run": 62,
+    "passed": 62,
+    "skipped": 0,
+    "platform": "linux",
+    "stdout_sha256": "ef487443e158b7ad010bc086518a47ea20ce200b06bc876e792b16bdcad6c8a3",
+    "stderr_sha256": "135c6a0243f39fb535673a51e13efbf8b2ff8a059d341708bf0734ea1592358e"
+  },
+  "source_provenance": {
+    "original_test_files_byte_exact": 6,
+    "original_test_identities": 50,
+    "added_test_identities": 12,
+    "current_test_identities": 62,
+    "codec_sha256": "fb3ca7959b3dd0f005ca37504af35de5036c7f523d7cecaf87877cb9c523c489",
+    "trusted_original_function_blocks_unchanged": [
+      "_render",
+      "_checked_stdout",
+      "propose",
+      "reconstruct"
+    ]
+  },
+  "stage_status": {
+    "cleanup": "PASS",
+    "derive": "FAIL",
+    "download": "PASS",
+    "export": "PASS",
+    "extract": "PASS",
+    "observe": "PASS",
+    "plan": "PASS",
+    "quota": "PASS"
+  },
+  "derivation": {
+    "status": "FAIL",
+    "worker_exit_code": -15,
+    "termination_reason": "whole_phase_payload_cutoff",
+    "source_defined_stage_limit_seconds": 1200,
+    "exact_measured_stage_elapsed_seconds": null,
+    "elapsed_time_status": "GAP_NOT_AVAILABLE",
+    "derivation_json_present": false,
+    "complete": false,
+    "retained_partial_files": {
+      "derived-recipes.jsonl.gz": {
+        "bytes": 5067343,
+        "sha256": "3563538d040ac157b5222f3d623c0aadbd0e7788ecf439cbecab98099507a27e"
+      },
+      "derived-ledger.jsonl": {
+        "bytes": 8056963,
+        "sha256": "385939d67758e1b38d753df10136087bf2c7f8af2b59b2f316bc70abc6b10b85"
+      }
+    },
+    "originals_retired_bytes": 0,
+    "savings_credit_bytes": 0,
+    "complete_byte_equivalence_qualified": false,
+    "complete_encoded_representation_cost": "NOT_AVAILABLE"
+  },
+  "strict_format_check": {
+    "status": "REFUSED",
+    "receipt": "20261107T173505Z-403fa7bf5a",
+    "condition": "Gzip EOF missing OR final JSONL row unterminated; these alternatives were not distinguished.",
+    "error_detail_sha256": "52243bf81a78cfbc70bca9f9d56d5866462b9644d2143a4ff92f88d496a52455",
+    "format_failure_preserved": true,
+    "strict_policy_unchanged": true
+  },
+  "separate_failed_diagnostics_observer": {
+    "status": "AUTHENTICATED_METADATA_WITH_FAILURES",
+    "receipt": "20261107T174925Z-084cc6d5c2",
+    "result_bytes": 10500,
+    "result_sha256": "3bbe44e183cf1f3df9b48fd086470c3fcc17a4a39a2dccddb0a0db547a0b8336",
+    "observer_sha256": "ce799661d2adb01d6726afa08ff5259410c7d7564a11b33ae5db4fbf6c475da5",
+    "partial_content_format": "FAIL_INCOMPLETE_GZIP_OR_FINAL_JSONL",
+    "complete_format_authenticated": false,
+    "recipe_content_check": "NOT_RUN_OPAQUE_HASH_AUTHENTICATED_AFTER_RECORDED_STRICT_FORMAT_FAILURE",
+    "ledger_content_check": "NOT_RUN_OPAQUE_HASH_AUTHENTICATED",
+    "equivalence_reconstruction": false,
+    "scope": "Only the known preserved strict refusal selects this separate opaque failed-diagnostics domain; all other proof refusals remain refusals."
+  },
+  "independent_review_and_controls": {
+    "first_read_only_findings_before_repairs": true,
+    "original_unparseable_caller_preserved": true,
+    "caller_newline_syntax_fix_closed": true,
+    "independent_actual_archive_receipt": "20261107T173309Z-dd90d55c69",
+    "independent_actual_archive_stdout_sha256": "c0583c58106709531a74be3102540963494c1703505c6d37a1b56e0383877926",
+    "actual_input_negative_controls": 10,
+    "negative_control_receipt": "20261107T175213Z-eaaf530022",
+    "negative_control_stdout_sha256": "0e660cc47fb89e47cf6e51ffe2dea53bd2f8ebc2d15fc181542043af4290fce2",
+    "all_mutations_refused_and_actual_baseline_restored": true,
+    "product_integration_claim": false,
+    "independent_final_diagnostic_closure": true
+  },
+  "original_readonly_input": {
+    "fixed_keeper_count": 8,
+    "historical_sample_summary_pairs": 4407,
+    "historical_source": "e9d3f61469917718bb04f29784f8f08343d5a7eba176a0aa3b017b856bdc2fe3",
+    "coverage_json_present": false,
+    "inventory_entries": 28034,
+    "regular_files": 23404,
+    "original_file_bytes": 834273364,
+    "inventory_sha256": "834d4d4761d118304907f69f25ac85c45b50c927c99b61bbb95f659aa0611b66",
+    "native_chunks_or_original_image_rehashed": false
+  },
+  "cleanup": {
+    "remote_exact_mount_loop_inode_assertions_authenticated": true,
+    "inner_and_outer_mounts_and_loops_absent_in_retained_metadata": true,
+    "remote_image_after_sha256": "b78c516c61e58ea414168c4a9f8b8312f49cc08144d53afa05bb5383fd6e6b4a",
+    "native_live_process_or_kernel_verification": false,
+    "explicit_native_image_unlink_claimed": false
+  },
+  "required_unqualified_gates": [
+    "Full frozen5400-cell matrix for each reader1/4/16",
+    "Current strict KVM reference and recall targets",
+    "Complete4407-pair byte equivalence and representation cost",
+    "Actual offline browser/keyboard review",
+    "Declined owner walkthrough"
+  ],
+  "trust_boundary": "Project receipts and retained source-bound metadata, not independent remote attestation or universal safety proof."
+}

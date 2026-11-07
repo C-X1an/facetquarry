@@ -1,5 +1,13 @@
 # Claims and evidence
 
+## Current storage qualification - 2026-11-07 UTC
+
+Technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604`, tested commit `415dc1e84bb6e274d859e489293cf58405f9ac86`, remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Run45](https://github.com/C-X1an/facetquarry/actions/runs/42389631619) failed the source-defined 1,200-second derive stage with exit -15 and `whole_phase_payload_cutoff`. Exact measured stage elapsed time is unavailable. All 62 Linux storage controls passed with zero skips; quota, download, extraction, read-only inventory, cleanup and export diagnostics were authenticated. The retained recipe is 5,067,343 bytes and ledger 8,056,963 bytes; `derivation.json` is absent and completion remains false. [Curated failed-run evidence](verification/published/run45-derived-storage-failure.json) preserves these outcomes.
+
+The strict format check remains **REFUSED**: gzip EOF is missing or the final JSONL row is unterminated; these alternatives were not distinguished. A separately named observer authenticated only opaque failed-diagnostic bytes and all source/capture/quota/cleanup bindings. It retains format FAIL/GAP, ledger content NOT RUN, and zero equivalence, representation-cost, savings, retirement and scientific credit. Ten actual-input authentication mutations refused before restoring the original metadata-only baseline; independent review closed this diagnostic scope. The 314-member packet, 313 seal SHA bindings and 188 capture bindings are retained. None of these checks establishes a completed derivation or new benchmark result.
+
+Frozen 5,400-cell measurements for each of readers 1/4/16, current strict KVM reference/recall qualification, actual offline browser/keyboard review and the declined owner walkthrough remain unqualified. Earlier run44 supported verification still passes at the same technical source; run45 does not alter that separate evidence. Earlier sections retain their historical bytes and source scopes.
+
 ## Current supported claims - 2026-11-07 UTC
 
 At technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604` / tested commit`415dc1e84bb6e274d859e489293cf58405f9ac86`, [run44](https://github.com/C-X1an/facetquarry/actions/runs/42375541025) supports successful pinned Go1.27.3 Linux checks and a distinct fresh committed reproduction. [Curated evidence](verification/published/run44-supported-verification.json) binds the complete artifact and independent reviews. Release remains **EXPERIMENTAL / NOT QUALIFIED**.
