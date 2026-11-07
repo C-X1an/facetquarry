@@ -1,5 +1,25 @@
 # Claims and evidence
 
+## Current supported claims - 2026-11-07 UTC
+
+At technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604` / tested commit`415dc1e84bb6e274d859e489293cf58405f9ac86`, [run44](https://github.com/C-X1an/facetquarry/actions/runs/42375541025) supports successful pinned Go1.27.3 Linux checks and a distinct fresh committed reproduction. [Curated evidence](verification/published/run44-supported-verification.json) binds the complete artifact and independent reviews. Release remains **EXPERIMENTAL / NOT QUALIFIED**.
+
+| Supported claim | Exact observed scope |
+|---|---|
+| Current main and clean reproduction PASS | Each715unique neutral identities:708PASS/7explicit skips; each separately executes original-host positive leaf1PASS/0skip in its own source-bound context |
+| Oracle and race PASS | Independently recomputed1000float32 oracle cases,2000real CLI commands/4000capture bindings;4race packages |
+| Defect sensitivity PASS | Four engine and two locked-contract controls with actual PASS/FAIL/restored PASS |
+| Bounded fuzz and retention PASS | Two30-second requests,31seconds observed each;316439query and1047159snapshot executions; all139current files/7134B plus74441-byte manifest byte-authenticated |
+| Supported online scanner PASS | Pinned govulncheck1.9.0/Go1.27.3 reported no vulnerabilities; no universal safety claim |
+| Complete packet authenticated | Artifact13575244164,1224760B: all360members checked for CRC/size/type-mode,359manifest-listed per-entry SHA bindings,357logical exports and8wrapper receipts/16streams; the packet manifest is authenticated by the official whole-ZIP digest |
+| Actual bounded capacity and closure PASS |2GBbacking denied2.1GBwith ENOSPC;4stages closed/quiescent; mount and loops absent after unmount; no image-unlink or continuous-peak claim |
+
+Seven neutral skips remain explicit: one privileged-fchown control, one actual-host control that separately passed in each original host context, and five Windows receipt-sharing controls. A skipped neutral invocation is never counted as PASS.
+
+Independent first findings preceded private-verifier repairs. Three failed checks are preserved; the corrected result passed all10gates after47PASS/refusal/PASS controls, and separate independent closure found no blocking residual for this fixed packet. The sealed7396925..415dc1e security diff review covered10Git paths/3surfaces with0findings; it is a narrow advisory result, not certification. Public curation does not convert project receipts into third-party attestations.
+
+Current strict KVM reference and reference recall qualification, complete frozen5400cells **per reader**1/4/16, complete4407-pair storage equivalence/savings, actual offline browser/keyboard review and the declined owner walkthrough remain **NOT RUN / unqualified**. Run43 remains its authenticated1200-second derivation failure with3920464Bpartial recipe/empty ledger; no savings or original-retirement credit follows. Earlier current-source pending supported-check statements are superseded only by the supported evidence above; all historical sources, failures and limitations below retain their recorded scope.
+
 [Run41008670963](verification/published/forced-trim-headroom-failure-41008670963.json), commit`cdf3f846`/source`93d9d64e`, passed supported Go1.27.3 verification, clean reproduction, online scanning and the21-cell/672-sample KVM smoke. Main verification ran495Python tests with7explicit skips. All20APT calls used the empty cache-name options, and the inspected owned inventories and complete selection contained neither binary cache. Complete provenance253entries/1,777,069logical bytes was retained. Guest trim passed, removing1,142entries/284,250,112accounted bytes. Its net availability gain was281,911,296bytes; accounted removal is not guaranteed free-space credit.
 
 Packaging then refused881,876,992available bytes against the unchanged921,000,000-byte requirement:39,123,008bytes short. Six final control stages passed; the intentional timeout was **NOT RUN**. The workflow remains **FAIL**. Every available packet byte, supported receipt stream and whole1.1GBimage SHA256/CRC was verified; runner read-only recovery matched1,149members/19,133,375bytes. No native ext4 member walk or scientific raw replay was performed.

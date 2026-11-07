@@ -1,5 +1,25 @@
 # Current acceptance assessment
 
+## Current supported acceptance checkpoint - 2026-11-07 UTC
+
+Technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604`, tested committed checkout`415dc1e84bb6e274d859e489293cf58405f9ac86`, remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Run44](https://github.com/C-X1an/facetquarry/actions/runs/42375541025) and its [curated source-bound evidence](verification/published/run44-supported-verification.json) now support current Go1.27.3 Linux verification and a distinct fresh committed clone. Earlier paragraphs saying those supported checks, clean reproduction, race or fuzz are currently NOT RUN are superseded only within the following exact scope.
+
+| Gate | Current evidence | Remaining boundary |
+|---|---|---|
+| Supported automated checks and AC-019 reproduction | Main and clean clone each715unique neutral identities:708PASS/7explicit skips; separate original-host leaf1PASS/0skip each | Neutral skips remain explicit; no omitted platform/privilege test earns PASS |
+| AC-002 oracle and AC-008 race | Independent1000float32 cases/2000real CLI commands/4000capture bindings;4race packages PASS | Finite source-bound correctness evidence |
+| AC-014/024 mutation and lock sensitivity | Four engine and two locked-contract PASS/FAIL/restored-PASS controls | No weakening of original criteria or tests |
+| AC-015 bounded campaigns and retention | Both requested30seconds,31seconds observed; all139files/7134B and74441Bmanifest authenticated | Bounded fuzz does not establish universal safety |
+| AC-020 declared supported capacity | Actual2GBbacking/2.1GBENOSPC;4closed/quiescent stages; mount/loops absent after unmount | No observed unlink; sampling is not continuous peak or quota; no full-matrix fit claim |
+| Review and online scan | Independent first findings, preserved failures,47verifier controls, all10packet gates PASS and separate repair closure; pinned govulncheck1.9.0 reports no vulnerabilities | Fixed supported packet only; sealed10-path/3-surface diff review with0findings is advisory, not certification |
+| AC-016/017 scientific and reference performance | No new qualifying matrix/reference result | Current strict KVM reference,5400cells each for readers1/4/16 and required recall targets remain NOT RUN/unqualified |
+| Optional historical storage equivalence | Run43 authenticated FAIL at unchanged1200seconds;3920464Bpartial recipe/empty ledger preserved | Complete4407-pair derivation, complete equivalence, savings and retirement credit remain unqualified |
+| AC-013/022 browser and owner | Actual offline browser/keyboard review and declined owner walkthrough remain unmet | NOT RUN; no substitute or waived PASS |
+
+Artifact13575244164's complete1224760-byte ZIP,360inner members/359manifest members/357logical exports,8wrapper receipts/16streams and9180709decoded bytes were authenticated. The private checker failures and source-specific progress parsing corrections are preserved; the corrected receipt`20261107T154711Z-dab377ed36` passed after controls`20261107T154704Z-94b9337a57`. The separate independent closure applies to this exact packet. Neither receipts nor this curation constitute third-party attestation.
+
+The locked [acceptance specification](ACCEPTANCE_SPEC.md), phase order and frozen grid are unchanged. The historical criterion ledger and all sections below retain their original bytes and source scopes. Overall acceptance remains **NOT QUALIFIED**; current supported PASS does not close the scientific or manual release gates.
+
 ## Scoped codec integration and authenticated run43 failure - 2026-11-07 UTC
 
 Technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Curated results](verification/published/run43-and-scoped-codec-controls.json) preserve [run43](https://github.com/C-X1an/facetquarry/actions/runs/42331364502): actual Linux storage controls50PASS/0skip, complete readonly inventory, and derivation terminated at the unchanged1200-second cutoff. The partial recipe3920464B and empty ledger remain authenticated failures; complete equivalence and savings were not established.

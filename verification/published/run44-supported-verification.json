@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_run44_supported_developmental_verification",
+  "observed_date_utc": "2026-11-07",
+  "status": "AUTHENTICATED_SUPPORTED_DEVELOPMENTAL_PASS",
+  "technical_source": "84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604",
+  "tested_committed_checkout": "415dc1e84bb6e274d859e489293cf58405f9ac86",
+  "release_status": "EXPERIMENTAL / NOT RELEASE QUALIFIED",
+  "scientific_qualification": false,
+  "run": {
+    "id": 42375541025,
+    "attempt": 1,
+    "job_id": 128412245151,
+    "url": "https://github.com/C-X1an/facetquarry/actions/runs/42375541025",
+    "workflow_outcome": "success",
+    "profile": "supported-verification-capacity-v1",
+    "toolchain": "go1.27.3 linux/amd64",
+    "supported_scope_qualified": true
+  },
+  "artifact": {
+    "id": 13575244164,
+    "bytes": 1224760,
+    "sha256": "9fa9b7afd1b08f5cbe110a7f2b72982d9eb24671df559c6e1d11fe6dfd8a74ad",
+    "trusted_metadata_sha256": "09d03b5b90090f69f50dda60a9b73d7791cc1e935cc5423729114d6ee4ade838",
+    "inner_bytes": 1224604,
+    "inner_sha256": "d986a158c68b262b685e6e2cd9bde7c101db0c25425780e23a702928078e1ffc",
+    "inner_members": 360,
+    "manifest_members": 359,
+    "logical_exports": 357,
+    "volume_exports": 334,
+    "outer_exports": 23,
+    "decoded_bytes": 9180709,
+    "wrapper_receipts": 8,
+    "wrapper_capture_streams": 16,
+    "complete_payload_and_capture_authentication": true,
+    "extraction_tree_created": false,
+    "all_360_member_crc_size_type_mode_checked": true,
+    "manifest_listed_per_entry_sha_bindings": 359,
+    "packet_manifest_authentication": "Official whole-ZIP SHA-256 digest; no separate self-referential per-entry manifest digest is claimed."
+  },
+  "supported_test_contexts": [
+    {
+      "context": "main",
+      "receipt_id": "20261107T130806Z-1132af7809",
+      "stdout_sha256": "efb4f83b36367e46eb680f10d00b9873b61bd119d0228735904b058de17a6195",
+      "stderr_sha256": "dbdf57bdf7ea0897a7db6076ec0c847fa081bb4674ad772e34240325f998c048",
+      "unique_neutral_identities": 715,
+      "neutral_pass": 708,
+      "neutral_explicit_skips": 7,
+      "separate_original_host_leaf_pass": 1,
+      "separate_original_host_leaf_skipped": 0
+    },
+    {
+      "context": "fresh_clone",
+      "receipt_id": "20261107T131306Z-6285ac2f42",
+      "stdout_sha256": "9629a3ab5ec4148bb2ea8c363e1aaa048d36c45fcbbed2634c34284cc43c8497",
+      "stderr_sha256": "8b0e66555413724a01ee5e935ad3fff848168f4e163bc7597d378e27490870bd",
+      "unique_neutral_identities": 715,
+      "neutral_pass": 708,
+      "neutral_explicit_skips": 7,
+      "separate_original_host_leaf_pass": 1,
+      "separate_original_host_leaf_skipped": 0
+    }
+  ],
+  "test_identity_binding": {
+    "all_current_ids_sha256": "a4f57d08a52d7ebee46b190910050fcc191269f6ce51d8346c6d842c629865a1",
+    "exact_identity_counter_enforced": true,
+    "source_derived_literal_skip_reasons_enforced": true,
+    "distinct_source_bound_contexts": true,
+    "host_leaf": "test_reference_capacity_process.ElevatedCwdLifecycle.test_existing_capacity_runner_grant_executes_the_fixed_readlink",
+    "host_leaf_executed_separately_in_each_original_host_context": true,
+    "neutral_skips_each": {
+      "test_reference_apt_partial_handoff.PrivilegedPartialHandoff.test_actual_mixed_partial_fchown_and_whole_tree_audit": "requires actual privileged Linux fchown",
+      "test_reference_capacity_process.ElevatedCwdLifecycle.test_existing_capacity_runner_grant_executes_the_fixed_readlink": "actual fixed sudo readlink uses only the admitted capacity runner grant",
+      "test_reference_receipt_atomic.WindowsReceiptReplacement.test_actual_read_handle_lock_is_released_before_bounded_replacement": "Windows receipt sharing semantics control",
+      "test_reference_receipt_atomic.WindowsReceiptReplacement.test_nonsharing_error_is_not_retried": "Windows receipt sharing semantics control",
+      "test_reference_receipt_atomic.WindowsReceiptReplacement.test_persistent_refusal_is_bounded_and_preserves_both_records": "Windows receipt sharing semantics control",
+      "test_reference_receipt_atomic.WindowsReceiptReplacement.test_replacement_refuses_substitution_between_sharing_retries": "Windows receipt sharing semantics control",
+      "test_reference_receipt_atomic.WindowsReceiptReplacement.test_temporary_receipt_substitution_is_not_published": "Windows receipt sharing semantics control"
+    },
+    "skip_is_not_pass": true
+  },
+  "oracle_and_race": {
+    "status": "PASS",
+    "independently_recomputed_float32_oracle_cases": 1000,
+    "actual_cli_commands": 2000,
+    "actual_cli_capture_bindings": 4000,
+    "all_actual_cli_streams_sha_verified": true,
+    "raw_cases_bytes": 7965243,
+    "raw_cases_sha256": "00fcb84dcc6d713b34297c72c735f5054f0508ff5866c4ea032d3a0e6ffb15c0",
+    "race_packages_passed": [
+      "facetquarry/cmd/facetquarry",
+      "facetquarry/cmd/fqbench",
+      "facetquarry/internal/engine",
+      "facetquarry/internal/strictjson"
+    ]
+  },
+  "mutation_controls": {
+    "status": "PASS",
+    "engine_controls": 4,
+    "locked_contract_controls": 2,
+    "actual_PASS_FAIL_restored_PASS_streams_present": true,
+    "hashes_match_tested_source": true
+  },
+  "fuzz": {
+    "status": "PASS",
+    "current_corpus_complete_and_retained": true,
+    "files": 139,
+    "bytes": 7134,
+    "manifest_bytes": 74441,
+    "manifest_sha256": "5ee7cb4d8997d2b5fec13015f95348457e22ead8a80ddbc7f9e4683a7d54da50",
+    "snapshot_sha256": "4d3c091be466cdff8f7605184ebc02bebdcd0ba89449a68ba1437de7c8f75835",
+    "hidden_corpus_skips": 0,
+    "campaigns": {
+      "FuzzQuery": {
+        "requested_seconds": 30,
+        "observed_seconds": 31,
+        "executions": 316439,
+        "new_interesting_counter": 136,
+        "total_counter": 139,
+        "retained_current_members": 136
+      },
+      "FuzzSnapshot": {
+        "requested_seconds": 30,
+        "observed_seconds": 31,
+        "executions": 1047159,
+        "new_interesting_counter": 3,
+        "total_counter": 5,
+        "retained_current_members": 3
+      }
+    },
+    "scope": "Exact bounded campaigns and retained current corpus; no universal safety or scientific qualification."
+  },
+  "online_vulnerability_scan": {
+    "status": "PASS",
+    "scanner": "govulncheck v1.9.0",
+    "toolchain": "Go1.27.3",
+    "result": "No vulnerabilities found.",
+    "scope": "Pinned supported scanner at the tested source; no security certification."
+  },
+  "capacity_and_closure": {
+    "status": "PASS",
+    "admitted_baseline_bytes": 9298379291,
+    "admitted_peak_bytes": 11643379291,
+    "actual_backing_bytes": 2000000000,
+    "actual_denied_probe_bytes": 2100000000,
+    "denial": "ENOSPC",
+    "hard_quota_enforced": true,
+    "four_stages_closed_and_quiescent": true,
+    "mount_and_loops_absent_after_unmount": true,
+    "image_removed_claimed": false,
+    "sampled_observation_is_continuous_peak": false,
+    "sampled_observation_is_hard_quota": false,
+    "full_matrix_fit_proven": false,
+    "stage_observations": {
+      "clean": {
+        "status": "PASS",
+        "receipt_id": "20261107T131305Z-b2237d2cfa",
+        "samples": 91,
+        "sampled_max_image_bytes": 2000000000,
+        "observation_is_hard_quota": false
+      },
+      "online": {
+        "status": "PASS",
+        "receipt_id": "20261107T131446Z-f799ba0422",
+        "samples": 3,
+        "sampled_max_image_bytes": 2000000000,
+        "observation_is_hard_quota": false
+      },
+      "scanner-install": {
+        "status": "PASS",
+        "receipt_id": "20261107T131435Z-701805d904",
+        "samples": 13,
+        "sampled_max_image_bytes": 2000000000,
+        "observation_is_hard_quota": false
+      },
+      "verify": {
+        "status": "PASS",
+        "receipt_id": "20261107T130806Z-1132af7809",
+        "samples": 300,
+        "sampled_max_image_bytes": 2000000000,
+        "observation_is_hard_quota": false
+      }
+    }
+  },
+  "verification_and_independent_review": {
+    "all_ten_packet_gates": "PASS",
+    "verification_receipt": "20261107T154711Z-dab377ed36",
+    "verification_result_bytes": 29892,
+    "verification_result_sha256": "e98184340702309cdf8f0441b33e51bcfed50b87393e471a9b783adb0f886c94",
+    "verifier_sha256": "0abf597064efa664697d6c2cce25936545744817519e38cd461b582bae48a2ab",
+    "independent_actual_archive_review_receipt": "20261107T135144Z-c6245a637c",
+    "independent_first_readonly_findings_preceded_repairs": true,
+    "independent_repair_closure": "No blocking residual concern for this fixed supported packet.",
+    "meaningful_PASS_refusal_PASS_controls": 47,
+    "control_receipt": "20261107T154704Z-94b9337a57",
+    "preserved_failed_checks": [
+      {
+        "receipt": "20261107T152930Z-98973f9e9a",
+        "reason": "Projected official run/job metadata omitted job run_id and caused a KeyError before the neutral parser.",
+        "correction": "New complete official metadata; no verifier code change for this failure."
+      },
+      {
+        "receipt": "20261107T153225Z-0e9d6b03cf",
+        "reason": "Original one-line outcome parser omitted the exact inventory-test identity during legitimate stderr progress interleaving.",
+        "correction": "Exact source-derived seven-record progress grammar and standalone outcome; every-identity-once and literal-skip gates retained."
+      },
+      {
+        "receipt": "20261107T154256Z-620900d0ba",
+        "reason": "First parser repair rejected two source-bound bootstrap inventory progress records.",
+        "correction": "Separate exact two-record bootstrap grammar; archive, capture, context, quota, source, oracle, mutation and fuzz gates unchanged."
+      }
+    ],
+    "provisional_docstring_cause_withdrawn": true,
+    "exact_715_identity_gate_retained": true,
+    "exact_seven_literal_skip_gate_retained": true,
+    "separate_host_leaf_and_70_hyphen_suffix_retained": true,
+    "project_receipts_are_third_party_attestations": false
+  },
+  "immutable_security_diff_review": {
+    "review_id": "00d88930-1a4f-418f-a8b7-f8972923d159",
+    "base": "7396925dd3368668a36222db06dec8b39c4df18e",
+    "head": "415dc1e84bb6e274d859e489293cf58405f9ac86",
+    "status": "SEALED",
+    "completed_tool_reread": true,
+    "git_paths_covered": 10,
+    "surfaces_covered": 3,
+    "findings": 0,
+    "scope": "Reviewed immutable diff and advisory result only; not security certification."
+  },
+  "unchanged_unqualified_boundaries": {
+    "locked_acceptance_phase_order_and_scientific_grid_unchanged": true,
+    "strict_current_kvm_reference": "NOT RUN / UNQUALIFIED",
+    "full_frozen_matrix_5400_cells_each_readers_1_4_16": "NOT RUN / UNQUALIFIED",
+    "reference_recall_targets": "UNQUALIFIED",
+    "complete_4407_pair_storage_derivation": "UNQUALIFIED",
+    "complete_storage_byte_equivalence": false,
+    "savings_credit_bytes": 0,
+    "originals_retired_bytes": 0,
+    "actual_offline_browser_keyboard_review": "NOT RUN / UNQUALIFIED",
+    "declined_owner_walkthrough": "NOT RUN / UNQUALIFIED",
+    "historical_run43": {
+      "run_id": 42331364502,
+      "technical_source": "1b1868142e67b5cd66bd30f8f4fbbc904cedfb5814cf71fd5b42c2c8ba1f3ba7",
+      "derivation_status": "FAIL",
+      "unchanged_deadline_seconds": 1200,
+      "partial_recipe_bytes": 3920464,
+      "ledger_entries": 0,
+      "complete_equivalence": false,
+      "savings_credit_bytes": 0
+    }
+  },
+  "curation_scope": "Sanitized source-bound facts only. Historical evidence is unchanged. Supported developmental PASS is not full release or scientific qualification."
+}
