@@ -1,5 +1,16 @@
 # Verification report
 
+## Readonly derived-storage controls — 2026-11-07 UTC
+
+Technical source `1b1868142e67b5cd66bd30f8f4fbbc904cedfb5814cf71fd5b42c2c8ba1f3ba7` adds a separate optional storage-equivalence harness and remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Control results](verification/published/derived-storage-controls.json) record50native methods:48PASS and2explicitLinux-only skips. The existing capacity-workflow/retained-probe compatibility suites also passed, with their Linux dangling-link control explicitly skipped on Windows. All80pre-existing Python/Go test files and locked scientific contracts remain byte-exact.
+
+Independent read-only findings preceded repairs to producer closure, malformed-input fallback, physical write admission, test portability and staging-directory cleanup. A new workflow assertion initially used a mistaken guard name; its failed run and original bytes were preserved, and independent assessment preceded the one exact-literal correction.
+
+The new profile reserves2.25GB under the unchanged strict12GB admission ceiling, uses the fixed8retained inputs and all4407historical pairs, and preserves every original. ActualLinux controls, quota/transfer/mount/cleanup, complete byte-equivalence and storage costs remain **NOT RUN**. No savings, full-matrix admission or scientific qualification follows from local controls. Earlier supportedGo1.27.3 results below remain bound to source625d; they do not qualify the new harness source. Current security scan, clean committed reproduction, strictKVMsmoke, full1/4/16, browser/keyboard and owner gates remain required.
+
+
+An actual renamed-checkout recursive discovery failed before the independently identified import/root repairs, then completed all50methods with the same2explicitLinuxskips. The dedicated runner now uses recursive discovery as well; no assertion was dropped.
+
 ## Current supported Linux checks and retained-image inspection — 2026-11-06 UTC
 
 Technical source `625d5d5fd0813e193ccec6dae65a1301973f364cb72f62c0928a24f02158b15e` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Authenticated current measurements](verification/published/current-supported-capacity-and-retained-metadata.json) record successful Go1.27.3 Linux verification and a distinct clean committed checkout in [run42](https://github.com/C-X1an/facetquarry/actions/runs/42254119103). Each neutral suite ran653methods:646passed and7explicit skips. Each then ran the real fixed host-control test separately:1passed,0skipped, with matching source, run, quota and reservation proofs. This closes the current host-control gap; run40 retains its original AUTHENTICATED_PARTIAL status.

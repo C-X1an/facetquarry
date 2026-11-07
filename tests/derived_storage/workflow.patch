@@ -1,0 +1,187 @@
+--- a/.github/workflows/release-evidence.yml
++++ b/.github/workflows/release-evidence.yml
+@@ -41,1 +41,6 @@
+-      transport_profile:
++      derived_storage_probe:
++        description: Readonly reversible storage byte-equivalence over fixed retained inputs (nonqualifying; originals unchanged)
++        type: boolean
++        default: false
++        required: false
++      transport_profile:
+@@ -84,1 +89,1 @@
+-        if: ${{ inputs.image_recovery || inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery || inputs.retained_image_probe || inputs.derived_storage_probe }}
+@@ -569,1 +574,16 @@
+-      - name: Validate exclusive retained-image metadata mode before growth
++      - name: Validate exclusive derived storage mode and start its separate whole-job clock before growth
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 1
++        shell: bash
++        run: |
++          set -euo pipefail
++          printf '%s\n' "FQ_DERIVED_STARTED_EPOCH=$(date +%s)" >> "$GITHUB_ENV"
++          test '${{ inputs.codec_control }}' = true
++          test '${{ inputs.image_recovery }}' = true
++          test '${{ inputs.retained_image_probe }}' = false
++          test '${{ inputs.capacity_control }}' = false
++          test '${{ inputs.preservation_control }}' = false
++          test '${{ inputs.trim_control }}' = false
++          test '${{ inputs.profile }}' = smoke
++          test '${{ inputs.concurrency }}' = 1
++      - name: Validate exclusive retained-image metadata mode before growth
+@@ -684,1 +704,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -694,1 +714,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -702,1 +722,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -710,1 +730,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -720,1 +740,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -728,1 +748,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -739,1 +759,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -750,1 +770,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -761,1 +781,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -772,1 +792,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -783,1 +803,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -794,1 +814,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -805,1 +825,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_uploads.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -816,1 +836,1 @@
+-        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_chunk_0.outcome == 'success' && steps.image_recovery_chunk_1.outcome == 'success' && steps.image_recovery_chunk_2.outcome == 'success' && steps.image_recovery_chunk_3.outcome == 'success' && steps.image_recovery_chunk_4.outcome == 'success' && steps.image_recovery_chunk_5.outcome == 'success' && steps.image_recovery_chunk_6.outcome == 'success' && steps.image_recovery_chunk_7.outcome == 'success' && !inputs.retained_image_probe }}
++        if: ${{ !cancelled() && inputs.image_recovery && steps.image_recovery_chunk_0.outcome == 'success' && steps.image_recovery_chunk_1.outcome == 'success' && steps.image_recovery_chunk_2.outcome == 'success' && steps.image_recovery_chunk_3.outcome == 'success' && steps.image_recovery_chunk_4.outcome == 'success' && steps.image_recovery_chunk_5.outcome == 'success' && steps.image_recovery_chunk_6.outcome == 'success' && steps.image_recovery_chunk_7.outcome == 'success' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -834,1 +854,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -842,1 +862,1 @@
+-        if: ${{ inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -850,1 +870,1 @@
+-        if: ${{ always() && inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ always() && inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -858,1 +878,1 @@
+-        if: ${{ always() && inputs.image_recovery && !inputs.retained_image_probe }}
++        if: ${{ always() && inputs.image_recovery && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -865,1 +885,1 @@
+-        if: ${{ always() && inputs.image_recovery && steps.image_recovery_metadata.outputs.metadata_allowed == 'true' && !inputs.retained_image_probe }}
++        if: ${{ always() && inputs.image_recovery && steps.image_recovery_metadata.outputs.metadata_allowed == 'true' && !inputs.retained_image_probe && !inputs.derived_storage_probe }}
+@@ -958,1 +978,94 @@
+-  conflicting_controls:
++      - name: Derived storage byte-equivalence only - plan
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 1
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py plan
++      - name: Derived storage byte-equivalence only - quota
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 4
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py quota
++      - name: Derived storage byte-equivalence only - download
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 9
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++          GITHUB_TOKEN: ${{ github.token }}
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py download
++      - name: Derived storage byte-equivalence only - extract
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 6
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py extract
++      - name: Derived storage byte-equivalence only - observe
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 5
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py observe
++      - name: Derived storage byte-equivalence only - derive
++        if: ${{ inputs.derived_storage_probe }}
++        timeout-minutes: 21
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py derive
++      - name: Derived storage byte-equivalence only - cleanup
++        if: ${{ always() && inputs.derived_storage_probe }}
++        timeout-minutes: 4
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py cleanup
++      - name: Derived storage byte-equivalence only - export
++        id: derived_storage_export
++        if: ${{ always() && inputs.derived_storage_probe }}
++        timeout-minutes: 3
++        shell: bash
++        env:
++          FQ_DERIVED_STORAGE_PROBE: "true"
++          FQ_RESERVATION_PROFILE: run38-derived-storage-readonly-v1
++        run: |
++          set -euo pipefail
++          python3 scripts/reference_derived_storage_probe.py export
++      - name: Retain complete bounded equivalence recipes inventory ledger captures and final seal only
++        if: ${{ always() && inputs.derived_storage_probe && steps.derived_storage_export.outputs.metadata_allowed == 'true' }}
++        timeout-minutes: 2
++        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
++        with:
++          name: derived-storage-equivalence-${{ github.run_id }}-${{ github.run_attempt }}
++          path: ${{ github.workspace }}/.local/derived-storage-probe
++          retention-days: 7
++          if-no-files-found: error
++          compression-level: 0
++
++  conflicting_controls:
+@@ -982,1 +1095,1 @@
+-        if: ${{ inputs.image_recovery || inputs.retained_image_probe }}
++        if: ${{ inputs.image_recovery || inputs.retained_image_probe || inputs.derived_storage_probe }}

@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-11-07T02:40:11.278158+00:00",
+  "technical_source": "1b1868142e67b5cd66bd30f8f4fbbc904cedfb5814cf71fd5b42c2c8ba1f3ba7",
+  "status": "SYNTHETIC_CONTROLS_ONLY_RUNTIME_NOT_RUN",
+  "scientific_qualification": false,
+  "native_integrated_controls": {
+    "status": "PASS",
+    "tests_run": 50,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 2,
+    "platform": "win32",
+    "scope": "Storage controls only; no scientific or measured storage-savings qualification.",
+    "receipt": "20261107T023907Z-a060e65e21",
+    "explicit_not_run": [
+      "Actual Linux st_blocks/uid two-stream physical ceiling",
+      "Actual deployed Bash incompatible-selector guard"
+    ],
+    "stdout_sha256": "2a7c263c4d02917abe5ffd9f5ccdc19fee937f33845367a02148b16ea321e0ed",
+    "stderr_sha256": "e40eb8b9a7e5f782491875a797f92f4fff25e38197af2483c2c8b7e09f8e8773"
+  },
+  "preexisting_compatibility": {
+    "receipt": "20261107T023934Z-394cbe11a4",
+    "methods_by_suite": [
+      3,
+      12,
+      4
+    ],
+    "status": "PASS_WITH_ONE_EXPLICIT_LINUX_DANGLING_LINK_SKIP",
+    "stderr_sha256": "0498fc961ca1150bdb15f2c06b3f71295b02b2f9711f850591439327554ce086"
+  },
+  "preexisting_test_files_byte_exact": 80,
+  "independent_review": {
+    "initial_findings_before_repairs": true,
+    "scoped_actionable_findings_remaining": 0,
+    "repairs": [
+      "Closed producer proof before cleanup/export and cost credit",
+      "Opaque malformed-summary fallback",
+      "Unbuffered shared output admission plus pending supervisor capture reserve",
+      "Portable nested test layout",
+      "Terminal field and accepted-exit validation",
+      "Bound payload, recipe and ledger after derive closes",
+      "Empty quota-created staging slots distinguished from unresolved later producers",
+      "Relative sibling imports for normal recursive package discovery",
+      "Repository root resolution independent of checkout folder name"
+    ],
+    "review_is_readonly": true,
+    "self_review_claimed_independent": false
+  },
+  "preserved_failures": [
+    {
+      "receipt": "20261107T022414Z-35ce5c577b",
+      "scope": "New terminal/reservation/byte-binding regression failures"
+    },
+    {
+      "receipt": "20261107T023024Z-35b5bac332",
+      "scope": "Independent staging-marker regression before repair"
+    },
+    {
+      "receipt": "20261107T023305Z-322c256f56",
+      "scope": "New workflow test used a mistaken pre-existing guard name; independent assessment preceded one exact-literal correction"
+    },
+    {
+      "receipt": "20261107T023247Z-da86a55635",
+      "scope": "Private integration preflight counted Python tests separately from the seven Go test files; no public mutation before failure"
+    },
+    {
+      "receipt": "20261107T023832Z-d88e4af70b",
+      "scope": "Real renamed-checkout recursive discovery failed a top-level sibling import before public-only bootstrap repairs; assertions/private originals preserved"
+    }
+  ],
+  "profile": {
+    "name": "run38-derived-storage-readonly-v1",
+    "maximum_new_bytes": 2250000000,
+    "strict_admission": "fresh all-attributable baseline including unchanged2GB reserve +2250000000 <12000000000",
+    "outer_bytes": 2100000000,
+    "actual_enospc_probe_bytes": 2200000000,
+    "external_bytes": 50000000,
+    "cloud_bytes": 50000000,
+    "overhead_bytes": 50000000,
+    "pending_captures_within_external_bytes": 131072,
+    "job_seconds": 3600,
+    "selected_declared_step_minutes": 59,
+    "derive_seconds_including_actual_linux_controls": 1200,
+    "fixed_input_pairs": 4407,
+    "originals_retired_bytes": 0,
+    "actual_measurement": "NOT_RUN",
+    "storage_savings": "NOT_MEASURED"
+  },
+  "unqualified": [
+    "Current harness supported-toolchain/clean reproduction",
+    "Actual quota/transfer/readonly mount/cleanup and complete reversible measurement",
+    "Current strict KVM smoke",
+    "Frozen full1/4/16 matrices",
+    "Reference recall targets",
+    "Offline browser/keyboard review",
+    "Owner walkthrough",
+    "Full release"
+  ],
+  "scope": "Public-safe aggregate control facts only. Older supported-Go results remain bound to source625d. Every original/failed raw input remains retained; no inferred savings or scientific credit.",
+  "generic_checkout_recursive_discovery": {
+    "receipt": "20261107T023903Z-6960736cfc",
+    "tests_run": 50,
+    "passed": 48,
+    "explicit_skipped": 2,
+    "git_root_created": false,
+    "source_unchanged_during_test": true,
+    "raw_failed_before_receipt": "20261107T023832Z-d88e4af70b",
+    "scope": "Actual recursive unit discovery in an arbitrarily named source tree; not supported-Go clean reproduction."
+  }
+}
