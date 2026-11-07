@@ -5,6 +5,7 @@ contract; it never selects or bypasses the original recovery stage guards.
 """
 from __future__ import annotations
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import gzip
 import reversible_samples
 import contextlib
@@ -17,6 +18,7 @@ import re
 import stat
 import sys
 import time
+import threading
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -58,7 +60,9 @@ EXPECTED_PAIRS = 4407
 MAX_CANDIDATES = 6000
 CANDIDATE = 'benchmarks/full-e9d3f6146991-f80208448535'
 HISTORICAL_SOURCE = 'e9d3f61469917718bb04f29784f8f08343d5a7eba176a0aa3b017b856bdc2fe3'
-PURE_MODULE_SHA256 = '509811c00a36af767bf3efba49054256b730f1f324fb406431948d94b2216fc2'
+# Intentional reviewed optimization; run43's original codec SHA remains in its
+# immutable historical evidence. Every trusted byte/hash check still executes.
+PURE_MODULE_SHA256 = 'fb3ca7959b3dd0f005ca37504af35de5036c7f523d7cecaf87877cb9c523c489'
 STARTED = time.monotonic()
 require = fs.require
 checked = recovery.checked
@@ -856,6 +860,52 @@ def derive_cell(root, cell, files):
         return record, None
 
 
+def _scoped_derive_cell(root, cell, files):
+    require(reversible_samples.reconstruction_scope_info() is None, 'worker inherited another codec scope')
+    with reversible_samples.reconstruction_scope() as scope:
+        result = derive_cell(root, cell, files)
+    info = scope.info()
+    require(info['closed'] and info['row_entries'] == info['overlay_entries'] == 0
+            and reversible_samples.reconstruction_scope_info() is None, 'worker codec scope did not clear')
+    return result, threading.get_ident()
+
+
+def scoped_cells(root, cells, files, observations):
+    """Two pending cells at most, collected in the original selected order.
+
+    Workers only read authenticated originals and compute bounded in-memory
+    recipes. The calling thread alone writes recipes/ledger and checks external
+    allocation. The existing independent stage supervisor bounds executor exit
+    too; a Future timeout alone would not bound ThreadPoolExecutor.shutdown.
+    """
+    require(type(cells) is list and len(cells) <= MAX_CANDIDATES, 'bounded selected candidate list required')
+    require(not observations, 'new execution observations required')
+    observations.update(max_workers=2, max_pending_futures=2, peak_pending_futures=0,
+                        completed_cells=0, checked_cleared_scopes=0, worker_thread_ids=[],
+                        result_order='selected-candidate-order', scope='one-synchronous-scope-per-cell')
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        pending = {}
+        for index in range(min(2, len(cells))):
+            pending[index] = pool.submit(_scoped_derive_cell, root, cells[index], files)
+        observations['peak_pending_futures'] = len(pending)
+        try:
+            for index, cell in enumerate(cells):
+                result, thread_id = pending.pop(index).result()
+                if index + 2 < len(cells):
+                    pending[index + 2] = pool.submit(_scoped_derive_cell, root, cells[index + 2], files)
+                require(len(pending) <= 2, 'pending cell bound exceeded')
+                observations['peak_pending_futures'] = max(observations['peak_pending_futures'], len(pending))
+                observations['completed_cells'] += 1
+                observations['checked_cleared_scopes'] += 1
+                if thread_id not in observations['worker_thread_ids']:
+                    observations['worker_thread_ids'].append(thread_id)
+                require(len(observations['worker_thread_ids']) <= 2, 'worker thread bound exceeded')
+                yield cell, result
+        finally:
+            for future in pending.values():
+                future.cancel()
+
+
 def derive():
     p, ctx = admitted(); outer(p, ctx, 'derive-outer-binding')
     observed = load(p['local'] / 'candidates.json')
@@ -882,11 +932,11 @@ def derive():
     # All files remain until runner termination, including an interrupted gzip
     # and a partial ledger; failure receipts and final export disclose them.
     shared = {'written': 0}
+    execution = {}
     with BoundedOutput(recipe_path, DERIVE_OUTPUT_BYTES, shared).open('xb') as encoded:
         with gzip.GzipFile(fileobj=encoded, filename='', mode='wb', mtime=0) as recipes:
             with BoundedOutput(ledger_path, DERIVE_OUTPUT_BYTES, shared).open('xb') as ledger:
-                for number, cell in enumerate(cells):
-                    record, recipe = derive_cell(p['mount'], cell, files)
+                for cell, (record, recipe) in scoped_cells(p['mount'], cells, files, execution):
                     counts[record['mode']] += 1
                     if recipe is not None:
                         line = (json.dumps({'path': record['path'], 'recipe': recipe}, sort_keys=True, separators=(',', ':')) + '\n').encode()
@@ -901,6 +951,8 @@ def derive():
                     raw = (json.dumps(entry, sort_keys=True, separators=(',', ':')) + '\n').encode()
                     ledger.write(raw)
     require(sum(counts.values()) == len(cells) == EXPECTED_PAIRS, 'all original candidate cells must be accounted')
+    require(execution['completed_cells'] == execution['checked_cleared_scopes'] == len(cells),
+            'every selected cell must complete with cleared scope')
     after = hash_regular(p['image'], recovery.IMAGE_BYTES, recovery.IMAGE_BYTES)
     require(after == image_before == recovery.IMAGE_SHA, 'original image SHA after derivation differs')
     original_bytes = sum(row['bytes'] for row in files.values())
@@ -914,6 +966,7 @@ def derive():
                         identity_bytes=identity_without_raw, raw_attempt_bytes=raw_attempt_bytes)
     record = {'status': 'PASS', 'run_context': ctx, 'scope': SCOPE, 'counts': counts, 'candidate': CANDIDATE,
               'complete_candidate_paths': len(cells), 'cost_at_derive_close': costs,
+              'derivation_execution': execution,
               'image_sha256_before': image_before, 'image_sha256_after': after,
               'originals_retired_bytes': 0, 'scientific_qualification': False,
               'all_original_raw_attempts_retained': True}

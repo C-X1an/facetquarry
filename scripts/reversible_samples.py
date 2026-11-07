@@ -88,33 +88,21 @@ def _no_constant(value):
 
 
 def _loads(raw, *, strict=False):
-    # The benchmark uses normal json.loads, including last-key-wins ordering.
-    # Strict duplicate rejection applies only to the recipe, never stdout.
+    # Whole quoted tokens and outer structure only; never parse before guarding.
+    # Possessive ordinary/escape runs are disjoint and copy no full token strings.
     try:
         if type(raw) is bytes:
             raw = raw.decode("utf-8")
         if type(raw) is not str or len(raw) > MAX_DECODED_BYTES:
             raise Refusal("JSON byte/type bound")
-        depth, tokens, quoted, escaped = 0, 0, False, False
-        for character in raw:
-            if quoted:
-                if escaped:
-                    escaped = False
-                elif character == "\\":
-                    escaped = True
-                elif character == '"':
-                    quoted = False
-            elif character == '"':
-                quoted = True
-                tokens += 1
-            elif character in "[{":
+        depth,tokens = 0,0
+        for match in _WHOLE_TOKEN.finditer(raw):
+            character = raw[match.start()]
+            tokens += 1
+            if character in "[{":
                 depth += 1
-                tokens += 1
             elif character in "]}":
                 depth -= 1
-                tokens += 1
-            elif character in ",:":
-                tokens += 1
             if depth > MAX_JSON_DEPTH or tokens > MAX_JSON_STRUCTURAL_TOKENS:
                 raise Refusal("JSON structural bound exceeded")
         return json.loads(raw, parse_constant=_no_constant,
@@ -167,7 +155,7 @@ def _header(compressed):
             "mtime": struct.unpack_from("<I", compressed, 4)[0], "fname_hex": name.hex()}
 
 
-def _stdout_rows(raw):
+def _stdout_rows_uncached(raw):
     # This is exactly the decoding/split behavior in benchmark_support and
     # benchmark.measurement. It deliberately does not validate truth or recall.
     lines = raw.decode("utf-8", errors="replace").splitlines()
@@ -190,7 +178,7 @@ def _stdout_rows(raw):
     return rows
 
 
-def _overlay(literal):
+def _overlay_uncached(literal):
     if not isinstance(literal, str) or len(literal) > 64:
         raise Refusal("invalid recall literal")
     value = _loads(literal)
@@ -437,3 +425,147 @@ def reconstruct(*, recipe, stdout_gzip, expected_samples_sha256, expected_sample
         raise
     except (_Unsupported, ValueError, TypeError, OverflowError, RecursionError, zlib.error) as error:
         raise Refusal("recipe reconstruction refused: " + str(error)) from error
+
+
+# Explicit per-cell reuse; default calls remain uncached.
+# At most one raw parsed tree per entered scope, not a parsed-memory byte cap.
+from collections import OrderedDict
+from contextlib import contextmanager
+from contextvars import ContextVar
+from threading import get_ident
+
+_SCOPE_RAW_BYTES = 1 << 20
+_SCOPE_OVERLAY_ENTRIES = 128
+_SCOPE_STATE = ContextVar('facetquarry_reconstruction_scope', default=None)
+_WHOLE_TOKEN = re.compile(r'"[^"\\]*+(?:\\[\s\S][^"\\]*+)*+(?:"|\\?\Z)|[\[\]\{\},:]')
+
+
+class _ReconstructionScope:
+    def __init__(self):
+        self.owner_thread = get_ident()
+        self.scope_id = id(self)
+        self.raw_key = self.raw_rows = None
+        self.overlays = OrderedDict()
+        self.signature = None
+        self.closed = False
+        self.counts = dict(row_hits=0,row_misses=0,overlay_hits=0,overlay_misses=0,
+                           row_bypass=0,overlay_bypass=0,invalidations=0,row_evictions=0)
+        self.raw_sizes = set()
+        self.raw_sizes_truncated = False
+
+    def clear(self):
+        self.raw_key = self.raw_rows = None
+        self.overlays.clear()
+        self.signature = None
+
+    def validate_signature(self):
+        signature = _scope_signature()
+        changed = (self.signature is None
+                   or any(before is not after for before,after in zip(self.signature[0],signature[0]))
+                   or self.signature[1] != signature[1])
+        if changed:
+            if self.signature is not None:
+                self.counts['invalidations'] += 1
+            self.clear()
+            self.signature = signature
+
+    def info(self):
+        return dict(scope_id=self.scope_id,owner_thread=self.owner_thread,closed=self.closed,
+                    row_entries=int(self.raw_key is not None),overlay_entries=len(self.overlays),
+                    raw_sizes=sorted(self.raw_sizes),raw_sizes_truncated=self.raw_sizes_truncated,counts=dict(self.counts),
+                    input_admission_bytes=_SCOPE_RAW_BYTES,parsed_memory_cap=False)
+
+
+def _scope_signature():
+    # A test or caller replacing a relevant parser/serializer/function/limit must
+    # not receive stale values. Cache signatures use function identity and limit
+    # value/type; raw lookup still uses full builtin-bytes equality, never digest.
+    functions = (_loads,_dumps,_no_duplicates,_no_constant,_stdout_rows_uncached,
+                 _overlay_uncached,_stdout_rows,_overlay,_scope_signature,
+                 json.loads,json.dumps,math.isfinite,_WHOLE_TOKEN,_render)
+    limits = (MAX_LINES,MAX_DECODED_BYTES,MAX_JSON_DEPTH,MAX_JSON_STRUCTURAL_TOKENS,
+              _SCOPE_RAW_BYTES,_SCOPE_OVERLAY_ENTRIES)
+    # Retain actual function references and compare with is: integer id() alone
+    # could be recycled after a replaced function is collected.
+    return functions,tuple((type(value),value) for value in limits)
+
+
+def _active_scope():
+    value = _SCOPE_STATE.get()
+    # Context copying into another OS thread cannot share mutable parsed rows.
+    return value if value is not None and not value.closed and value.owner_thread==get_ident() else None
+
+
+@contextmanager
+def reconstruction_scope():
+    """Explicit synchronous scope; originals and all bindings stay checked.
+
+    Nested scopes restore the outer state; every entered state clears on normal
+    exit or Python exception. A killed process cannot run finally, but scope data
+    is RAM-only and dies with that process. No files or global row table exist.
+    """
+    state = _ReconstructionScope()
+    token = _SCOPE_STATE.set(state)
+    try:
+        yield state
+    finally:
+        try:
+            state.clear()
+            state.closed = True
+        finally:
+            _SCOPE_STATE.reset(token)
+
+
+def reconstruction_scope_info():
+    state = _active_scope()
+    return None if state is None else state.info()
+
+
+def _stdout_rows(raw):
+    state = _active_scope()
+    if state is None:
+        return _stdout_rows_uncached(raw)
+    state.validate_signature()
+    if type(raw) is not bytes or len(raw)>_SCOPE_RAW_BYTES:
+        state.counts['row_bypass'] += 1
+        if state.raw_key is not None:
+            state.counts['row_evictions'] += 1
+        state.raw_key = state.raw_rows = None
+        return _stdout_rows_uncached(raw)
+    if len(state.raw_sizes)<16 or len(raw) in state.raw_sizes:
+        state.raw_sizes.add(len(raw))
+    else:
+        state.raw_sizes_truncated = True
+    if state.raw_key is not None and raw == state.raw_key:
+        state.counts['row_hits'] += 1
+        return state.raw_rows
+    state.counts['row_misses'] += 1
+    if state.raw_key is not None:
+        state.counts['row_evictions'] += 1
+    # Release our prior key/tree BEFORE parsing a different raw value. A caller
+    # may independently retain an old returned tree; this is not a total-RAM cap.
+    state.raw_key = state.raw_rows = None
+    rows = _stdout_rows_uncached(raw)  # Exceptions leave no new entry.
+    state.raw_key,state.raw_rows = raw,rows
+    return rows
+
+
+def _overlay(literal):
+    state = _active_scope()
+    if state is None:
+        return _overlay_uncached(literal)
+    state.validate_signature()
+    if type(literal) is not str or len(literal)>64:
+        state.counts['overlay_bypass'] += 1
+        return _overlay_uncached(literal)
+    if literal in state.overlays:
+        state.counts['overlay_hits'] += 1
+        value = state.overlays.pop(literal)
+        state.overlays[literal] = value
+        return value
+    state.counts['overlay_misses'] += 1
+    value = _overlay_uncached(literal)  # Exceptions are never stored.
+    state.overlays[literal] = value
+    if len(state.overlays)>_SCOPE_OVERLAY_ENTRIES:
+        state.overlays.popitem(last=False)
+    return value

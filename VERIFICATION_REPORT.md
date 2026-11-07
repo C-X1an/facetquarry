@@ -1,5 +1,15 @@
 # Verification report
 
+## Scoped codec integration and authenticated run43 failure - 2026-11-07 UTC
+
+Technical source `84217861fe6fac904a87de16d3273aa96fc8a9057710291a616d8e1a2ae7d604` remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Curated results](verification/published/run43-and-scoped-codec-controls.json) preserve [run43](https://github.com/C-X1an/facetquarry/actions/runs/42331364502): actual Linux storage controls50PASS/0skip, complete readonly inventory, and derivation terminated at the unchanged1200-second cutoff. The partial recipe3920464B and empty ledger remain authenticated failures; complete equivalence and savings were not established.
+
+Current local controls ran62methods:60PASS and2explicitLinux-only skips. The initial exact50-count refusal is preserved. Independent read-only findings preceded the correction to62. Existing tests remain byte-exact. The integrated codec additionally passed278finite comparisons and14lifecycle faults against the frozen original, including copied active contexts across OS threads. Its render, raw-check, proposal and reconstruction function blocks remain byte-exact. The owner-guard negative control actually failed, and the restored guard passed.
+
+The derive caller now enters one explicit scope per cell and collects at most2pending worker futures in original candidate order. Every original raw/hash/size/reconstruction check, all4407candidates, the1200-second cutoff and resource bounds remain. Default codec calls remain uncached. All native synthetic warmups/three rotating repetitions are retained separately; they do not prove the new actualLinux deadline. Current supportedGo full checks/clean/race/fuzz, strictKVMsmoke, frozen1/4/16matrices and manual gates remain unmet.
+
+Earlier checkpoints below retain their historical source scopes; their original NOT RUN statements are superseded only by later evidence explicitly bound to the relevant source.
+
 ## Readonly derived-storage controls — 2026-11-07 UTC
 
 Technical source `1b1868142e67b5cd66bd30f8f4fbbc904cedfb5814cf71fd5b42c2c8ba1f3ba7` adds a separate optional storage-equivalence harness and remains **EXPERIMENTAL / NOT RELEASE QUALIFIED**. [Control results](verification/published/derived-storage-controls.json) record50native methods:48PASS and2explicitLinux-only skips. The existing capacity-workflow/retained-probe compatibility suites also passed, with their Linux dangling-link control explicitly skipped on Windows. All80pre-existing Python/Go test files and locked scientific contracts remain byte-exact.

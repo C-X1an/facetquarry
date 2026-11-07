@@ -20,7 +20,9 @@ def main():
         suite.addTests(unittest.TestLoader().discover(str(ROOT / 'tests'), pattern=pattern))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     # An actual Linux measurement cannot proceed on a green-with-skips result.
-    passed = result.wasSuccessful() and result.testsRun == 50 and (not args.actual_linux or not result.skipped)
+    # Original 50 methods plus 12 scope/ordering regressions; never accept a
+    # shortened discovery or a Linux qualification with any skipped method.
+    passed = result.wasSuccessful() and result.testsRun == 62 and (not args.actual_linux or not result.skipped)
     print(json.dumps({'status': 'PASS' if passed else 'FAIL', 'tests_run': result.testsRun,
                       'failures': len(result.failures), 'errors': len(result.errors),
                       'skipped': len(result.skipped), 'platform': sys.platform,
