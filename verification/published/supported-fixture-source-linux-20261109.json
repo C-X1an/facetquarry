@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "evidence_type": "supported_fixture_source_linux_verification",
+  "tested_commit": "f5febc1d165345ca4e666bc39f1e44a0f24660c2",
+  "technical_source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+  "run": {
+    "id": 42514706740,
+    "number": 46,
+    "job_id": 128835073208,
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/C-X1an/facetquarry/actions/runs/42514706740"
+  },
+  "profile": "supported-verification-capacity-v1",
+  "runtime": "Go1.27.3 linux/amd64",
+  "source_files": {
+    "scripts/raw_member_store.py": "942b6d64a83096fabfab40b9446e8d1a82a38e9e606f64d10c662e9830020cab",
+    "scripts/fixture_capsule.py": "5fce701489e916ea2e3145f2e0f5ba40e76e9c025d8a87ad17eee31445ae7843",
+    "scripts/clean_verify.py": "3f48a739e3737c0acff8827eeaa6c634d7d9d7a01896e1a062d45f268d247d65",
+    "tests/test_raw_member_store.py": "efff984d9d373f0020cc16ea140de6df14c4aa2cf1cd8f5626fb62d8231a4320",
+    "tests/test_fixture_capsule.py": "26f320c80ec98d5e1793d879693afbfdb221e865a548410f4f32711e77c27461"
+  },
+  "status": "PASS_SUPPORTED_SCOPE",
+  "gate_statuses": {
+    "actual_engine_and_lock_mutations": "PASS",
+    "actual_property_cli_and_race": "PASS",
+    "actual_terminal_run_and_job": "PASS",
+    "all_actual_receipt_streams": "PASS",
+    "all_fuzz_bytes_campaigns_and_online_scanner": "PASS",
+    "all_neutral_ids_skips_and_two_actual_host_leaves": "PASS",
+    "archive_authentication": "PASS",
+    "complete_export_captures": "PASS",
+    "independent_fixture_capsules_and_clean_preservation": "PASS",
+    "quota_admission_and_toolchain": "PASS",
+    "stages_closed_writers_and_cleanup": "PASS"
+  },
+  "contexts": [
+    {
+      "context": "main",
+      "neutral_count": 774,
+      "neutral_pass": 764,
+      "actual_host_leaf_tests": 1,
+      "actual_host_leaf_skipped": 0,
+      "receipt_id": "20261108T192235Z-870f7fcac3",
+      "stdout_sha256": "50f4ebd694c1443a9b03e3a63b7814c5a2a435d9015e0bdfe95b812c7a315ece",
+      "stderr_sha256": "403d65bcf3291b26b6ae74c8aa85e39e28739a5c73c0e375381695c0b2d2126c",
+      "explicit_skip_count": 10
+    },
+    {
+      "context": "fresh_clone",
+      "neutral_count": 774,
+      "neutral_pass": 764,
+      "actual_host_leaf_tests": 1,
+      "actual_host_leaf_skipped": 0,
+      "receipt_id": "20261108T192756Z-253b5e614f",
+      "stdout_sha256": "4cb8c77849db3a57b3bc924b0459ce70ea30e1892920ef1350b3f06d297fd773",
+      "stderr_sha256": "25e26406d07b4d115c5bfde410115774e9b041b7342f096b5803f7862ee6200e",
+      "explicit_skip_count": 10
+    }
+  ],
+  "explicit_skips": {
+    "test_fixture_capsule.OwnedFilesystemControls.test_windows_original_clone_is_retained_without_directory_durability": "actual Windows directory durability refusal retains original clone",
+    "test_raw_member_store.FixtureRoot.test_actual_windows_directory_durability_refuses_before_begin": "actual Windows closed-refusal control only",
+    "test_raw_member_store.LinuxTransactions.test_actual_windows_directory_durability_refuses_before_begin": "actual Windows closed-refusal control only",
+    "test_reference_apt_partial_handoff.PrivilegedPartialHandoff.test_actual_mixed_partial_fchown_and_whole_tree_audit": "requires actual privileged Linux fchown",
+    "test_reference_capacity_process.ElevatedCwdLifecycle.test_existing_capacity_runner_grant_executes_the_fixed_readlink": "actual fixed sudo readlink uses only the admitted capacity runner grant",
+    "test_reference_receipt_atomic.WindowsReceiptReplacement.test_actual_read_handle_lock_is_released_before_bounded_replacement": "Windows receipt sharing semantics control",
+    "test_reference_receipt_atomic.WindowsReceiptReplacement.test_nonsharing_error_is_not_retried": "Windows receipt sharing semantics control",
+    "test_reference_receipt_atomic.WindowsReceiptReplacement.test_persistent_refusal_is_bounded_and_preserves_both_records": "Windows receipt sharing semantics control",
+    "test_reference_receipt_atomic.WindowsReceiptReplacement.test_replacement_refuses_substitution_between_sharing_retries": "Windows receipt sharing semantics control",
+    "test_reference_receipt_atomic.WindowsReceiptReplacement.test_temporary_receipt_substitution_is_not_published": "Windows receipt sharing semantics control"
+  },
+  "linux_component_cases_per_context": {
+    "raw_member_store": {
+      "discovered": 28,
+      "passed": 26,
+      "explicit_windows_skips": 2
+    },
+    "fixture_capsule": {
+      "discovered": 31,
+      "passed": 30,
+      "explicit_windows_skips": 1
+    }
+  },
+  "oracle_and_race": {
+    "actual_cli_commands": 2000,
+    "all_actual_cli_streams_sha_verified": true,
+    "independent_oracle_recomputed": true,
+    "oracle_cases": 1000,
+    "race_packages": [
+      "facetquarry/cmd/facetquarry",
+      "facetquarry/cmd/fqbench",
+      "facetquarry/internal/engine",
+      "facetquarry/internal/strictjson"
+    ],
+    "raw_cases_bytes": 7965243,
+    "raw_cases_sha256": "6842cc74f34e3e02ccf20399205213fca3ce92bf51d4a5b5bd50cd53c91d01b0"
+  },
+  "mutation_controls": {
+    "all_actual_before_defect_restored_streams_present": true,
+    "all_hashes_match_pinned_current_source": true,
+    "engine_controls": 4,
+    "lock_controls": 2
+  },
+  "fuzz_and_scanner": {
+    "campaign_is_not_scientific_matrix": true,
+    "campaigns": {
+      "FuzzQuery": {
+        "executions": 251769,
+        "new_interesting": 77,
+        "observed_seconds": 31,
+        "retained_files": 77,
+        "total_counter": 80
+      },
+      "FuzzSnapshot": {
+        "executions": 1045429,
+        "new_interesting": 3,
+        "observed_seconds": 31,
+        "retained_files": 3,
+        "total_counter": 5
+      }
+    },
+    "corpus_and_manifest_within_35mb": true,
+    "current_complete_fuzz_files": 80,
+    "fuzz_bytes": 5020,
+    "fuzz_manifest_bytes": 44121,
+    "fuzz_manifest_sha256": "d23f05068c372b62c887fd087ba47364246c8a5f7d4f256cf702a377de217c1b",
+    "scanner": "govulncheck v1.9.0 / Go1.27.3",
+    "scanner_no_vulnerabilities_reported": true,
+    "snapshot_sha256": "62fd244da104bb57e44eed2a013b2d7a127ffd6569e932555b7cb65b33f8d852"
+  },
+  "fixture_and_clean_preservation": {
+    "clean_retention_complete_bound_checked": true,
+    "clean_terminal_files": 2,
+    "contexts": [
+      {
+        "all_outer_envelopes_independently_typed_and_hashed": true,
+        "context": "main",
+        "control_case_capsules": 18,
+        "cumulative_original_bytes": 2272944,
+        "cumulative_original_entries": 660,
+        "nested_intentionally_corrupt_fixture_bytes_retained_as_data": true,
+        "raw_case_capsules": 23,
+        "serialized_raw_suite_bytes": 3153013
+      },
+      {
+        "all_outer_envelopes_independently_typed_and_hashed": true,
+        "context": "fresh_clone",
+        "control_case_capsules": 18,
+        "cumulative_original_bytes": 2272944,
+        "cumulative_original_entries": 660,
+        "nested_intentionally_corrupt_fixture_bytes_retained_as_data": true,
+        "raw_case_capsules": 23,
+        "serialized_raw_suite_bytes": 3154321
+      }
+    ],
+    "kernel_quota_or_power_loss_claimed": false
+  },
+  "archive": {
+    "all_member_crc_size_sha_type_mode_checked": true,
+    "decoded_bytes": 15988852,
+    "extraction_tree_created": false,
+    "inner_bytes": 1392570,
+    "inner_sha256": "8df29ec2689d37827b262a391f1259e788432f97a15a256e0967576ffc72fd56",
+    "members": 383,
+    "outer_bytes": 1392726,
+    "outer_sha256": "48d1117b28f8fbcc6fb48bb36fe7759d2295aa7fee81ac039d55891e35dfb1db"
+  },
+  "export_file_counts": {
+    "capture_manifest_sha256": {
+      "outer": "4775d14fd99f5c272f2304fe38cc8bd32ce993490974f6e51a2c082dbd73172d",
+      "volume": "93f72a53e680dc2e05113493dde4a6379edab1012d9caefcba6f1b66859572ce"
+    },
+    "outer_files": 23,
+    "volume_files": 357
+  },
+  "quota": {
+    "baseline_bytes": 9480116452,
+    "denied_probe_bytes": 2100000000,
+    "enospc_capture_sha256": "e6e26ef952e5cbddc4dcaf9bfbd8a2ad9ead9fc9ea589d06c7d19e1d85b07879",
+    "hard_quota_enforced": true,
+    "image_bytes": 2000000000,
+    "official_toolchain_metadata_sha256": "436f71fe18ffc973edd2ba0a58e93b2f7a53fb303e5a2622f9fb2e40511b1afe",
+    "peak_bytes": 11825116452,
+    "supported_go_runtime": "go1.27.3 linux/amd64"
+  },
+  "lifecycle": {
+    "four_stages_passed": true,
+    "capture_and_unmount_pass": true,
+    "mount_and_loops_absent": true,
+    "physical_image_unlink_claimed": false,
+    "sampled_high_water_is_hard_quota": false
+  },
+  "checker_controls": {
+    "passed": 150,
+    "preserved_definition_checks": 34,
+    "progress_controls": 47,
+    "initial_source_syntax_defect_preserved_before_repair": true,
+    "original_frozen_bundle_retained": true,
+    "synthetic_controls_are_not_run_evidence": true
+  },
+  "command_receipts": [
+    {
+      "id": "20261108T193607Z-c4c1e22608",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "7a34504d4e6a1feb7850a2fe1307d9900deb39968bd7249b565efda557f1ee72",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "20261108T194118Z-2759ae0679",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "e2197c3fc58004af09f30f12a85e1e9b268c6171aa6c88289afb7d5b958d4212",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "20261108T192952Z-88b44476a3",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "e2d0f89f15c5ec6cd2d71c1122ae3bf9aa9ab78aff02846683bda7f2c9d81e7e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "20261108T193539Z-1b827c69e9",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "0bce8207cd652fcd23129cef872d60dfbbf16b6b874979859fa9ba36a3060ec8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "independent_actual_audit": {
+    "status": "PASS",
+    "receipt": "20261108T194118Z-2759ae0679",
+    "scope": "Archive/export/receipt/source inventory, actual outcomes, typed capsules and lifecycle independently rechecked. Detailed oracle/race/mutation/fuzz/scanner semantics rely on the separately authenticated strict checker and its independently reviewed source."
+  },
+  "scientific_raw_storage_backend_integrated": false,
+  "full_frozen_matrix_each_reader_1_4_16": "NOT_RUN",
+  "reference_host_full_qualification": "NOT_RUN",
+  "actual_browser_and_keyboard_review": "NOT_RUN",
+  "owner_technical_walkthrough": "NOT_RUN",
+  "power_loss_or_actual_kernel_fault_qualification": false,
+  "release_qualified": false,
+  "limits": [
+    "The same774test identities execute in two distinct contexts; repetitions add no unique tests.",
+    "Explicit skips remain skips.",
+    "Linux filesystem and bounded failure controls do not establish power-loss durability.",
+    "Developmental benchmark smoke is separate from the frozen full matrix.",
+    "The private new scientific-storage draft is unexecuted and inherits no qualification from this run.",
+    "Older dated public sections preserve their status at the time."
+  ]
+}

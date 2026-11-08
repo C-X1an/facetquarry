@@ -1,5 +1,14 @@
 # Verification report
 
+## Supported Linux verification (2026-11-09)
+
+At technical source `853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876`, [run #46](https://github.com/C-X1an/facetquarry/actions/runs/42514706740) completed supported Go 1.27.3 Linux verification, a distinct clean committed reproduction and the current online vulnerability scan. Main and clean clone each ran 774 cases: 764 passed and 10 were explicitly skipped, followed by a separate host control with one pass and zero skips. These contexts repeat the same test identities.
+
+The authenticated evidence covers 1,000 oracle cases and 2,000 actual CLI commands, four race packages, four engine and two lock mutation controls, and two bounded fuzz campaigns observed for 31 seconds each. Govulncheck v1.9.0 reported no vulnerabilities. Linux raw-store cases were 26 passes/two Windows skips; capsule cases were 30 passes/one Windows skip per context. All 82 retained capsule envelopes and clean terminal preservation were independently rechecked.
+
+[Curated counts and receipt digests](verification/published/supported-fixture-source-linux-20261109.json) bind the measured scope. The full frozen 5,400 cells for EACH reader 1/4/16, scientific storage integration, actual browser review and owner walkthrough remain pending. Power-loss and actual kernel-fault behavior remain unqualified. Earlier dated sections retain their historical status.
+
+
 ## Fixture evidence retention (2026-11-08)
 
 Technical source `853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876` adds bounded data-only fixture capsules and preserves original checkout data when evidence publication is uncertain. Windows keeps original fixture directories and makes no directory-durability claim.

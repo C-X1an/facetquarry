@@ -2,6 +2,7 @@
   "schema_version": 1,
   "purpose": "Reviewed source, synthetic examples, tests, public documentation and curated execution evidence only",
   "files": [
+    "verification/published/supported-fixture-source-linux-20261109.json",
     "scripts/fixture_capsule.py",
     "tests/test_fixture_capsule.py",
     "verification/published/fixture-retention-native-controls-20261108.json",
