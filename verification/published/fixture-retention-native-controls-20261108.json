@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "evidence_type": "synthetic_fixture_retention_native_controls",
+  "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+  "base_commit": "6fbd797a1e0e5fcdd1c264eaff281530ca628e6d",
+  "source_files": {
+    "scripts/fixture_capsule.py": "5fce701489e916ea2e3145f2e0f5ba40e76e9c025d8a87ad17eee31445ae7843",
+    "scripts/clean_verify.py": "3f48a739e3737c0acff8827eeaa6c634d7d9d7a01896e1a062d45f268d247d65",
+    "tests/test_raw_member_store.py": "efff984d9d373f0020cc16ea140de6df14c4aa2cf1cd8f5626fb62d8231a4320",
+    "tests/test_fixture_capsule.py": "26f320c80ec98d5e1793d879693afbfdb221e865a548410f4f32711e77c27461"
+  },
+  "environment": {
+    "system": "Windows",
+    "python": "Python 3.13.14"
+  },
+  "status": "PASS_WITH_EXPLICIT_PLATFORM_SKIPS",
+  "actual_runs": [
+    {
+      "receipt_id": "20261108T034326Z-3f4175516e",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "c910439fd9cbeea954407897452ed4da949f719ec22008c2bb82f00c46b3e2cc",
+      "label": "capsule_module",
+      "discovered": 31,
+      "executed_pass": 21,
+      "explicit_skips": 10,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "receipt_id": "20261108T034328Z-be57b57cb2",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "d33dbb1daa105a330d2546e0d04a1fd929430b458b247a095d2be7a7744e4c77",
+      "stderr_sha256": "c1aa3b23c14751bbc586495bc3e236e756c311ff46edf6f39b5238767f7949ac",
+      "label": "raw_member_direct",
+      "discovered": 28,
+      "executed_pass": 4,
+      "explicit_skips": 24,
+      "failures": 0,
+      "errors": 0
+    },
+    {
+      "receipt_id": "20261108T034329Z-deb8593a68",
+      "status": "PASS",
+      "source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "bf4b8094392af810319c0abad91671b557ae75ce2a83b474f514dae447ceee4d",
+      "label": "raw_member_discovery",
+      "discovered": 28,
+      "executed_pass": 4,
+      "explicit_skips": 24,
+      "failures": 0,
+      "errors": 0
+    }
+  ],
+  "preserved_failed_runs": [
+    {
+      "receipt_id": "20261107T230058Z-f857821a78",
+      "status": "FAIL",
+      "source": "55779bdae19a87b15cf905d7f5ce2406e4750ffd087a079585e5a3d141acb8f7",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "01594e959cc18d077c53e59d08d4c2cb9116716e1f08d57a49e35377b8cd0f1c",
+      "label": "directory_entry_identity",
+      "preserved": true
+    },
+    {
+      "receipt_id": "20261107T230822Z-d53962535d",
+      "status": "FAIL",
+      "source": "109f5663040a00a8b9e2b628c1b3615df4b2effe2231c1ae537ad3266b240d2b",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "7af15957386204c69e1ab4636b5fc1ab8a3b9486651e6757deaad64dc3fbab98",
+      "label": "binary_read_translation",
+      "preserved": true
+    },
+    {
+      "receipt_id": "20261108T032152Z-01c5e7380d",
+      "status": "FAIL",
+      "source": "ad61f14f52ca1dcedbcc4e35dc386aea38eea7f953b04de830d26cb97cc7e77d",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1aa0306f04e7f8c7b646a79a8e8baf3dff27fe16faece2903bc3816302f672c9",
+      "label": "windows_readonly_flush",
+      "preserved": true
+    },
+    {
+      "receipt_id": "20261108T032248Z-41bc416331",
+      "status": "FAIL",
+      "source": "ad61f14f52ca1dcedbcc4e35dc386aea38eea7f953b04de830d26cb97cc7e77d",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "ec7e2a184e85e338e3538638bdba13d7b3f208787e54c7609258140767227fd1",
+      "label": "windows_readonly_flush_diagnosis",
+      "preserved": true
+    }
+  ],
+  "raw_member_entrypoints_have_identical_leaf_outcomes": true,
+  "test_outcomes": {
+    "capsule_module": {
+      "test_fixture_capsule.OwnedFilesystemControls.test_all_byte_values_crlf_ctrl_z_and_chunk_boundary_match_physical_original": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_binary_readback_and_portable_retention_scope": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_changed_source_refuses_and_keeps_both_observed_states": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_clean_clone_corrupt_copy_blocks_disposal_and_preserves_source": {
+        "outcome": "SKIP",
+        "reason": "'actual complete destination ancestry fsync before rename only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_clean_clone_partial_without_final_blocks_disposal": {
+        "outcome": "SKIP",
+        "reason": "'actual complete destination ancestry fsync before rename only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_clean_clone_raw_case_guard_retains_whole_source": {
+        "outcome": "SKIP",
+        "reason": "'actual complete destination ancestry fsync before rename only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_clean_clone_retention_never_overwrites_existing_destination": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_clean_clone_verified_regular_capsule_copy_allows_cleanup": {
+        "outcome": "SKIP",
+        "reason": "'actual complete destination ancestry fsync before cleanup only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_cleanup_boundary_exception_retains_two_verified_copies_and_raw": {
+        "outcome": "SKIP",
+        "reason": "'actual POSIX cleanup boundary only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_durable_complete_readback_precedes_raw_cleanup": {
+        "outcome": "SKIP",
+        "reason": "'actual POSIX file/directory fsync and cleanup only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_exclusive_names_and_preexisting_capsules_never_overwrite": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_external_hardlink_refuses_and_keeps_original_and_partial": {
+        "outcome": "SKIP",
+        "reason": "'actual POSIX hardlink external alias refusal only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_independent_readback_refuses_changed_partial_before_any_cleanup": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_interrupted_ancestor_publication_keeps_original_on_both_branches": {
+        "outcome": "SKIP",
+        "reason": "'synthetic pre-ancestor publication interruption, no OS fault claim'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_owned_file_timestamp_update_keeps_exact_portable_readback": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_real_links_remain_data_and_internal_hardlink_groups_are_complete": {
+        "outcome": "SKIP",
+        "reason": "'actual POSIX symlink target bytes and hardlinks only'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_synthetic_boundary_exceptions_retain_raw_and_partials": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_terminal_and_complete_ancestor_sync_precede_source_removal": {
+        "outcome": "SKIP",
+        "reason": "'actual ordered POSIX publication seam; no power-loss claim'"
+      },
+      "test_fixture_capsule.OwnedFilesystemControls.test_windows_original_clone_is_retained_without_directory_durability": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_byte_hash_length_base64_and_total_corruption_refuse": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_capsule_and_target_bounds_are_enforced_before_use": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_duplicate_keys_nonfinite_invalid_json_and_truncation_refuse": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_exact_depth_and_entry_count_boundaries": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_exact_keys_and_boolean_integer_aliases_refuse": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_hardlink_group_count_and_complete_relation": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_independent_document_keeps_exact_binary_and_metadata": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_path_identity_parent_kind_collisions_and_depth_refuse": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.PureCapsuleContracts.test_unsafe_absolute_parent_and_non_utf8_link_targets_are_data": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.SuiteAccountingContracts.test_complete_partial_and_both_publication_copies_are_admitted": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.SuiteAccountingContracts.test_completed_originals_still_consume_the_aggregate_guard": {
+        "outcome": "PASS"
+      },
+      "test_fixture_capsule.SuiteAccountingContracts.test_publication_file_slot_boundaries_include_empty_originals": {
+        "outcome": "PASS"
+      }
+    },
+    "raw_member_entrypoints": {
+      "test_raw_member_store.FixtureRoot.test_actual_windows_directory_durability_refuses_before_begin": {
+        "outcome": "PASS"
+      },
+      "test_raw_member_store.LinuxTransactions.test_actual_windows_directory_durability_refuses_before_begin": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_boolean_commit_and_mixed_protocol_cannot_relabel_complete": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_crash_after_first_stage_chunk_retains_partial_and_failure_tail": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_dangling_stage_link_visible_without_following": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_exact_32_root_slots_then_33_refuses_without_mutation": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_exact_max_member_and_plus_one_metadata_refusal": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_exact_raw_binary_empty_noncanonical_and_metadata_accounting": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_existing_identity_never_overwrites_or_resumes": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_explicit_retirement_after_verified_commit_and_closed_writers": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_foreign_root_overflow_refuses_retirement_before_any_unlink": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_generator_failure_closes_handles_and_keeps_candidate_prefix": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_generator_write_cap_failure_retains_written_prefix": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_manifest_and_commit_boundary_crashes_never_auto_accept": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_no_clobber_commit_keeps_preexisting_torn_marker": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_one_handle_reentrant_writer_refuses_without_kernel_mock": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_optional_failure_tail_exact_cap_wrong_kind_and_excess": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_packed_corruption_refuses_but_stage_original_is_retained": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_partial_retirement_reports_exact_membership_and_remaining_bytes": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_real_symlink_hardlink_and_root_alias_refuse": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_retirement_without_closed_commit_refuses_and_keeps_every_stage": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_root_writer_claim_and_replaced_root_path_refuse": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_stage_cap_and_original_digest_refuse_without_shrinking_declaration": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_unknown_and_torn_metadata_remain_visible_never_complete": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.LinuxTransactions.test_xz_single_stream_raw_hash_and_output_bounds": {
+        "outcome": "SKIP",
+        "reason": "'actual Linux POSIX directory-fsync durability gate'"
+      },
+      "test_raw_member_store.PureContracts.test_flat_names_devices_case_and_aliases": {
+        "outcome": "PASS"
+      },
+      "test_raw_member_store.PureContracts.test_raw_original_protocol_and_boolean_alias_rejection": {
+        "outcome": "PASS"
+      },
+      "test_raw_member_store.PureContracts.test_strict_scalar_caps_identity_and_preadmission": {
+        "outcome": "PASS"
+      }
+    }
+  },
+  "direct_fixture_accounting": {
+    "original_fixture_bytes": 0,
+    "original_fixture_entries": 2,
+    "remaining_raw_bytes": 0,
+    "remaining_raw_entries": 2,
+    "serialized_complete_bytes": 465,
+    "serialized_partial_bytes": 0,
+    "serialized_actual_bytes": 465,
+    "serialized_file_entries": 1,
+    "publication_file_headroom": 0,
+    "serialized_with_publication_file_headroom": 1,
+    "publication_duplicate_headroom_bytes": 0,
+    "serialized_with_publication_headroom_bytes": 465,
+    "raw_and_serialized_with_headroom_bytes": 465,
+    "original_fixture_cap_bytes": 16777216,
+    "original_entry_cap": 2048,
+    "serialized_cap_bytes": 25165824,
+    "raw_and_serialized_peak_cap_bytes": 33554432
+  },
+  "windows_raw_directories_retained": true,
+  "windows_directory_durability": false,
+  "linux_transactions": "NOT_RUN",
+  "posix_durability_runtime": "NOT_RUN",
+  "supported_current_source_full_verification": "NOT_RUN",
+  "current_source_fresh_committed_reproduction": "NOT_RUN",
+  "frozen_matrix_each_reader_1_4_16": "NOT_RUN",
+  "scientific_backend_integration": false,
+  "power_loss_or_actual_kernel_fault_qualification": false,
+  "release_qualification": false,
+  "limits": [
+    "Repeated entrypoints and target runs are not extra unique coverage.",
+    "Explicit platform skips are not passed tests.",
+    "Zero original file bytes does not mean zero retained storage: the direct capsule is465logicalbytes.",
+    "Earlier failed raw trees, partials and bad capsules remain preserved and uncredited.",
+    "The earlier timestamp issue was source-predicted; no public timestamp RED is asserted.",
+    "Local failure retention can still cause the unchanged remote whole-tree exporter to refuse unsafe aliases."
+  ],
+  "scope": "Finite synthetic Windows fixture/copy controls only. No raw output, original capsule or private absolute path is published.",
+  "preserved_failed_publication_audits": [
+    {
+      "receipt_id": "20261108T033708Z-d71a57439c",
+      "status": "FAIL",
+      "source": "e3aa5a71f7e4fe0ceb011e79b7c3c7a3bd39fb444b1c2e1104651b51bc6122fc",
+      "stdout_sha256": "b07eaf84f98d55b74445763e3efc7f926c4657f19f72b7ef46ca5b8acff894d7",
+      "stderr_sha256": "3d2ab7f86d0ab8ea0247f1d117b7ef2c1553748755d62fdd74139c9a4eae502e",
+      "label": "publication_CRLF_whitespace",
+      "preserved": true
+    }
+  ],
+  "source_normalization": {
+    "old_source": "e3aa5a71f7e4fe0ceb011e79b7c3c7a3bd39fb444b1c2e1104651b51bc6122fc",
+    "new_source": "853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876",
+    "old_clean_sha256": "7753a8e309408656708409f706dc89e60703f3110cb34e4e8cf757c16d686e86",
+    "new_clean_sha256": "3f48a739e3737c0acff8827eeaa6c634d7d9d7a01896e1a062d45f268d247d65",
+    "removed_cr_bytes": 280,
+    "ast_including_locations_equal": true,
+    "prior_audit_preserved": true,
+    "old_receipts_retagged": false
+  },
+  "previous_curated_summary": {
+    "source": "e3aa5a71f7e4fe0ceb011e79b7c3c7a3bd39fb444b1c2e1104651b51bc6122fc",
+    "sha256": "6178dbcc52f96eca37937263787467876ab8fda476d8e4d539afa5cdeb1a4107",
+    "preserved": true,
+    "qualification": "Historical before LF normalization; current receipt rows are real reruns."
+  }
+}

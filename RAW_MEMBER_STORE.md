@@ -1,5 +1,14 @@
 # Experimental raw-member store
 
+## Fixture evidence retention (2026-11-08)
+
+Technical source `853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876` adds bounded data-only fixture capsules and preserves original checkout data when evidence publication is uncertain. Windows keeps original fixture directories and makes no directory-durability claim.
+
+Actual Windows results: capsule module: 31 discovered, 21 executed PASS, 10 explicit POSIX skips; raw-store direct and discovery: each 28 discovered, 4 executed PASS, 24 explicit Linux skips. Entry points repeat the same raw-store coverage. Metadata, binary-read and flush failures were preserved before repairs. The direct fixture contains 0 original file bytes, 2 directory entries and 465 serialized capsule bytes.
+
+[Curated receipt hashes and leaf outcomes](verification/published/fixture-retention-native-controls-20261108.json) bind these counts. Current-source Linux transactions, supported full verification, fresh committed reproduction, POSIX durability and the frozen 5,400 cells for EACH reader 1/4/16 remain NOT RUN. Benchmark integration and release qualification are pending.
+
+
 Native Windows direct CLI and test discovery at technical source `9a802ccd82c34edef86eba2fc45c495eae049cb59d116128b6a70b5302d3811a` each recorded **4 passed / 24 explicit POSIX skips**, zero failures/errors. See [curated native controls](verification/published/raw-member-native-controls-20261107.json). This is preliminary platform-refusal/contract evidence; Linux execution remains NOT RUN.
 
 This standalone experimental component retains caller-supplied original bytes.

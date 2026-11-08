@@ -18,11 +18,19 @@ import uuid
 REPOSITORY = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(REPOSITORY/'scripts'))
 import raw_member_store as store
+import fixture_capsule
 
 ROOT = None
 SOURCE = 'a'*64
 COUNTER = 0
 FIXTURE_PERSISTED_CAP = 16 << 20
+FIXTURE_ENTRY_CAP = 2048
+FIXTURE_SERIALIZED_CAP = 24 << 20
+FIXTURE_ALLOCATION_CAP = 32 << 20
+PENDING = {}
+CAPSULE_OUTPUT = None
+CAPSULES = []
+CASE_ORIGINALS = {}
 
 
 def sha(raw):
@@ -126,14 +134,16 @@ class FixtureRoot(unittest.TestCase):
         global COUNTER
         _ensure_root()
         COUNTER += 1
-        self.base = ROOT/('c%03d'%COUNTER)
-        self.base.mkdir(mode=0o700)
         self.handles = []
+        # The immutable exclusive container also owns a renamed base sibling.
+        self.container = ROOT/('c%03d'%COUNTER)
+        self.container.mkdir(mode=0o700)
+        PENDING[self.container] = self.handles
+        self.base = self.container/'base'
+        self.base.mkdir(mode=0o700)
 
     def tearDown(self):
-        for handle in self.handles:
-            if not handle._released:
-                handle.release()
+        _preserve_case(self.container)
 
     def create(self,raws,encodings=None,hook=None):
         if encodings is None:
@@ -569,7 +579,7 @@ def persisted_size(root):
         with os.scandir(path) as iterator:
             for entry in iterator:
                 count += 1
-                if count > 2048:
+                if count > FIXTURE_ENTRY_CAP:
                     raise RuntimeError('TEST_FIXTURE_COUNT_BOUND')
                 info = entry.stat(follow_symlinks=False)
                 if stat.S_ISDIR(info.st_mode):
@@ -582,11 +592,126 @@ def persisted_size(root):
     return total,count
 
 
+def aggregate_admission(original_bytes,original_entries,remaining_raw_bytes,remaining_raw_entries,
+                        complete_bytes,partial_bytes,serialized_entries,publication_bound=0):
+    """Separate cumulative originals from serialized bytes and two-copy headroom.
+
+    These are finite suite accounting bounds, not filesystem quotas. Completed
+    originals still count after POSIX cleanup; partial capsules consume actual
+    disk bytes, and publication reserves BOTH new serialized copies in advance.
+    """
+    values=(original_bytes,original_entries,remaining_raw_bytes,remaining_raw_entries,
+            complete_bytes,partial_bytes,serialized_entries,publication_bound)
+    if any(type(value) is not int or value < 0 for value in values):
+        raise RuntimeError('TEST_FIXTURE_ACCOUNTING_INTEGER')
+    if original_bytes > FIXTURE_PERSISTED_CAP or original_entries > FIXTURE_ENTRY_CAP:
+        raise RuntimeError('TEST_CUMULATIVE_ORIGINAL_FIXTURE_CAP')
+    if remaining_raw_bytes > original_bytes or remaining_raw_entries > original_entries:
+        raise RuntimeError('TEST_REMAINING_RAW_EXCEEDS_ORIGINALS')
+    serialized=complete_bytes+partial_bytes
+    duplicate_headroom=2*publication_bound
+    publication_slots=2 if publication_bound else 0
+    if (serialized_entries+publication_slots > FIXTURE_ENTRY_CAP
+            or serialized+duplicate_headroom > FIXTURE_SERIALIZED_CAP):
+        raise RuntimeError('TEST_AGGREGATE_SERIALIZED_AND_PUBLICATION_CAP')
+    if remaining_raw_bytes+serialized+duplicate_headroom > FIXTURE_ALLOCATION_CAP:
+        raise RuntimeError('TEST_RAW_AND_SERIALIZED_PEAK_CAP')
+    return {'original_fixture_bytes':original_bytes,'original_fixture_entries':original_entries,
+            'remaining_raw_bytes':remaining_raw_bytes,'remaining_raw_entries':remaining_raw_entries,
+            'serialized_complete_bytes':complete_bytes,'serialized_partial_bytes':partial_bytes,
+            'serialized_actual_bytes':serialized,'serialized_file_entries':serialized_entries,
+            'publication_file_headroom':publication_slots,
+            'serialized_with_publication_file_headroom':serialized_entries+publication_slots,
+            'publication_duplicate_headroom_bytes':duplicate_headroom,
+            'serialized_with_publication_headroom_bytes':serialized+duplicate_headroom,
+            'raw_and_serialized_with_headroom_bytes':remaining_raw_bytes+serialized+duplicate_headroom,
+            'original_fixture_cap_bytes':FIXTURE_PERSISTED_CAP,'original_entry_cap':FIXTURE_ENTRY_CAP,
+            'serialized_cap_bytes':FIXTURE_SERIALIZED_CAP,'raw_and_serialized_peak_cap_bytes':FIXTURE_ALLOCATION_CAP}
+
+
+def suite_accounting(publication_bound=0):
+    remaining_bytes,remaining_entries=persisted_size(ROOT) if ROOT is not None else (0,0)
+    original_bytes,original_entries=remaining_bytes,remaining_entries
+    # Add only historical content no longer present. This also retains the
+    # original pre-cleanup totals if cleanup failed after removing some entries,
+    # and avoids double counting raw that Windows intentionally retained.
+    for container,(saved_bytes,saved_entries) in CASE_ORIGINALS.items():
+        if os.path.lexists(container):
+            _owned_fixture_directory(container)
+            current_bytes,current_entries=persisted_size(container)
+            current_entries+=1  # the immutable case container itself
+        else:
+            current_bytes,current_entries=0,0
+        original_bytes+=max(0,saved_bytes-current_bytes)
+        original_entries+=max(0,saved_entries-current_entries)
+    complete=partial=entries=0
+    if CAPSULE_OUTPUT is not None:
+        _owned_fixture_directory(CAPSULE_OUTPUT)
+        with os.scandir(CAPSULE_OUTPUT) as iterator:
+            for entry in iterator:
+                entries+=1
+                if entries > FIXTURE_ENTRY_CAP:
+                    raise RuntimeError('TEST_SERIALIZED_ENTRY_CAP')
+                info=Path(entry.path).lstat()
+                if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                        or getattr(info,'st_file_attributes',0)&0x400):
+                    raise RuntimeError('TEST_SERIALIZED_REGULAR_UNALIASED_ONLY')
+                if entry.name.endswith('.fcap'):
+                    complete+=info.st_size
+                elif entry.name.endswith('.partial'):
+                    partial+=info.st_size
+                else:
+                    raise RuntimeError('TEST_SERIALIZED_UNKNOWN_OUTPUT')
+    return aggregate_admission(original_bytes,original_entries,remaining_bytes,remaining_entries,
+                               complete,partial,entries,publication_bound)
+
+
 def tearDownModule():
-    # Discovery receives the same post-suite persisted-fixture cap as direct CLI.
-    # Keep every fixture, including failed/torn/alias evidence.
-    if ROOT is not None:
-        persisted_size(ROOT)
+    # Includes setUp failures, whose tearDown unittest does not call. Do not
+    # retry failed capsule names or dispose of any partial from an earlier try.
+    failures = []
+    for container in list(PENDING):
+        try:
+            _preserve_case(container)
+        except Exception as error:
+            failures.append(type(error).__name__+': '+str(error))
+    suite_accounting()
+    if failures:
+        raise RuntimeError('FIXTURE_RETENTION_FAILED: '+'; '.join(failures))
+
+
+def _preserve_case(container):
+    global CAPSULE_OUTPUT
+    handles = PENDING[container]
+    # release() closes descriptors only. It does not invent closed.json or
+    # repair any torn transaction state that the test intentionally retained.
+    for handle in handles:
+        if not handle._released:
+            handle.release()
+    raw_bytes,raw_entries=persisted_size(container)
+    raw_entries+=1
+    previous=CASE_ORIGINALS.get(container,(0,0))
+    CASE_ORIGINALS[container]=(max(previous[0],raw_bytes),max(previous[1],raw_entries))
+    # Conservative envelope bound: base64 expansion of every regular byte,
+    # <=8192 bytes per entry (including bounded target/path/identity fields),
+    # and 65536 for the bounded encoded source path/top-level schema. This
+    # preadmits BOTH partial+final copies before preserve can write either.
+    publication_bound=4*((raw_bytes+2)//3)+8192*raw_entries+65536
+    suite_accounting(publication_bound)
+    if CAPSULE_OUTPUT is None:
+        evidence = REPOSITORY/'.local'/'evidence'
+        for folder in (REPOSITORY/'.local',evidence):
+            try:
+                folder.mkdir(mode=0o700)
+            except FileExistsError:
+                pass
+            _owned_fixture_directory(folder)
+        CAPSULE_OUTPUT = evidence/('raw-fixtures-'+uuid.uuid4().hex)
+        CAPSULE_OUTPUT.mkdir(mode=0o700)
+    record = fixture_capsule.preserve(container,CAPSULE_OUTPUT,container.name)
+    CAPSULES.append(record)
+    del PENDING[container]
+    suite_accounting()
 
 def main():
     global ROOT
@@ -600,11 +725,14 @@ def main():
     ROOT = args.test_root
     suite = unittest.defaultTestLoader.loadTestsFromModule(sys.modules[__name__])
     result = unittest.TextTestRunner(verbosity=2).run(suite)
-    size,count = persisted_size(ROOT)
+    accounting = suite_accounting()
+    size,count = accounting['original_fixture_bytes'],accounting['original_fixture_entries']
     print(json.dumps({'scope':'SYNTHETIC_RAW_MEMBER_PRIMITIVE_ONLY','tests_run':result.testsRun,
                       'failures':len(result.failures),'errors':len(result.errors),
                       'explicit_skips':len(result.skipped),'persisted_fixture_bytes':size,
                       'persisted_entries':count,'fixture_cap_bytes':FIXTURE_PERSISTED_CAP,
+                      'fixture_capsules':CAPSULES,'unpreserved_cases':len(PENDING),
+                      'fixture_accounting':accounting,
                       'kernel_quota_or_fault_injection_claimed':False,
                       'scientific_or_release_qualification':False}))
     return 0 if result.wasSuccessful() else 1
