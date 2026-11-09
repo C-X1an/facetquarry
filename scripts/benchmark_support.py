@@ -89,12 +89,19 @@ def text_output(value):
     return value
 
 
-def command_attempt(folder: Path, stage: str, command: list[str], runner, timeout=900):
+def command_attempt(folder: Path, stage: str, command: list[str], runner, timeout=900, *, return_bytes=False):
     """A failed start/timeout retains genuine available streams and exact reason.
+
+    return_bytes exposes the original live buffers before replacement decoding;
+    legacy compressed evidence and the default text return keep their meaning.
+    Byte mode requires the runner's streams to be bytes or unavailable None;
+    it never converts decoded text into purported native-original bytes.
 
     runner enforces the stage timeout. subprocess.run kills and waits for its
     native child before TimeoutExpired is handled; no success samples are made.
     """
+    if type(return_bytes) is not bool:
+        raise ValueError('return_bytes must be a boolean')
     attempt_id=str(time.time_ns())+'-'+uuid.uuid4().hex[:8]
     target=folder/'attempts'/attempt_id;target.mkdir(parents=True)
     started=utc_now();clock=time.perf_counter();termination=None;code=None;error=None
@@ -116,4 +123,12 @@ def command_attempt(folder: Path, stage: str, command: list[str], runner, timeou
             'termination_reason':termination,'error':error,'status':'PASS' if code==0 and termination is None else 'FAIL',
             'streams':streams}
     (target/'attempt.json').write_text(json.dumps(record,indent=2)+'\n')
+    if return_bytes:
+        def original(value):
+            if value is None:
+                return b''
+            if type(value) is not bytes:
+                raise TypeError('byte-return mode requires undecoded subprocess streams')
+            return value
+        return record,original(stdout),original(stderr)
     return record,text_output(stdout),text_output(stderr)
