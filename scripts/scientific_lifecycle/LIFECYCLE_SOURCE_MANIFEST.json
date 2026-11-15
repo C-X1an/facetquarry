@@ -1,0 +1,83 @@
+{
+  "format": "scientific-posix-lifecycle-source-packet-v1",
+  "status": "SOURCE_ONLY_REQUIRES_INDEPENDENT_FIRST_FINDINGS",
+  "profile": "scientific-posix-complete-failure-copy-v1",
+  "manifest_trust": "Pin complete manifest bytes independently before execution; self-hash is excluded.",
+  "runtime_membership": "Stage exactly packet_files plus this manifest in a NEW owned directory. Ancillary files stay outside the runtime packet.",
+  "packet_files_bytes_excluding_manifest": 131099,
+  "all_selected_files_bytes_excluding_manifest": 140828,
+  "packet_files": [
+    {
+      "origin": "scripts/scientific_lifecycle/ADMISSION.template.json",
+      "name": "ADMISSION.template.json",
+      "bytes": 1551,
+      "sha256": "cc554e1ffaf34eca0d9322db8f747453828a5948794de12b850a68790b1e70a8"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/BOUNDS.md",
+      "name": "BOUNDS.md",
+      "bytes": 7178,
+      "sha256": "aacf16f1a12cbef2f151b6cd24dfd7eb1ebb221b11c3516996d4179a294eb58f"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/PREPARE.template.json",
+      "name": "PREPARE.template.json",
+      "bytes": 1533,
+      "sha256": "9969c53bd9ca0ebb876bf6df12875a171dfa3549f3169338332a648038732d2b"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/README.md",
+      "name": "README.md",
+      "bytes": 13815,
+      "sha256": "41d280280afa1298d1fbb5901b0d939fc5ab19c520551511ea6d5e8e36864100"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/scientific_posix_lifecycle.py",
+      "name": "scientific_posix_lifecycle.py",
+      "bytes": 84233,
+      "sha256": "aac2b81f81da2e5d93d3fe7e639743721ae31523323fcd36e5ddd1d7f4fb8f15"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/test_scientific_posix_lifecycle.py",
+      "name": "test_scientific_posix_lifecycle.py",
+      "bytes": 22789,
+      "sha256": "7cca00e5de735574f7772eef812a65d5270a48bf8082e2b0ad9225e311b58626"
+    }
+  ],
+  "ancillary_files": [
+    {
+      "origin": "scripts/scientific_lifecycle/test_portable_lifecycle_faults.py",
+      "name": "test_portable_lifecycle_faults.py",
+      "bytes": 9729,
+      "sha256": "36431aaa782c34c096ceebc76d033a99ee385f7260250018489b1b7bf46911f0"
+    }
+  ],
+  "bounds_not_admission": {
+    "image_bytes": 268435456,
+    "child_address_space_bytes": 536870912,
+    "source_logical_bytes": 100663296,
+    "source_accounted_bytes": 167772160,
+    "source_entries_including_root": 4096,
+    "required_actual_available_volume_bytes_before_child": 201326592,
+    "neutral_blob_maximum_bytes": 109070351,
+    "base_lifecycle_job_bytes": 1493172224,
+    "spi_reserved_bytes": 855638016,
+    "extra_over_spi_bytes": 637534208,
+    "possible_additional_connector_fileref_bytes_before_metadata": 486576158,
+    "additional_growth": "Every connector/container/cache/mirror/additional copy or retry must be separately bounded and admitted."
+  },
+  "validation_scope": {
+    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_BEFORE_CURATION",
+    "portable_public_location_execution": "NOT_RUN",
+    "original_linux_controls": "22_AUTHORED_NOT_RUN",
+    "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+    "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+    "actual_process_supervision_and_collection": "NOT_RUN",
+    "closed_image_and_cloud_native_custody": "NOT_RUN",
+    "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+    "independent_first_review_of_this_curated_selection": "PENDING",
+    "scientific_or_release_qualification": false,
+    "job_admitted": false,
+    "retirement": "REFUSE"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "format": "scientific-posix-quota-prepare-v1",
+  "status": "SOURCE_ONLY_NOT_AUTHORIZED",
+  "profile": "scientific-posix-complete-failure-copy-v1",
+  "owner_uid": null,
+  "owner_gid": null,
+  "job_root": "/REPLACE_WITH_NEW_OWNED_JOB",
+  "lifecycle_manifest_sha256": null,
+  "quota_proof_sha256": null,
+  "interpreter": {"path": "/REPLACE_WITH_PINNED_INSTALLED_PYTHON", "bytes": null, "sha256": null},
+  "installed_tools": {
+    "mke2fs": {"path": "/REPLACE_WITH_PINNED_INSTALLED_MKE2FS", "bytes": null, "sha256": null},
+    "mount": {"path": "/REPLACE_WITH_PINNED_INSTALLED_MOUNT", "bytes": null, "sha256": null},
+    "umount": {"path": "/REPLACE_WITH_PINNED_INSTALLED_UMOUNT", "bytes": null, "sha256": null}
+  },
+  "fresh_global_inventory_sha256": null,
+  "baseline_excluding_reserve_bytes": null,
+  "other_growth_bytes": null,
+  "global_reserve_bytes": 2000000000,
+  "reserved_job_bytes": 1493172224,
+  "reserved_job_entries": 20608,
+  "image_capacity_bytes": 268435456,
+  "neutral_copy_equivalents": 4,
+  "raw_image_copy_equivalents": 2,
+  "control_overhead_bytes": 16777216,
+  "all_attributable_allocations_admitted": false,
+  "no_other_heavy_process": false,
+  "template_note": "REFUSING TEMPLATE. Preparation requires reviewed source, actual installed pins, explicit authorization and fresh complete growth admission for a NEW job. Keep the initial context unchanged; use a NEW pinned preparation-format memory context with the actual quota-proof SHA after real quota preparation. Preparation never admits the SPI child."
+}

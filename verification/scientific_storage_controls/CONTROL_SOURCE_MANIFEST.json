@@ -1,0 +1,132 @@
+{
+  "format": "scientific-storage-control-source-v1",
+  "profile": "scientific-storage-synthetic-controls-v1",
+  "status": "SOURCE_ONLY_REQUIRES_INDEPENDENT_FIRST_FINDINGS",
+  "caps": {
+    "manifest_bytes": 65536,
+    "file_bytes": 131072,
+    "selected_bytes": 750000,
+    "selected_files": 21,
+    "module_origins": 15,
+    "tests": 114
+  },
+  "files": {
+    "public/scripts/scientific_storage/scientific_posix_integration.py": {
+      "bytes": 42717,
+      "sha256": "d480e13f84d2672697b625ccac37250b11beac464c192bbea6072a3ab0ebc9b9"
+    },
+    "public/scripts/scientific_storage/run_scientific_posix_integration.py": {
+      "bytes": 13295,
+      "sha256": "58d722f0ad001c6eaf0884df8ed29af645b066797898a70c49a3734794629f49"
+    },
+    "public/scripts/scientific_storage/README.md": {
+      "bytes": 3272,
+      "sha256": "b57ef14e5597611527cd029acffab245eb57c7635c8fd79e86e18d300462fd67"
+    },
+    "public/scripts/scientific_storage/BOUNDS.md": {
+      "bytes": 4515,
+      "sha256": "4ac13d8b70ffb8a660649db79dcc475cf7224bc401eec3b60f71f09aebf5ef42"
+    },
+    "public/scripts/scientific_storage/ADMISSION.template.json": {
+      "bytes": 1575,
+      "sha256": "b2fbef8e04364b7270533d2a34c7de905b45b2ba263ba2d7fa4e0a41f8bf76ff"
+    },
+    "public/scripts/scientific_storage/scientific_capture_protocol.py": {
+      "bytes": 19372,
+      "sha256": "7d89400cc9a0856583d3a57dad7631e4bbef9adebf40defccb4ba8248be794a2"
+    },
+    "public/scripts/scientific_storage/scientific_raw_reference_v2.py": {
+      "bytes": 50655,
+      "sha256": "d84c026b95db1271cc5cdf2e10423ed8b13cadfcb0c40cd9e3be897bdf47c836"
+    },
+    "public/scripts/scientific_storage/scientific_execution_registry.py": {
+      "bytes": 55442,
+      "sha256": "f8e88bc29903695483a20053b1eb7e6132c3b071ff8bf5a0cffb63f0d0b2a1b4"
+    },
+    "public/scripts/scientific_storage/scientific_registry_publication.py": {
+      "bytes": 24724,
+      "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+    },
+    "public/scripts/scientific_storage/scientific_registry_transport.py": {
+      "bytes": 15603,
+      "sha256": "a173d4d33c30ae93180981ca44cda2e4324a416f1a92b5486c0ebee2393d7cba"
+    },
+    "public/scripts/scientific_storage/scientific_analyzer_adapter.py": {
+      "bytes": 15762,
+      "sha256": "71161c80f10adb4091687ee29c4dc4ce0af6aeaf743e5fddaea2dfabe7733d36"
+    },
+    "public/scripts/scientific_storage/raw_member_store.py": {
+      "bytes": 41122,
+      "sha256": "69b02ddbef15733cab8cd0712350cad516b3aa584751800ccb7645cd67aea292"
+    },
+    "public/verification/scientific_storage_controls/test_dependency_release_pure.py": {
+      "bytes": 18138,
+      "sha256": "7b31aefabb876f80f979ad431857e622549365d834abcef1155148031b1775d9"
+    },
+    "public/verification/scientific_storage_controls/test_fd_ownership_paths.py": {
+      "bytes": 22053,
+      "sha256": "015e8b0b76fb9b1291f4cb8e18f2d5dc8359a7d9121e0acf068f6dc855e497a9"
+    },
+    "public/verification/scientific_storage_controls/test_scientific_execution_registry.py": {
+      "bytes": 56604,
+      "sha256": "af80fd4cd2dc4d70e525aab5b2cb824a7884a2a469a364717edee8bbc650f7d0"
+    },
+    "public/verification/scientific_storage_controls/test_scientific_analyzer_adapter.py": {
+      "bytes": 17346,
+      "sha256": "eaa94614936c84cd3acca60ae5f9834e42655ac09fd71f72b3d56aa3cd58f7d4"
+    },
+    "public/verification/scientific_storage_controls/test_scientific_reference_analysis.py": {
+      "bytes": 12117,
+      "sha256": "001ef099b749ee725e25875826b44fd95e837051c1a6ce8b48799247338013c1"
+    },
+    "public/verification/scientific_storage_controls/scientific_reference_analysis.py": {
+      "bytes": 19715,
+      "sha256": "d5efa4c039b5244ddc0a953f3417b0c3c0b6a866161020d02fd202cf8e97db83"
+    },
+    "public/verification/scientific_storage_controls/run_controls.py": {
+      "bytes": 20672,
+      "sha256": "0af2e1813a0c7c83330f48e3e16b2e11f2c73306ac46591f4e45cafe5fb1f1f0"
+    },
+    "public/scripts/scientific_storage/POSIX_SOURCE_MANIFEST.json": {
+      "bytes": 4300,
+      "sha256": "6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271"
+    },
+    "public/scripts/analyze_reference.py": {
+      "bytes": 26601,
+      "sha256": "ab6f22f6d52766c82b54d6b6485fc09e8a38b60c9afda47c61cbf1e907e0fede"
+    }
+  },
+  "module_origins": {
+    "scientific_capture_protocol": "public/scripts/scientific_storage/scientific_capture_protocol.py",
+    "raw_member_store": "public/scripts/scientific_storage/raw_member_store.py",
+    "scientific_raw_reference_v2": "public/scripts/scientific_storage/scientific_raw_reference_v2.py",
+    "scientific_execution_registry": "public/scripts/scientific_storage/scientific_execution_registry.py",
+    "scientific_registry_publication": "public/scripts/scientific_storage/scientific_registry_publication.py",
+    "scientific_registry_transport": "public/scripts/scientific_storage/scientific_registry_transport.py",
+    "scientific_analyzer_adapter": "public/scripts/scientific_storage/scientific_analyzer_adapter.py",
+    "run_scientific_posix_integration": "public/scripts/scientific_storage/run_scientific_posix_integration.py",
+    "analyze_reference": "public/scripts/analyze_reference.py",
+    "scientific_reference_analysis": "public/verification/scientific_storage_controls/scientific_reference_analysis.py",
+    "test_dependency_release_pure": "public/verification/scientific_storage_controls/test_dependency_release_pure.py",
+    "test_fd_ownership_paths": "public/verification/scientific_storage_controls/test_fd_ownership_paths.py",
+    "test_scientific_execution_registry": "public/verification/scientific_storage_controls/test_scientific_execution_registry.py",
+    "test_scientific_analyzer_adapter": "public/verification/scientific_storage_controls/test_scientific_analyzer_adapter.py",
+    "test_scientific_reference_analysis": "public/verification/scientific_storage_controls/test_scientific_reference_analysis.py"
+  },
+  "suites": {
+    "test_dependency_release_pure": 17,
+    "test_fd_ownership_paths": 20,
+    "test_scientific_execution_registry": 41,
+    "test_scientific_analyzer_adapter": 21,
+    "test_scientific_reference_analysis": 15
+  },
+  "expected_tests": 114,
+  "required_skips": 0,
+  "historical_go_source_context_sha256": "0444490f17abd4b9e74def5f36046a2fa9c58b9306a0f658b8a3dbf4fed6b0fa",
+  "scope": "Synthetic/fake-descriptor controls only; no POSIX, native Go, quota, RAM, custody, full-matrix or release qualification.",
+  "exclusions": {
+    "self": "CONTROL_SOURCE_MANIFEST.json; caller supplies its exact trusted external SHA256.",
+    "documentation": "README.md; documents that digest without a self-hash cycle.",
+    "historical_startup_controls": "Four historical startup/local controls are outside this 114-test runner."
+  }
+}

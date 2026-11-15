@@ -1,0 +1,218 @@
+{
+  "format": "scientific-storage-prepublication-controls-v1",
+  "status": "HISTORICAL_PREPUBLICATION_PROTOTYPE_CHECKS",
+  "scope": "Actual prepublication local synthetic/fake-descriptor and startup checks. Historical module hashes remain the originally measured bytes. Sixteen selected copies stay byte-exact; two EOF-only public derivations are recorded separately. These are not current-checkout qualification or execution of the new public launcher.",
+  "historical_go_source_context_sha256": "0444490f17abd4b9e74def5f36046a2fa9c58b9306a0f658b8a3dbf4fed6b0fa",
+  "historical_total_tests": 118,
+  "historical_total_skips": 0,
+  "public_control_runner_expected_tests": 114,
+  "public_control_runner_status": "NOT RUN; requires independent first findings and fresh bounded execution",
+  "historical_four_control_scope": "Two real native Python startup-isolation controls and two fake-descriptor local controls. Their original test file is not exported and is not part of the public 114.",
+  "runs": [
+    {
+      "run_id": "20261114T212459Z-259dbb98b2",
+      "status": "PASS",
+      "actual_tests": 37,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pinned_rows_count": 9,
+      "curated_module_count": 9,
+      "module_hashes": {
+        "public/scripts/scientific_storage/scientific_capture_protocol.py": {
+          "bytes": 19372,
+          "sha256": "7d89400cc9a0856583d3a57dad7631e4bbef9adebf40defccb4ba8248be794a2"
+        },
+        "public/scripts/scientific_storage/raw_member_store.py": {
+          "bytes": 41122,
+          "sha256": "69b02ddbef15733cab8cd0712350cad516b3aa584751800ccb7645cd67aea292"
+        },
+        "public/scripts/scientific_storage/scientific_raw_reference_v2.py": {
+          "bytes": 50657,
+          "sha256": "7b41530cf9c6ab357518149832d6f5f341901a9fc7de96b35ffc6a3578a5a95f"
+        },
+        "public/scripts/scientific_storage/scientific_execution_registry.py": {
+          "bytes": 55442,
+          "sha256": "f8e88bc29903695483a20053b1eb7e6132c3b071ff8bf5a0cffb63f0d0b2a1b4"
+        },
+        "public/scripts/scientific_storage/scientific_registry_publication.py": {
+          "bytes": 24724,
+          "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+        },
+        "public/scripts/scientific_storage/scientific_registry_transport.py": {
+          "bytes": 15603,
+          "sha256": "a173d4d33c30ae93180981ca44cda2e4324a416f1a92b5486c0ebee2393d7cba"
+        },
+        "public/scripts/scientific_storage/run_scientific_posix_integration.py": {
+          "bytes": 13295,
+          "sha256": "58d722f0ad001c6eaf0884df8ed29af645b066797898a70c49a3734794629f49"
+        },
+        "public/verification/scientific_storage_controls/test_dependency_release_pure.py": {
+          "bytes": 18138,
+          "sha256": "7b31aefabb876f80f979ad431857e622549365d834abcef1155148031b1775d9"
+        },
+        "public/verification/scientific_storage_controls/test_fd_ownership_paths.py": {
+          "bytes": 22053,
+          "sha256": "015e8b0b76fb9b1291f4cb8e18f2d5dc8359a7d9121e0acf068f6dc855e497a9"
+        }
+      },
+      "stream_digests": {
+        "stdout_sha256": "34958c5744261064cfcf0f1e4f5418c315c5a354606ba4f9e38a219712aceb14",
+        "stderr_sha256": "16c9314088bf6347060837cfbc3f3eacb2e0c8034f935bb1fe329d7b4daa79b6"
+      }
+    },
+    {
+      "run_id": "20261114T212608Z-d5a3e25133",
+      "status": "PASS",
+      "actual_tests": 77,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pinned_rows_count": 12,
+      "curated_module_count": 12,
+      "module_hashes": {
+        "public/scripts/scientific_storage/scientific_capture_protocol.py": {
+          "bytes": 19372,
+          "sha256": "7d89400cc9a0856583d3a57dad7631e4bbef9adebf40defccb4ba8248be794a2"
+        },
+        "public/scripts/scientific_storage/raw_member_store.py": {
+          "bytes": 41122,
+          "sha256": "69b02ddbef15733cab8cd0712350cad516b3aa584751800ccb7645cd67aea292"
+        },
+        "public/scripts/scientific_storage/scientific_raw_reference_v2.py": {
+          "bytes": 50657,
+          "sha256": "7b41530cf9c6ab357518149832d6f5f341901a9fc7de96b35ffc6a3578a5a95f"
+        },
+        "public/scripts/scientific_storage/scientific_execution_registry.py": {
+          "bytes": 55442,
+          "sha256": "f8e88bc29903695483a20053b1eb7e6132c3b071ff8bf5a0cffb63f0d0b2a1b4"
+        },
+        "public/scripts/scientific_storage/scientific_registry_publication.py": {
+          "bytes": 24724,
+          "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+        },
+        "public/scripts/scientific_storage/scientific_registry_transport.py": {
+          "bytes": 15603,
+          "sha256": "a173d4d33c30ae93180981ca44cda2e4324a416f1a92b5486c0ebee2393d7cba"
+        },
+        "public/verification/scientific_storage_controls/test_scientific_execution_registry.py": {
+          "bytes": 56604,
+          "sha256": "af80fd4cd2dc4d70e525aab5b2cb824a7884a2a469a364717edee8bbc650f7d0"
+        },
+        "public/scripts/scientific_storage/scientific_analyzer_adapter.py": {
+          "bytes": 15762,
+          "sha256": "71161c80f10adb4091687ee29c4dc4ce0af6aeaf743e5fddaea2dfabe7733d36"
+        },
+        "public/verification/scientific_storage_controls/test_scientific_analyzer_adapter.py": {
+          "bytes": 17346,
+          "sha256": "eaa94614936c84cd3acca60ae5f9834e42655ac09fd71f72b3d56aa3cd58f7d4"
+        },
+        "public/scripts/analyze_reference.py": {
+          "bytes": 26601,
+          "sha256": "ab6f22f6d52766c82b54d6b6485fc09e8a38b60c9afda47c61cbf1e907e0fede"
+        },
+        "public/verification/scientific_storage_controls/scientific_reference_analysis.py": {
+          "bytes": 19716,
+          "sha256": "fed7c5092a47791c562ce115b6a22e16633d4399b1461b7d2db9af648ccaa1cb"
+        },
+        "public/verification/scientific_storage_controls/test_scientific_reference_analysis.py": {
+          "bytes": 12117,
+          "sha256": "001ef099b749ee725e25875826b44fd95e837051c1a6ce8b48799247338013c1"
+        }
+      },
+      "stream_digests": {
+        "stdout_sha256": "56ab8260b3cd1355e4db85c057fc9a898d03c1771684db5f3e1a95f8b3feb10e",
+        "stderr_sha256": "4dc7ccbd6e2d22c863d54ea0ebc5ebdcc45bb5da2ad719c96a4574bc92903fdd"
+      }
+    },
+    {
+      "run_id": "20261114T213107Z-1b5614d349",
+      "status": "PASS",
+      "actual_tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skips": 0,
+      "pinned_rows_count": 14,
+      "curated_module_count": 9,
+      "module_hashes": {
+        "public/scripts/scientific_storage/scientific_posix_integration.py": {
+          "bytes": 42717,
+          "sha256": "d480e13f84d2672697b625ccac37250b11beac464c192bbea6072a3ab0ebc9b9"
+        },
+        "public/scripts/scientific_storage/run_scientific_posix_integration.py": {
+          "bytes": 13295,
+          "sha256": "58d722f0ad001c6eaf0884df8ed29af645b066797898a70c49a3734794629f49"
+        },
+        "public/scripts/scientific_storage/scientific_capture_protocol.py": {
+          "bytes": 19372,
+          "sha256": "7d89400cc9a0856583d3a57dad7631e4bbef9adebf40defccb4ba8248be794a2"
+        },
+        "public/scripts/scientific_storage/scientific_raw_reference_v2.py": {
+          "bytes": 50657,
+          "sha256": "7b41530cf9c6ab357518149832d6f5f341901a9fc7de96b35ffc6a3578a5a95f"
+        },
+        "public/scripts/scientific_storage/scientific_execution_registry.py": {
+          "bytes": 55442,
+          "sha256": "f8e88bc29903695483a20053b1eb7e6132c3b071ff8bf5a0cffb63f0d0b2a1b4"
+        },
+        "public/scripts/scientific_storage/scientific_registry_publication.py": {
+          "bytes": 24724,
+          "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+        },
+        "public/scripts/scientific_storage/scientific_registry_transport.py": {
+          "bytes": 15603,
+          "sha256": "a173d4d33c30ae93180981ca44cda2e4324a416f1a92b5486c0ebee2393d7cba"
+        },
+        "public/scripts/scientific_storage/scientific_analyzer_adapter.py": {
+          "bytes": 15762,
+          "sha256": "71161c80f10adb4091687ee29c4dc4ce0af6aeaf743e5fddaea2dfabe7733d36"
+        },
+        "public/scripts/scientific_storage/raw_member_store.py": {
+          "bytes": 41122,
+          "sha256": "69b02ddbef15733cab8cd0712350cad516b3aa584751800ccb7645cd67aea292"
+        }
+      },
+      "stream_digests": {
+        "stdout_sha256": "6a650982c9ccf6487bd52a044a202f34c54d02c57fd0b81804c040a9d7e6d2cc",
+        "stderr_sha256": "39bc8e5effe86b6d2abe96003467fd12fbe0f1c5eb763b7bbc217a7859c0585d"
+      }
+    }
+  ],
+  "not_run": [
+    "Actual POSIX integration",
+    "Actual disk quota and child RAM enforcement",
+    "Actual complete transport custody",
+    "Native Go scientific collector/analyzer wiring",
+    "Full 5400-cell, 5.4-million-sample matrix separately for each of readers 1, 4, 16",
+    "Reference-host and release qualification"
+  ],
+  "curation": "Only selected counts, run identifiers, statuses, module-byte pins and verified stream digests are exported. Raw paths, commands, environment values and raw streams are excluded. Unmapped historical document/test pins are counted but are not relabeled as current public files.",
+  "curation_derivations": {
+    "public/scripts/scientific_storage/scientific_raw_reference_v2.py": {
+      "historical_module": {
+        "bytes": 50657,
+        "sha256": "7b41530cf9c6ab357518149832d6f5f341901a9fc7de96b35ffc6a3578a5a95f"
+      },
+      "curated_module": {
+        "bytes": 50655,
+        "sha256": "d84c026b95db1271cc5cdf2e10423ed8b13cadfcb0c40cd9e3be897bdf47c836"
+      },
+      "transformation": "Remove terminal empty LF lines only; every preceding byte remains unchanged.",
+      "removed_terminal_lf_bytes": 2
+    },
+    "public/verification/scientific_storage_controls/scientific_reference_analysis.py": {
+      "historical_module": {
+        "bytes": 19716,
+        "sha256": "fed7c5092a47791c562ce115b6a22e16633d4399b1461b7d2db9af648ccaa1cb"
+      },
+      "curated_module": {
+        "bytes": 19715,
+        "sha256": "d5efa4c039b5244ddc0a953f3417b0c3c0b6a866161020d02fd202cf8e97db83"
+      },
+      "transformation": "Remove terminal empty LF lines only; every preceding byte remains unchanged.",
+      "removed_terminal_lf_bytes": 1
+    }
+  },
+  "exact_copy_count": 16,
+  "terminal_newline_only_derivation_count": 2
+}

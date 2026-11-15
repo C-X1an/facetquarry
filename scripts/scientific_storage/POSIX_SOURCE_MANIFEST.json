@@ -1,0 +1,100 @@
+{
+  "format": "scientific-posix-source-packet-v1",
+  "packet_revision": 2,
+  "status": "SOURCE_ONLY_REQUIRES_INDEPENDENT_FIRST_FINDINGS",
+  "profile": "scientific-posix-integration-retain-all-v2",
+  "historical_go_source_context": {
+    "sha256": "0444490f17abd4b9e74def5f36046a2fa9c58b9306a0f658b8a3dbf4fed6b0fa",
+    "scope": "Historical base Go/source context only; not the identity of the current public checkout. Source curation changes the working technical source."
+  },
+  "packet_files": [
+    {
+      "name": "scientific_posix_integration.py",
+      "origin": "public/scripts/scientific_storage/scientific_posix_integration.py",
+      "bytes": 42717,
+      "sha256": "d480e13f84d2672697b625ccac37250b11beac464c192bbea6072a3ab0ebc9b9"
+    },
+    {
+      "name": "run_scientific_posix_integration.py",
+      "origin": "public/scripts/scientific_storage/run_scientific_posix_integration.py",
+      "bytes": 13295,
+      "sha256": "58d722f0ad001c6eaf0884df8ed29af645b066797898a70c49a3734794629f49"
+    },
+    {
+      "name": "README.md",
+      "origin": "public/scripts/scientific_storage/README.md",
+      "bytes": 3272,
+      "sha256": "b57ef14e5597611527cd029acffab245eb57c7635c8fd79e86e18d300462fd67"
+    },
+    {
+      "name": "BOUNDS.md",
+      "origin": "public/scripts/scientific_storage/BOUNDS.md",
+      "bytes": 4515,
+      "sha256": "4ac13d8b70ffb8a660649db79dcc475cf7224bc401eec3b60f71f09aebf5ef42"
+    },
+    {
+      "name": "ADMISSION.template.json",
+      "origin": "public/scripts/scientific_storage/ADMISSION.template.json",
+      "bytes": 1575,
+      "sha256": "b2fbef8e04364b7270533d2a34c7de905b45b2ba263ba2d7fa4e0a41f8bf76ff"
+    },
+    {
+      "name": "scientific_capture_protocol.py",
+      "origin": "public/scripts/scientific_storage/scientific_capture_protocol.py",
+      "bytes": 19372,
+      "sha256": "7d89400cc9a0856583d3a57dad7631e4bbef9adebf40defccb4ba8248be794a2"
+    },
+    {
+      "name": "scientific_raw_reference_v2.py",
+      "origin": "public/scripts/scientific_storage/scientific_raw_reference_v2.py",
+      "bytes": 50655,
+      "sha256": "d84c026b95db1271cc5cdf2e10423ed8b13cadfcb0c40cd9e3be897bdf47c836"
+    },
+    {
+      "name": "scientific_execution_registry.py",
+      "origin": "public/scripts/scientific_storage/scientific_execution_registry.py",
+      "bytes": 55442,
+      "sha256": "f8e88bc29903695483a20053b1eb7e6132c3b071ff8bf5a0cffb63f0d0b2a1b4"
+    },
+    {
+      "name": "scientific_registry_publication.py",
+      "origin": "public/scripts/scientific_storage/scientific_registry_publication.py",
+      "bytes": 24724,
+      "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+    },
+    {
+      "name": "scientific_registry_transport.py",
+      "origin": "public/scripts/scientific_storage/scientific_registry_transport.py",
+      "bytes": 15603,
+      "sha256": "a173d4d33c30ae93180981ca44cda2e4324a416f1a92b5486c0ebee2393d7cba"
+    },
+    {
+      "name": "scientific_analyzer_adapter.py",
+      "origin": "public/scripts/scientific_storage/scientific_analyzer_adapter.py",
+      "bytes": 15762,
+      "sha256": "71161c80f10adb4091687ee29c4dc4ce0af6aeaf743e5fddaea2dfabe7733d36"
+    },
+    {
+      "name": "raw_member_store.py",
+      "origin": "public/scripts/scientific_storage/raw_member_store.py",
+      "bytes": 41122,
+      "sha256": "69b02ddbef15733cab8cd0712350cad516b3aa584751800ccb7645cd67aea292"
+    }
+  ],
+  "local_controls": {
+    "fd": 37,
+    "science_synthetic": 77,
+    "startup_and_local": 4,
+    "skips": 0,
+    "scope": "Historical prepublication prototype checks of exact module bytes, not qualification of the current public checkout or the new public control runner."
+  },
+  "actual_posix_suite": "NOT RUN",
+  "actual_disk_and_memory_enforcement": "NOT RUN",
+  "actual_custody": "NOT RUN",
+  "actual_native_go_integration": "NOT RUN",
+  "actual_full_5400_cell_matrices_readers_1_4_16": "NOT RUN",
+  "runtime_admission": "NONE; the template refuses and a source manifest grants no execution",
+  "lifecycle": "Separate source candidate; not included in this packet",
+  "publication": "Public-safe source curation only; new public runner NOT RUN pending independent first findings",
+  "self_hash": "EXCLUDED; the exact manifest SHA256 is a trusted external input, with no self-hash cycle"
+}
