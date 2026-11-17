@@ -1,0 +1,208 @@
+name: Bounded scientific POSIX proof
+
+on:
+  push:
+    branches: [scientific-posix-proof-20261115]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reference-evidence
+  cancel-in-progress: false
+
+jobs:
+  original22:
+    if: ${{ github.ref == 'refs/heads/scientific-posix-proof-20261115' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      # Root must replace both after independent review and fresh admission,
+      # before the single authorized push of the previously absent branch.
+      FQ_JOB_SOURCE_SHA256: 'c34cce5dc2e9d8803c48b6e2d1abffc08fa98b269cb8e73818d2c4d02bddff75'
+      FQ_ADMISSION_SHA256: '4ed9650d73af3ce9f9728a5d37d4d09953d1ed0be024ec2fdea37f7e237793e4'
+    steps:
+      - name: Checkout the exact new branch commit without stored credentials
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+          lfs: false
+          submodules: false
+
+      - name: Prepare always-small fixed source and incomplete-custody fallback
+        id: fallback
+        if: ${{ always() }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          /usr/bin/env -i LANG=C.UTF-8 LC_ALL=C.UTF-8 TZ=UTC /usr/bin/python3.12 -I -S -B -c '
+          import hashlib,json,os,pathlib,re,resource,stat,sys
+          for kind,value in ((resource.RLIMIT_AS,536870912),(resource.RLIMIT_CORE,0),
+                             (resource.RLIMIT_FSIZE,1048576),(resource.RLIMIT_NOFILE,64)):
+              resource.setrlimit(kind,(value,value))
+          resource.setrlimit(resource.RLIMIT_CPU,(50,51))
+          uid,gid=os.geteuid(),os.getegid()
+          def need(ok):
+              if not ok: raise RuntimeError("REFUSE_UNSAFE_OR_UNBOUNDED_FALLBACK")
+          def safe(text):
+              value=pathlib.Path(text)
+              need(value.is_absolute() and ".." not in value.parts and len(value.parts)<=32 and
+                   re.fullmatch("/[A-Za-z0-9_./-]{1,1000}",str(value)) and
+                   all(len(part)<=64 for part in value.parts[1:]))
+              return value
+          def chain(value):
+              for parent in reversed([value]+list(value.parents)[:-1]):
+                  info=parent.lstat()
+                  need(stat.S_ISDIR(info.st_mode) and info.st_uid in (0,uid) and info.st_mode&0o022==0)
+          def stable_signature(info):
+              return (info.st_dev,info.st_ino,info.st_mode,info.st_uid,info.st_gid,
+                      info.st_nlink,info.st_size,info.st_mtime_ns,info.st_ctime_ns)
+          def write(target,raw):
+              fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600)
+              try:
+                  view=memoryview(raw)
+                  while view:
+                      count=os.write(fd,view);need(count>0);view=view[count:]
+                  os.fsync(fd)
+              finally: os.close(fd)
+          workspace,temporary,output=map(safe,sys.argv[1:4])
+          run,attempt=sys.argv[4:6]
+          need(uid>0 and gid>0 and re.fullmatch("[0-9]{1,24}",run) and re.fullmatch("[0-9]{1,8}",attempt))
+          chain(temporary)
+          folder=temporary/("fq-posix-fallback-"+run+"-"+attempt)
+          os.mkdir(folder,0o700)
+          sources=[("scripts/run_scientific_lifecycle_job.py","driver.txt",80000),
+                   (".github/workflows/scientific-posix-proof.yml","workflow.txt",24000),
+                   ("SCIENTIFIC_POSIX_PROOF.md","proof.txt",24000),
+                   ("verification/scientific-posix-proof-admission-20261115.json","admission.txt",8192)]
+          rows,paths,source_bytes=[],[],0
+          for relative,name,maximum in sources:
+              row={"source":relative,"copy":name,"custody":"INCOMPLETE"};rows.append(row)
+              target=folder/name
+              try:
+                  source=safe(str(workspace/relative));chain(source.parent)
+                  before=source.lstat()
+                  need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_size<=maximum)
+                  fd=os.open(source,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
+                  try:
+                      need(stable_signature(os.fstat(fd))==stable_signature(before))
+                      with os.fdopen(fd,"rb",closefd=False) as stream: raw=stream.read(maximum+1)
+                      need(len(raw)==before.st_size and stable_signature(os.fstat(fd))==stable_signature(before) and
+                           stable_signature(source.lstat())==stable_signature(before))
+                  finally: os.close(fd)
+                  if name!="admission.txt":
+                      source_bytes+=len(raw);need(source_bytes<=100000)
+                  write(target,raw)
+                  row.update(custody="BOUNDED_SOURCE_DATA_ONLY",bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+              except BaseException as error:
+                  row.update(error=type(error).__name__,message=str(error)[:256],
+                             missing_unreadable_or_omitted_bytes="UNKNOWN_INCOMPLETE")
+              try:
+                  info=target.lstat()
+                  need(stat.S_ISREG(info.st_mode) and info.st_nlink==1 and info.st_uid==uid and
+                       info.st_gid==gid and info.st_mode&0o077==0 and info.st_size<=maximum)
+                  with open(target,"rb") as stream: need(len(stream.read(maximum+1))==info.st_size)
+                  paths.append(str(target))
+              except FileNotFoundError: pass
+          report={"format":"scientific-posix-proof-fixed-fallback-v1","custody":"INCOMPLETE",
+                  "run_id":run,"run_attempt":attempt,"sources":rows,"cloud_native_custody":"NOT_VERIFIED",
+                  "if_selected_without_admitted_payload":"ALL_NAMESPACE_IMAGE_CONTROL_LOG_SOURCE_PREFIX_BYTES_OMITTED_UNKNOWN",
+                  "recovery_outcome":"See appended bounded status and actual workflow logs; no success inferred."}
+          raw=(json.dumps(report,sort_keys=True,ensure_ascii=True)+"\n").encode("ascii")
+          need(len(raw)<=4096);write(folder/"status.jsonl",raw);paths.append(str(folder/"status.jsonl"))
+          need(sum(pathlib.Path(value).stat().st_size for value in paths)<=100000+2*8192)
+          need(output.parent==temporary/"_runner_file_commands" and
+               re.fullmatch("set_output_[A-Za-z0-9_-]{1,80}",output.name));chain(output.parent)
+          before=output.lstat()
+          data=("paths<<FQ_FIXED_FALLBACK_END\n"+"\n".join(paths)+"\nFQ_FIXED_FALLBACK_END\n").encode("ascii")
+          need(stat.S_ISREG(before.st_mode) and before.st_nlink==1 and before.st_uid==uid and
+               before.st_gid==gid and before.st_mode&0o022==0 and before.st_size+len(data)<=262144)
+          fd=os.open(output,os.O_WRONLY|os.O_APPEND|os.O_NOFOLLOW|os.O_CLOEXEC)
+          try:
+              need(os.fstat(fd)==before)
+              view=memoryview(data)
+              while view:
+                  count=os.write(fd,view);need(count>0);view=view[count:]
+              os.fsync(fd)
+          finally: os.close(fd)
+          ' "$GITHUB_WORKSPACE" "$RUNNER_TEMP" "$GITHUB_OUTPUT" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
+
+      - name: Run the admitted original22 proof through existing evidence
+        timeout-minutes: 14
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          fq_proof_uid="$(/usr/bin/id -u)"
+          fq_proof_gid="$(/usr/bin/id -g)"
+          /usr/bin/sudo -n -- /usr/bin/env -i LANG=C.UTF-8 LC_ALL=C.UTF-8 TZ=UTC /usr/bin/python3.12 -I -S -B -c '
+          import hashlib,pathlib,re,runpy,sys
+          root=pathlib.Path(sys.argv[1]); expected=sys.argv[2]
+          if not re.fullmatch("[0-9a-f]{64}",expected) or expected=="0"*64:
+              raise SystemExit("REFUSE_UNADMITTED_JOB_SOURCE_DIGEST")
+          target=root/"scripts/run_scientific_lifecycle_job.py"
+          raw=target.read_bytes()
+          if target.is_symlink() or len(raw)>80000 or hashlib.sha256(raw).hexdigest()!=expected:
+              raise SystemExit("REFUSE_JOB_SOURCE_PIN")
+          values=sys.argv[1:]
+          sys.argv=[str(target),"bootstrap","--workspace",values[0],"--job-sha256",values[1],
+              "--admission-sha256",values[2],"--runner-temp",values[3],"--owner-uid",values[4],
+              "--owner-gid",values[5],"--run-id",values[6],"--run-attempt",values[7],
+              "--ref",values[8],"--commit",values[9]]
+          runpy.run_path(str(target),run_name="__main__")
+          ' "$GITHUB_WORKSPACE" "$FQ_JOB_SOURCE_SHA256" "$FQ_ADMISSION_SHA256" "$RUNNER_TEMP" "$fq_proof_uid" "$fq_proof_gid" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_REF" "$GITHUB_SHA"
+
+      - name: Always recover and admit exact safe upload files independent of test success
+        id: custody
+        if: ${{ always() }}
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          fq_proof_uid="$(/usr/bin/id -u)"
+          fq_proof_gid="$(/usr/bin/id -g)"
+          fq_driver=(/usr/bin/env -i LANG=C.UTF-8 LC_ALL=C.UTF-8 TZ=UTC /usr/bin/python3.12 -I -S -B -c '
+          import hashlib,pathlib,re,runpy,sys
+          root=pathlib.Path(sys.argv[1]); expected=sys.argv[2]
+          if not re.fullmatch("[0-9a-f]{64}",expected) or expected=="0"*64:
+              raise SystemExit("REFUSE_UNADMITTED_RECOVERY_SOURCE")
+          target=root/"scripts/run_scientific_lifecycle_job.py";raw=target.read_bytes()
+          if target.is_symlink() or len(raw)>80000 or hashlib.sha256(raw).hexdigest()!=expected:
+              raise SystemExit("REFUSE_RECOVERY_SOURCE_PIN")
+          sys.argv=[str(target)]+sys.argv[3:]
+          runpy.run_path(str(target),run_name="__main__")
+          ' "$GITHUB_WORKSPACE" "$FQ_JOB_SOURCE_SHA256")
+          fq_arguments=(--workspace "$GITHUB_WORKSPACE" --job-sha256 "$FQ_JOB_SOURCE_SHA256"
+            --admission-sha256 "$FQ_ADMISSION_SHA256" --runner-temp "$RUNNER_TEMP"
+            --owner-uid "$fq_proof_uid" --owner-gid "$fq_proof_gid"
+            --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT" --ref "$GITHUB_REF" --commit "$GITHUB_SHA"
+            --container "/srv/fq-posix-proof-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT")
+          if /usr/bin/sudo -n -- "${fq_driver[@]}" recover "${fq_arguments[@]}"; then
+            fq_recovery_rc=0
+          else
+            fq_recovery_rc=$?
+          fi
+          # Exit 10 admits every safe available failure byte; it is not a test-success selector.
+          if [[ "$fq_recovery_rc" == 0 || "$fq_recovery_rc" == 10 ]]; then
+            "${fq_driver[@]}" emit-upload "${fq_arguments[@]}" --output-file "$GITHUB_OUTPUT"
+          fi
+          exit "$fq_recovery_rc"
+
+      - name: Always upload admitted exact files or the fixed incomplete-custody fallback
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        timeout-minutes: 3
+        with:
+          name: scientific-posix-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 1
+          compression-level: 0
+          include-hidden-files: true
+          if-no-files-found: error
+          path: ${{ steps.custody.outputs.paths || steps.fallback.outputs.paths }}

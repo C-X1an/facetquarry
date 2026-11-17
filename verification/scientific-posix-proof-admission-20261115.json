@@ -1,0 +1,23 @@
+{
+  "format": "scientific-posix-proof-job-admission-v1",
+  "status": "AUTHORIZED_REVIEWED_ORIGINAL22_ONLY",
+  "branch": "refs/heads/scientific-posix-proof-20261115",
+  "attempt_id": "linux22-reviewed-r4-20261117t095924z",
+  "created_unix_seconds": 1794909564,
+  "expires_unix_seconds": 1794931164,
+  "baseline_including_reserve_bytes": 9600000000,
+  "global_reserve_bytes": 2000000000,
+  "fresh_inventory_sha256": "13bcfa1b299b1be5490bf5f50fbef312876a993fa8dacee67eb4f46c5b97fefb",
+  "base_lifecycle_bytes": 1493172224,
+  "connector_bytes": 536870912,
+  "supplement_bytes": 67108864,
+  "other_growth_bytes": 603979776,
+  "no_other_heavy_process": true,
+  "independent_review_closed": true,
+  "source_pins": {
+    "job_script_sha256": "c34cce5dc2e9d8803c48b6e2d1abffc08fa98b269cb8e73818d2c4d02bddff75",
+    "lifecycle_manifest_sha256": "6b60f65bbbda7ad077a50e141fd5d6f88bf49ee67e7bdd4ca3b342cd57386604",
+    "evidence_sha256": "f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469",
+    "common_sha256": "15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf"
+  }
+}
