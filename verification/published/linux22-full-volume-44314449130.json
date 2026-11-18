@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "evidence_type": "actual_linux_original22_and_archive_readback",
+  "run": {
+    "url": "https://github.com/C-X1an/facetquarry/actions/runs/44314449130",
+    "id": 44314449130,
+    "attempt": 1,
+    "job_id": 134836758168,
+    "commit": "c3d59885295435c071faa1f460a45a7d8039ae2a",
+    "technical_source": "e7687d63e6d352503ab7f692b09a67f825195ce1adcd38b4b3142c2b9d24b653"
+  },
+  "quota": {
+    "request_bytes": 268443648,
+    "errno": 28,
+    "before_probe": {
+      "blocks_512": 0,
+      "bytes": 0
+    },
+    "after_probe": {
+      "blocks_512": 0,
+      "bytes": 0
+    },
+    "full_geometry": {
+      "available_bytes": 0,
+      "capacity_bytes": 234594304,
+      "fragment_size_bytes": 4096,
+      "free_bytes": 5365760
+    },
+    "restored_geometry": {
+      "available_bytes": 229199872,
+      "capacity_bytes": 234594304,
+      "fragment_size_bytes": 4096,
+      "free_bytes": 234565632
+    },
+    "planned_scratch_bytes": 229199872,
+    "raw_record_sha256": "8d2b9cef59ec4b0d03c15e0fd957d999508e6b02fca65ce91076e586509a53bd"
+  },
+  "memory": {
+    "owner_uid": 1001,
+    "limits": [
+      536870912,
+      536870912
+    ],
+    "attempted_bytes": 536870913,
+    "exception": "MemoryError",
+    "quiescent": true
+  },
+  "original22": {
+    "tests": 22,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "receipt_sha256": "dbd2d79fb8a8b9fd6554daf9c67991086bd42e5783333fe98fbccf82ba0e3751"
+  },
+  "custody": {
+    "artifact_id": 14431392715,
+    "archive_bytes": 3507267,
+    "archive_sha256": "f9f989265cd712771c16f524bd3b1c4a8aef26747a31fe37adef20a4259ce1d1",
+    "members": 762,
+    "expanded_payload_bytes": 278748009,
+    "exact_committed_source_members": 687,
+    "closed_image_bytes": 268435456,
+    "closed_image_sha256": "2a1c54c00ebf1b130ed58be21a2656d4cea724326999b79680980d2c9c7e2f55",
+    "independent_full_archive_verification": true
+  },
+  "outcome": "PASS_ORIGINAL22_AND_FULL_VOLUME_RESOURCE_PROOF_AND_CUSTODY",
+  "preceding_failed_runs": [
+    44105562806,
+    44270325088
+  ],
+  "scope": "Whole-job pass for one full-volume ext4 resource and 22-control run only. Separate POSIX3, supported Go Linux verify/online, visual, owner and reference benchmark acceptance were unverified by this command.",
+  "release_qualified": false
+}

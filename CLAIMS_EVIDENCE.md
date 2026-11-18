@@ -1,10 +1,16 @@
 # Claims and evidence
 
+## Verified Linux results for commit `c3d5988`
+
+The full-volume resource proof and 22 original controls passed with exact archive custody. The separate Go 1.27.3 Linux job passed verification, race, both fuzz campaigns, clean committed reproduction, and online dependency scanning. Its scanner reported no vulnerabilities. [Original22 evidence](verification/published/linux22-full-volume-44314449130.json), [supported Go evidence](verification/published/supported-go-capacity-44336556192.json)
+
+The full frozen matrix, reference-host recall qualification, and visual and owner gates remain open. Release status is **unqualified**.
+
 ## Actual diagnostic retry on the bounded Linux runner (2026-11-18)
 
 The pinned 268,443,648-byte allocation returned ENOSPC and left 229,199,872 bytes allocated on a previously empty probe. The unchanged zero-retention guard failed. Memory and Original22 did not run. Recovery and independent verification retained all 740 members and the complete 256 MiB closed image. [Machine-bound result](verification/published/linux22-partial-enospc-20261118.json).
 
-The new source keeps the same raw zero-retention checks in a distinct test that starts with zero caller-available space. The Linux outcome is NOT RUN. The observed partly free case remains a failure, and the existing input limits, original tests, frozen benchmark targets and release gates stay in place. [Exact proof scope](SCIENTIFIC_POSIX_PROOF.md).
+The diagnostic run tested the partly free condition and remains a recorded failure. The separately measured full-volume condition began with zero caller-available space. [Exact proof scope](SCIENTIFIC_POSIX_PROOF.md)
 
 
 ## Lossless retained failure and next bounded attempt (2026-11-18)

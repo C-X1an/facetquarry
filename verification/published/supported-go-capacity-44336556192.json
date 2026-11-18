@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "evidence_type": "supported_go_linux_verified_capacity",
+  "run": {
+    "id": 44336556192,
+    "attempt": 1,
+    "job_id": 134914764464,
+    "linux": "amd64",
+    "commit": "c3d59885295435c071faa1f460a45a7d8039ae2a",
+    "technical_source": "e7687d63e6d352503ab7f692b09a67f825195ce1adcd38b4b3142c2b9d24b653",
+    "url": "https://github.com/C-X1an/facetquarry/actions/runs/44336556192"
+  },
+  "status": "PASS_SUPPORTED_GO_CAPACITY_ONLY",
+  "pinned_go": "go1.27.3 linux/amd64",
+  "verify": {
+    "elapsed_seconds": 324.695,
+    "race_packages_passed": 4,
+    "main_neutral": {
+      "tests": 796,
+      "passes": 786,
+      "skips": 10
+    },
+    "fresh_checkout_neutral": {
+      "tests": 796,
+      "passes": 786,
+      "skips": 10
+    },
+    "separate_actual_host_control": {
+      "passes_per_checkout": 1,
+      "skips_per_checkout": 0
+    },
+    "independent_oracle_cases": 1000,
+    "actual_cli_commands": 2000,
+    "engine_mutations": 4,
+    "integrity_lock_mutations": 2
+  },
+  "fresh_reproduction": {
+    "elapsed_seconds": 100.605,
+    "nested_elapsed_seconds": 99.096,
+    "status": "PASS"
+  },
+  "online_dependency_scan": {
+    "version": "govulncheck v1.9.0",
+    "elapsed_seconds": 1.737,
+    "result": "No vulnerabilities reported",
+    "status": "PASS"
+  },
+  "fuzz": {
+    "FuzzQuery": {
+      "seconds": 31.029,
+      "executions": 62202,
+      "retained_new": 135
+    },
+    "FuzzSnapshot": {
+      "seconds": 31.024,
+      "executions": 1060029,
+      "retained_new": 3
+    },
+    "retained_files": 138,
+    "retained_bytes": 5740,
+    "manifest_sha256": "8702c8b63c2eb4d22a1e8dfa10cf56ce22190350c930ed227b0a51d2516d27d1"
+  },
+  "resources": {
+    "hard_quota": "ext4",
+    "image_bytes": 2000000000,
+    "denied_probe_bytes": 2100000000,
+    "errno": "ENOSPC",
+    "mount_and_loop_absent_after_cleanup": true,
+    "image_erasure_claimed": false
+  },
+  "archive": {
+    "id": 14441179081,
+    "exact_bytes": 1431855,
+    "sha256": "9eb84a56834a82743573b8bdd98441b84bed129eba140406c184c038034bd6ff",
+    "inner_bytes": 1431699,
+    "inner_sha256": "44a84187a31952967c54a12d46a9b5e51b1514dc4b1552445c668e93cffe81dc",
+    "members": 459,
+    "expanded_bytes": 16095621,
+    "strict_gates_passed": 11,
+    "independent_native_readback": true
+  },
+  "frozen_current_grid": "NOT_RUN",
+  "reference_host_qualification": "NOT_RUN",
+  "release_qualified": false
+}

@@ -2,13 +2,15 @@
 
 The fixed 9.85 GB baseline includes the 2 GB reserve. The unchanged 2,097,152,000 B job envelope gives a strict maximum of 11,947,152,000 B. Fresh attribution, terminal-run, account and expected-head checks remain mandatory. Zero workflow pins refuse the proof itself, but a push to the proof branch can still start fallback work. Keep refusing drafts local.
 
-## Observed failures and next probe
+## Observed Linux outcomes
+
+Run `44314449130` on `c3d5988` began with zero caller-available space on ext4. The 268,443,648-byte request returned ENOSPC and retained zero bytes and blocks. The memory probe and all 22 original Linux controls passed. Independent readback matched all 762 archive members and the complete closed 256 MiB image. [Full-volume evidence](verification/published/linux22-full-volume-44314449130.json)
 
 The [first run](https://github.com/C-X1an/facetquarry/actions/runs/44105562806) failed the composite quota check before memory and Original22. Its errno/retained-size tuple remains unknown. All 278,844,225 original archive bytes survive in independently verified lossless XZ. [Historical custody](verification/published/linux22-quota-failure-custody-20261117.json).
 
 The [diagnostic retry](https://github.com/C-X1an/facetquarry/actions/runs/44270325088) returned ENOSPC and left 229,199,872 bytes allocated. Its unchanged zero-retention guard failed. Memory and Original22 again did not run. Independent native verification covered 740 members, 685 committed source files, and the complete 256 MiB closed image. The 3,309,938 B ZIP is the lossless provider archive. Both failures and full bytes remain preserved.
 
-This source adds a separate full-volume probe. It keeps the same oversized syscall and zero-retention checks and tests them with zero caller-available space at entry. The old partly free probe and original tests remain available. The new Linux execution is NOT RUN. This job covers Original22 only. SPI, Go, the frozen matrix for each reader profile and release qualification are separate gates.
+The full-volume test uses the same oversized syscall and zero-retention assertions under a distinct initial condition. Its proof format qualifies only the full-volume resource and Original22 job. SPI and frozen reference benchmark qualification remain pending.
 
 The exact push-only workflow keeps its 20-minute bound, read-only token, pinned actions, isolated checkout without stored credentials and shared concurrency. Every new attempt needs separate reviewed admission and fresh complete accounting. No automatic rerun.
 

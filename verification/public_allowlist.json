@@ -688,6 +688,8 @@
     "verification/published/linux22-quota-failure-custody-20261117.json",
     "tests/test_scientific_admission_limits.py",
     "tests/test_linux22_full_volume_quota.py",
-    "verification/published/linux22-partial-enospc-20261118.json"
+    "verification/published/linux22-partial-enospc-20261118.json",
+    "verification/published/linux22-full-volume-44314449130.json",
+    "verification/published/supported-go-capacity-44336556192.json"
   ]
 }

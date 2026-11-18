@@ -1,10 +1,20 @@
 # Verification report
 
+## Measured Linux qualification for commit `c3d5988`
+
+Go 1.27.3 Linux verification completed in 324.695 seconds and fresh committed reproduction in 100.605 seconds. Each checkout recorded 786 neutral passes and the 10 explicit platform and role skips, plus one separate passing host control. Four race packages, 1,000 independent oracle cases with 2,000 CLI executions, and four engine and two integrity mutation controls passed. [Supported Go evidence](verification/published/supported-go-capacity-44336556192.json)
+
+`FuzzQuery` ran 31.029 seconds with 62,202 executions. `FuzzSnapshot` ran 31.024 seconds with 1,060,029 executions. Verification matched all 138 retained corpus files. The pinned online `govulncheck` v1.9.0 scan reported no vulnerabilities. The 2 GB ext4 quota denied a 2.1 GB request, and cleanup proved the mount and loop device were closed. [Supported Go run](https://github.com/C-X1an/facetquarry/actions/runs/44336556192)
+
+In the separate full-volume proof, native ext4 returned ENOSPC for a 268,443,648-byte request with zero caller capacity and retained zero bytes and blocks on the probe. The unprivileged memory test observed `MemoryError` under a 512 MiB address-space limit. All 22 original Linux tests passed with zero skips. Both earlier failures remain recorded. [Original22 evidence](verification/published/linux22-full-volume-44314449130.json)
+
+Readers 1, 4 and 16 each still require 5,400 cells and 5.4 million samples. The unchanged full reference profile was refused at a 13,159,058,505-byte computed peak against the strict 12 GB admission limit. The visual and keyboard review, owner walkthrough and release qualification are open.
+
 ## Actual diagnostic retry on the bounded Linux runner (2026-11-18)
 
 The pinned 268,443,648-byte allocation returned ENOSPC and left 229,199,872 bytes allocated on a previously empty probe. The unchanged zero-retention guard failed. Memory and Original22 did not run. Recovery and independent verification retained all 740 members and the complete 256 MiB closed image. [Machine-bound result](verification/published/linux22-partial-enospc-20261118.json).
 
-The new source keeps the same raw zero-retention checks in a distinct test that starts with zero caller-available space. The Linux outcome is NOT RUN. The observed partly free case remains a failure, and the existing input limits, original tests, frozen benchmark targets and release gates stay in place. [Exact proof scope](SCIENTIFIC_POSIX_PROOF.md).
+The diagnostic run tested the partly free condition and remains a recorded failure. The separately measured full-volume condition began with zero caller-available space. [Exact proof scope](SCIENTIFIC_POSIX_PROOF.md)
 
 
 ## Lossless retained failure and next bounded attempt (2026-11-18)
