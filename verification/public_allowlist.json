@@ -683,6 +683,9 @@
     "scripts/run_scientific_lifecycle_job.py",
     ".github/workflows/scientific-posix-proof.yml",
     "SCIENTIFIC_POSIX_PROOF.md",
-    "verification/scientific-posix-proof-admission-20261115.json"
+    "verification/scientific-posix-proof-admission-20261115.json",
+    "tests/test_quota_attempt_diagnostics.py",
+    "verification/published/linux22-quota-failure-custody-20261117.json",
+    "tests/test_scientific_admission_limits.py"
   ]
 }

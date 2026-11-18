@@ -29,12 +29,12 @@ BRANCH = 'refs/heads/scientific-posix-proof-20261115'
 ADMISSION = 'verification/scientific-posix-proof-admission-20261115.json'
 ADMISSION_FORMAT = 'scientific-posix-proof-job-admission-v1'
 ADMISSION_STATUS = 'AUTHORIZED_REVIEWED_ORIGINAL22_ONLY'
-LIFE_SHA = '6b60f65bbbda7ad077a50e141fd5d6f88bf49ee67e7bdd4ca3b342cd57386604'
+LIFE_SHA = '25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54'
 EVIDENCE_SHA = 'f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469'
 COMMON_SHA = '15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf'
 BASE_BYTES = 1_493_172_224
 OTHER_BYTES = 603_979_776
-BASELINE_CEILING = 9_600_000_000
+BASELINE_CEILING = 9_850_000_000
 IMAGE_BYTES = 268_435_456
 MEMORY_BYTES = 536_870_912
 SOURCE_BYTES = 16 << 20
@@ -954,7 +954,7 @@ def owner_action(container, action):
     command = [ctx['runtime']['python']['path'], '-I', '-S', '-B',
         str(container / 'lifecycle' / 'test_scientific_posix_lifecycle.py'),
         '--test-root', str(container / 'job' / 'volume' / 'work' / 'original22'),
-        '--lifecycle-sha256', 'aac2b81f81da2e5d93d3fe7e639743721ae31523323fcd36e5ddd1d7f4fb8f15',
+        '--lifecycle-sha256', '3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858',
         '--python', ctx['runtime']['python']['path'], '--python-bytes', str(ctx['runtime']['python']['bytes']),
         '--python-sha256', ctx['runtime']['python']['sha256']]
     # evidence.py adds its own cache variables; reset before the original test exec.

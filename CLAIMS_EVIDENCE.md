@@ -1,5 +1,19 @@
 # Claims and evidence
 
+## Lossless retained failure and next bounded attempt (2026-11-18)
+
+The prior failed Linux archive is preserved by independently verified lossless XZ; only exact verified redundant native/cloud copies were retired. File references and unknown mirrors remain charged. A separately reviewed fixed9.85GB admission ceiling retains the2GB reserve,2,097,152,000B growth and strict12GB peak guard. New admission, immutable source review and immediately fresh complete accounting remain required. [Detailed controls and limitations](SCIENTIFIC_POSIX_PROOF.md) and [curated failure custody](verification/published/linux22-quota-failure-custody-20261117.json) preserve the actual failure. No new Linux/scientific/release success is claimed.
+
+
+## Original22 quota failure and complete retained bytes (2026-11-17)
+
+At commit `68e2e2c0c60de89ad127c1930aa11dc1d3a82c31`, technical source `e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06`, [run44105562806](https://github.com/C-X1an/facetquarry/actions/runs/44105562806) failed the composite quota-probe assertion after successful formatting/mounting. Memory probing and all original22 controls were **NOT RUN**. The actual errno/retained-size/block tuple was not serialized, so the failed subcondition and observed ENOSPC remain unknown.
+
+Recovery and exact-file upload completed. Native verification checked all736members, all682committedsourcefiles, the complete278,844,225-byte archive and the full268,435,456-byte closed image, including hashes/CRC and exact manifest membership. Independent read-only review agrees. [Curated failure and custody evidence](verification/published/linux22-quota-failure-custody-20261117.json) retains the source and receipt digests; byte custody supplies no kernel-test success.
+
+The unexecuted diagnostic revision records actual attempt/error, file-state, resource limits and geometry before the unchanged quota acceptance guard. Two portable unit methods cover one accepted and three rejected tuples; they use injected operations and establish no Linux behavior. Original22/portable9 test bytes remain unchanged. Workflow pins refuse execution until a new reviewed admission. The frozen full matrix for EACH reader1/4/16 and remaining release gates remain unfinished.
+
+
 ## Supported Linux verification (2026-11-09)
 
 At technical source `853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876`, [run #46](https://github.com/C-X1an/facetquarry/actions/runs/42514706740) completed supported Go 1.27.3 Linux verification, a distinct clean committed reproduction and the current online vulnerability scan. Main and clean clone each ran 774 cases: 764 passed and 10 were explicitly skipped, followed by a separate host control with one pass and zero skips. These contexts repeat the same test identities.

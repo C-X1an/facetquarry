@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "evidence_type": "historical_failed_linux_job_and_complete_byte_custody",
+  "measured_commit": "68e2e2c0c60de89ad127c1930aa11dc1d3a82c31",
+  "measured_technical_source": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06",
+  "run_id": 44105562806,
+  "run_attempt": 1,
+  "job_id": 134116841872,
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/44105562806",
+  "actual_job_result": "FAIL",
+  "format_and_mount_commands": "EXIT_ZERO_QUIESCENT_NO_RECORDED_ERRORS",
+  "failure": "ACTUAL_ATOMIC_ENOSPC_DENIAL_REQUIRED_RETAIN_PROBE",
+  "failure_subcondition": "UNKNOWN_ACTUAL_ERRNO_SIZE_BLOCK_TUPLE_NOT_RETAINED",
+  "actual_enospc_observed": "NOT_ESTABLISHED",
+  "quota_acceptance": "FAIL",
+  "memory_probe": "NOT_RUN",
+  "original22_controls": "NOT_RUN",
+  "spi_cases": "NOT_RUN",
+  "recovery_and_exact_file_upload": "PASS",
+  "artifact": {
+    "id": 14338396492,
+    "bytes": 278844225,
+    "sha256": "016410daeeb1c3a2559b536441e6b3d63fea7794fa5e324050fbdae4fe6573b8"
+  },
+  "complete_native_byte_verification": {
+    "status": "PASS",
+    "members": 736,
+    "payload_bytes": 278624329,
+    "exact_manifest_references": 735,
+    "checksum_types": [
+      "complete SHA256",
+      "ZIP CRC32"
+    ],
+    "committed_source_files_byte_exact": 682,
+    "lifecycle_packet_files_byte_exact": 6,
+    "closed_image_bytes": 268435456,
+    "closed_image_sha256": "5df91faee9644f27c47630a47c9befcf9aff6bd148a2745e3fbc951cd2cd4418",
+    "original_and_recovery_image_references_agree": true,
+    "successful_ordinary_unmount_record_retained": true,
+    "mount_extract_fixture_parse_import_execute_operations": 0
+  },
+  "actual_wrapper_receipts": [
+    {
+      "category": "scientific-posix-image-recovery",
+      "status": "PASS",
+      "exit_code": 0,
+      "source_before": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06",
+      "source_after": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06"
+    },
+    {
+      "category": "scientific-posix-complete-proof-job",
+      "status": "FAIL",
+      "exit_code": 1,
+      "source_before": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06",
+      "source_after": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06"
+    }
+  ],
+  "machine_receipt_digests": {
+    "native_copy": {
+      "run_id": "20261117T144623Z-48d10f670a",
+      "status": "PASS",
+      "source": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06",
+      "stdout_sha256": "5dd063752ee91b5abe0e9745ad65f7c8d144057df57e38c0f0bf0afcfd23c3c4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native_complete_custody": {
+      "run_id": "20261117T150036Z-1b1e2059b1",
+      "status": "PASS",
+      "source": "e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06",
+      "stdout_sha256": "caf77ec8ccb0065c49acec0d92b965ea30aefaaf1973320ac80204b8108c934f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "historical_manifest_bound_custody": {
+      "run_id": "20261117T151504Z-61378b1bdf",
+      "status": "PASS",
+      "source": "f0d77ae792cf7f4f3baa09fd71e34ffb1fdbab3df0f572fe84281720442685f5",
+      "stdout_sha256": "caf77ec8ccb0065c49acec0d92b965ea30aefaaf1973320ac80204b8108c934f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "diagnostic_units_green": {
+      "run_id": "20261117T150948Z-25616a76d5",
+      "status": "PASS",
+      "source": "f0d77ae792cf7f4f3baa09fd71e34ffb1fdbab3df0f572fe84281720442685f5",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "acac80ee02ff8a7821e359c7559da441abebf5039feb26cf2c4df356d6cf91d9"
+    }
+  },
+  "independent_read_only_review_before_diagnostic_changes": true,
+  "diagnostic_revision": {
+    "module_sha256": "3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858",
+    "portable_unit_methods": 2,
+    "accepted_tuples": 1,
+    "rejected_tuples": 3,
+    "actual_skips": 0,
+    "unit_scope": "Exact source branch with injected descriptor/resource operations; no kernel or fixture execution.",
+    "guard_and_existing_original22_portable9_test_bytes_unchanged": true,
+    "actual_linux_execution": "NOT_RUN",
+    "execution_admission": "REFUSING_UNTIL_NEW_REVIEWED_ADMISSION"
+  },
+  "limitations": [
+    "Complete byte custody does not convert a failed kernel probe into success.",
+    "The actual failed errno/size/block tuple is unavailable; no subcondition is inferred.",
+    "Full frozen matrix for EACH readers1/4/16 and remaining current supported/runtime/browser/owner/release gates remain unfinished."
+  ],
+  "release_qualified": false,
+  "lossless_outer_preservation_transition": {
+    "raw_archive_bytes": 278844225,
+    "raw_archive_sha256": "016410daeeb1c3a2559b536441e6b3d63fea7794fa5e324050fbdae4fe6573b8",
+    "retained_xz_bytes": 1905852,
+    "retained_xz_sha256": "10dfe22f9d9a04ec6de9a8bc6abb53440df1f97edae30e5aed19176b1e6b3002",
+    "full_roundtrip_and_independent_stream_verification": "PASS_EXACT_RAW_LENGTH_SHA256_SINGLE_STREAM_CRC64_NO_TRAILING_BYTES",
+    "exact_redundant_native_raw_archive_retired": true,
+    "exact_owned_cloud_artifact_retired": true,
+    "cloud_delete_http_status": 204,
+    "cloud_direct_get_http_status_after": 404,
+    "cloud_complete_list_absence_independently_observed": true,
+    "fileref_or_unknown_mirror_credit_bytes": 0,
+    "physical_backend_erasure_claimed": false,
+    "failure_and_full_image_bytes_preserved": true,
+    "fixture_mount_extract_import_execute_operations": 0,
+    "new_linux_or_scientific_qualification": false
+  }
+}

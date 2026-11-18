@@ -799,12 +799,34 @@ def prepare_quota(value, life_manifest_sha):
         probe = os.open('enospc-probe.retained', os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                         0o600, dir_fd=work)
         os.fchown(probe, uid, gid)
+        before_allocation = os.fstat(probe)
+        geometry_before = os.fstatvfs(work)
+        limits_before = {'RLIMIT_FSIZE': list(resource.getrlimit(resource.RLIMIT_FSIZE)),
+                         'RLIMIT_AS': list(resource.getrlimit(resource.RLIMIT_AS))}
         try:
             os.posix_fallocate(probe, 0, IMAGE_BYTES + UNIT)
         except OSError as error:
             denial = error_record(error, 'actual-posix-fallocate-beyond-image-capacity')
         os.fsync(probe)
         remaining = os.fstat(probe)
+        geometry_after = os.fstatvfs(work)
+        observation = {'format': 'scientific-posix-quota-attempt-observation-v1',
+            'lifecycle_manifest_sha256': life_manifest_sha, 'job_root': str(job),
+            'owner_uid': uid, 'owner_gid': gid, 'actual_mount': actual,
+            'attempted_bytes': IMAGE_BYTES + UNIT, 'attempt_error': denial,
+            'probe_before': {'bytes': before_allocation.st_size, 'blocks_512': before_allocation.st_blocks},
+            'probe_after': {'bytes': remaining.st_size, 'blocks_512': remaining.st_blocks},
+            'limits_before': limits_before,
+            'limits_after': {'RLIMIT_FSIZE': list(resource.getrlimit(resource.RLIMIT_FSIZE)),
+                             'RLIMIT_AS': list(resource.getrlimit(resource.RLIMIT_AS))},
+            'geometry_before': {'available_bytes': geometry_before.f_bavail * geometry_before.f_frsize,
+                                'capacity_bytes': geometry_before.f_blocks * geometry_before.f_frsize,
+                                'fragment_size_bytes': geometry_before.f_frsize},
+            'geometry_after': {'available_bytes': geometry_after.f_bavail * geometry_after.f_frsize,
+                               'capacity_bytes': geometry_after.f_blocks * geometry_after.f_frsize,
+                               'fragment_size_bytes': geometry_after.f_frsize},
+            'scope': 'Actual attempt facts before the unchanged acceptance guard; no quota success claimed.'}
+        create_file(job / 'control' / 'quota-attempt-observation.json', json_bytes(observation), owner=uid)
         need(denial is not None and denial['errno'] == errno.ENOSPC and remaining.st_size == 0 and
              remaining.st_blocks == 0, 'ACTUAL_ATOMIC_ENOSPC_DENIAL_REQUIRED_RETAIN_PROBE')
         os.fsync(work)

@@ -4,8 +4,8 @@
   "profile": "scientific-posix-complete-failure-copy-v1",
   "manifest_trust": "Pin complete manifest bytes independently before execution; self-hash is excluded.",
   "runtime_membership": "Stage exactly packet_files plus this manifest in a NEW owned directory. Ancillary files stay outside the runtime packet.",
-  "packet_files_bytes_excluding_manifest": 131099,
-  "all_selected_files_bytes_excluding_manifest": 140828,
+  "packet_files_bytes_excluding_manifest": 132932,
+  "all_selected_files_bytes_excluding_manifest": 142661,
   "packet_files": [
     {
       "origin": "scripts/scientific_lifecycle/ADMISSION.template.json",
@@ -34,8 +34,8 @@
     {
       "origin": "scripts/scientific_lifecycle/scientific_posix_lifecycle.py",
       "name": "scientific_posix_lifecycle.py",
-      "bytes": 84233,
-      "sha256": "aac2b81f81da2e5d93d3fe7e639743721ae31523323fcd36e5ddd1d7f4fb8f15"
+      "bytes": 86066,
+      "sha256": "3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858"
     },
     {
       "origin": "scripts/scientific_lifecycle/test_scientific_posix_lifecycle.py",
@@ -67,7 +67,45 @@
     "additional_growth": "Every connector/container/cache/mirror/additional copy or retry must be separately bounded and admitted."
   },
   "validation_scope": {
-    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_BEFORE_CURATION",
+    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_AFTER_QUOTA_OBSERVATION_ADDITION",
+    "portable_public_location_execution": "9_PURE_METHODS_PASS_0_SKIP_NO_LINUX_CLAIM",
+    "original_linux_controls": "22_AUTHORED_NOT_RUN",
+    "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+    "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+    "actual_process_supervision_and_collection": "NOT_RUN",
+    "closed_image_and_cloud_native_custody": "NOT_RUN",
+    "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+    "independent_first_review_of_this_curated_selection": "QUOTA_OBSERVATION_STATIC_CLOSURE_RECORDED_BEFORE_FIX",
+    "scientific_or_release_qualification": false,
+    "job_admitted": false,
+    "retirement": "REFUSE"
+  },
+  "previous_source_packet": {
+    "manifest_sha256": "6b60f65bbbda7ad077a50e141fd5d6f88bf49ee67e7bdd4ca3b342cd57386604",
+    "module_sha256": "aac2b81f81da2e5d93d3fe7e639743721ae31523323fcd36e5ddd1d7f4fb8f15",
+    "failed_run_id": 44105562806,
+    "failed_source_commit": "68e2e2c0c60de89ad127c1930aa11dc1d3a82c31",
+    "failed_quota_tuple": "UNKNOWN_NOT_RETAINED",
+    "original22_actual_execution": "NOT_RUN",
+    "native_complete_byte_custody": "VERIFIED_736_MEMBERS_AND_FULL_CLOSED_IMAGE",
+    "previous_validation_scope": {
+      "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_BEFORE_CURATION",
+      "portable_public_location_execution": "NOT_RUN",
+      "original_linux_controls": "22_AUTHORED_NOT_RUN",
+      "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+      "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+      "actual_process_supervision_and_collection": "NOT_RUN",
+      "closed_image_and_cloud_native_custody": "NOT_RUN",
+      "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+      "independent_first_review_of_this_curated_selection": "PENDING",
+      "scientific_or_release_qualification": false,
+      "job_admitted": false,
+      "retirement": "REFUSE"
+    }
+  },
+  "quota_attempt_observation": "Bounded actual errno, probe size/blocks, limits and geometry are retained before the unchanged quota acceptance guard. This is not a quota PASS proof.",
+  "validation_scope_before_nov18_status_refresh": {
+    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "NOT_RUN_AFTER_QUOTA_OBSERVATION_ADDITION",
     "portable_public_location_execution": "NOT_RUN",
     "original_linux_controls": "22_AUTHORED_NOT_RUN",
     "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
@@ -75,9 +113,10 @@
     "actual_process_supervision_and_collection": "NOT_RUN",
     "closed_image_and_cloud_native_custody": "NOT_RUN",
     "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
-    "independent_first_review_of_this_curated_selection": "PENDING",
+    "independent_first_review_of_this_curated_selection": "QUOTA_OBSERVATION_CHANGE_PENDING_STATIC_CLOSURE",
     "scientific_or_release_qualification": false,
     "job_admitted": false,
     "retirement": "REFUSE"
-  }
+  },
+  "diagnostic_portable_unit_scope": "Two source-AST methods cover one accepted and three rejected injected tuples; no kernel/fixture execution."
 }

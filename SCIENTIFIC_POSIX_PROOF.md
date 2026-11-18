@@ -1,8 +1,26 @@
 # Original22 bounded Linux proof job
 
-This is a **source-only, unexecuted** implementation for the original 22 lifecycle controls. Actual Linux execution, quota/RAM proofs, image closure and cloud/native custody remain **NOT RUN**. Independent first findings preceded the P2 repairs; their final closure and actual execution remain separate gates. This job runs no SPI case, Go, benchmark, scientific matrix, package install, Docker, SDK acquisition or ML workload.
+## Reviewed headroom and lossless custody transition (2026-11-18)
 
-The push-only workflow accepts exactly the NEW branch `scientific-posix-proof-20261115`: Ubuntu 24.04, existing pinned checkout/upload actions, `contents: read`, `persist-credentials: false`, shared `reference-evidence` concurrency and unchanged 20-minute job limit. Root must verify branch absence, no other live heavy run and fresh admission before the separately authorized one push. This document grants no execution permission.
+The independently reviewed fixed baseline ceiling changes from 9.6 GB to 9.85 GB. Unchanged growth of 2,097,152,000 B gives a maximum 11,947,152,000 B, strictly below 12 GB. The 2 GB reserve remains in the baseline. Six pure admission methods cover boundaries, malformed values, fixed reservations, freshness, source/digest pins and the strict peak guard. Acceptance, quotas, existing controls and the frozen grid are unchanged. Immediately fresh accounting with output/drift allowances, account/terminal-run checks and the exact expected branch head remain required. Historical policy and failures remain in history.
+
+The complete failed 278,844,225 B archive survives as 1,905,852 B XZ after full roundtrip and independent verification of raw length/SHA256, CRC64 and single-stream EOF. Only verified redundant native/cloud copies were retired: DELETE204, direct404 and complete-list absence were independently confirmed. File references and unknown mirrors remain charged; no backend-erasure claim follows. Full failure/source/image bytes remain recoverable.
+
+The pinned uploader uses lossless level6 with file selection, bounds, timeouts and growth unchanged. No savings are credited; CPU/RSS/duration/compression remain unmeasured. New Linux execution is NOT RUN.
+
+
+## Original22 quota failure and complete retained bytes (2026-11-17)
+
+At commit `68e2e2c0c60de89ad127c1930aa11dc1d3a82c31`, technical source `e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06`, [run44105562806](https://github.com/C-X1an/facetquarry/actions/runs/44105562806) failed the composite quota-probe assertion after successful formatting/mounting. Memory probing and all original22 controls were **NOT RUN**. The actual errno/retained-size/block tuple was not serialized, so the failed subcondition and observed ENOSPC remain unknown.
+
+Recovery and exact-file upload completed. Native verification checked all736members, all682committedsourcefiles, the complete278,844,225-byte archive and the full268,435,456-byte closed image, including hashes/CRC and exact manifest membership. Independent read-only review agrees. [Curated failure and custody evidence](verification/published/linux22-quota-failure-custody-20261117.json) retains the source and receipt digests; byte custody supplies no kernel-test success.
+
+The unexecuted diagnostic revision records actual attempt/error, file-state, resource limits and geometry before the unchanged quota acceptance guard. Two portable unit methods cover one accepted and three rejected tuples; they use injected operations and establish no Linux behavior. Original22/portable9 test bytes remain unchanged. Workflow source/admission pins are separately bound; immediate pre-push operational gates still apply. The frozen full matrix for EACH reader1/4/16 and remaining release gates remain unfinished.
+
+
+This is an **unexecuted diagnostic revision** of the original22 proof job. The first published revision failed its quota assertion before memory probing or any original22 control; complete recovery/native byte custody was verified. The new revision adds pre-guard observations and retains the unchanged acceptance guard. Its separate short-lived source-bound admission still requires final review and immediate pre-push accounting. This job runs no SPI case, Go, benchmark, scientific matrix, package install, Docker, SDK acquisition or ML workload.
+
+The push-only workflow accepts exactly `scientific-posix-proof-20261115`: Ubuntu24.04, existing pinned checkout/upload actions, read-only contents, no stored checkout credentials, shared reference-evidence concurrency and the unchanged20-minute job limit. The first create-only push is complete. Any further attempt requires new reviewed source/admission, fresh all-attributable accounting, no other live heavy run and an explicitly checked expected branch head. Preserve the previous commit/run; never retry a stale admission. This document grants no execution permission.
 
 The command-receipt reader separately accepts the existing evidence wrapper's finite top-level `duration_seconds` (0..1200 seconds); all remaining receipt values and integer-only admission documents keep their strict decoder. Original receipt bytes remain unchanged for hashing. Fallback readback compares identity, ownership, mode, links, size, mtime and ctime while excluding access time. The bounded source subtotal grows from 95,000 to 100,000 B for these repairs; per-file limits, 16 MiB source, 64 MiB supplement, payload, disk, RAM and global reservations stay fixed.
 
@@ -29,16 +47,16 @@ Root separately creates `verification/scientific-posix-proof-admission-20261115.
   "independent_review_closed": false,
   "source_pins": {
     "job_script_sha256": null,
-    "lifecycle_manifest_sha256": "6b60f65bbbda7ad077a50e141fd5d6f88bf49ee67e7bdd4ca3b342cd57386604",
+    "lifecycle_manifest_sha256": "25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54",
     "evidence_sha256": "f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469",
     "common_sha256": "15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf"
   }
 }
 ```
 
-Only status `AUTHORIZED_REVIEWED_ORIGINAL22_ONLY`, both true flags, exact nonzero pins and baseline at most **9,600,000,000 B**, already including the unchanged **2,000,000,000 B reserve**, pass. Admission lasts at most six hours with bounded clock skew; an expired queued job refuses without automatic extension/retry. Only the inventory digest and public-safe numeric summary are published.
+Only status `AUTHORIZED_REVIEWED_ORIGINAL22_ONLY`, both true flags, exact nonzero pins and baseline at most **9,850,000,000 B**, already including the unchanged **2,000,000,000 B reserve**, pass. Admission lasts at most six hours with bounded clock skew; an expired queued job refuses without automatic extension/retry. Only the inventory digest and public-safe numeric summary are published.
 
-Independently hash the immutable admission/final driver, then replace the two still-refusing all-zero `FQ_ADMISSION_SHA256` / `FQ_JOB_SOURCE_SHA256` scalars. Review/pin the final workflow too; omitting its digest from admission avoids a hash cycle. Changed source needs new review/pins/admission. The repair allowance is driver <=80,000 B and these three public files together <=100,000 B, with no runtime growth increase.
+Independently hash the immutable admission/final driver and bind the two `FQ_ADMISSION_SHA256` / `FQ_JOB_SOURCE_SHA256` scalars. Review/pin the final workflow too; omitting its digest from admission avoids a hash cycle. Changed source needs new review/pins/admission. The repair allowance is driver <=80,000 B and these three public files together <=100,000 B, with no runtime growth increase.
 
 ## Exact runtime and controls
 
@@ -82,9 +100,9 @@ Before the controller, an independent always-run small fallback copies only the 
 
 ## Allocations and actual custody gates
 
-The fixed growth reservation stays **1,493,172,224 + 603,979,776 = 2,097,152,000 B**. With the 9.6 GB baseline ceiling, peak is **11,697,152,000 B**, below the unchanged **12,000,000,000 B** heavy-growth threshold and **15,000,000,000 B** absolute cap. Fresh complete attribution/no-other-heavy-work admission remains mandatory. The 2 GB global reserve is never spent by this arithmetic.
+The fixed growth reservation stays **1,493,172,224 + 603,979,776 = 2,097,152,000 B**. With the separately reviewed fixed 9.85 GB baseline ceiling, peak is **11,947,152,000 B**, below the unchanged **12,000,000,000 B** heavy-growth threshold and **15,000,000,000 B** absolute cap. Fresh complete attribution/no-other-heavy-work admission remains mandatory. The 2 GB global reserve is never spent by this arithmetic.
 
-Source snapshot accounting remains <=16 MiB, known host supplement <=64 MiB, full regular payload and accounted namespace allocations <=304 MiB, inventory/manifest metadata each <=4 MiB and exact upload/output lists <=256 KiB. Final payload accounting includes generated metadata and fallback. Bounded headers permit the conservative uncompressed 320 MiB archive reservation. A placement ledger retains 256 MiB image, <=320 MiB each uploader archive/cloud artifact/native return, <=512 MiB connector copy, <=64 MiB known host supplement and <=48 MiB other controller/source data: 1,840 MiB within the fixed 2,000 MiB growth envelope, with no compression savings assumed. The uploader uses compression zero, one unique artifact, one-day retention and explicit hidden files.
+Source snapshot accounting remains <=16 MiB, known host supplement <=64 MiB, full regular payload and accounted namespace allocations <=304 MiB, inventory/manifest metadata each <=4 MiB and exact upload/output lists <=256 KiB. Final payload accounting includes generated metadata and fallback. Bounded headers permit the conservative uncompressed 320 MiB archive reservation. A placement ledger retains 256 MiB image, <=320 MiB each uploader archive/cloud artifact/native return, <=512 MiB connector copy, <=64 MiB known host supplement and <=48 MiB other controller/source data: 1,840 MiB within the fixed 2,000 MiB growth envelope, with no compression savings assumed. The pinned uploader uses lossless Zlib compression level6, one unique artifact, one-day retention and explicit hidden files.
 
 Known checkout/action/temp roots are measured before work, after controls and before upload. Failed host/payload admission blocks namespace archive/cloud growth regardless of test success; the tiny fixed fallback remains failure metadata. Monitoring is not a hard quota on GitHub uploader/service storage. Unexpected provider growth, extra copies/retries/mirrors need fresh inventory/admission. Native return needs an owned cache outside synchronization.
 

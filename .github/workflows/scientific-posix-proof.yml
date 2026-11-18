@@ -17,10 +17,10 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
-      # Root must replace both after independent review and fresh admission,
-      # before the single authorized push of the previously absent branch.
-      FQ_JOB_SOURCE_SHA256: 'c34cce5dc2e9d8803c48b6e2d1abffc08fa98b269cb8e73818d2c4d02bddff75'
-      FQ_ADMISSION_SHA256: '4ed9650d73af3ce9f9728a5d37d4d09953d1ed0be024ec2fdea37f7e237793e4'
+      # Independently bound retry; push only after fresh all-root/terminal checks
+      # and exact expected existing proof-branch head verification.
+      FQ_JOB_SOURCE_SHA256: 'dd86aaab2ec1a3cdd2940449a590e3b4ca4cea5617e2e22e3f55cc3a74f6d48b'
+      FQ_ADMISSION_SHA256: '8f4572ea6d1cdc84c7b033d57fbc68a6079d775e083bfb6d5472be1724ad22af'
     steps:
       - name: Checkout the exact new branch commit without stored credentials
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
@@ -202,7 +202,7 @@ jobs:
         with:
           name: scientific-posix-proof-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 1
-          compression-level: 0
+          compression-level: 6
           include-hidden-files: true
           if-no-files-found: error
           path: ${{ steps.custody.outputs.paths || steps.fallback.outputs.paths }}
