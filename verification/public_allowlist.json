@@ -686,6 +686,8 @@
     "verification/scientific-posix-proof-admission-20261115.json",
     "tests/test_quota_attempt_diagnostics.py",
     "verification/published/linux22-quota-failure-custody-20261117.json",
-    "tests/test_scientific_admission_limits.py"
+    "tests/test_scientific_admission_limits.py",
+    "tests/test_linux22_full_volume_quota.py",
+    "verification/published/linux22-partial-enospc-20261118.json"
   ]
 }

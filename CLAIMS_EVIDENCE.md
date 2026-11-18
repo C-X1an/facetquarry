@@ -1,5 +1,12 @@
 # Claims and evidence
 
+## Actual diagnostic retry on the bounded Linux runner (2026-11-18)
+
+The pinned 268,443,648-byte allocation returned ENOSPC and left 229,199,872 bytes allocated on a previously empty probe. The unchanged zero-retention guard failed. Memory and Original22 did not run. Recovery and independent verification retained all 740 members and the complete 256 MiB closed image. [Machine-bound result](verification/published/linux22-partial-enospc-20261118.json).
+
+The new source keeps the same raw zero-retention checks in a distinct test that starts with zero caller-available space. The Linux outcome is NOT RUN. The observed partly free case remains a failure, and the existing input limits, original tests, frozen benchmark targets and release gates stay in place. [Exact proof scope](SCIENTIFIC_POSIX_PROOF.md).
+
+
 ## Lossless retained failure and next bounded attempt (2026-11-18)
 
 The prior failed Linux archive is preserved by independently verified lossless XZ; only exact verified redundant native/cloud copies were retired. File references and unknown mirrors remain charged. A separately reviewed fixed9.85GB admission ceiling retains the2GB reserve,2,097,152,000B growth and strict12GB peak guard. New admission, immutable source review and immediately fresh complete accounting remain required. [Detailed controls and limitations](SCIENTIFIC_POSIX_PROOF.md) and [curated failure custody](verification/published/linux22-quota-failure-custody-20261117.json) preserve the actual failure. No new Linux/scientific/release success is claimed.
@@ -11,7 +18,7 @@ At commit `68e2e2c0c60de89ad127c1930aa11dc1d3a82c31`, technical source `e2d82a6e
 
 Recovery and exact-file upload completed. Native verification checked all736members, all682committedsourcefiles, the complete278,844,225-byte archive and the full268,435,456-byte closed image, including hashes/CRC and exact manifest membership. Independent read-only review agrees. [Curated failure and custody evidence](verification/published/linux22-quota-failure-custody-20261117.json) retains the source and receipt digests; byte custody supplies no kernel-test success.
 
-The unexecuted diagnostic revision records actual attempt/error, file-state, resource limits and geometry before the unchanged quota acceptance guard. Two portable unit methods cover one accepted and three rejected tuples; they use injected operations and establish no Linux behavior. Original22/portable9 test bytes remain unchanged. Workflow pins refuse execution until a new reviewed admission. The frozen full matrix for EACH reader1/4/16 and remaining release gates remain unfinished.
+The historical diagnostic revision added raw attempt, retained file state, resource limits and geometry before the same guard. Two portable unit methods cover one accepted and three rejected tuples; they use injected operations and establish no Linux behavior. Original22/portable9 test bytes remain unchanged. Its original draft refused until the separately reviewed retry admission. The frozen full matrix for EACH reader1/4/16 and remaining release gates remain unfinished.
 
 
 ## Supported Linux verification (2026-11-09)

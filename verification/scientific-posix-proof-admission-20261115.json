@@ -2,12 +2,12 @@
   "format": "scientific-posix-proof-job-admission-v1",
   "status": "AUTHORIZED_REVIEWED_ORIGINAL22_ONLY",
   "branch": "refs/heads/scientific-posix-proof-20261115",
-  "attempt_id": "linux22-diagnostic-retry-20261118t074850z",
-  "created_unix_seconds": 1794988130,
-  "expires_unix_seconds": 1795009730,
+  "attempt_id": "linux22-full-volume-20261118t132440z",
+  "created_unix_seconds": 1795008280,
+  "expires_unix_seconds": 1795029880,
   "baseline_including_reserve_bytes": 9850000000,
   "global_reserve_bytes": 2000000000,
-  "fresh_inventory_sha256": "1cbf2c67be8635a6abd2774ed510d75f878e4469c437e27c144dae5bb6f4a248",
+  "fresh_inventory_sha256": "ae07017445eadc5fd2e3388c19e14c7fdaf16a2686b6dc25bb7ff6038b965abf",
   "base_lifecycle_bytes": 1493172224,
   "connector_bytes": 536870912,
   "supplement_bytes": 67108864,
@@ -15,8 +15,8 @@
   "no_other_heavy_process": true,
   "independent_review_closed": true,
   "source_pins": {
-    "job_script_sha256": "dd86aaab2ec1a3cdd2940449a590e3b4ca4cea5617e2e22e3f55cc3a74f6d48b",
-    "lifecycle_manifest_sha256": "25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54",
+    "job_script_sha256": "c428110971b73a97da509463bac17b4f3a35a043fc00abdcac1c08d5e929e07d",
+    "lifecycle_manifest_sha256": "66bd2134bc5c59f0474d4ac63782e093d3a7deaff8adddab33faae8560a548bc",
     "evidence_sha256": "f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469",
     "common_sha256": "15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf"
   }

@@ -1,28 +1,16 @@
 # Original22 bounded Linux proof job
 
-## Reviewed headroom and lossless custody transition (2026-11-18)
+The fixed 9.85 GB baseline includes the 2 GB reserve. The unchanged 2,097,152,000 B job envelope gives a strict maximum of 11,947,152,000 B. Fresh attribution, terminal-run, account and expected-head checks remain mandatory. Zero workflow pins refuse the proof itself, but a push to the proof branch can still start fallback work. Keep refusing drafts local.
 
-The independently reviewed fixed baseline ceiling changes from 9.6 GB to 9.85 GB. Unchanged growth of 2,097,152,000 B gives a maximum 11,947,152,000 B, strictly below 12 GB. The 2 GB reserve remains in the baseline. Six pure admission methods cover boundaries, malformed values, fixed reservations, freshness, source/digest pins and the strict peak guard. Acceptance, quotas, existing controls and the frozen grid are unchanged. Immediately fresh accounting with output/drift allowances, account/terminal-run checks and the exact expected branch head remain required. Historical policy and failures remain in history.
+## Observed failures and next probe
 
-The complete failed 278,844,225 B archive survives as 1,905,852 B XZ after full roundtrip and independent verification of raw length/SHA256, CRC64 and single-stream EOF. Only verified redundant native/cloud copies were retired: DELETE204, direct404 and complete-list absence were independently confirmed. File references and unknown mirrors remain charged; no backend-erasure claim follows. Full failure/source/image bytes remain recoverable.
+The [first run](https://github.com/C-X1an/facetquarry/actions/runs/44105562806) failed the composite quota check before memory and Original22. Its errno/retained-size tuple remains unknown. All 278,844,225 original archive bytes survive in independently verified lossless XZ. [Historical custody](verification/published/linux22-quota-failure-custody-20261117.json).
 
-The pinned uploader uses lossless level6 with file selection, bounds, timeouts and growth unchanged. No savings are credited; CPU/RSS/duration/compression remain unmeasured. New Linux execution is NOT RUN.
+The [diagnostic retry](https://github.com/C-X1an/facetquarry/actions/runs/44270325088) returned ENOSPC and left 229,199,872 bytes allocated. Its unchanged zero-retention guard failed. Memory and Original22 again did not run. Independent native verification covered 740 members, 685 committed source files, and the complete 256 MiB closed image. The 3,309,938 B ZIP is the lossless provider archive. Both failures and full bytes remain preserved.
 
+This source adds a separate full-volume probe. It keeps the same oversized syscall and zero-retention checks and tests them with zero caller-available space at entry. The old partly free probe and original tests remain available. The new Linux execution is NOT RUN. This job covers Original22 only. SPI, Go, the frozen matrix for each reader profile and release qualification are separate gates.
 
-## Original22 quota failure and complete retained bytes (2026-11-17)
-
-At commit `68e2e2c0c60de89ad127c1930aa11dc1d3a82c31`, technical source `e2d82a6ec4b6c42740d600ea0f7b722909d7bbbd20eda9616865ea66ed67de06`, [run44105562806](https://github.com/C-X1an/facetquarry/actions/runs/44105562806) failed the composite quota-probe assertion after successful formatting/mounting. Memory probing and all original22 controls were **NOT RUN**. The actual errno/retained-size/block tuple was not serialized, so the failed subcondition and observed ENOSPC remain unknown.
-
-Recovery and exact-file upload completed. Native verification checked all736members, all682committedsourcefiles, the complete278,844,225-byte archive and the full268,435,456-byte closed image, including hashes/CRC and exact manifest membership. Independent read-only review agrees. [Curated failure and custody evidence](verification/published/linux22-quota-failure-custody-20261117.json) retains the source and receipt digests; byte custody supplies no kernel-test success.
-
-The unexecuted diagnostic revision records actual attempt/error, file-state, resource limits and geometry before the unchanged quota acceptance guard. Two portable unit methods cover one accepted and three rejected tuples; they use injected operations and establish no Linux behavior. Original22/portable9 test bytes remain unchanged. Workflow source/admission pins are separately bound; immediate pre-push operational gates still apply. The frozen full matrix for EACH reader1/4/16 and remaining release gates remain unfinished.
-
-
-This is an **unexecuted diagnostic revision** of the original22 proof job. The first published revision failed its quota assertion before memory probing or any original22 control; complete recovery/native byte custody was verified. The new revision adds pre-guard observations and retains the unchanged acceptance guard. Its separate short-lived source-bound admission still requires final review and immediate pre-push accounting. This job runs no SPI case, Go, benchmark, scientific matrix, package install, Docker, SDK acquisition or ML workload.
-
-The push-only workflow accepts exactly `scientific-posix-proof-20261115`: Ubuntu24.04, existing pinned checkout/upload actions, read-only contents, no stored checkout credentials, shared reference-evidence concurrency and the unchanged20-minute job limit. The first create-only push is complete. Any further attempt requires new reviewed source/admission, fresh all-attributable accounting, no other live heavy run and an explicitly checked expected branch head. Preserve the previous commit/run; never retry a stale admission. This document grants no execution permission.
-
-The command-receipt reader separately accepts the existing evidence wrapper's finite top-level `duration_seconds` (0..1200 seconds); all remaining receipt values and integer-only admission documents keep their strict decoder. Original receipt bytes remain unchanged for hashing. Fallback readback compares identity, ownership, mode, links, size, mtime and ctime while excluding access time. The bounded source subtotal grows from 95,000 to 100,000 B for these repairs; per-file limits, 16 MiB source, 64 MiB supplement, payload, disk, RAM and global reservations stay fixed.
+The exact push-only workflow keeps its 20-minute bound, read-only token, pinned actions, isolated checkout without stored credentials and shared concurrency. Every new attempt needs separate reviewed admission and fresh complete accounting. No automatic rerun.
 
 ## Fresh admission
 
@@ -47,7 +35,7 @@ Root separately creates `verification/scientific-posix-proof-admission-20261115.
   "independent_review_closed": false,
   "source_pins": {
     "job_script_sha256": null,
-    "lifecycle_manifest_sha256": "25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54",
+    "lifecycle_manifest_sha256": "66bd2134bc5c59f0474d4ac63782e093d3a7deaff8adddab33faae8560a548bc",
     "evidence_sha256": "f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469",
     "common_sha256": "15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf"
   }
@@ -68,7 +56,7 @@ A bounded source snapshot excludes Git metadata and named ignored generated root
 
 The wrapper PATH references only pinned git, so its Go lookup cannot execute Go. Caches stay in the snapshot. Owner `os.execve` resets LANG/LC_ALL/TZ before unchanged original22; lifecycle children retain clean environment/limits. No credential, proxy, PATH, HOME or provider token enters a fixture or captured argument.
 
-Existing `prepare_quota` fully allocates **268,435,456 B**, formats ext4 with fixed 4 KiB blocks, zero reserved percentage and nodiscard, and mounts nodev/nosuid/noexec. Actual mountinfo/sysfs/device/backing-image identity and a **268,443,648 B** ENOSPC attempt with zero retained probe bytes/blocks are required. Existing `prepare_memory`, as the non-root owner, must observe RLIMIT_AS **(536870912,536870912)** and MemoryError for **536,870,913 B**. Actual available-space admission precedes original22.
+The common setup fully allocates **268,435,456 B** and formats and mounts ext4 with the existing hard geometry and mount flags. Two named, owned, empty files are opened before a single real reservation of measured available space. Require zero available bytes before the **268,443,648 B** call, then raw ENOSPC with zero retained bytes and blocks. Save the raw observation and release intent before reclaiming only the successful unwritten reservation. Keep failed or partial probe files intact. A failure during scratch release may leave it reclaimed without verified restoration. Require restored geometry, linked hashes for all five records, live image identity, both retained inodes, and no stop signal before memory. The non-root memory proof and source headroom must pass before all original 22 controls. This establishes denial at saturation only.
 
 Original22 fixtures, failed A/B prefixes, links and FIFOs stay inside the image; no A/B copy is added. Actual receipt/exit/source/streams must agree on 22 distinct verbose `ok` tests, `Ran 22 tests`, final `OK`, no termination or failures/errors/skips before deriving a proof. Failure excludes no image, stream or outside control from safe payload admission.
 

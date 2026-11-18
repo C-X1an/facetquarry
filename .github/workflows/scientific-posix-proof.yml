@@ -13,14 +13,14 @@ concurrency:
 
 jobs:
   original22:
-    if: ${{ github.ref == 'refs/heads/scientific-posix-proof-20261115' }}
+    if: ${{ github.ref == 'refs/heads/scientific-posix-proof-20261115' && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       # Independently bound retry; push only after fresh all-root/terminal checks
       # and exact expected existing proof-branch head verification.
-      FQ_JOB_SOURCE_SHA256: 'dd86aaab2ec1a3cdd2940449a590e3b4ca4cea5617e2e22e3f55cc3a74f6d48b'
-      FQ_ADMISSION_SHA256: '8f4572ea6d1cdc84c7b033d57fbc68a6079d775e083bfb6d5472be1724ad22af'
+      FQ_JOB_SOURCE_SHA256: 'c428110971b73a97da509463bac17b4f3a35a043fc00abdcac1c08d5e929e07d'
+      FQ_ADMISSION_SHA256: '17c6988e4ff27c79c4e651d5d353953f8f12f6429c403a1c123d7f5f39339d1a'
     steps:
       - name: Checkout the exact new branch commit without stored credentials
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09

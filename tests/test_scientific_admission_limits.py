@@ -14,7 +14,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT/'scripts/run_scientific_lifecycle_job.py'
-EXPECTED_DRIVER_SHA = 'dd86aaab2ec1a3cdd2940449a590e3b4ca4cea5617e2e22e3f55cc3a74f6d48b'
+EXPECTED_DRIVER_SHA = 'c428110971b73a97da509463bac17b4f3a35a043fc00abdcac1c08d5e929e07d'
 NOW = 1_795_000_000
 
 def selected_admission():

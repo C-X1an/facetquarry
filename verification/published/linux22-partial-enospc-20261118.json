@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "evidence_type": "historical_actual_partly_free_ext4_denial_with_retained_bytes",
+  "run_url": "https://github.com/C-X1an/facetquarry/actions/runs/44270325088",
+  "commit": "811d9d907dcbb3e879f66701f15ec54166d03a59",
+  "technical_source": "c090a031c134af9a85104d5c2a2fd9b0f852e8e852375fd89323fd712e813c8e",
+  "run_id": 44270325088,
+  "run_attempt": 1,
+  "job_id": 134685023570,
+  "artifact_id": 14411753071,
+  "actual_quota_attempt": {
+    "attempted_bytes": 268443648,
+    "errno": 28,
+    "before_probe": {
+      "blocks_512": 0,
+      "bytes": 0
+    },
+    "after_probe": {
+      "blocks_512": 447656,
+      "bytes": 229199872
+    },
+    "limits_before": {
+      "RLIMIT_AS": [
+        536870912,
+        536870912
+      ],
+      "RLIMIT_FSIZE": [
+        -1,
+        -1
+      ]
+    },
+    "limits_after": {
+      "RLIMIT_AS": [
+        536870912,
+        536870912
+      ],
+      "RLIMIT_FSIZE": [
+        -1,
+        -1
+      ]
+    },
+    "geometry_before": {
+      "available_bytes": 229199872,
+      "capacity_bytes": 234594304,
+      "fragment_size_bytes": 4096
+    },
+    "geometry_after": {
+      "available_bytes": 0,
+      "capacity_bytes": 234594304,
+      "fragment_size_bytes": 4096
+    },
+    "sha256": "6c4b004b0581642c8db42f6b34a15115ff84648e5514f22789acc93d454df3d4",
+    "acceptance_conjuncts": {
+      "denial_present": true,
+      "errno_is_enospc": true,
+      "retained_zero_bytes": false,
+      "retained_zero_blocks": false
+    }
+  },
+  "quota_guard": "FAIL",
+  "memory": "NOT_RUN",
+  "original22": "NOT_RUN",
+  "recovery": "PASS",
+  "archive_custody": "PASS",
+  "archive_bytes": 3309938,
+  "archive_sha256": "0f9b01c971ef143dd7c261f271c08eaa7d33899f54e72816789539cd05377a95",
+  "members_verified": 740,
+  "payload_bytes": 278667526,
+  "committed_source_files_byte_exact": 685,
+  "closed_image_bytes": 268435456,
+  "closed_image_sha256": "534c5cb5e5b03716fe9c9a3db8bd703eb9ef8c4f08eb69eb9206e7065f540558",
+  "native_verification_receipts": [
+    "20261118T085624Z-fe1d079f27",
+    "20261118T090218Z-3ea2d51d56"
+  ],
+  "scope": "A real capacity refusal left a partial allocation. The prior separate run has no observed tuple. The new full-volume variant, supported Linux checks, scientific results and release are separate and unqualified.",
+  "release_qualified": false
+}

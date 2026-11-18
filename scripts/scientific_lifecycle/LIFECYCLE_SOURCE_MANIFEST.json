@@ -4,8 +4,8 @@
   "profile": "scientific-posix-complete-failure-copy-v1",
   "manifest_trust": "Pin complete manifest bytes independently before execution; self-hash is excluded.",
   "runtime_membership": "Stage exactly packet_files plus this manifest in a NEW owned directory. Ancillary files stay outside the runtime packet.",
-  "packet_files_bytes_excluding_manifest": 132932,
-  "all_selected_files_bytes_excluding_manifest": 142661,
+  "packet_files_bytes_excluding_manifest": 148027,
+  "all_selected_files_bytes_excluding_manifest": 157756,
   "packet_files": [
     {
       "origin": "scripts/scientific_lifecycle/ADMISSION.template.json",
@@ -28,14 +28,14 @@
     {
       "origin": "scripts/scientific_lifecycle/README.md",
       "name": "README.md",
-      "bytes": 13815,
-      "sha256": "41d280280afa1298d1fbb5901b0d939fc5ab19c520551511ea6d5e8e36864100"
+      "bytes": 13823,
+      "sha256": "ea0a5c2708ce1dfadf187d3229b42696a63477fb5aeda824a925d0c748b14d53"
     },
     {
       "origin": "scripts/scientific_lifecycle/scientific_posix_lifecycle.py",
       "name": "scientific_posix_lifecycle.py",
-      "bytes": 86066,
-      "sha256": "3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858"
+      "bytes": 101153,
+      "sha256": "8d0b4b4c7d07000cb78ef1b383b47474e4cc5ead0708fac9e45d86e64b159348"
     },
     {
       "origin": "scripts/scientific_lifecycle/test_scientific_posix_lifecycle.py",
@@ -67,15 +67,15 @@
     "additional_growth": "Every connector/container/cache/mirror/additional copy or retry must be separately bounded and admitted."
   },
   "validation_scope": {
-    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_AFTER_QUOTA_OBSERVATION_ADDITION",
-    "portable_public_location_execution": "9_PURE_METHODS_PASS_0_SKIP_NO_LINUX_CLAIM",
+    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "NOT_RUN_ON_FULL_VOLUME_SELECTION",
+    "portable_public_location_execution": "NOT_RUN_ON_FULL_VOLUME_SELECTION",
     "original_linux_controls": "22_AUTHORED_NOT_RUN",
     "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
     "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
     "actual_process_supervision_and_collection": "NOT_RUN",
     "closed_image_and_cloud_native_custody": "NOT_RUN",
     "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
-    "independent_first_review_of_this_curated_selection": "QUOTA_OBSERVATION_STATIC_CLOSURE_RECORDED_BEFORE_FIX",
+    "independent_first_review_of_this_curated_selection": "REQUIRED_BEFORE_NEW_ADMISSION",
     "scientific_or_release_qualification": false,
     "job_admitted": false,
     "retirement": "REFUSE"
@@ -118,5 +118,36 @@
     "job_admitted": false,
     "retirement": "REFUSE"
   },
-  "diagnostic_portable_unit_scope": "Two source-AST methods cover one accepted and three rejected injected tuples; no kernel/fixture execution."
+  "diagnostic_portable_unit_scope": "Seven private injected methods passed on the current module. No Linux behavior checked.",
+  "previous_immutable_full_archive_retry": {
+    "commit": "811d9d907dcbb3e879f66701f15ec54166d03a59",
+    "run_id": 44270325088,
+    "module_sha256": "3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858",
+    "manifest_sha256": "25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54",
+    "outcome": "FAIL_RAW_ENOSPC_WITH_PARTIAL_ALLOCATION",
+    "memory_original22": "NOT_RUN",
+    "closed_image_native_byte_custody": "PASS",
+    "validation_scope": {
+      "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_AFTER_QUOTA_OBSERVATION_ADDITION",
+      "portable_public_location_execution": "9_PURE_METHODS_PASS_0_SKIP_NO_LINUX_CLAIM",
+      "original_linux_controls": "22_AUTHORED_NOT_RUN",
+      "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+      "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+      "actual_process_supervision_and_collection": "NOT_RUN",
+      "closed_image_and_cloud_native_custody": "NOT_RUN",
+      "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+      "independent_first_review_of_this_curated_selection": "QUOTA_OBSERVATION_STATIC_CLOSURE_RECORDED_BEFORE_FIX",
+      "scientific_or_release_qualification": false,
+      "job_admitted": false,
+      "retirement": "REFUSE"
+    },
+    "diagnostic_portable_unit_scope": "Two source-AST methods cover one accepted and three rejected injected tuples; no kernel/fixture execution."
+  },
+  "original22_full_volume_probe": {
+    "profile": "zero-caller-available-ext4-v1",
+    "admission": "REQUIRES_FRESH_INDEPENDENTLY_REVIEWED_ADMISSION",
+    "linux_runtime": "NOT_RUN",
+    "legacy_partly_free_probe_contract": "UNCHANGED",
+    "failure_retention": "Keep raw probe and every failed allocation. Only successful unwritten scratch can be released."
+  }
 }

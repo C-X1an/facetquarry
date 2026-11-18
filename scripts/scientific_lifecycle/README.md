@@ -2,7 +2,7 @@
 
 This source-only lifecycle supervises the synthetic POSIX integration profile and retains complete failure evidence. It is not a scientific benchmark, a release qualification, or a cloud transport implementation.
 
-The selected module and test sources are unchanged byte copies. Nine portable fake-descriptor/error-data controls passed with zero skips on these exact module/test bytes before curation. That synthetic result does not establish real filesystems, process signals, kernel quotas, RAM enforcement, durability or custody. The original 22 Linux controls, public-location execution, actual quota/RAM proofs, supervision, cloud/native custody and scientific measurements remain **NOT RUN**. This newly curated source selection requires independent review before execution.
+The nine-test portable PASS for module `3589e499…` belongs to the earlier selection. The Original22 full-volume helper changes the current module while the original test files stay byte identical. Rerun the same portable controls on the current pinned bytes before reporting their outcome. Injected controls do not establish real filesystems, signals, quotas, RAM or custody. Current Linux and SPI execution remain **NOT RUN**. The Original22-specific full-volume proof has a distinct format; the standalone lifecycle and SPI still require the original partly free probe.
 
 `LIFECYCLE_SOURCE_MANIFEST.json` pins current source bytes. Its `packet_files` list defines the six-file runtime packet; `ancillary_files` pins the separate nine-test portable file. The manifest cannot authenticate itself: obtain its complete SHA256 from an independent trusted source before starting Python.
 

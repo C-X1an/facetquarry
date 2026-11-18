@@ -743,7 +743,7 @@ def memory_probe_child():
     return 0
 
 
-def prepare_quota(value, life_manifest_sha):
+def initialize_quota_volume(value, life_manifest_sha):
     need(os.geteuid() == 0 and value['format'] == PREPARE_FORMAT and
          value['status'] == 'AUTHORIZED_REVIEWED_NEW_QUOTA_PREPARATION_ONLY' and
          value['lifecycle_manifest_sha256'] == life_manifest_sha, 'EXPLICIT_PRIVILEGED_NEW_QUOTA_PREPARATION')
@@ -792,6 +792,11 @@ def prepare_quota(value, life_manifest_sha):
     os.chmod(job / 'volume', 0o700, follow_symlinks=False)
     new_dir(job / 'volume' / 'work', owner=uid, gid=gid)
     actual = mount_observation(job / 'volume', image, uid)
+    return job, uid, gid, tools, actual
+
+
+def prepare_quota(value, life_manifest_sha):
+    job, uid, gid, tools, actual = initialize_quota_volume(value, life_manifest_sha)
     work = owned_dir(job / 'volume' / 'work', owner=uid)
     probe = None
     denial = None
@@ -840,6 +845,233 @@ def prepare_quota(value, life_manifest_sha):
              'created_unix_seconds': int(time.time())}
     create_file(job / 'control' / 'quota-proof.json', json_bytes(proof), owner=uid)
     return {'status': 'QUOTA_PREPARED_NOT_A_RUN_ADMISSION', 'quota_proof': str(job / 'control' / 'quota-proof.json')}
+
+
+def quota_probe_geometry(work):
+    vfs = os.fstatvfs(work)
+    unit = integer(vfs.f_frsize, 4096, 4096)
+    capacity = integer(vfs.f_blocks * unit, unit, IMAGE_BYTES)
+    free = integer(vfs.f_bfree * unit, 0, capacity)
+    available = integer(vfs.f_bavail * unit, 0, free)
+    return {'capacity_bytes': capacity, 'fragment_size_bytes': unit,
+            'free_bytes': free, 'available_bytes': available}
+
+
+def quota_probe_file(work, name, fd, uid, gid):
+    """Check that the acquired descriptor still names the originally owned file."""
+    opened = os.fstat(fd)
+    named = os.stat(name, dir_fd=work, follow_symlinks=False)
+    need(stat.S_ISREG(opened.st_mode) and stat.S_IMODE(opened.st_mode) == 0o600 and
+         opened.st_uid == uid and opened.st_gid == gid and opened.st_nlink == 1 and
+         opened.st_dev == os.fstat(work).st_dev and signature(opened) == signature(named),
+         'EXACT_OWNED_QUOTA_PROBE_FILE_REQUIRED')
+    return opened
+
+
+def quota_probe_state(info):
+    return {'bytes': info.st_size, 'blocks_512': info.st_blocks}
+
+
+def prepare_quota_on_full_volume(value, life_manifest_sha, *, stop_requested=lambda: False):
+    """Original22-specific proof of raw zero retention at saturation.
+
+    A separate successful unwritten reservation creates zero caller-available
+    space. Only that exact reservation may be released; failed operands remain.
+    """
+    need(not stop_requested(), 'QUOTA_SATURATION_INTERRUPTED_BEFORE_INITIALIZATION')
+    job, uid, gid, tools, actual = initialize_quota_volume(value, life_manifest_sha)
+    work = owned_dir(job / 'volume' / 'work', owner=uid)
+    reservation_name = 'successful-quota-reservation.scratch'
+    probe_name = 'enospc-probe.retained'
+    flags = os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC
+    reservation = probe = None
+    control = job / 'control'
+
+    def record(name, value):
+        raw = json_bytes(value)
+        create_file(control / name, raw, owner=uid, maximum=8192)
+        return hashlib.sha256(raw).hexdigest()
+
+    try:
+        # Acquire both inodes and their directory entries while space remains.
+        reservation = os.open(reservation_name, flags, 0o600, dir_fd=work)
+        os.fchown(reservation, uid, gid)
+        probe = os.open(probe_name, flags, 0o600, dir_fd=work)
+        os.fchown(probe, uid, gid)
+        os.fsync(work)
+        initial_reservation = quota_probe_file(work, reservation_name, reservation, uid, gid)
+        initial_probe = quota_probe_file(work, probe_name, probe, uid, gid)
+        need(initial_reservation.st_ino != initial_probe.st_ino and
+             initial_reservation.st_size == initial_reservation.st_blocks ==
+             initial_probe.st_size == initial_probe.st_blocks == 0, 'DISTINCT_EMPTY_QUOTA_PROBE_FILES_REQUIRED')
+        start = quota_probe_geometry(work)
+        requested = start['available_bytes']
+        need(requested >= ON_VOLUME_REQUIRED_BYTES, 'ACTUAL_HEADROOM_REQUIRED_BEFORE_SATURATION')
+        need(not stop_requested(), 'QUOTA_SATURATION_INTERRUPTED_BEFORE_FILL')
+
+        # This owns only unwritten synthetic extents. One actual attempt, no retry.
+        fill_error = None
+        try:
+            os.posix_fallocate(reservation, 0, requested)
+            os.fsync(reservation)
+        except OSError as error:
+            fill_error = error_record(error, 'reserve-unwritten-quota-calibration-extents')
+        filled = quota_probe_file(work, reservation_name, reservation, uid, gid)
+        saturated = quota_probe_geometry(work)
+        fill_sha = record('quota-saturation-fill.json', {
+            'format': 'scientific-posix-quota-saturation-fill-v1', 'requested_bytes': requested,
+            'error': fill_error, 'before': start, 'after': saturated,
+            'reservation': quota_probe_state(filled), 'reservation_inode': filled.st_ino,
+            'probe_inode': initial_probe.st_ino, 'lifecycle_manifest_sha256': life_manifest_sha})
+        need(fill_error is None and filled.st_size == requested and filled.st_blocks * 512 >= requested and
+             saturated['capacity_bytes'] == start['capacity_bytes'] and saturated['available_bytes'] == 0,
+             'SUCCESSFUL_OWNED_RESERVATION_MUST_EXHAUST_CALLER_AVAILABLE_SPACE')
+        need(signature(quota_probe_file(work, probe_name, probe, uid, gid)) == signature(initial_probe) and
+             quota_probe_geometry(work) == saturated, 'STABLE_EMPTY_PROBE_AND_SATURATED_VOLUME_REQUIRED')
+        need(not stop_requested(), 'QUOTA_SATURATION_INTERRUPTED_BEFORE_RAW_PROBE')
+
+        limits_before = {'RLIMIT_FSIZE': list(resource.getrlimit(resource.RLIMIT_FSIZE)),
+                         'RLIMIT_AS': list(resource.getrlimit(resource.RLIMIT_AS))}
+        denial = None
+        try:
+            os.posix_fallocate(probe, 0, IMAGE_BYTES + UNIT)
+        except OSError as error:
+            denial = error_record(error, 'actual-posix-fallocate-beyond-image-capacity')
+        # Record the immediate raw state before touching either allocation.
+        remaining = quota_probe_file(work, probe_name, probe, uid, gid)
+        after = quota_probe_geometry(work)
+        limits_after = {'RLIMIT_FSIZE': list(resource.getrlimit(resource.RLIMIT_FSIZE)),
+                        'RLIMIT_AS': list(resource.getrlimit(resource.RLIMIT_AS))}
+        observation_sha = record('quota-attempt-observation.json', {
+            'format': 'scientific-posix-quota-attempt-observation-v1',
+            'profile': 'zero-caller-available-ext4-v1', 'job_root': str(job), 'owner_uid': uid,
+            'owner_gid': gid, 'lifecycle_manifest_sha256': life_manifest_sha, 'actual_mount': actual,
+            'attempted_bytes': IMAGE_BYTES + UNIT, 'attempt_error': denial,
+            'probe_before': quota_probe_state(initial_probe), 'probe_after': quota_probe_state(remaining),
+            'geometry_before': saturated, 'geometry_after': after, 'limits_before': limits_before,
+            'limits_after': limits_after, 'fill_sha256': fill_sha,
+            'scope': 'Raw syscall result with zero caller-available space at entry.'})
+        need(denial is not None and denial['errno'] == errno.ENOSPC and remaining.st_size == 0 and
+             remaining.st_blocks == 0, 'ACTUAL_ATOMIC_ENOSPC_DENIAL_REQUIRED_RETAIN_PROBE')
+        need(after == saturated and limits_before == limits_after,
+             'STABLE_SATURATED_VOLUME_AND_LIMITS_REQUIRED_AFTER_DENIAL')
+        os.fsync(probe)
+        os.fsync(work)
+        need(signature(quota_probe_file(work, reservation_name, reservation, uid, gid)) == signature(filled) and
+             signature(quota_probe_file(work, probe_name, probe, uid, gid)) == signature(remaining) and
+             quota_probe_geometry(work) == saturated,
+             'EXACT_SUCCESSFUL_RESERVATION_AND_UNMODIFIED_PROBE_REQUIRED_BEFORE_RELEASE')
+        need(not stop_requested(), 'QUOTA_SATURATION_INTERRUPTED_BEFORE_RELEASE')
+        intent_sha = record('quota-saturation-release-intent.json', {
+            'format': 'scientific-posix-quota-saturation-release-intent-v1',
+            'reservation_inode': filled.st_ino, 'reservation': quota_probe_state(filled),
+            'probe_inode': remaining.st_ino, 'probe': quota_probe_state(remaining),
+            'prior_raw_observation_sha256': observation_sha, 'lifecycle_manifest_sha256': life_manifest_sha,
+            'scope': 'Release authorized for the successful unwritten scratch only. Outcome not yet verified.'})
+        need(not stop_requested(), 'QUOTA_SATURATION_INTERRUPTED_BEFORE_RELEASE')
+        need(signature(quota_probe_file(work, reservation_name, reservation, uid, gid)) == signature(filled) and
+             signature(quota_probe_file(work, probe_name, probe, uid, gid)) == signature(remaining),
+             'EXACT_QUOTA_INODES_REQUIRED_AFTER_RELEASE_INTENT')
+
+        # This is the only destructive operation. It targets the successfully
+        # allocated scratch inode, never either raw failed probe or its receipt.
+        os.ftruncate(reservation, 0)
+        os.fsync(reservation)
+        os.fsync(work)
+        released = quota_probe_file(work, reservation_name, reservation, uid, gid)
+        unchanged_probe = quota_probe_file(work, probe_name, probe, uid, gid)
+        restored = quota_probe_geometry(work)
+        release_sha = record('quota-saturation-release.json', {
+            'format': 'scientific-posix-quota-saturation-release-v1', 'after': restored,
+            'reservation_inode': released.st_ino, 'reservation': quota_probe_state(released),
+            'probe_inode': unchanged_probe.st_ino, 'probe': quota_probe_state(unchanged_probe),
+            'prior_raw_observation_sha256': observation_sha, 'release_intent_sha256': intent_sha,
+            'lifecycle_manifest_sha256': life_manifest_sha})
+        need(released.st_ino == filled.st_ino and released.st_size == released.st_blocks == 0 and
+             signature(unchanged_probe) == signature(remaining) and restored == start,
+             'FULL_VOLUME_HEADROOM_AND_ORIGINAL_PROBE_MUST_BE_PRESERVED')
+    finally:
+        close_owned(reservation, probe, work)
+
+    # A distinct format prevents this result substituting for the old public
+    # lifecycle/SPI proof, whose raw call started with available space.
+    proof = {'format': 'scientific-posix-quota-full-volume-denial-v1',
+             'lifecycle_manifest_sha256': life_manifest_sha, 'job_root': str(job), 'owner_uid': uid,
+             'owner_gid': gid, 'actual_mount': actual, 'attempted_bytes': IMAGE_BYTES + UNIT,
+             'denial': denial, 'probe_retained_bytes': remaining.st_size,
+             'probe_retained_blocks': remaining.st_blocks, 'installed_tools': tools,
+             'fill_sha256': fill_sha, 'raw_observation_sha256': observation_sha,
+             'release_sha256': release_sha, 'release_intent_sha256': intent_sha,
+             'restored_available_bytes': restored['available_bytes'],
+             'retirement': 'NO_FAILED_PROBE_RETIREMENT', 'created_unix_seconds': int(time.time())}
+    create_file(control / 'quota-proof.json', json_bytes(proof), owner=uid, maximum=8192)
+    return {'status': 'FULL_VOLUME_QUOTA_PREPARED_NOT_A_RUN_ADMISSION', 'quota_proof': str(control / 'quota-proof.json')}
+
+
+def verify_full_volume_quota_for_original22(job, life_manifest_sha, uid, gid, installed_tools):
+    """Bind the full-volume records and recheck the current mounted image."""
+    job = explicit_path(job)
+    control = job / 'control'
+
+    def load(name, expected_sha=None):
+        raw = read_owned(control / name, 8192, owner=uid)
+        digest = hashlib.sha256(raw).hexdigest()
+        need(expected_sha is None or digest == sha(expected_sha), 'FULL_VOLUME_QUOTA_RECORD_PIN_MISMATCH')
+        value = json_load(raw, maximum=8192)
+        need(type(value) is dict and value['lifecycle_manifest_sha256'] == life_manifest_sha,
+             'FULL_VOLUME_QUOTA_RECORD_SOURCE_MISMATCH')
+        return value, digest
+
+    proof, proof_sha = load('quota-proof.json')
+    need(proof['format'] == 'scientific-posix-quota-full-volume-denial-v1' and
+         proof['job_root'] == str(job) and proof['owner_uid'] == uid and proof['owner_gid'] == gid and
+         proof['attempted_bytes'] == IMAGE_BYTES + UNIT and proof['denial']['errno'] == errno.ENOSPC and
+         proof['installed_tools'] == installed_tools and
+         proof['probe_retained_bytes'] == proof['probe_retained_blocks'] == 0,
+         'EXACT_FULL_VOLUME_QUOTA_PROOF_REQUIRED_FOR_ORIGINAL22')
+    fill, _ = load('quota-saturation-fill.json', proof['fill_sha256'])
+    raw, raw_sha = load('quota-attempt-observation.json', proof['raw_observation_sha256'])
+    intent, intent_sha = load('quota-saturation-release-intent.json', proof['release_intent_sha256'])
+    release, _ = load('quota-saturation-release.json', proof['release_sha256'])
+    empty = {'bytes': 0, 'blocks_512': 0}
+    need(fill['format'] == 'scientific-posix-quota-saturation-fill-v1' and fill['error'] is None and
+         fill['requested_bytes'] == fill['before']['available_bytes'] == fill['reservation']['bytes'] and
+         fill['reservation']['blocks_512'] * 512 >= fill['requested_bytes'] and
+         raw['format'] == 'scientific-posix-quota-attempt-observation-v1' and
+         raw['profile'] == 'zero-caller-available-ext4-v1' and raw['fill_sha256'] == proof['fill_sha256'] and
+         raw['job_root'] == str(job) and raw['owner_uid'] == uid and raw['owner_gid'] == gid and
+         raw['attempted_bytes'] == proof['attempted_bytes'] and raw['attempt_error'] == proof['denial'] and
+         raw['probe_before'] == raw['probe_after'] == empty and raw['limits_before'] == raw['limits_after'] and
+         fill['after'] == raw['geometry_before'] == raw['geometry_after'] and fill['after']['available_bytes'] == 0,
+         'FILL_AND_IMMEDIATE_ENOSPC_ZERO_RETENTION_REQUIRED')
+    need(intent['format'] == 'scientific-posix-quota-saturation-release-intent-v1' and
+         intent['prior_raw_observation_sha256'] == raw_sha and intent['reservation'] == fill['reservation'] and
+         intent['probe'] == empty and intent['reservation_inode'] == fill['reservation_inode'] and
+         intent['probe_inode'] == fill['probe_inode'] and
+         release['format'] == 'scientific-posix-quota-saturation-release-v1' and release['release_intent_sha256'] == intent_sha and
+         release['prior_raw_observation_sha256'] == raw_sha and release['probe'] == release['reservation'] == empty and
+         release['reservation_inode'] == fill['reservation_inode'] != fill['probe_inode'] == release['probe_inode'] and
+         release['after'] == fill['before'] and
+         release['after']['available_bytes'] == proof['restored_available_bytes'] >= ON_VOLUME_REQUIRED_BYTES,
+         'EXACT_SCRATCH_RELEASE_AND_RESTORED_HEADROOM_REQUIRED')
+    live = mount_observation(job / 'volume', job / 'quota.img', uid)
+    need(live == proof['actual_mount'] == raw['actual_mount'], 'FULL_VOLUME_QUOTA_MOUNT_CHANGED')
+    work = owned_dir(job / 'volume' / 'work', owner=uid)
+    try:
+        need(quota_probe_geometry(work) == release['after'], 'FULL_VOLUME_QUOTA_LIVE_HEADROOM_CHANGED')
+        for name, inode in (('successful-quota-reservation.scratch', release['reservation_inode']),
+                            ('enospc-probe.retained', release['probe_inode'])):
+            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=work)
+            try:
+                attrs = quota_probe_file(work, name, fd, uid, gid)
+                need(attrs.st_ino == inode and quota_probe_state(attrs) == empty, 'FULL_VOLUME_QUOTA_RETAINED_INODE_CHANGED')
+            finally:
+                close_owned(fd)
+    finally:
+        close_owned(work)
+    return {'profile': raw['profile'], 'proof_sha256': proof_sha, 'raw_observation_sha256': raw_sha,
+            'fill_sha256': proof['fill_sha256'], 'release_sha256': proof['release_sha256'],
+            'release_intent_sha256': intent_sha, 'actual_mount': live}
 
 
 def prepare_memory(job, interpreter, life_manifest_sha):

@@ -29,7 +29,7 @@ BRANCH = 'refs/heads/scientific-posix-proof-20261115'
 ADMISSION = 'verification/scientific-posix-proof-admission-20261115.json'
 ADMISSION_FORMAT = 'scientific-posix-proof-job-admission-v1'
 ADMISSION_STATUS = 'AUTHORIZED_REVIEWED_ORIGINAL22_ONLY'
-LIFE_SHA = '25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54'
+LIFE_SHA = '66bd2134bc5c59f0474d4ac63782e093d3a7deaff8adddab33faae8560a548bc'
 EVIDENCE_SHA = 'f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469'
 COMMON_SHA = '15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf'
 BASE_BYTES = 1_493_172_224
@@ -898,8 +898,14 @@ def controller(container):
         create(container / 'control' / 'host-before.json', encode(host_attribution(ctx)), uid, gid)
         need(not STOP, 'INTERRUPTED_BEFORE_PREPARATION')
         prep = ctx['preparation']
-        life.prepare_quota(prep, LIFE_SHA)
+        prepared = life.prepare_quota_on_full_volume(prep, LIFE_SHA, stop_requested=lambda: bool(STOP))
+        need(prepared == {'status': 'FULL_VOLUME_QUOTA_PREPARED_NOT_A_RUN_ADMISSION',
+                         'quota_proof': str(container / 'job' / 'control' / 'quota-proof.json')},
+             'EXACT_FULL_VOLUME_PREPARATION_RESULT_REQUIRED')
+        result['quota_proof'] = life.verify_full_volume_quota_for_original22(
+            container / 'job', LIFE_SHA, uid, gid, prep['installed_tools'])
         result['quota_prepared'] = True
+        need(not STOP, 'INTERRUPTED_BEFORE_MEMORY_PROBE')
         memory = bounded([ctx['runtime']['python']['path'], '-I', '-S', '-B',
             str(Path(ctx['source_root']) / 'scripts' / 'run_scientific_lifecycle_job.py'),
             '_memory-owner', '--container', str(container)], container,
@@ -907,11 +913,13 @@ def controller(container):
             as_owner=True, output_limit=65536)
         need(memory['exit_code'] == 0 and memory['quiescent'] and not memory['errors'] and
              memory['reason'] == 'process-exit', 'ACTUAL_MEMORY_OWNER_PROCESS_FAILED')
-        proof = decode(read(container / 'job' / 'control' / 'memory-proof.json'))
+        memory_raw = read(container / 'job' / 'control' / 'memory-proof.json')
+        proof = decode(memory_raw)
         need(proof['probe']['actual_getrlimit'] == [MEMORY_BYTES, MEMORY_BYTES] and
              proof['probe']['denial_observed'] is True and proof['probe']['exception'] == 'MemoryError' and
              proof['probe']['attempted_bytes'] == MEMORY_BYTES + 1 and proof['process']['quiescent'] is True,
              'ACTUAL_UNPRIVILEGED_MEMORY_PROOF')
+        result['memory_proof_sha256'] = hashlib.sha256(memory_raw).hexdigest()
         result['memory_probed'] = True
         result['headroom'] = life.require_source_headroom(container / 'job' / 'volume', uid)
         need(not STOP, 'INTERRUPTED_BEFORE_ORIGINAL22')
@@ -935,6 +943,18 @@ def controller(container):
         result['errors'].append(fault(error, 'original22-controller'))
     finally:
         result['closure'] = close_image(container, ctx, life)
+        if result['quota_prepared'] and result['closure']['complete_closed_image']:
+            try:
+                unmount = decode(read(container / 'control' / 'unmount-attempt.json'))
+                need(unmount['actual_mount'] == result['quota_proof']['actual_mount'],
+                     'SAME_QUOTA_PROOF_MOUNT_REQUIRED_FOR_CLOSURE')
+                closed = result['closure']['raw_image']['identity']
+                mounted_identity = result['quota_proof']['actual_mount']['image_identity']
+                need([closed[i] for i in (0,1,3,5,6)] == mounted_identity,
+                     'SAME_EXACT_MOUNTED_IMAGE_REQUIRED_FOR_CLOSED_BYTE_HASH')
+                result['quota_image_mount_link_verified'] = True
+            except BaseException as error:
+                result['errors'].append(fault(error, 'quota-image-mount-binding'))
         result['interrupted_signals'] = list(STOP)
         if result['original22_verified'] and result['closure']['complete_closed_image'] and not result['errors'] and not STOP:
             result['status'] = 'ORIGINAL22_AND_CLOSED_IMAGE_BYTES_VERIFIED_CUSTODY_PENDING'
@@ -954,7 +974,7 @@ def owner_action(container, action):
     command = [ctx['runtime']['python']['path'], '-I', '-S', '-B',
         str(container / 'lifecycle' / 'test_scientific_posix_lifecycle.py'),
         '--test-root', str(container / 'job' / 'volume' / 'work' / 'original22'),
-        '--lifecycle-sha256', '3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858',
+        '--lifecycle-sha256', '8d0b4b4c7d07000cb78ef1b383b47474e4cc5ead0708fac9e45d86e64b159348',
         '--python', ctx['runtime']['python']['path'], '--python-bytes', str(ctx['runtime']['python']['bytes']),
         '--python-sha256', ctx['runtime']['python']['sha256']]
     # evidence.py adds its own cache variables; reset before the original test exec.
