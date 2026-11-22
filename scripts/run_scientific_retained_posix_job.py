@@ -27,7 +27,7 @@ import subprocess
 import time
 
 
-BRANCH = 'refs/heads/scientific-posix-retained-r3'
+BRANCH = 'refs/heads/scientific-posix-retained-r4'
 ADMISSION = 'verification/scientific-posix-retained-all-admission.json'
 ADMISSION_FORMAT = 'scientific-posix-full-volume-retained-job-admission-v1'
 ADMISSION_STATUS = 'AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY'
@@ -35,8 +35,12 @@ ADMISSION_ENABLED = True
 LIFE_SHA = '293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15'  # Set only after the complete lifecycle packet is frozen.
 LIFE_MODULE_SHA = 'dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644'
 SPI_SHA = '6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271'
-HELPER_SHA = {'scientific_posix_full_volume_admission': 'e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7', 'scientific_posix_producer_group': 'd46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a', 'scientific_posix_transport_limits': '5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753'}  # Verified paths and digests enter together with the reviewed packet.
-HELPER_SHA['scientific_posix_failure_custody'] = '56750c4b87976123254d4bc8756f350c8ec20fec5f295ac10a6c8eb25b2e74d4'
+HELPER_SHA = {
+    'scientific_posix_full_volume_admission': 'e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7',
+    'scientific_posix_producer_group': 'd46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a',
+    'scientific_posix_transport_limits': '5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753',
+    'scientific_posix_failure_custody': '56750c4b87976123254d4bc8756f350c8ec20fec5f295ac10a6c8eb25b2e74d4',
+}
 EVIDENCE_SHA = 'f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469'
 COMMON_SHA = '15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf'
 BASE_BYTES = 1_493_172_224

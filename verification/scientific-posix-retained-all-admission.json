@@ -1,13 +1,13 @@
 {
   "format": "scientific-posix-full-volume-retained-job-admission-v1",
   "status": "AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY",
-  "branch": "refs/heads/scientific-posix-retained-r3",
-  "attempt_id": "retained-posix-direct-sealed-failure",
-  "created_unix_seconds": 1795368268,
-  "expires_unix_seconds": 1795382668,
-  "baseline_including_reserve_bytes": 9916604341,
+  "branch": "refs/heads/scientific-posix-retained-r4",
+  "attempt_id": "retained-posix-direct-sealed-failure-r4",
+  "created_unix_seconds": 1795368930,
+  "expires_unix_seconds": 1795383330,
+  "baseline_including_reserve_bytes": 9918598776,
   "global_reserve_bytes": 2000000000,
-  "fresh_inventory_sha256": "031dce1bd14f640bee8ca99fa2592b1dc4c147f1c1ac7d7bc1c7fef16b87e6c2",
+  "fresh_inventory_sha256": "27f7e05a3bf3b971a460ec7797213976de1817061ff262c409938dab81a07460",
   "base_lifecycle_bytes": 1493172224,
   "connector_bytes": 0,
   "supplement_bytes": 67108864,
@@ -15,9 +15,9 @@
   "native_transfer": "direct-native-single-bounded-archive",
   "no_other_heavy_process": true,
   "independent_review_closed": true,
-  "independent_first_findings_sha256": "31adb5664b90f5995d8dd66d9930cb37070b1afe0e13e163b70b6596fa0838c0",
+  "independent_first_findings_sha256": "d91ede8914489b0768271f056419c483d0e77344aa65da51e802c9ac0c846e38",
   "source_pins": {
-    "job_script_sha256": "731c405f353c4ffcd582066c583f9553dc1f4564307373456c43bb04121aac60",
+    "job_script_sha256": "6817ee97cfc168b9f5971391292022a938f82e4a3bb74c25db8866b6eeadee8e",
     "lifecycle_manifest_sha256": "293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15",
     "lifecycle_module_sha256": "dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644",
     "integration_manifest_sha256": "6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271",
@@ -26,7 +26,8 @@
     "helpers": {
       "scientific_posix_full_volume_admission": "e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7",
       "scientific_posix_producer_group": "d46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a",
-      "scientific_posix_transport_limits": "5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753"
+      "scientific_posix_transport_limits": "5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753",
+      "scientific_posix_failure_custody": "56750c4b87976123254d4bc8756f350c8ec20fec5f295ac10a6c8eb25b2e74d4"
     }
   }
 }
