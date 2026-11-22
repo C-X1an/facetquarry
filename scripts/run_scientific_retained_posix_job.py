@@ -27,7 +27,7 @@ import subprocess
 import time
 
 
-BRANCH = 'refs/heads/scientific-posix-retained-all'
+BRANCH = 'refs/heads/scientific-posix-retained-r2'
 ADMISSION = 'verification/scientific-posix-retained-all-admission.json'
 ADMISSION_FORMAT = 'scientific-posix-full-volume-retained-job-admission-v1'
 ADMISSION_STATUS = 'AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY'
@@ -44,7 +44,7 @@ BASELINE_CEILING = 12_000_000_000 - BASE_BYTES - OTHER_BYTES - 1
 NATIVE_TRANSFER = 'direct-native-single-bounded-archive'
 IMAGE_BYTES = 268_435_456
 MEMORY_BYTES = 536_870_912
-SOURCE_BYTES = 16 << 20
+SOURCE_BYTES = (16 << 20) + (128 << 10)  # Under the unchanged aggregate support and transport caps.
 SUPPLEMENT_BYTES = 64 << 20
 PAYLOAD_BYTES = 495 << 20
 DRIVER_BYTES = 112_000
@@ -61,6 +61,40 @@ RUNTIME_PATHS = {'python': '/usr/bin/python3.12', 'mke2fs': '/usr/sbin/mke2fs',
 STOP = []
 ACTIVE = set()
 TRUSTED_UID = os.getuid()
+DIAGNOSTIC_GUARDS = frozenset('''
+    ACTIVE_LOOP_BACKING_ASSOCIATION_REMAINS ACTIVE_OR_UNCONFIRMED_IMAGE_MUST_NOT_BE_SELECTED
+    ACTUAL_ATOMIC_ENOSPC_DENIAL_REQUIRED_RETAIN_PROBE ACTUAL_COMPLETE_SPI_AND_NEUTRAL_PAIR_REQUIRED
+    ACTUAL_AVAILABLE_QUOTA_SPACE_CANNOT_FIT_UNWEAKENED_SOURCE_AND_HEADROOM
+    ACTUAL_EXT4_LOOP_NODEV_NOSUID_NOEXEC_REQUIRED ACTUAL_HEADROOM_REQUIRED_BEFORE_SATURATION
+    ACTUAL_INHERITED_CONTROLLER_LIMITS_REQUIRED ACTUAL_LOOP_CAPACITY_REQUIRED ACTUAL_MEMORY_OWNER_PROCESS_FAILED
+    ACTUAL_NO_NEW_PRIVILEGES_REQUIRED ACTUAL_PRODUCER_WRITERS_REMAIN ACTUAL_RETAINED_SPI_COMMAND_FAILED
+    ACTUAL_UNPRIVILEGED_MEMORY_PROOF ACTUAL22_STREAMS_AND_RECEIPT_MUST_AGREE_ZERO_FAILURE_ERROR_SKIP
+    BOUND_PRE_ENROLLMENT_LOCK_REQUIRED CANNOT_PROVE_NO_RELEVANT_PROCESS_WRITER COMPLETE_SOURCE_COPY_RESERVATION
+    DISTINCT_EMPTY_QUOTA_PROBE_FILES_REQUIRED EXACT_FULL_VOLUME_PREPARATION_RESULT_REQUIRED
+    EXACT_FULL_VOLUME_QUOTA_PROOF_REQUIRED_FOR_ORIGINAL22 EXACT_QUOTA_INODES_REQUIRED_AFTER_RELEASE_INTENT
+    EXACT_SCRATCH_RELEASE_AND_RESTORED_HEADROOM_REQUIRED
+    EXACT_SUCCESSFUL_RESERVATION_AND_UNMODIFIED_PROBE_REQUIRED_BEFORE_RELEASE
+    EXACT_PRIVATE_MOUNT_REQUIRED EXACT_RETAINED_CONTROLLER_CONTEXT EXACT_ROOT_CONTROLLER_LEASE_REQUIRED
+    FILL_AND_IMMEDIATE_ENOSPC_ZERO_RETENTION_REQUIRED FULL_CAPACITY_IMAGE_ALLOCATION_REQUIRED
+    FULL_IMAGE_ALLOCATION_FAILED FULL_OWNED_IMAGE_REQUIRED_FOR_COMPLETE_REFERENCE
+    FULL_VOLUME_HEADROOM_AND_ORIGINAL_PROBE_MUST_BE_PRESERVED FULL_VOLUME_QUOTA_LIVE_HEADROOM_CHANGED
+    FULL_VOLUME_QUOTA_MOUNT_CHANGED FULL_VOLUME_QUOTA_RECORD_PIN_MISMATCH FULL_VOLUME_QUOTA_RECORD_SOURCE_MISMATCH
+    FULL_VOLUME_QUOTA_RETAINED_INODE_CHANGED IMAGE_FILESYSTEM_STILL_MOUNTED IMAGE_OPEN_BINDING
+    INTERRUPTED_BEFORE_MEMORY_PROBE INTERRUPTED_BEFORE_ORIGINAL22 INTERRUPTED_BEFORE_PREPARATION INTERRUPTED_BEFORE_SPI
+    KNOWN_CHECKOUT_ACTION_TEMP_SUPPLEMENT_EXCEEDED LOOP_BACKING_IMAGE_PATH_MISMATCH
+    MOUNTINFO_SYSFS_AND_ACTUAL_BLOCK_DEVICE_IDENTITY_REQUIRED MOUNT_DEVICE_GEOMETRY_AND_CAPACITY_BINDING
+    NO_PRODUCER_WITHOUT_COMPLETE_SUPPORT_CAPACITY ONE_ACTUAL_ORIGINAL22_RECEIPT_REQUIRED ONE_EXACT_MOUNT_ONLY
+    ORDINARY_UNMOUNT_FAILED_RETAIN_ALL_NO_RETRY ORIGINAL22_EVIDENCE_COMMAND_FAILED OWNED_COMMAND_STILL_ACTIVE
+    OWNED_PRODUCER_AND_ALL_NESTED_SESSIONS_MUST_BE_TERMINAL QUOTA_SETUP_COMMAND_FAILED_RETAIN_NEW_JOB
+    QUOTA_SATURATION_INTERRUPTED_BEFORE_INITIALIZATION QUOTA_SATURATION_INTERRUPTED_BEFORE_FILL
+    QUOTA_SATURATION_INTERRUPTED_BEFORE_RAW_PROBE QUOTA_SATURATION_INTERRUPTED_BEFORE_RELEASE
+    RETAINED_CLOSED_IMAGE_REFERENCE_MISMATCH RETAINED_QUOTA_PROBES_MUST_BE_ON_THE_ADMITTED_IMAGE
+    SAME_EXACT_MOUNTED_IMAGE_REQUIRED_FOR_CLOSED_BYTE_HASH SAME_QUOTA_PROOF_MOUNT_REQUIRED_FOR_CLOSURE
+    SAME_ROOT_VERIFIED_QUOTA_PROOF_REQUIRED_AFTER_ORIGINAL22 SOURCE_COPY_OR_SET_CHANGED
+    STABLE_EMPTY_PROBE_AND_SATURATED_VOLUME_REQUIRED STABLE_SATURATED_VOLUME_AND_LIMITS_REQUIRED_AFTER_DENIAL
+    SUCCESSFUL_OWNED_RESERVATION_MUST_EXHAUST_CALLER_AVAILABLE_SPACE UNMOUNT_ALREADY_ATTEMPTED_NO_AUTOMATIC_RETRY
+    WRITER_REMAINS_AFTER_UNMOUNT WRITERS_OR_ATTACHED_LOOP_REFUSE_IMAGE_SELECTION
+    '''.split())
 
 
 def need(ok, message):
@@ -153,6 +187,46 @@ def fault(error, operation):
                 truncated |= isinstance(current, BaseExceptionGroup) or len(str(current)) > 96
         result.update(leaf_errors=leaves, details_truncated=truncated or bool(pending))
     return result
+
+
+def bounded_diagnostic_error(row):
+    """Project the exact stage and fixed guard code without copying raw exceptions."""
+    candidate = row.get('message')
+    code = candidate if type(candidate) is str and candidate in DIAGNOSTIC_GUARDS else None
+    kind = row.get('type')
+    if type(kind) is not str or not re.fullmatch(r'[A-Za-z][A-Za-z0-9_]{0,47}', kind):
+        kind = 'Unavailable'
+    number = row.get('errno')
+    return {'guard': code, 'type': kind, 'errno': number if type(number) is int and 0 < number < 4096 else None}
+
+
+def controller_diagnostic(result):
+    return {'format': 'scientific-posix-root-terminal-diagnostic-v1', 'operation': 'controller',
+            'phase': result['phase'], 'status': result['status'], 'quota_prepared': result['quota_prepared'],
+            'memory_probed': result['memory_probed'], 'original22_verified': result['original22_verified'],
+            'spi3_verified': isinstance(result['spi_cases'], dict),
+            'errors': [bounded_diagnostic_error(error) for error in result['errors'][:2]]}
+
+
+def image_diagnostic(operation, closure, persistence_errors=()):
+    return {'format': 'scientific-posix-root-terminal-diagnostic-v1', 'operation': operation,
+            'phase': closure.get('phase'), 'image_closed': closure.get('complete_closed_image') is True,
+            'errors': [bounded_diagnostic_error(error) for error in closure.get('errors', [])[:1]],
+            'record_errors': [bounded_diagnostic_error(error) for error in persistence_errors[:1]]}
+
+
+def try_append_fallback(inputs, value):
+    try:
+        append_fallback(inputs, value)
+    except Exception:
+        print('FALLBACK_STATUS_APPEND_REFUSED_SEE_TERMINAL_REPORT', file=sys.stderr, flush=True)
+
+
+def publish_root_diagnostic(inputs, value):
+    raw = encode(value)
+    need(len(raw) <= 640, 'ROOT_DIAGNOSTIC_RECORD_BOUND')
+    print(raw.decode('ascii'), end='', file=sys.stderr, flush=True)
+    try_append_fallback(inputs, value)
 
 
 def sig(info):
@@ -848,7 +922,7 @@ def close_image(container, ctx, life, lock, *, recovery=False):
     uid, gid = ctx['owner_uid'], ctx['owner_gid']
     control, job = container / 'control', container / 'job'
     image, volume = job / 'quota.img', job / 'volume'
-    result = {'format': 'scientific-posix-proof-image-closure-v1', 'complete_closed_image': False,
+    result = {'format': 'scientific-posix-proof-image-closure-v1', 'complete_closed_image': False, 'phase': 'producer-barrier',
               'image_retained': image.exists(), 'recovery': recovery, 'errors': [],
               'cloud_native_custody': 'NOT_VERIFIED', 'scientific_qualification': 'NOT_CLAIMED'}
     try:
@@ -858,6 +932,7 @@ def close_image(container, ctx, life, lock, *, recovery=False):
             record = decode(read(authority_dir(container) / 'producer-cgroup.json'))
             result['producer_recovery'] = group.stop_remaining(container, record)
         result['producer_cgroup_before'] = assert_producers_empty(container, ctx)
+        result['phase'] = 'retained-image-and-writers'
         info = image.lstat()
         need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid in (0, uid) and
              info.st_mode & 0o077 == 0 and info.st_size == IMAGE_BYTES and
@@ -867,12 +942,14 @@ def close_image(container, ctx, life, lock, *, recovery=False):
         need(len(current) <= 1, 'ONE_EXACT_MOUNT_ONLY')
         expected = None
         if current:
+            result['phase'] = 'exact-mount-binding'
             # This inspects actual identity even when quota proof creation failed.
             expected = life.mount_observation(volume, image, uid)
             attempt = control / 'unmount-attempt.json'
             need(not attempt.exists(), 'UNMOUNT_ALREADY_ATTEMPTED_NO_AUTOMATIC_RETRY')
             create(attempt, encode({'actual_mount': expected, 'image_identity': list(sig(info)),
                                    'pid': os.getpid()}), uid, gid)
+            result['phase'] = 'ordinary-unmount'
             umount = verify_runtime(ctx['runtime']['umount'])
             command = bounded([umount, str(volume)], container, control / 'commands',
                               'ordinary-unmount', uid, gid, seconds=60, output_limit=65536, allow_stop=True,
@@ -880,11 +957,13 @@ def close_image(container, ctx, life, lock, *, recovery=False):
             need(command['exit_code'] == 0 and command['quiescent'] and
                  command['reason'] == 'process-exit' and not command['errors'],
                  'ORDINARY_UNMOUNT_FAILED_RETAIN_ALL_NO_RETRY')
+        result['phase'] = 'mount-and-loop-absence'
         need(not any(row[4] == str(volume) or (expected and row[2] == expected['major_minor'])
                      for row in mounts()), 'IMAGE_FILESYSTEM_STILL_MOUNTED')
         need(not loop_associations(image), 'ACTIVE_LOOP_BACKING_ASSOCIATION_REMAINS')
         need(not process_image_writers(volume, image, uid), 'WRITER_REMAINS_AFTER_UNMOUNT')
         result['producer_cgroup_after'] = assert_producers_empty(container, ctx)
+        result['phase'] = 'closed-image-hash'
         # Root-created partial-setup image metadata may be repaired only for upload readability.
         if info.st_uid != uid or info.st_gid != gid:
             os.chown(image, uid, gid, follow_symlinks=False)
@@ -904,11 +983,11 @@ def close_image(container, ctx, life, lock, *, recovery=False):
                  'RETAINED_CLOSED_IMAGE_REFERENCE_MISMATCH')
         else:
             create(control / 'closed-image-reference.json', encode(reference), uid, gid)
-        result.update(complete_closed_image=True, raw_image=reference,
+        result.update(complete_closed_image=True, raw_image=reference, phase='closed-image-verified',
                       assertion='FULL_BYTES_ONLY_NO_EXTRACTION_OR_SCIENTIFIC_SUCCESS')
     except BaseException as error:
         result['errors'].append(fault(error, 'image-closure'))
-        # An unsafe/active/partial image is still retained and uploaded as failure data.
+        # Keep the original file. Recovery decides whether it can be uploaded.
         try:
             info = image.lstat()
             if stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid in (0, uid):
@@ -1103,12 +1182,13 @@ def actual_spis(container, ctx, life, admitted, control_proof, expected_source, 
             'harness_report_sha256': hashlib.sha256(suite_raw).hexdigest()}
 
 
-def controller(container, lock):
+def controller(container, lock, inputs):
     need(os.geteuid() == 0, 'ROOT_CONTROLLER_REQUIRED')
     ctx = context(container)
     uid, gid = ctx['owner_uid'], ctx['owner_gid']
     life = load_life(container, uid)
     result = {'format': 'scientific-posix-full-volume-retained-cases-job-result-v1', 'status': 'FAILURE_RETAINED',
+              'phase': 'source-and-producer-control',
               'original22_verified': False, 'quota_prepared': False, 'memory_probed': False,
               'spi_cases': 'NOT_RUN', 'scientific_qualification': 'NOT_CLAIMED', 'errors': []}
     try:
@@ -1131,6 +1211,7 @@ def controller(container, lock):
              effective['memory'] == [MEMORY_BYTES, MEMORY_BYTES], 'ACTUAL_INHERITED_CONTROLLER_LIMITS_REQUIRED')
         create(container / 'control' / 'host-before.json', encode(host_attribution(ctx)), uid, gid)
         need(not STOP, 'INTERRUPTED_BEFORE_PREPARATION')
+        result['phase'] = 'full-volume-quota'
         prep = ctx['preparation']
         prepared = life.prepare_quota_on_full_volume(prep, LIFE_SHA, stop_requested=lambda: bool(STOP),
                                                     controller_lease=lock)
@@ -1141,6 +1222,7 @@ def controller(container, lock):
             container / 'job', LIFE_SHA, uid, gid, prep['installed_tools'])
         result['quota_prepared'] = True
         need(not STOP, 'INTERRUPTED_BEFORE_MEMORY_PROBE')
+        result['phase'] = 'unprivileged-memory'
         memory = bounded(grouped_command(container, ctx, '_group-memory-owner', lock), container,
             container / 'control' / 'commands', 'memory-owner', uid, gid, seconds=35,
             output_limit=65536, driver_lock=lock)
@@ -1157,6 +1239,7 @@ def controller(container, lock):
         result['memory_probed'] = True
         result['headroom'] = life.require_source_headroom(container / 'job' / 'volume', uid)
         need(not STOP, 'INTERRUPTED_BEFORE_ORIGINAL22')
+        result['phase'] = 'original22'
         original = life.original22_command(container / 'job', ctx['runtime']['python'], LIFE_MODULE_SHA)
         command = grouped_command(container, ctx, '_group-original22-owner', lock)
         nested = bounded(command, Path(ctx['source_root']), container / 'control' / 'commands',
@@ -1182,11 +1265,14 @@ def controller(container, lock):
         verify_sources(ctx)
         create(container / 'control' / 'host-after-controls.json', encode(host_attribution(ctx)), uid, gid)
         result['spi_cases'] = 'STARTED_OR_EARLY_ADMISSION_REFUSED_SEE_ACTUAL_RECORDS'
+        result['phase'] = 'retained-spi3'
         result['spi_cases'] = actual_spis(container, ctx, life, admitted, actual, technical_source, lock)
     except BaseException as error:
         result['errors'].append(fault(error, 'original22-controller'))
+        publish_root_diagnostic(inputs, controller_diagnostic(result))
     finally:
         result['closure'] = close_image(container, ctx, life, lock)
+        publish_root_diagnostic(inputs, image_diagnostic('controller-closure', result['closure']))
         if result['quota_prepared'] and result['closure']['complete_closed_image']:
             try:
                 unmount = decode(read(container / 'control' / 'unmount-attempt.json'))
@@ -1199,6 +1285,7 @@ def controller(container, lock):
                 result['quota_image_mount_link_verified'] = True
             except BaseException as error:
                 result['errors'].append(fault(error, 'quota-image-mount-binding'))
+                publish_root_diagnostic(inputs, controller_diagnostic(result))
         result['interrupted_signals'] = list(STOP)
         binding = None
         if (result['original22_verified'] and type(result['spi_cases']) is dict and
@@ -1214,6 +1301,9 @@ def controller(container, lock):
                 'image': {key: closed[key] for key in ('bytes', 'sha256', 'identity')},
                 'quota_mounted_image_identity': result['quota_proof']['actual_mount']['image_identity']}
             result['status'] = 'ORIGINAL22_AND_SPI3_CLOSED_IMAGE_BYTES_VERIFIED_CUSTODY_PENDING'
+            result['phase'] = 'controller-terminal'
+        if not result['errors']:
+            publish_root_diagnostic(inputs, controller_diagnostic(result))
         controller_result = encode(result)
         create(container / 'control' / 'controller-result.json', controller_result, uid, gid)
         if binding is not None:
@@ -1492,8 +1582,8 @@ def recover(args):
             return recover_locked(inputs, lock)
     except BaseException as error:
         result = {'custody': 'INCOMPLETE', 'payload_admitted': False,
-                  'error': fault(error, 'exclusive-root-recovery-refused-no-live-image-selection')}
-        append_fallback(inputs, result)
+                  'error': bounded_diagnostic_error(fault(error, 'exclusive-root-recovery-refused-no-live-image-selection'))}
+        try_append_fallback(inputs, result)
         print(json.dumps(result, sort_keys=True))
         return 1
 
@@ -1527,6 +1617,7 @@ def recover_locked(inputs, lock):
             result.update(closure_evidence_available=True, closure_command_complete=closure['complete_closed_image'])
         except BaseException as error:
             result['errors'].append(fault(error, 'closure-unavailable-no-substitute-proof'))
+        publish_root_diagnostic(inputs, image_diagnostic('recovery-closure', closure, result['errors']))
         job = container / 'job'
         need(not any(row[4] == str(job) or row[4].startswith(str(job) + '/') for row in mounts()),
              'ACTIVE_OR_UNCONFIRMED_IMAGE_MUST_NOT_BE_SELECTED')
@@ -1552,7 +1643,9 @@ def recover_locked(inputs, lock):
             missing_expected=inventory.get('missing_expected', []),
             final_admission='REQUIRES_EXACT_UPLOAD_MANIFEST' if preliminary else 'REJECTED_FALLBACK_ONLY')
         create(container / 'custody-result.json', encode(result), uid, gid)
-        append_fallback(inputs, result)
+        try_append_fallback(inputs, {'custody': 'INCOMPLETE', 'operation': 'payload-selection',
+            'complete_source_inventory': result['complete_regular_file_inventory'],
+            'image_closed': result['closure_command_complete'], 'final_admission': result['final_admission']})
         if preliminary:
             for name in ('outbound-inventory.json', 'custody-result.json'):
                 files.append({'path': str(container / name), **file_ref(container / name, 4 << 20, owner=uid)})
@@ -1580,11 +1673,9 @@ def recover_locked(inputs, lock):
     except BaseException as error:
         result['errors'].append(fault(error, 'full-payload-rejected'))
         result['payload_admitted'] = False
-        try:
-            append_fallback(inputs, {'custody': 'INCOMPLETE', 'payload_admitted': False,
-                'omitted_namespace_bytes': 'ALL_OR_UNKNOWN; NO_FULL_PAYLOAD_UPLOAD', 'errors': result['errors'][-3:]})
-        except BaseException as error2:
-            result['errors'].append(fault(error2, 'fallback-error-append-unavailable'))
+        try_append_fallback(inputs, {'custody': 'INCOMPLETE', 'payload_admitted': False,
+            'omitted_namespace_bytes': 'ALL_OR_UNKNOWN; NO_FULL_PAYLOAD_UPLOAD',
+            'errors': [bounded_diagnostic_error(error) for error in result['errors'][-2:]]})
     result.setdefault('payload_admitted', False)
     print(json.dumps(result, sort_keys=True))
     # Ten still publishes the admitted complete available failure payload. One selects fallback only.
@@ -1679,13 +1770,19 @@ def bootstrap(args):
         need(file_ref(workspace / 'scripts' / name, SMALL)['sha256'] == expected, 'PINNED_EVIDENCE_DEPENDENCY')
     inputs = run_inputs(args)
     container = Path(inputs['container'])
-    trusted = authority_dir(container, create_new=True)
-    with driver_lock(container) as lock:
-        need(not (trusted / 'recovery-started.json').exists(), 'RECOVERY_FENCE_PROHIBITS_LATE_STAGING')
-        limits(IMAGE_BYTES + 8192)
-        stage_bootstrap(args, inputs, container, trusted, own, raw_admission, runtime, admitted)
-        start_controller_once(container)
-        return controller(container, lock)
+    try:
+        trusted = authority_dir(container, create_new=True)
+        with driver_lock(container) as lock:
+            need(not (trusted / 'recovery-started.json').exists(), 'RECOVERY_FENCE_PROHIBITS_LATE_STAGING')
+            limits(IMAGE_BYTES + 8192)
+            stage_bootstrap(args, inputs, container, trusted, own, raw_admission, runtime, admitted)
+            start_controller_once(container)
+            return controller(container, lock, inputs)
+    except (OSError, RuntimeError, ValueError) as error:
+        publish_root_diagnostic(inputs, {'format': 'scientific-posix-root-terminal-diagnostic-v1',
+            'operation': 'bootstrap', 'phase': 'before-or-around-controller',
+            'errors': [bounded_diagnostic_error(fault(error, 'bootstrap'))]})
+        return 1
 
 
 def stage_bootstrap(args, inputs, container, trusted, own, raw_admission, runtime, admitted):
