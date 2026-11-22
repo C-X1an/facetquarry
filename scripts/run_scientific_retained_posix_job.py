@@ -27,7 +27,7 @@ import subprocess
 import time
 
 
-BRANCH = 'refs/heads/scientific-posix-retained-r2'
+BRANCH = 'refs/heads/scientific-posix-retained-r3'
 ADMISSION = 'verification/scientific-posix-retained-all-admission.json'
 ADMISSION_FORMAT = 'scientific-posix-full-volume-retained-job-admission-v1'
 ADMISSION_STATUS = 'AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY'
@@ -36,6 +36,7 @@ LIFE_SHA = '293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15'  #
 LIFE_MODULE_SHA = 'dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644'
 SPI_SHA = '6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271'
 HELPER_SHA = {'scientific_posix_full_volume_admission': 'e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7', 'scientific_posix_producer_group': 'd46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a', 'scientific_posix_transport_limits': '5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753'}  # Verified paths and digests enter together with the reviewed packet.
+HELPER_SHA['scientific_posix_failure_custody'] = '56750c4b87976123254d4bc8756f350c8ec20fec5f295ac10a6c8eb25b2e74d4'
 EVIDENCE_SHA = 'f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469'
 COMMON_SHA = '15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf'
 BASE_BYTES = 1_493_172_224
@@ -92,6 +93,10 @@ DIAGNOSTIC_GUARDS = frozenset('''
     SAME_EXACT_MOUNTED_IMAGE_REQUIRED_FOR_CLOSED_BYTE_HASH SAME_QUOTA_PROOF_MOUNT_REQUIRED_FOR_CLOSURE
     SAME_ROOT_VERIFIED_QUOTA_PROOF_REQUIRED_AFTER_ORIGINAL22 SOURCE_COPY_OR_SET_CHANGED
     STABLE_EMPTY_PROBE_AND_SATURATED_VOLUME_REQUIRED STABLE_SATURATED_VOLUME_AND_LIMITS_REQUIRED_AFTER_DENIAL
+    OFF_MOUNT_ATTACHMENT_CHANGED OFF_MOUNT_EXACT_KERNEL_BACKING_REQUIRED
+    OFF_MOUNT_EXACT_LIVE_BACKING_INODE_REQUIRED OFF_MOUNT_EXACT_LOOP_WITHOUT_EXTRA_MOUNTS_REQUIRED
+    OFF_MOUNT_EXTERNAL_PROOF_NAMESPACE_ALIAS OFF_MOUNT_NONEMPTY_BOUNDED_DIAGNOSTICS_REQUIRED
+    SCOPED_TERMINAL_OWNED_NAMESPACE_REQUIRED_FOR_DETACHED_DIAGNOSTICS
     SUCCESSFUL_OWNED_RESERVATION_MUST_EXHAUST_CALLER_AVAILABLE_SPACE UNMOUNT_ALREADY_ATTEMPTED_NO_AUTOMATIC_RETRY
     WRITER_REMAINS_AFTER_UNMOUNT WRITERS_OR_ATTACHED_LOOP_REFUSE_IMAGE_SELECTION
     '''.split())
@@ -211,6 +216,7 @@ def controller_diagnostic(result):
 def image_diagnostic(operation, closure, persistence_errors=()):
     return {'format': 'scientific-posix-root-terminal-diagnostic-v1', 'operation': operation,
             'phase': closure.get('phase'), 'image_closed': closure.get('complete_closed_image') is True,
+            'observed_image_metadata': closure.get('image_metadata'),
             'errors': [bounded_diagnostic_error(error) for error in closure.get('errors', [])[:1]],
             'record_errors': [bounded_diagnostic_error(error) for error in persistence_errors[:1]]}
 
@@ -897,6 +903,22 @@ def mounts():
     return [line.split() for line in raw.decode('ascii').splitlines()]
 
 
+def image_shape(info):
+    return {'regular': stat.S_ISREG(info.st_mode), 'links': info.st_nlink, 'uid': info.st_uid, 'gid': info.st_gid,
+            'mode': stat.S_IMODE(info.st_mode), 'bytes': info.st_size, 'allocated_bytes': info.st_blocks * 512}
+
+
+def record_image_shape(container, inputs, stage):
+    try:
+        create(container / 'control' / (stage + '-image-metadata.json'),
+               encode(image_shape((container / 'job' / 'quota.img').lstat())),
+               inputs['owner_uid'], inputs['owner_gid'])
+    except Exception as error:
+        publish_root_diagnostic(inputs, {'format': 'scientific-posix-root-terminal-diagnostic-v1',
+            'operation': stage + '-image-metadata',
+            'error': bounded_diagnostic_error(fault(error, 'image-metadata-unavailable'))})
+
+
 def loop_associations(image):
     answer, started = [], time.monotonic()
     entries = list(os.scandir('/sys/block'))
@@ -934,6 +956,7 @@ def close_image(container, ctx, life, lock, *, recovery=False):
         result['producer_cgroup_before'] = assert_producers_empty(container, ctx)
         result['phase'] = 'retained-image-and-writers'
         info = image.lstat()
+        result['image_metadata'] = image_shape(info)
         need(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid in (0, uid) and
              info.st_mode & 0o077 == 0 and info.st_size == IMAGE_BYTES and
              info.st_blocks * 512 >= IMAGE_BYTES, 'FULL_OWNED_IMAGE_REQUIRED_FOR_COMPLETE_REFERENCE')
@@ -987,11 +1010,10 @@ def close_image(container, ctx, life, lock, *, recovery=False):
                       assertion='FULL_BYTES_ONLY_NO_EXTRACTION_OR_SCIENTIFIC_SUCCESS')
     except BaseException as error:
         result['errors'].append(fault(error, 'image-closure'))
-        # Keep the original file. Recovery decides whether it can be uploaded.
+        # Observe the original without changing its ownership while it may be attached.
         try:
             info = image.lstat()
             if stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid in (0, uid):
-                os.chown(image, uid, gid, follow_symlinks=False)
                 result['retained_image_bytes'] = info.st_size
         except BaseException as error2:
             result['errors'].append(fault(error2, 'failed-image-observation'))
@@ -1116,7 +1138,7 @@ def support_before_spi(container, life):
             'total_support_capacity_bytes': ceiling, 'entries': count}
 
 
-def actual_spis(container, ctx, life, admitted, control_proof, expected_source, lock):
+def actual_spis(container, ctx, life, admitted, control_proof, expected_source, lock, inputs):
     uid, gid = ctx['owner_uid'], ctx['owner_gid']
     job, source = container / 'job', Path(ctx['source_root'])
     interpreter = ctx['runtime']['python']
@@ -1140,10 +1162,19 @@ def actual_spis(container, ctx, life, admitted, control_proof, expected_source, 
     create(container / 'control' / 'support-before-spi.json', encode(support_before_spi(container, life)), uid, gid)
     observation = assert_producers_empty(container, ctx)
     create(container / 'control' / 'before-spi-producers.json', encode(observation), uid, gid)
+    record_image_shape(container, inputs, 'before-spi')
     need(not STOP, 'INTERRUPTED_BEFORE_SPI')
     command = grouped_command(container, ctx, '_group-spi-owner', lock, admission_sha=life_admission_sha)
     outer = bounded(command, source, container / 'control' / 'commands', 'spi-supervisor-evidence', uid, gid,
                     seconds=1120, file_limit=life.BLOB_BYTES, driver_lock=lock)
+    if outer['exit_code'] != 0 or outer['errors'] or not outer['quiescent'] or outer['reason'] != 'process-exit':
+        streams = {name: {key: reference[key] for key in ('bytes', 'sha256')}
+                   for name, stream in outer['streams'].items() if (reference := stream.get('reference'))}
+        publish_root_diagnostic(inputs, {'format': 'scientific-posix-root-terminal-diagnostic-v1',
+            'operation': 'spi-outer-process', 'exit_code': outer['exit_code'],
+            'quiescent': outer['quiescent'], 'reason': outer['reason'], 'stream_references': streams,
+            'errors': [bounded_diagnostic_error(error) for error in outer['errors'][:1]]})
+    record_image_shape(container, inputs, 'after-spi')
     observation = assert_producers_empty(container, ctx)
     create(container / 'control' / 'after-spi-producers.json', encode(observation), uid, gid)
     need(outer['exit_code'] == 0 and outer['quiescent'] and outer['reason'] == 'process-exit' and
@@ -1221,6 +1252,14 @@ def controller(container, lock, inputs):
         result['quota_proof'] = life.verify_full_volume_quota_for_original22(
             container / 'job', LIFE_SHA, uid, gid, prep['installed_tools'])
         result['quota_prepared'] = True
+        try:
+            create(authority_dir(container) / 'verified-quota-attachment.json',
+                   encode(result['quota_proof']['actual_mount']), 0, 0)
+        except Exception as error:
+            publish_root_diagnostic(inputs, {'format': 'scientific-posix-root-terminal-diagnostic-v1',
+                'operation': 'quota-attachment-pin',
+                'error': bounded_diagnostic_error(fault(error, 'root-quota-attachment-pin-unavailable'))})
+        record_image_shape(container, inputs, 'after-quota')
         need(not STOP, 'INTERRUPTED_BEFORE_MEMORY_PROBE')
         result['phase'] = 'unprivileged-memory'
         memory = bounded(grouped_command(container, ctx, '_group-memory-owner', lock), container,
@@ -1266,7 +1305,7 @@ def controller(container, lock, inputs):
         create(container / 'control' / 'host-after-controls.json', encode(host_attribution(ctx)), uid, gid)
         result['spi_cases'] = 'STARTED_OR_EARLY_ADMISSION_REFUSED_SEE_ACTUAL_RECORDS'
         result['phase'] = 'retained-spi3'
-        result['spi_cases'] = actual_spis(container, ctx, life, admitted, actual, technical_source, lock)
+        result['spi_cases'] = actual_spis(container, ctx, life, admitted, actual, technical_source, lock, inputs)
     except BaseException as error:
         result['errors'].append(fault(error, 'original22-controller'))
         publish_root_diagnostic(inputs, controller_diagnostic(result))
@@ -1588,6 +1627,32 @@ def recover(args):
         return 1
 
 
+def recover_off_mount(container, inputs, ctx, result, transport, custody):
+    need(ctx is not None and not result['closure_command_complete'], 'OFF_MOUNT_REQUIRES_UNCLOSED_CONTEXT')
+    quota = decode(read(authority_dir(container) / 'verified-quota-attachment.json'))
+    uid, gid = inputs['owner_uid'], inputs['owner_gid']
+
+    def writers_terminal():
+        assert_producers_empty(container, ctx)
+        need(not process_image_writers(container, container / 'job' / 'quota.img', uid),
+             'SCOPED_TERMINAL_OWNED_NAMESPACE_REQUIRED_FOR_DETACHED_DIAGNOSTICS')
+
+    host = host_attribution(inputs)
+    create(container / 'control' / 'host-before-upload.json', encode(host), uid, gid)
+    result.update(host_bounds_admitted=True, complete_regular_file_inventory=False,
+                  reference_status={'complete_referenced_payload': False, 'scientific_qualification': 'NOT_CLAIMED'},
+                  excluded_live_image_paths=custody.EXCLUDED, payload_scope=custody.FORMAT)
+    create(container / 'control' / 'recovery-status.json', encode(result), uid, gid)
+    pin, measured, count = custody.publish(container, inputs, quota, transport, create, writers_terminal)
+    create(authority_dir(container) / 'upload-manifest-pin.json', encode({'sha256': pin, 'scope': custody.FORMAT}), 0, 0)
+    result.update(payload_admitted=True, upload_manifest_sha256=pin, archive_bound=measured,
+                  off_mount_file_count=count)
+    try_append_fallback(inputs, {'custody': 'INCOMPLETE', 'operation': 'off-mount-failure-manifest',
+        'sha256': pin, 'selected_off_mount_files': count, 'excluded_live_image_paths': custody.EXCLUDED})
+    print(json.dumps(result, sort_keys=True))
+    return 10
+
+
 def recover_locked(inputs, lock):
     container = Path(inputs['container'])
     transport = helper(Path(inputs['workspace']), 'scientific_posix_transport_limits')
@@ -1598,6 +1663,8 @@ def recover_locked(inputs, lock):
         'custody': 'INCOMPLETE', 'cloud_native_custody': 'NOT_VERIFIED', 'errors': [],
         'if_full_manifest_absent': 'ALL_NAMESPACE_IMAGE_LOG_SOURCE_PREFIX_BYTES_OMITTED_UNKNOWN'}
     try:
+        custody = helper(Path(inputs['workspace']), 'scientific_posix_failure_custody')
+        custody.namespace_live(container)
         private_namespace(container, uid, gid, repair=True)
         for folder in (container / 'control', container / 'control' / 'commands'):
             try:
@@ -1619,8 +1686,8 @@ def recover_locked(inputs, lock):
             result['errors'].append(fault(error, 'closure-unavailable-no-substitute-proof'))
         publish_root_diagnostic(inputs, image_diagnostic('recovery-closure', closure, result['errors']))
         job = container / 'job'
-        need(not any(row[4] == str(job) or row[4].startswith(str(job) + '/') for row in mounts()),
-             'ACTIVE_OR_UNCONFIRMED_IMAGE_MUST_NOT_BE_SELECTED')
+        if custody.namespace_live(container):
+            return recover_off_mount(container, inputs, ctx, result, transport, custody)
         if job.exists():
             need(ctx is not None, 'EXACT_ROOT_CONTEXT_REQUIRED_TO_SELECT_AVAILABLE_IMAGE_BYTES')
             assert_producers_empty(container, ctx)
@@ -1692,6 +1759,10 @@ def emit_upload(args):
     uid, gid = inputs['owner_uid'], inputs['owner_gid']
     need((os.geteuid(), os.getegid()) == (uid, gid), 'RUNNER_OUTPUT_WRITER_UID_GID')
     container = Path(inputs['container'])
+    custody = helper(Path(inputs['workspace']), 'scientific_posix_failure_custody')
+    if custody.namespace_live(container):
+        selection = custody.verify(container, inputs, digest(args.upload_manifest_sha256), transport, decode)
+        return emit_literal_upload(inputs, args.output_file, selection)
     private_namespace(container, uid, gid)
     need(not any(row[4] == str(container) or row[4].startswith(str(container) + '/')
                  for row in mounts()), 'DETACHED_NAMESPACE_REQUIRED_AT_UPLOAD_SELECTION')
@@ -1726,8 +1797,13 @@ def emit_upload(args):
     need(total + reference['bytes'] <= PAYLOAD_BYTES, 'UPLOAD_RECHECK_PAYLOAD_BOUND')
     selection = files + [{'path': str(target), 'bytes': reference['bytes']}]
     archive_size_bound(inputs, selection, transport)
+    return emit_literal_upload(inputs, args.output_file, selection)
+
+
+def emit_literal_upload(inputs, output_file, selection):
+    uid, gid = inputs['owner_uid'], inputs['owner_gid']
     raw_paths = exact_upload_paths(selection)
-    output = path(args.output_file)
+    output = path(output_file)
     need(output.parent == Path(inputs['runner_temp']) / '_runner_file_commands' and
          re.fullmatch('set_output_[A-Za-z0-9_-]{1,80}', output.name), 'EXACT_RUNNER_OUTPUT_FILE')
     chain(output.parent, owner=uid)

@@ -2,7 +2,7 @@ name: Bounded full-volume retained POSIX proof
 
 on:
   push:
-    branches: [scientific-posix-retained-r2]
+    branches: [scientific-posix-retained-r3]
 
 permissions:
   contents: read
@@ -13,14 +13,14 @@ concurrency:
 
 jobs:
   retained_posix:
-    if: ${{ github.ref == 'refs/heads/scientific-posix-retained-r2' && github.run_attempt == '1' && github.repository_id == '1430604581' && github.event.created == true }}
+    if: ${{ github.ref == 'refs/heads/scientific-posix-retained-r3' && github.run_attempt == '1' && github.repository_id == '1430604581' && github.event.created == true }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     env:
       # Independently bound retry; push only after fresh all-root/terminal checks
       # and exact expected existing proof-branch head verification.
-      FQ_JOB_SOURCE_SHA256: 'c4a2028432dbcb2d99171be4c26ff73801b95374c7653665596eaaf74efabf9d'
-      FQ_ADMISSION_SHA256: '6c0b7269bc1bc57f9a57f22026786066c125eb6a89c6fac0388e49c97260afd2'
+      FQ_JOB_SOURCE_SHA256: '731c405f353c4ffcd582066c583f9553dc1f4564307373456c43bb04121aac60'
+      FQ_ADMISSION_SHA256: '7e35f654a62edab8f4233091426aaa95a85ac99066ebda82d373e79cdf5ee594'
     steps:
       - name: Checkout the exact new branch commit without stored credentials
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09

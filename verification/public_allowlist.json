@@ -688,6 +688,7 @@
     "scripts/scientific_posix_full_volume_admission.py",
     "scripts/scientific_posix_producer_group.py",
     "scripts/scientific_posix_transport_limits.py",
+    "scripts/scientific_posix_failure_custody.py",
     "verification/scientific-posix-retained-all-admission.json",
     ".github/workflows/scientific-posix-proof.yml",
     "SCIENTIFIC_POSIX_PROOF.md",
