@@ -44,8 +44,8 @@
       "sha256": "f8e88bc29903695483a20053b1eb7e6132c3b071ff8bf5a0cffb63f0d0b2a1b4"
     },
     "public/scripts/scientific_storage/scientific_registry_publication.py": {
-      "bytes": 24724,
-      "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+      "bytes": 30581,
+      "sha256": "4908bd35002d484fe46e7d84b8bf054ddfcf49485f9184a54237cbb25ef6123f"
     },
     "public/scripts/scientific_storage/scientific_registry_transport.py": {
       "bytes": 15603,
@@ -88,8 +88,8 @@
       "sha256": "0af2e1813a0c7c83330f48e3e16b2e11f2c73306ac46591f4e45cafe5fb1f1f0"
     },
     "public/scripts/scientific_storage/POSIX_SOURCE_MANIFEST.json": {
-      "bytes": 4300,
-      "sha256": "6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271"
+      "bytes": 4726,
+      "sha256": "40b753e9c38e10cb8ba68a65e2c569ac273d2d4943f8027924350b2da83d8a04"
     },
     "public/scripts/analyze_reference.py": {
       "bytes": 26601,

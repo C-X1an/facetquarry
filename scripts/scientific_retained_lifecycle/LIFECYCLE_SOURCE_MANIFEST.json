@@ -4,8 +4,8 @@
   "profile": "scientific-posix-complete-failure-copy-v1",
   "manifest_trust": "Pin complete manifest bytes independently before execution; self-hash is excluded.",
   "runtime_membership": "Stage exactly packet_files plus this manifest in a NEW owned directory. Ancillary files stay outside the runtime packet.",
-  "packet_files_bytes_excluding_manifest": 158021,
-  "all_selected_files_bytes_excluding_manifest": 167750,
+  "packet_files_bytes_excluding_manifest": 160561,
+  "all_selected_files_bytes_excluding_manifest": 170290,
   "packet_files": [
     {
       "origin": "scripts/scientific_lifecycle/ADMISSION.template.json",
@@ -34,8 +34,8 @@
     {
       "origin": "scripts/scientific_retained_lifecycle/scientific_posix_lifecycle.py",
       "name": "scientific_posix_lifecycle.py",
-      "bytes": 111147,
-      "sha256": "dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644"
+      "bytes": 113687,
+      "sha256": "7918f7a11bb7d8f110abc041a86268a9ac5e170c14452a6a415a38bf7adb27b8"
     },
     {
       "origin": "scripts/scientific_lifecycle/test_scientific_posix_lifecycle.py",
@@ -156,5 +156,11 @@
     "old_module_sha256": "8d0b4b4c7d07000cb78ef1b383b47474e4cc5ead0708fac9e45d86e64b159348",
     "old_lifecycle_manifest_sha256": "66bd2134bc5c59f0474d4ac63782e093d3a7deaff8adddab33faae8560a548bc",
     "archive_custody": "NOT_RUN"
+  },
+  "eager_format_derivation": {
+    "previous_manifest_sha256": "293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15",
+    "previous_module_sha256": "dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644",
+    "reason": "Record backing-image stages and test eager ext4 initialization without changing quota or tests.",
+    "actual_retained_r5": "NOT RUN"
   }
 }

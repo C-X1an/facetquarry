@@ -15,11 +15,12 @@ MANIFEST = 'off-mount-failure-manifest.json'
 EXCLUDED = ['job/quota.img', 'job/volume']
 EVIDENCE_ID = re.compile(r'[0-9]{8}T[0-9]{6}Z-[0-9a-f]{10}')
 FILES = tuple(('recovery.json', 'control/context.json', 'control/controller-result.json',
-    'control/recovery-status.json', 'control/controller-closure.json', 'control/recovery-closure.json',
+    'control/recovery-status.json', 'control/recovery-closure.json',
     'control/host-before-upload.json', 'control/after-quota-image-metadata.json',
     'control/before-spi-image-metadata.json', 'control/after-spi-image-metadata.json',
     'control/before-spi-producers.json', 'control/after-spi-producers.json', 'control/support-before-spi.json',
-    'job/control/quota-proof.json', 'job/control/quota-attempt-observation.json',
+    'job/control/image-allocation-before-format.json', 'job/control/image-allocation-after-format.json',
+    'job/control/image-allocation-after-mount.json', 'job/control/quota-proof.json', 'job/control/quota-attempt-observation.json',
     'job/control/quota-saturation-fill.json', 'job/control/quota-saturation-release.json',
     'job/control/quota-saturation-release-intent.json', 'job/control/memory-proof.json',
     'job/control/original22-command-receipt.json', 'job/control/external-profile-control-proof.json',

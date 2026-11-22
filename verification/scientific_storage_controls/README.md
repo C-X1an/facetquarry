@@ -31,6 +31,15 @@ headers are preserved. The historical local controls described below actually
 ran on their pinned prototype bytes. The public launcher now has its separate
 114-control receipt; live integration remains unexecuted.
 
+## R5 descriptor-bounded source
+
+The updated publication module closes scoped shard descriptors and verifies
+a stable Linux filesystem handle on reopen. The earlier R4 lineage remains
+in the source manifest and Git history. The control manifest is freshly
+pinned for these reviewed source changes. All five test modules, the
+114-control denominator and the zero-skip requirement are unchanged.
+The dated measurements in this document refer to their respective sources.
+
 ## Source pins and import closure
 
 `CONTROL_SOURCE_MANIFEST.json` pins 21 selected files: all 12 packet members, the
@@ -69,7 +78,7 @@ no OS-enforced disk or memory quota.
 
 The control manifest's exact SHA256 is:
 
-`fc3af483267a9b4add2704ed1e581760ed07cb9d85bf50ef82c01b6d46de4135`
+`7b54fc36094f72b31a8950283a4f7abf9e69773b84b8b33859653640c49da7ee`
 
 An executing caller must obtain that digest from an independently trusted,
 reviewed channel and pass it explicitly. Reading a digest from an untrusted
@@ -79,7 +88,7 @@ cycle. Its exclusions are not additional import inputs.
 
 The separately curated POSIX manifest SHA256 is:
 
-`6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271`
+`40b753e9c38e10cb8ba68a65e2c569ac273d2d4943f8027924350b2da83d8a04`
 
 It retains format `scientific-posix-source-packet-v1`, revision 2, profile
 `scientific-posix-integration-retain-all-v2`, and the launcher's required literal
@@ -115,7 +124,7 @@ For reproduction after independent review and fresh bounded admission, run from
 the public repository root using the existing evidence wrapper:
 
 ```text
-python3 scripts/evidence.py --category scientific-storage-public-controls --requirements AC-021 --timeout 60 -- python3 -I -S -B verification/scientific_storage_controls/run_controls.py --manifest-sha256 fc3af483267a9b4add2704ed1e581760ed07cb9d85bf50ef82c01b6d46de4135
+python3 scripts/evidence.py --category scientific-storage-public-controls --requirements AC-021 --timeout 60 -- python3 -I -S -B verification/scientific_storage_controls/run_controls.py --manifest-sha256 7b54fc36094f72b31a8950283a4f7abf9e69773b84b8b33859653640c49da7ee
 ```
 
 The command above is a reproduction instruction. The linked curated receipt

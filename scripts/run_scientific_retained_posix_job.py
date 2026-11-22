@@ -27,19 +27,19 @@ import subprocess
 import time
 
 
-BRANCH = 'refs/heads/scientific-posix-retained-r4'
+BRANCH = 'refs/heads/scientific-posix-retained-r5'
 ADMISSION = 'verification/scientific-posix-retained-all-admission.json'
 ADMISSION_FORMAT = 'scientific-posix-full-volume-retained-job-admission-v1'
 ADMISSION_STATUS = 'AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY'
 ADMISSION_ENABLED = True
-LIFE_SHA = '293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15'  # Set only after the complete lifecycle packet is frozen.
-LIFE_MODULE_SHA = 'dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644'
-SPI_SHA = '6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271'
+LIFE_SHA = '42b5786b810db77ace6464cff5047c763ef1bfbb9855482f721f9665ee5da225'  # Set only after the complete lifecycle packet is frozen.
+LIFE_MODULE_SHA = '7918f7a11bb7d8f110abc041a86268a9ac5e170c14452a6a415a38bf7adb27b8'
+SPI_SHA = '40b753e9c38e10cb8ba68a65e2c569ac273d2d4943f8027924350b2da83d8a04'
 HELPER_SHA = {
     'scientific_posix_full_volume_admission': 'e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7',
     'scientific_posix_producer_group': 'd46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a',
     'scientific_posix_transport_limits': '5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753',
-    'scientific_posix_failure_custody': '56750c4b87976123254d4bc8756f350c8ec20fec5f295ac10a6c8eb25b2e74d4',
+    'scientific_posix_failure_custody': '6ed3946927a245f5af7802e07c45954d9ca7becd8ac8981aee9a883af6de5ed1',
 }
 EVIDENCE_SHA = 'f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469'
 COMMON_SHA = '15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf'
@@ -80,8 +80,10 @@ DIAGNOSTIC_GUARDS = frozenset('''
     EXACT_SCRATCH_RELEASE_AND_RESTORED_HEADROOM_REQUIRED
     EXACT_SUCCESSFUL_RESERVATION_AND_UNMODIFIED_PROBE_REQUIRED_BEFORE_RELEASE
     EXACT_PRIVATE_MOUNT_REQUIRED EXACT_RETAINED_CONTROLLER_CONTEXT EXACT_ROOT_CONTROLLER_LEASE_REQUIRED
+    EXACT_LOOP_BACKING_FILE_REQUIRED
     FILL_AND_IMMEDIATE_ENOSPC_ZERO_RETENTION_REQUIRED FULL_CAPACITY_IMAGE_ALLOCATION_REQUIRED
     FULL_IMAGE_ALLOCATION_FAILED FULL_OWNED_IMAGE_REQUIRED_FOR_COMPLETE_REFERENCE
+    FORMATTED_IMAGE_IDENTITY_CHANGED FORMATTED_IMAGE_DESCRIPTOR_CHANGED FORMATTED_IMAGE_PHYSICAL_RESERVATION_REQUIRED
     FULL_VOLUME_HEADROOM_AND_ORIGINAL_PROBE_MUST_BE_PRESERVED FULL_VOLUME_QUOTA_LIVE_HEADROOM_CHANGED
     FULL_VOLUME_QUOTA_MOUNT_CHANGED FULL_VOLUME_QUOTA_RECORD_PIN_MISMATCH FULL_VOLUME_QUOTA_RECORD_SOURCE_MISMATCH
     FULL_VOLUME_QUOTA_RETAINED_INODE_CHANGED IMAGE_FILESYSTEM_STILL_MOUNTED IMAGE_OPEN_BINDING
@@ -923,6 +925,15 @@ def record_image_shape(container, inputs, stage):
             'error': bounded_diagnostic_error(fault(error, 'image-metadata-unavailable'))})
 
 
+def record_early_attachment(trusted, inputs, observed):
+    try:
+        create(trusted / 'verified-quota-attachment.json', encode(observed), 0, 0)
+    except Exception as error:
+        publish_root_diagnostic(inputs, {'format': 'scientific-posix-root-terminal-diagnostic-v1',
+            'operation': 'quota-attachment-pin',
+            'error': bounded_diagnostic_error(fault(error, 'root-quota-attachment-pin-unavailable'))})
+
+
 def loop_associations(image):
     answer, started = [], time.monotonic()
     entries = list(os.scandir('/sys/block'))
@@ -1249,20 +1260,13 @@ def controller(container, lock, inputs):
         result['phase'] = 'full-volume-quota'
         prep = ctx['preparation']
         prepared = life.prepare_quota_on_full_volume(prep, LIFE_SHA, stop_requested=lambda: bool(STOP),
-                                                    controller_lease=lock)
+            controller_lease=lock, after_attach=lambda observed: record_early_attachment(trusted, inputs, observed))
         need(prepared == {'status': 'FULL_VOLUME_QUOTA_PREPARED_NOT_A_RUN_ADMISSION',
                          'quota_proof': str(container / 'job' / 'control' / 'quota-proof.json')},
              'EXACT_FULL_VOLUME_PREPARATION_RESULT_REQUIRED')
         result['quota_proof'] = life.verify_full_volume_quota_for_original22(
             container / 'job', LIFE_SHA, uid, gid, prep['installed_tools'])
         result['quota_prepared'] = True
-        try:
-            create(authority_dir(container) / 'verified-quota-attachment.json',
-                   encode(result['quota_proof']['actual_mount']), 0, 0)
-        except Exception as error:
-            publish_root_diagnostic(inputs, {'format': 'scientific-posix-root-terminal-diagnostic-v1',
-                'operation': 'quota-attachment-pin',
-                'error': bounded_diagnostic_error(fault(error, 'root-quota-attachment-pin-unavailable'))})
         record_image_shape(container, inputs, 'after-quota')
         need(not STOP, 'INTERRUPTED_BEFORE_MEMORY_PROBE')
         result['phase'] = 'unprivileged-memory'

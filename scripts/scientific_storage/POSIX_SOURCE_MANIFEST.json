@@ -59,8 +59,8 @@
     {
       "name": "scientific_registry_publication.py",
       "origin": "public/scripts/scientific_storage/scientific_registry_publication.py",
-      "bytes": 24724,
-      "sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770"
+      "bytes": 30581,
+      "sha256": "4908bd35002d484fe46e7d84b8bf054ddfcf49485f9184a54237cbb25ef6123f"
     },
     {
       "name": "scientific_registry_transport.py",
@@ -96,5 +96,12 @@
   "runtime_admission": "NONE; the template refuses and a source manifest grants no execution",
   "lifecycle": "Separate source candidate; not included in this packet",
   "publication": "Public-safe source curation only; new public runner NOT RUN pending independent first findings",
-  "self_hash": "EXCLUDED; the exact manifest SHA256 is a trusted external input, with no self-hash cycle"
+  "self_hash": "EXCLUDED; the exact manifest SHA256 is a trusted external input, with no self-hash cycle",
+  "descriptor_bound_derivation": {
+    "previous_manifest_sha256": "6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271",
+    "previous_publication_module_sha256": "51e60a80055abfc27bdf2d2b0ad5ee83633b5fac1cab286cf30a59ddeb1ef770",
+    "reason": "Bound live shard descriptors and verify stable filesystem generation on reopen.",
+    "same_unchanged_integration_cases": 3,
+    "actual_retained_r5": "NOT RUN"
+  }
 }

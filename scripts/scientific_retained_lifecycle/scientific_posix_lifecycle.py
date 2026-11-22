@@ -701,7 +701,8 @@ def cgroup_oom_observation():
         return {'available': False, 'observation_error': error_record(error, 'cgroup-memory-events')}
 
 
-def mount_observation(mount, image, owner):
+def observe_mount_identity(mount, image, owner):
+    """Bind the exact loop and logical backing inode for failure diagnostics."""
     mount, image = explicit_path(mount), explicit_path(image)
     rows = []
     for line in read_kernel('/proc/self/mountinfo', 256 << 10).decode('ascii').splitlines():
@@ -732,8 +733,7 @@ def mount_observation(mount, image, owner):
     try:
         before = os.stat(image.name, dir_fd=parent, follow_symlinks=False)
         need(stat.S_ISREG(before.st_mode) and before.st_uid == owner and before.st_nlink == 1 and
-             before.st_mode & 0o077 == 0 and before.st_size == IMAGE_BYTES and
-             before.st_blocks * 512 >= IMAGE_BYTES, 'FULL_CAPACITY_IMAGE_ALLOCATION_REQUIRED')
+             before.st_mode & 0o077 == 0 and before.st_size == IMAGE_BYTES, 'EXACT_LOOP_BACKING_FILE_REQUIRED')
         image_fd = os.open(image.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
         need(signature(before) == signature(os.fstat(image_fd)), 'IMAGE_OPEN_BINDING')
         volume_fd = owned_dir(mount, owner=owner)
@@ -751,6 +751,12 @@ def mount_observation(mount, image, owner):
                 'allocation_unit_bytes': max(geometry.f_frsize, geometry.f_bsize)}
     finally:
         close_owned(image_fd, volume_fd, parent)
+
+
+def mount_observation(mount, image, owner):
+    actual = observe_mount_identity(mount, image, owner)
+    need(actual['image_allocated_bytes'] >= IMAGE_BYTES, 'FULL_CAPACITY_IMAGE_ALLOCATION_REQUIRED')
+    return actual
 
 
 def memory_probe_child():
@@ -771,7 +777,32 @@ def memory_probe_child():
     return 0
 
 
-def initialize_quota_volume(value, life_manifest_sha, *, controller_lease=None):
+def observe_backing_allocation(image, uid, gid, expected, stage):
+    """Record the physical reservation on the same named image before use."""
+    parent = owned_dir(image.parent, owner=uid)
+    fd = None
+    try:
+        before = os.stat(image.name, dir_fd=parent, follow_symlinks=False)
+        attributes = signature(before)
+        need(stat.S_ISREG(before.st_mode) and before.st_nlink == 1 and
+             before.st_uid == uid and before.st_gid == gid and not before.st_mode & 0o077 and
+             attributes[:7] == expected, 'FORMATTED_IMAGE_IDENTITY_CHANGED')
+        fd = os.open(image.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+        need(signature(os.fstat(fd)) == attributes, 'FORMATTED_IMAGE_DESCRIPTOR_CHANGED')
+        os.fsync(fd)
+        after = os.fstat(fd)
+        need(signature(after) == signature(os.stat(image.name, dir_fd=parent, follow_symlinks=False)) and
+             signature(after)[:7] == expected, 'FORMATTED_IMAGE_IDENTITY_CHANGED')
+        allocated = after.st_blocks * 512
+        create_file(image.parent / 'control' / ('image-allocation-' + stage + '.json'), json_bytes({
+            'format': 'scientific-posix-image-allocation-stage-v1', 'stage': stage, 'image_identity': list(expected),
+            'logical_bytes': after.st_size, 'allocated_bytes': allocated}), owner=uid)
+        need(after.st_size == IMAGE_BYTES and allocated >= IMAGE_BYTES, 'FORMATTED_IMAGE_PHYSICAL_RESERVATION_REQUIRED')
+    finally:
+        close_owned(fd, parent)
+
+
+def initialize_quota_volume(value, life_manifest_sha, *, controller_lease=None, after_attach=None):
     need(os.geteuid() == 0 and value['format'] == PREPARE_FORMAT and
          value['status'] == 'AUTHORIZED_REVIEWED_NEW_QUOTA_PREPARATION_ONLY' and
          value['lifecycle_manifest_sha256'] == life_manifest_sha, 'EXPLICIT_PRIVILEGED_NEW_QUOTA_PREPARATION')
@@ -795,15 +826,19 @@ def initialize_quota_volume(value, life_manifest_sha, *, controller_lease=None):
         os.posix_fallocate(fd, 0, IMAGE_BYTES)
         os.fsync(fd)
         os.fchown(fd, uid, gid)
-        need(os.fstat(fd).st_size == IMAGE_BYTES and os.fstat(fd).st_blocks * 512 >= IMAGE_BYTES,
+        reserved = os.fstat(fd)
+        need(reserved.st_size == IMAGE_BYTES and reserved.st_blocks * 512 >= IMAGE_BYTES,
              'FULL_IMAGE_ALLOCATION_FAILED')
         os.fsync(parent)
     finally:
         close_owned(fd, parent)
-    # Fixed commands only; no shell, package acquisition, inherited credential environment or global tmp.
+    image_identity = signature(reserved)[:7]
+    observe_backing_allocation(image, uid, gid, image_identity, 'before-format')
+    # Initialize ext4 metadata before mounting so the kernel need not do it
+    # while the backing file's physical reservation is under verification.
     for name, command in (
         ('mkfs', [pinned['mke2fs'], '-t', 'ext4', '-q', '-F', '-m', '0', '-b', '4096',
-                  '-E', 'nodiscard', str(image)]),
+                  '-E', 'nodiscard,lazy_itable_init=0,lazy_journal_init=0', str(image)]),
         ('mount', [pinned['mount'], '-i', '-o', 'loop,nodev,nosuid,noexec,nodiscard', str(image), str(job / 'volume')]),
     ):
         logs = job / 'control' / name
@@ -817,8 +852,16 @@ def initialize_quota_volume(value, life_manifest_sha, *, controller_lease=None):
         create_file(job / 'control' / (name + '.json'), json_bytes(result), owner=uid)
         need(result['returncode'] == 0 and result['reason'] == 'process-exit-zero' and
              result['quiescent'] and not result['errors'], 'QUOTA_SETUP_COMMAND_FAILED_RETAIN_NEW_JOB')
+        if name == 'mkfs':
+            observe_backing_allocation(image, uid, gid, image_identity, 'after-format')
     os.chown(job / 'volume', uid, gid, follow_symlinks=False)
     os.chmod(job / 'volume', 0o700, follow_symlinks=False)
+    if after_attach is not None:
+        attachment = observe_mount_identity(job / 'volume', image, uid)
+        need(attachment['image_identity'] == [image_identity[index] for index in (0, 1, 3, 5, 6)],
+             'FORMATTED_IMAGE_IDENTITY_CHANGED')
+        after_attach(attachment)
+    observe_backing_allocation(image, uid, gid, image_identity, 'after-mount')
     new_dir(job / 'volume' / 'work', owner=uid, gid=gid)
     actual = mount_observation(job / 'volume', image, uid)
     return job, uid, gid, tools, actual
@@ -902,14 +945,15 @@ def quota_probe_state(info):
 
 
 def prepare_quota_on_full_volume(value, life_manifest_sha, *, stop_requested=lambda: False,
-                                 controller_lease=None):
+                                 controller_lease=None, after_attach=None):
     """Original22-specific proof of raw zero retention at saturation.
 
     A separate successful unwritten reservation creates zero caller-available
     space. Only that exact reservation may be released; failed operands remain.
     """
     need(not stop_requested(), 'QUOTA_SATURATION_INTERRUPTED_BEFORE_INITIALIZATION')
-    job, uid, gid, tools, actual = initialize_quota_volume(value, life_manifest_sha, controller_lease=controller_lease)
+    job, uid, gid, tools, actual = initialize_quota_volume(value, life_manifest_sha,
+        controller_lease=controller_lease, after_attach=after_attach)
     work = owned_dir(job / 'volume' / 'work', owner=uid)
     reservation_name = 'successful-quota-reservation.scratch'
     probe_name = 'enospc-probe.retained'

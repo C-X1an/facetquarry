@@ -1,13 +1,13 @@
 {
   "format": "scientific-posix-full-volume-retained-job-admission-v1",
   "status": "AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY",
-  "branch": "refs/heads/scientific-posix-retained-r4",
-  "attempt_id": "retained-posix-direct-sealed-failure-r4",
-  "created_unix_seconds": 1795368930,
-  "expires_unix_seconds": 1795383330,
-  "baseline_including_reserve_bytes": 9918598776,
+  "branch": "refs/heads/scientific-posix-retained-r5",
+  "attempt_id": "retained-posix-direct-sealed-failure-r5",
+  "created_unix_seconds": 1795373514,
+  "expires_unix_seconds": 1795387914,
+  "baseline_including_reserve_bytes": 9957462667,
   "global_reserve_bytes": 2000000000,
-  "fresh_inventory_sha256": "27f7e05a3bf3b971a460ec7797213976de1817061ff262c409938dab81a07460",
+  "fresh_inventory_sha256": "73d5c5ef288084e57d8f82e4c8ce8244d7b51613569de3ac0cbf4f95fc3f39f2",
   "base_lifecycle_bytes": 1493172224,
   "connector_bytes": 0,
   "supplement_bytes": 67108864,
@@ -15,19 +15,19 @@
   "native_transfer": "direct-native-single-bounded-archive",
   "no_other_heavy_process": true,
   "independent_review_closed": true,
-  "independent_first_findings_sha256": "d91ede8914489b0768271f056419c483d0e77344aa65da51e802c9ac0c846e38",
+  "independent_first_findings_sha256": "59f57f4245b3b9aab761cf8e79c0926ec158676a787bae616250cfa3081da4f3",
   "source_pins": {
-    "job_script_sha256": "6817ee97cfc168b9f5971391292022a938f82e4a3bb74c25db8866b6eeadee8e",
-    "lifecycle_manifest_sha256": "293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15",
-    "lifecycle_module_sha256": "dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644",
-    "integration_manifest_sha256": "6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271",
+    "job_script_sha256": "30cbadeae53614fb7eeeaf41d71bff323db76c0e548ea65c2aeaac45c57f5390",
+    "lifecycle_manifest_sha256": "42b5786b810db77ace6464cff5047c763ef1bfbb9855482f721f9665ee5da225",
+    "lifecycle_module_sha256": "7918f7a11bb7d8f110abc041a86268a9ac5e170c14452a6a415a38bf7adb27b8",
+    "integration_manifest_sha256": "40b753e9c38e10cb8ba68a65e2c569ac273d2d4943f8027924350b2da83d8a04",
     "evidence_sha256": "f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469",
     "common_sha256": "15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf",
     "helpers": {
       "scientific_posix_full_volume_admission": "e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7",
       "scientific_posix_producer_group": "d46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a",
       "scientific_posix_transport_limits": "5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753",
-      "scientific_posix_failure_custody": "56750c4b87976123254d4bc8756f350c8ec20fec5f295ac10a6c8eb25b2e74d4"
+      "scientific_posix_failure_custody": "6ed3946927a245f5af7802e07c45954d9ca7becd8ac8981aee9a883af6de5ed1"
     }
   }
 }

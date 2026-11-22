@@ -7,6 +7,8 @@ Source controls for POSIX publication have NOT been authored/executed here.
 """
 from dataclasses import dataclass
 import base64
+import ctypes
+from functools import lru_cache
 import hashlib
 import os
 from pathlib import Path
@@ -19,6 +21,41 @@ SOURCE_EXTENTS = ('originals', 'primitive_staging', 'packed_candidates', 'catalo
                   'registry_pairs', 'nonqualifying', 'outer_artifacts')
 EXTENTS = (*SOURCE_EXTENTS, 'failure_transport')
 PLAN_FORMAT = 'scientific-execution-storage-plan-v1'
+_AT_EMPTY_PATH = 0x1000  # Linux uapi/linux/fcntl.h
+_MAX_FILE_HANDLE_BYTES = 128  # Linux MAX_HANDLE_SZ
+
+
+class _FileHandle(ctypes.Structure):
+    # Linux struct file_handle with storage for its flexible byte array.
+    _fields_ = [('size', ctypes.c_uint), ('kind', ctypes.c_int),
+                ('payload', ctypes.c_ubyte * _MAX_FILE_HANDLE_BYTES)]
+
+
+@lru_cache(maxsize=1)
+def _name_to_handle_at():
+    registry.need(sys.platform == 'linux' and ctypes.sizeof(ctypes.c_int) == 4 and
+                  ctypes.sizeof(ctypes.c_uint) == 4 and _FileHandle.payload.offset == 8,
+                  'LINUX_DIRECTORY_FILE_HANDLE_REQUIRED')
+    query = getattr(ctypes.CDLL(None, use_errno=True), 'name_to_handle_at', None)
+    registry.need(query is not None, 'LINUX_DIRECTORY_FILE_HANDLE_REQUIRED')
+    query.argtypes = (ctypes.c_int, ctypes.c_char_p, ctypes.POINTER(_FileHandle),
+                      ctypes.POINTER(ctypes.c_int), ctypes.c_int)
+    query.restype = ctypes.c_int
+    return query
+
+
+def _directory_handle(fd, name=None):
+    """Compare opaque filesystem identities without acquiring a descriptor."""
+    handle = _FileHandle(size=_MAX_FILE_HANDLE_BYTES)
+    mount = ctypes.c_int()
+    flags = _AT_EMPTY_PATH if name is None else 0
+    path = b'' if name is None else os.fsencode(name)
+    if _name_to_handle_at()(fd, path, ctypes.byref(handle), ctypes.byref(mount), flags) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, os.strerror(error), name)
+    registry.need(0 < handle.size <= _MAX_FILE_HANDLE_BYTES and mount.value > 0 and handle.kind > 0,
+                  'BOUNDED_DIRECTORY_FILE_HANDLE_REQUIRED')
+    return mount.value, handle.kind, bytes(handle.payload[:handle.size])
 
 
 def _release_descriptors(fds):
@@ -162,6 +199,15 @@ def _signature(info):
             info.st_size, info.st_mtime_ns, info.st_ctime_ns)
 
 
+def _directory_stamp(info, path, handle):
+    identity = (*_directory_id(info), handle)
+    # Every shard link is covered by its parent's stable namespace stamp.
+    # Leaf contents can change without changing the link, including when an
+    # exclusive final creation encounters a preexisting collision.
+    namespace = _signature(info) if path.count('/') < 2 else None
+    return identity, namespace
+
+
 def _owned_base(path):
     _platform()
     path = Path(path)
@@ -235,9 +281,12 @@ class Publisher:
 
     plan is validated BEFORE mkdir. Every write reserves BOTH files in the
     immutable pair and their entries. Files/directories are exclusive/no-follow;
-    held descriptors are rebound to live paths. Failure poisons the publisher
-    and preserves every byte. Recovery requires a NEW publisher namespace;
-    old records can be adopted by read_execution/accept_* without rewriting.
+    descriptors are rebound to live paths. Shard descriptors are scoped to
+    each operation or verification walk. The Linux filesystem must expose
+    stable opaque file handles for identity checks. Failure poisons the
+    publisher and preserves every byte. Recovery requires a NEW publisher
+    namespace; old records can be adopted by read_execution/accept_* without
+    rewriting.
     """
     def __init__(self, owned_base, directory, plan):
         _platform()
@@ -251,6 +300,7 @@ class Publisher:
         self.base_path, self.directory = Path(owned_base), directory
         self.base_fd = self.fd = None
         self.directories = {}
+        self.directory_stamps = {}
         self.counts = {kind: 0 for kind in registry.LIMITS}
         self.bytes = {kind: 0 for kind in registry.LIMITS}
         self.failed = False
@@ -258,6 +308,11 @@ class Publisher:
         try:
             self.base_fd = _owned_base(self.base_path)
             self.base_id = _directory_id(os.fstat(self.base_fd))
+            try:
+                registry.need(_directory_handle(self.base_fd) == _directory_handle(self.base_fd, '.'),
+                              'LINUX_DIRECTORY_FILE_HANDLE_REQUIRED')
+            except OSError as error:
+                raise registry.Refusal('LINUX_DIRECTORY_FILE_HANDLE_REQUIRED') from error
             geometry = os.fstatvfs(self.base_fd)
             registry.need(0 < max(geometry.f_frsize, geometry.f_bsize) <= self.plan.allocation_unit,
                           'ADMITTED_ALLOCATION_GEOMETRY')
@@ -266,6 +321,7 @@ class Publisher:
             self.fd = _open_child(self.base_fd, directory)
             self.root_id = _directory_id(os.fstat(self.fd))
             os.fsync(self.fd)
+            self.directory_stamps[''] = self._verify_directory(self.fd, self.base_fd, directory, '', None)
             self._live()
             self._allocation_bound()
         except BaseException:
@@ -285,17 +341,89 @@ class Publisher:
             _directory(os.fstat(self.fd), private=True)
         finally:
             _release_descriptors((current,))
-        for name, fd in self.directories.items():
-            parent_path, _, child_name = name.rpartition('/')
-            parent = self.directories[parent_path] if parent_path else self.fd
-            registry.need(_directory_id(os.fstat(fd)) ==
-                          _directory_id(os.stat(child_name, dir_fd=parent, follow_symlinks=False)), 'PUBLISHER_KIND_DIRECTORY_REPLACED')
+        children = {}
+        for path in self.directory_stamps:
+            if path:
+                parent_path, _, name = path.rpartition('/')
+                children.setdefault(parent_path, []).append((path, name))
+
+        def verify(fd, parent, name, path):
+            stamp = self.directory_stamps[path]
+            self._verify_directory(fd, parent, name, path, stamp)
+            for child_path, child_name in children.get(path, ()):
+                active = self.directories.get(child_path)
+                if active is not None:
+                    verify(active, fd, child_name, child_path)
+                    continue
+                child = _open_child(fd, child_name)
+                try:
+                    verify(child, fd, child_name, child_path)
+                finally:
+                    _release_descriptors((child,))
+            if path in children:
+                self._verify_directory(fd, parent, name, path, stamp)
+
+        verify(self.fd, self.base_fd, self.directory, '')
+
+    def _verify_directory(self, fd, parent, name, path, expected):
+        info = os.fstat(fd)
+        _directory(info, private=True)
+        stamp = _directory_stamp(info, path, _directory_handle(fd))
+        named = os.stat(name, dir_fd=parent, follow_symlinks=False)
+        registry.need(stamp == _directory_stamp(named, path, _directory_handle(parent, name)) and
+                      (expected is None or stamp == expected), 'PUBLISHER_KIND_DIRECTORY_REPLACED')
+        self._bound_directory(info)
+        return stamp
+
+    def _bound_directory(self, info):
+        registry.need(max(info.st_size, info.st_blocks * 512) <= self.plan.allocation_unit,
+                      'DIRECTORY_ALLOCATION_EXCEEDS_RESERVED_UNIT')
 
     def _allocation_bound(self):
-        unit = self.plan.allocation_unit
         for fd in (self.fd, *self.directories.values()):
-            info = os.fstat(fd)
-            registry.need(max(info.st_size, info.st_blocks * 512) <= unit, 'DIRECTORY_ALLOCATION_EXCEEDS_RESERVED_UNIT')
+            self._bound_directory(os.fstat(fd))
+
+    def _path(self, components, opened, *, create):
+        parent, grandparent = self.fd, self.base_fd
+        parent_path, parent_name = '', self.directory
+        for component in components:
+            path = parent_path + '/' + component if parent_path else component
+            fd = self.directories.get(path)
+            if fd is None:
+                stamp = self.directory_stamps.get(path)
+                if stamp is None:
+                    registry.need(create, 'OWN_PUBLISHED_OBJECT_REFERENCE')
+                    parent_stamp = self.directory_stamps[parent_path]
+                    self._verify_directory(parent, grandparent, parent_name, parent_path, parent_stamp)
+                    before = set(os.listdir(parent))
+                    self._verify_directory(parent, grandparent, parent_name, parent_path, parent_stamp)
+                    os.mkdir(component, mode=0o700, dir_fd=parent)
+                    os.fsync(parent)
+                fd = _open_child(parent, component)
+                opened[path] = self.directories[path] = fd
+                if stamp is None:
+                    os.fsync(fd)
+                observed = self._verify_directory(fd, parent, component, path, stamp)
+                if stamp is None:
+                    updated = self._verify_directory(parent, grandparent, parent_name, parent_path, None)
+                    registry.need(updated[0] == parent_stamp[0] and
+                                  set(os.listdir(parent)) == before | {component},
+                                  'PUBLISHER_UNEXPECTED_DIRECTORY_MUTATION')
+                    self._verify_directory(parent, grandparent, parent_name, parent_path, updated)
+                    self.directory_stamps[parent_path] = updated
+                    self.directory_stamps[path] = observed
+            grandparent, parent = parent, fd
+            parent_path, parent_name = path, component
+        return parent, parent_path
+
+    def _release_path(self, writers, opened):
+        for path in opened:
+            del self.directories[path]
+        try:
+            _release_descriptors((*writers, *reversed(opened.values())))
+        except BaseException:
+            self.failed = True
+            raise
 
     def publish(self, kind, raw):
         """Return {kind,path,bytes,sha256} after durable complete pair readback."""
@@ -313,17 +441,9 @@ class Publisher:
         # write is a bounded prefix of these fully reserved retained candidates.
         self.counts[kind] += 1
         self.bytes[kind] += len(raw)
-        writers = []
+        writers, opened = [], {}
         try:
-            parent, relative = self.fd, ''
-            for component in (kind, identity[:2], identity[2:4]):
-                relative = relative + '/' + component if relative else component
-                if relative not in self.directories:
-                    os.mkdir(component, mode=0o700, dir_fd=parent)
-                    os.fsync(parent)
-                    self.directories[relative] = _open_child(parent, component)
-                    os.fsync(self.directories[relative])
-                parent = self.directories[relative]
+            parent, relative = self._path((kind, identity[:2], identity[2:4]), opened, create=True)
             name = publication_leaf(identity, kind)
             for candidate in (name + '.partial', name):
                 self._live()
@@ -360,28 +480,29 @@ class Publisher:
             self.failed = True
             raise
         finally:
-            try:
-                _release_descriptors(writers)
-            except BaseException:
-                self.failed = True
-                raise
+            self._release_path(writers, opened)
 
     def read(self, ref):
         self._live()
         registry.reference(ref)
         parts = registry.call(registry.rawref.relative, ref['path'])
         leaf = '/'.join(parts[1:4])
-        registry.need(len(parts) == 5 and parts[0] == self.directory and leaf in self.directories and
+        registry.need(len(parts) == 5 and parts[0] == self.directory and leaf in self.directory_stamps and
                       parts[1] == ref['kind'] and parts[2] == ref['sha256'][:2] and
                       parts[3] == ref['sha256'][2:4] and
                       parts[4] == publication_leaf(ref['sha256'], ref['kind']),
                       'OWN_PUBLISHED_OBJECT_REFERENCE')
-        raw = _read_file(self.directories[leaf], parts[4], registry.LIMITS[ref['kind']])
-        registry.check_object(ref, raw)
-        registry.need(_read_file(self.directories[leaf], parts[4] + '.partial', len(raw)) == raw,
-                      'PUBLISHED_PAIR_STILL_EXACT')
-        self._live()
-        return raw
+        opened = {}
+        try:
+            parent, _ = self._path(parts[1:4], opened, create=False)
+            raw = _read_file(parent, parts[4], registry.LIMITS[ref['kind']])
+            registry.check_object(ref, raw)
+            registry.need(_read_file(parent, parts[4] + '.partial', len(raw)) == raw,
+                          'PUBLISHED_PAIR_STILL_EXACT')
+            self._live()
+            return raw
+        finally:
+            self._release_path((), opened)
 
     def retire(self, *args, **kwargs):
         raise registry.Refusal('NO_VERSIONED_POST_RETIREMENT_STATE_RETAIN_ALL_NATIVE_CALLER_AND_STAGING_BYTES')
@@ -389,6 +510,7 @@ class Publisher:
     def release(self):
         fds = list(self.directories.values())
         self.directories.clear()
+        self.directory_stamps = {}
         for attribute in ('fd', 'base_fd'):
             fds.append(getattr(self, attribute, None))
             setattr(self, attribute, None)
