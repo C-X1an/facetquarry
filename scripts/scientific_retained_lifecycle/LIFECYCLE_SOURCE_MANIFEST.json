@@ -1,0 +1,160 @@
+{
+  "format": "scientific-posix-lifecycle-source-packet-v1",
+  "status": "SOURCE_ONLY_REQUIRES_INDEPENDENT_FIRST_FINDINGS",
+  "profile": "scientific-posix-complete-failure-copy-v1",
+  "manifest_trust": "Pin complete manifest bytes independently before execution; self-hash is excluded.",
+  "runtime_membership": "Stage exactly packet_files plus this manifest in a NEW owned directory. Ancillary files stay outside the runtime packet.",
+  "packet_files_bytes_excluding_manifest": 158021,
+  "all_selected_files_bytes_excluding_manifest": 167750,
+  "packet_files": [
+    {
+      "origin": "scripts/scientific_lifecycle/ADMISSION.template.json",
+      "name": "ADMISSION.template.json",
+      "bytes": 1551,
+      "sha256": "cc554e1ffaf34eca0d9322db8f747453828a5948794de12b850a68790b1e70a8"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/BOUNDS.md",
+      "name": "BOUNDS.md",
+      "bytes": 7178,
+      "sha256": "aacf16f1a12cbef2f151b6cd24dfd7eb1ebb221b11c3516996d4179a294eb58f"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/PREPARE.template.json",
+      "name": "PREPARE.template.json",
+      "bytes": 1533,
+      "sha256": "9969c53bd9ca0ebb876bf6df12875a171dfa3549f3169338332a648038732d2b"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/README.md",
+      "name": "README.md",
+      "bytes": 13823,
+      "sha256": "ea0a5c2708ce1dfadf187d3229b42696a63477fb5aeda824a925d0c748b14d53"
+    },
+    {
+      "origin": "scripts/scientific_retained_lifecycle/scientific_posix_lifecycle.py",
+      "name": "scientific_posix_lifecycle.py",
+      "bytes": 111147,
+      "sha256": "dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644"
+    },
+    {
+      "origin": "scripts/scientific_lifecycle/test_scientific_posix_lifecycle.py",
+      "name": "test_scientific_posix_lifecycle.py",
+      "bytes": 22789,
+      "sha256": "7cca00e5de735574f7772eef812a65d5270a48bf8082e2b0ad9225e311b58626"
+    }
+  ],
+  "ancillary_files": [
+    {
+      "origin": "scripts/scientific_lifecycle/test_portable_lifecycle_faults.py",
+      "name": "test_portable_lifecycle_faults.py",
+      "bytes": 9729,
+      "sha256": "36431aaa782c34c096ceebc76d033a99ee385f7260250018489b1b7bf46911f0"
+    }
+  ],
+  "bounds_not_admission": {
+    "image_bytes": 268435456,
+    "child_address_space_bytes": 536870912,
+    "source_logical_bytes": 100663296,
+    "source_accounted_bytes": 167772160,
+    "source_entries_including_root": 4096,
+    "required_actual_available_volume_bytes_before_child": 201326592,
+    "neutral_blob_maximum_bytes": 109070351,
+    "base_lifecycle_job_bytes": 1493172224,
+    "spi_reserved_bytes": 855638016,
+    "extra_over_spi_bytes": 637534208,
+    "possible_additional_connector_fileref_bytes_before_metadata": 486576158,
+    "additional_growth": "Every connector/container/cache/mirror/additional copy or retry must be separately bounded and admitted."
+  },
+  "validation_scope": {
+    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "NOT_RUN_ON_FULL_VOLUME_SELECTION",
+    "portable_public_location_execution": "NOT_RUN_ON_FULL_VOLUME_SELECTION",
+    "original_linux_controls": "22_AUTHORED_NOT_RUN",
+    "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+    "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+    "actual_process_supervision_and_collection": "NOT_RUN",
+    "closed_image_and_cloud_native_custody": "NOT_RUN",
+    "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+    "independent_first_review_of_this_curated_selection": "REQUIRED_BEFORE_NEW_ADMISSION",
+    "scientific_or_release_qualification": false,
+    "job_admitted": false,
+    "retirement": "REFUSE"
+  },
+  "previous_source_packet": {
+    "manifest_sha256": "6b60f65bbbda7ad077a50e141fd5d6f88bf49ee67e7bdd4ca3b342cd57386604",
+    "module_sha256": "aac2b81f81da2e5d93d3fe7e639743721ae31523323fcd36e5ddd1d7f4fb8f15",
+    "failed_run_id": 44105562806,
+    "failed_source_commit": "68e2e2c0c60de89ad127c1930aa11dc1d3a82c31",
+    "failed_quota_tuple": "UNKNOWN_NOT_RETAINED",
+    "original22_actual_execution": "NOT_RUN",
+    "native_complete_byte_custody": "VERIFIED_736_MEMBERS_AND_FULL_CLOSED_IMAGE",
+    "previous_validation_scope": {
+      "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_BEFORE_CURATION",
+      "portable_public_location_execution": "NOT_RUN",
+      "original_linux_controls": "22_AUTHORED_NOT_RUN",
+      "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+      "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+      "actual_process_supervision_and_collection": "NOT_RUN",
+      "closed_image_and_cloud_native_custody": "NOT_RUN",
+      "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+      "independent_first_review_of_this_curated_selection": "PENDING",
+      "scientific_or_release_qualification": false,
+      "job_admitted": false,
+      "retirement": "REFUSE"
+    }
+  },
+  "quota_attempt_observation": "Bounded actual errno, probe size/blocks, limits and geometry are retained before the unchanged quota acceptance guard. This is not a quota PASS proof.",
+  "validation_scope_before_nov18_status_refresh": {
+    "portable_synthetic_controls_on_exact_selected_module_test_bytes": "NOT_RUN_AFTER_QUOTA_OBSERVATION_ADDITION",
+    "portable_public_location_execution": "NOT_RUN",
+    "original_linux_controls": "22_AUTHORED_NOT_RUN",
+    "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+    "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+    "actual_process_supervision_and_collection": "NOT_RUN",
+    "closed_image_and_cloud_native_custody": "NOT_RUN",
+    "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+    "independent_first_review_of_this_curated_selection": "QUOTA_OBSERVATION_CHANGE_PENDING_STATIC_CLOSURE",
+    "scientific_or_release_qualification": false,
+    "job_admitted": false,
+    "retirement": "REFUSE"
+  },
+  "diagnostic_portable_unit_scope": "Seven private injected methods passed on the current module. No Linux behavior checked.",
+  "previous_immutable_full_archive_retry": {
+    "commit": "811d9d907dcbb3e879f66701f15ec54166d03a59",
+    "run_id": 44270325088,
+    "module_sha256": "3589e499156427ed0f1b790a00feaf2a2b90f3d3a245188f62911c5b6147a858",
+    "manifest_sha256": "25469beefb73ab1fe449d890c773ce967743d9ff1389a6bb278d845db0744f54",
+    "outcome": "FAIL_RAW_ENOSPC_WITH_PARTIAL_ALLOCATION",
+    "memory_original22": "NOT_RUN",
+    "closed_image_native_byte_custody": "PASS",
+    "validation_scope": {
+      "portable_synthetic_controls_on_exact_selected_module_test_bytes": "9_PASS_0_SKIP_AFTER_QUOTA_OBSERVATION_ADDITION",
+      "portable_public_location_execution": "9_PURE_METHODS_PASS_0_SKIP_NO_LINUX_CLAIM",
+      "original_linux_controls": "22_AUTHORED_NOT_RUN",
+      "curation_import_ast_compile_test_fixture_execution": "NOT_RUN",
+      "actual_quota_enospc_free_space_memory_proofs": "NOT_RUN",
+      "actual_process_supervision_and_collection": "NOT_RUN",
+      "closed_image_and_cloud_native_custody": "NOT_RUN",
+      "external_provider_transport": "NOT_IMPLEMENTED_BY_THIS_MODULE",
+      "independent_first_review_of_this_curated_selection": "QUOTA_OBSERVATION_STATIC_CLOSURE_RECORDED_BEFORE_FIX",
+      "scientific_or_release_qualification": false,
+      "job_admitted": false,
+      "retirement": "REFUSE"
+    },
+    "diagnostic_portable_unit_scope": "Two source-AST methods cover one accepted and three rejected injected tuples; no kernel/fixture execution."
+  },
+  "original22_full_volume_probe": {
+    "profile": "zero-caller-available-ext4-v1",
+    "admission": "REQUIRES_FRESH_INDEPENDENTLY_REVIEWED_ADMISSION",
+    "linux_runtime": "NOT_RUN",
+    "legacy_partly_free_probe_contract": "UNCHANGED",
+    "failure_retention": "Keep raw probe and every failed allocation. Only successful unwritten scratch can be released."
+  },
+  "full_volume_retained_all": {
+    "same_job_quota_memory_original22_and_spi3": "NOT_RUN",
+    "status": "REVIEW_ONLY_NOT_AN_ADMISSION",
+    "old_module_sha256": "8d0b4b4c7d07000cb78ef1b383b47474e4cc5ead0708fac9e45d86e64b159348",
+    "old_lifecycle_manifest_sha256": "66bd2134bc5c59f0474d4ac63782e093d3a7deaff8adddab33faae8560a548bc",
+    "archive_custody": "NOT_RUN"
+  }
+}

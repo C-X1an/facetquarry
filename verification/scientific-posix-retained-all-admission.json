@@ -1,0 +1,32 @@
+{
+  "format": "scientific-posix-full-volume-retained-job-admission-v1",
+  "status": "AUTHORIZED_REVIEWED_ORIGINAL22_AND_RETAINED_SPI3_ONLY",
+  "branch": "refs/heads/scientific-posix-retained-all",
+  "attempt_id": "retained-posix-direct-first",
+  "created_unix_seconds": 1795364015,
+  "expires_unix_seconds": 1795378415,
+  "baseline_including_reserve_bytes": 9880065280,
+  "global_reserve_bytes": 2000000000,
+  "fresh_inventory_sha256": "7f16c155181bddb8ea49feca2a4f1a4f1e455277ec3e43ca260afefe8c69d162",
+  "base_lifecycle_bytes": 1493172224,
+  "connector_bytes": 0,
+  "supplement_bytes": 67108864,
+  "other_growth_bytes": 166723584,
+  "native_transfer": "direct-native-single-bounded-archive",
+  "no_other_heavy_process": true,
+  "independent_review_closed": true,
+  "independent_first_findings_sha256": "350df167de3c1a25f6296ebec36483bd4bda259af7db7527182436e40d668517",
+  "source_pins": {
+    "job_script_sha256": "360b4717f33723623b02d31894423f032097ba1887f95e7cc06eaffb31f311a1",
+    "lifecycle_manifest_sha256": "293bd67af9844af32d0bf7af9aeac4eaf0245b77bd2700b99e0170446c710e15",
+    "lifecycle_module_sha256": "dde6e2e9a4bea25e122cb7f943ec805f8ff75865aba3734282319bbdd4824644",
+    "integration_manifest_sha256": "6b79a1e10108a8322888d854469beef618c36df2e4d3bac2790100e0eab33271",
+    "evidence_sha256": "f3e187eeefc5e0c0208572b58df3e41110b8591be6a1b476d11343836ef8d469",
+    "common_sha256": "15f8f1027ffcc94c3219f1c6a7c86788aeb62d5531056cc5825d11a9d33367cf",
+    "helpers": {
+      "scientific_posix_full_volume_admission": "e4fd45992af79237a37ff4623d06e7d7a035b43db2190167af1bea8cc0a70dd7",
+      "scientific_posix_producer_group": "d46fbbb65328ae52287b0d9fe4e6485b6bf09779658d08affcf7bdde5abf540a",
+      "scientific_posix_transport_limits": "5181679129b6a69595603dcebe0a003ee8f61662b63a44b2a96dd040f4211753"
+    }
+  }
+}
