@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "evidence_type": "retained_posix_full_volume_proof",
+  "source": "e327ca7b435d6405a39139c893f75119cb589bd1213be7db6e909069adbda554",
+  "commit": "b480857f16b408ed01bd72ea12af4d9f22bfc5d2",
+  "run": 45057586469,
+  "attempt": 1,
+  "job": 137316143162,
+  "terminal": "PASS",
+  "quota": {
+    "image_bytes": 268435456,
+    "caller_available_before": 0,
+    "requested_bytes": 268443648,
+    "errno": 28,
+    "failed_probe_retained_bytes": 0,
+    "failed_probe_retained_512_byte_blocks": 0,
+    "restored_available_bytes": 229199872
+  },
+  "memory": {
+    "address_space_limit_bytes": 536870912,
+    "request_bytes": 536870913,
+    "observed_exception": "MemoryError",
+    "unprivileged_probe": "PASS"
+  },
+  "tests": {
+    "original22": {"passed": 22, "failed": 0, "errors": 0, "skips": 0},
+    "retained_spi3": {"passed": 3, "failed": 0, "errors": 0, "skips": 0}
+  },
+  "closure": {
+    "ordinary_unmount_exit": 0,
+    "image_logical_bytes": 268435456,
+    "image_allocated_bytes_at_each_of_six_stages": 268439552,
+    "image_sha256": "3b74910378a04ee48e2e6132c57939d8d4bdfdb11e94daa22680af7496d70620",
+    "neutral_copy_count": 2,
+    "neutral_copy_bytes_each": 24410829,
+    "neutral_copy_sha256_each": "9a4a19c765c8a20891b1fde11fcb3cac3c86bd1637461312bacd5e64c8b5f357",
+    "neutral_distinct_inodes": true
+  },
+  "custody": {
+    "artifact_id": 14767942643,
+    "zip_bytes": 328193271,
+    "zip_sha256": "f98d86a26eea21ccc9271b828eb9e8a3453ad919ff2f803eeaad6ea471bc9eab",
+    "root_manifest_sha256": "4f91447b22142e7bb216ca9f46a6500ada3bab8e8b197ff0c2de92f50016c198",
+    "zip_members_verified": 786,
+    "exact_tracked_source_members_verified": 698,
+    "independent_native_byte_readback": "PASS",
+    "complete_root_image_and_neutral_custody": "PASS"
+  },
+  "same_commit_windows_integrity": {
+    "go": "go version go1.27.3 windows/amd64",
+    "command": ["make", "integrity"],
+    "status": "PASS"
+  },
+  "earlier_failed_runs_preserved": [45045329966, 45046673508, 45049391524, 45050380774],
+  "scope": "Synthetic retained POSIX integration and resource controls. Frozen benchmark, current Linux Go replay, actual offline inspector review and release qualification remain separate."
+}

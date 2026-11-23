@@ -699,6 +699,7 @@
     "tests/test_linux22_full_volume_quota.py",
     "verification/published/linux22-partial-enospc-20261118.json",
     "verification/published/linux22-full-volume-44314449130.json",
-    "verification/published/supported-go-capacity-44336556192.json"
+    "verification/published/supported-go-capacity-44336556192.json",
+    "verification/published/scientific-posix-retained-45057586469.json"
   ]
 }

@@ -1,5 +1,13 @@
 # Verification report
 
+## Retained POSIX proof on commit `b480857`
+
+The hosted Linux job passed all 22 Original22 controls and all three retained SPI controls with zero skips. The 268,443,648-byte quota request returned ENOSPC at zero caller-available space and left the failed probe empty. The unprivileged memory child observed MemoryError under the 512 MiB hard limit. [Actual GitHub run](https://github.com/C-X1an/facetquarry/actions/runs/45057586469)
+
+Ordinary unmount and native byte verification passed. The image retained 268,435,456 logical and 268,439,552 allocated bytes at each measured stage. Two distinct inodes contained identical 24,410,829-byte neutral streams. All 786 archive members and the 698 tracked source members matched. The four previous failed runs remain recorded. [Curated POSIX evidence](verification/published/scientific-posix-retained-45057586469.json)
+
+The same commit passed Windows `make integrity` with the verified Go 1.27.3 SDK. The reported Linux verification, clean reproduction, race, fuzz, and vulnerability scan below retain their original commit scope. Go 1.27.4 includes newer security fixes. The benchmark reference pin remains Go 1.27.3, and a fresh online scan and supported-platform replay remain open for R5. [Go release history](https://go.dev/doc/devel/release#go1.27.4)
+
 ## Measured Linux qualification for commit `c3d5988`
 
 Go 1.27.3 Linux verification completed in 324.695 seconds and fresh committed reproduction in 100.605 seconds. Each checkout recorded 786 neutral passes and the 10 explicit platform and role skips, plus one separate passing host control. Four race packages, 1,000 independent oracle cases with 2,000 CLI executions, and four engine and two integrity mutation controls passed. [Supported Go evidence](verification/published/supported-go-capacity-44336556192.json)

@@ -13,7 +13,7 @@ Go standard-library core | Offline-first | MIT | Experimental
 
 Nearest neighbors are not necessarily the nearest **eligible** neighbors. FacetQuarry makes that distinction visible: an original hierarchical graph, exact filtered ground truth, a deliberately weak postfilter baseline, and a small disclosed planner all operate on the same vectors.
 
-> **Development status:** Run32 atcdf3/source93d9 passed pinned verification, clean reproduction, online scanning, smoke, cache suppression, complete provenance and actual guest trim. Packaging refused insufficient post-trim space; the intentional timeout remains NOT RUN. A named700MBpressure repair preserves all floors/reservations and passed399native reference controls with27explicit skips plus independent review; supported execution remains pending. Earlier recall-target misses and incomplete raw retention remain preserved. Full1/4/16-reader, browser and declined owner gates remain unmet. Read the [verification report](VERIFICATION_REPORT.md) and [acceptance assessment](ACCEPTANCE_ASSESSMENT.md).
+> **Development status.** The hosted R5 run passed all 25 retained POSIX cases and separate live quota and memory probes, with independently verified custody. The frozen reader 1, 4, and 16 benchmarks, offline inspector review, and owner walkthrough remain open. FacetQuarry remains experimental. [Verification report](VERIFICATION_REPORT.md) · [Acceptance assessment](ACCEPTANCE_ASSESSMENT.md)
 
 | Build the graph | Bound the request | Inspect the result |
 |:--|:--|:--|
