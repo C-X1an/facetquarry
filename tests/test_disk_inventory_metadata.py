@@ -37,23 +37,39 @@ class InventoryMetadata(unittest.TestCase):
 
     def test_metadata_request_count_is_linear_with_one_stat_per_entry(self):
         calls = []
-        real_stat = Path.stat
+        real_stat = os.stat
+        real_lstat = os.lstat
         real_scandir = os.scandir
+
         class Entry:
             def __init__(self, original): self.original = original; self.path = original.path
+
             def stat(self, **kwargs):
-                calls.append(self.path)
+                calls.append((self.path, kwargs.get('follow_symlinks', True)))
                 return self.original.stat(**kwargs)
+
         @contextlib.contextmanager
         def scan(path):
             with real_scandir(path) as entries:
                 yield (Entry(entry) for entry in entries)
-        def path_stat(path, *args, **kwargs):
-            calls.append(str(path))
+
+        def observe_stat(path, *args, **kwargs):
+            calls.append((str(path), kwargs.get('follow_symlinks', True)))
             return real_stat(path, *args, **kwargs)
-        with patch.object(guard.os, 'scandir', scan), patch.object(Path, 'stat', path_stat):
+
+        def observe_lstat(path, *args, **kwargs):
+            calls.append((str(path), False))
+            return real_lstat(path, *args, **kwargs)
+
+        # Path.lstat may call os.lstat directly or delegate to os.stat.
+        with (patch.object(guard.os, 'scandir', scan),
+              patch.object(guard.os, 'stat', observe_stat),
+              patch.object(guard.os, 'lstat', observe_lstat)):
             record = guard.inventory(self.root)
-        self.assertEqual(len(calls), 4)  # root, nested, a, nested/b
+
+        self.assertEqual(len(calls), 4)
+        self.assertCountEqual(calls, [(str(path), False) for path in
+                                     (self.root, self.root / 'nested', self.root / 'a', self.root / 'nested/b')])
         self.assertGreaterEqual(record['accounted_bytes'], 32)
 
     def test_enumeration_and_metadata_failures_propagate(self):
