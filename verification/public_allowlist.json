@@ -705,6 +705,10 @@
     "verification/published/pinned-linux-f5b35ab-20261126-reproduction.json",
     "verification/published/pinned-linux-f5b35ab-20261126-review.json",
     "verification/published/pinned-linux-f5b35ab-20261126-toolchain.json",
-    "verification/published/pinned-linux-f5b35ab-20261126.json"
+    "verification/published/pinned-linux-f5b35ab-20261126.json",
+    "scripts/reference_group_capacity.py",
+    "tests/test_reference_group_capacity.py",
+    "scripts/reference_group_bootstrap.py",
+    "tests/test_reference_group_bootstrap.py"
   ]
 }
