@@ -1,316 +1,308 @@
 {
   "schema_version": 1,
-  "source": "bb95fd98745e6717682e4690d109861bc89c65d47d14ed8dc2d0925c5433248f",
-  "assessment": "REPAIRED_EXPERIMENTAL_NOT_RELEASE_READY",
+  "source": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "assessment": "EXPERIMENTAL_NOT_RELEASE_QUALIFIED",
+  "full_benchmark_complete": false,
+  "owner_walkthrough_complete": false,
+  "resource_inventory_complete": false,
+  "supported_toolchain": true,
+  "independent_review_complete": true,
+  "public_export_audited": true,
+  "fresh_checkout_complete": true,
   "criteria": [
     {
       "id": "AC-001",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-002",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The independent Python oracle matched 1000 generated cases and retained the comparisons.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-003",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-004",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-005",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-006",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-007",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-008",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go race run passed all four packages, including ownership and concurrent readers.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-009",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-010",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-011",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-012",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The pinned Go build, unit and integration suites passed.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-013",
       "status": "PARTIAL",
-      "qualification": "Six real escaped CLI cases passed; actual offline browser capture remains blocked by URL policy.",
+      "qualification": "Six offline CLI outcomes and static HTML checks passed. Visual and keyboard review remain open.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-014",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "All four selected engine defects produced the expected assertion failures and passed again after restoration.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-015",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "Both Go fuzz targets ran for at least 30 seconds and the 109 discovered corpus files were verified.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-016",
       "status": "NOT_RUN",
-      "qualification": "Current repaired source full frozen/reference matrix unrun. Historical4949 full5400 completed, recall33PASS/12FAIL, retained separately.",
-      "receipts": [
-        {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
-        }
-      ]
+      "qualification": "The current 5400-cell named-host matrix is outstanding separately for readers 1, 4 and 16.",
+      "receipts": []
     },
     {
       "id": "AC-017",
       "status": "NOT_RUN",
-      "qualification": "Current repaired source full frozen/reference matrix unrun. Historical4949 full5400 completed, recall33PASS/12FAIL, retained separately.",
-      "receipts": [
-        {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
-        }
-      ]
+      "qualification": "The current workload has no measured named-host recall qualification.",
+      "receipts": []
     },
     {
       "id": "AC-018",
       "status": "PASS",
-      "qualification": "Current explicit public tree/history/targeted credential checks and govulncheck passed. New repair securitydiff and final committed export audit pending.",
+      "qualification": "The tested public tree, allowlist, license and reachable history passed the publication audit.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
-        },
-        {
-          "path": "verification/published/repair-bb95/online-security/receipt.json",
-          "kind": "command",
-          "sha256": "8b493057e95c6e98dc374f1942cf7ed41107f4370b416646f7e1d1a1e235e06d"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126-export-audit.json",
+          "sha256": "89e05d7679fa9827fd966c1b37192e900404a78360445063741e90b34dcec3e2",
+          "kind": "export_audit"
         }
       ]
     },
     {
       "id": "AC-019",
-      "status": "NOT_RUN",
-      "qualification": "Fresh committed current-source supported Linux reproduction pending; historical4949 Linux reproduction passed.",
+      "status": "PASS",
+      "qualification": "The separate committed Linux checkout ran the pinned build, tests, demo and cleanup successfully.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126-reproduction.json",
+          "sha256": "f7eb9eb553dab3b7ad73cda995e1dd56832c5bd3f488630347d0285d8fd13b26",
+          "kind": "fresh_checkout"
         }
       ]
     },
     {
       "id": "AC-020",
       "status": "PARTIAL",
-      "qualification": "Actual global attribution below15GB; local NTFS quota denied. Unchanged historical remote quota proved, fresh admission/cleanup and new-source run pending.",
-      "receipts": [
-        {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
-        }
-      ]
+      "qualification": "Local and external allocations were inventoried and scoped quotas exercised. Full reference capacity and a host-wide quota remain open.",
+      "receipts": []
     },
     {
       "id": "AC-021",
       "status": "PASS",
-      "qualification": "Independent read-only findings precede repair; scoped issues reassessed closed with RED/GREEN and current full verification.",
+      "qualification": "Independent read-only findings preceded the filesystem instrumentation repair. The product-source review and oracle disposition are recorded.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
-        },
-        {
-          "path": "verification/published/repair-bb95/review.json",
-          "kind": "review",
-          "sha256": "6e47d7590437da71bfa8bc8f8ce35aee8b516ca90719042d6f8bcc8413e9b10a"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126-review.json",
+          "sha256": "cfd4f0133a901a21d23a65e1e8b8efbf289efeda9f47bfd74c95645eefac6b65",
+          "kind": "review"
         }
       ]
     },
     {
       "id": "AC-022",
       "status": "NOT_RUN",
-      "qualification": "Owner declined walkthrough; browser keyboard review unrun. No substitute owner evidence.",
+      "qualification": "The owner walkthrough and actual browser keyboard review were not run.",
       "receipts": []
     },
     {
       "id": "AC-023",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "The network-isolated six-case inspector, static HTML, and live Go dependency scan were verified.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     },
     {
       "id": "AC-024",
       "status": "PASS",
-      "qualification": "Pinned Go1.27.3 Windows current-source finite verification passed; reference Linux qualification separate.",
+      "qualification": "Both disposable protected-file mutations failed the integrity gate before exact restoration.",
       "receipts": [
         {
-          "path": "verification/published/repair-bb95/core/receipt.json",
-          "kind": "command",
-          "sha256": "8278d550e4cb761afcad9d8b8c55805d44dc9e565de87b3af25c7c3c4cea3b94"
+          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
+          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
+          "kind": "command"
         }
       ]
     }
   ],
-  "supported_toolchain": false,
-  "independent_review_complete": true,
-  "full_benchmark_complete": false,
-  "owner_walkthrough_complete": false,
-  "public_export_audited": false,
-  "fresh_checkout_complete": false,
-  "resource_inventory_complete": false,
   "gate_evidence": {
+    "supported_toolchain": [
+      {
+        "path": "verification/published/pinned-linux-f5b35ab-20261126-toolchain.json",
+        "sha256": "2c95c825d9552044285d7b46a17296d98d8ea34869ad016af74d6486679da7fa",
+        "kind": "toolchain"
+      }
+    ],
     "independent_review_complete": [
       {
-        "path": "verification/published/repair-bb95/review.json",
-        "kind": "review",
-        "sha256": "6e47d7590437da71bfa8bc8f8ce35aee8b516ca90719042d6f8bcc8413e9b10a"
+        "path": "verification/published/pinned-linux-f5b35ab-20261126-review.json",
+        "sha256": "cfd4f0133a901a21d23a65e1e8b8efbf289efeda9f47bfd74c95645eefac6b65",
+        "kind": "review"
+      }
+    ],
+    "public_export_audited": [
+      {
+        "path": "verification/published/pinned-linux-f5b35ab-20261126-export-audit.json",
+        "sha256": "89e05d7679fa9827fd966c1b37192e900404a78360445063741e90b34dcec3e2",
+        "kind": "export_audit"
+      }
+    ],
+    "fresh_checkout_complete": [
+      {
+        "path": "verification/published/pinned-linux-f5b35ab-20261126-reproduction.json",
+        "sha256": "f7eb9eb553dab3b7ad73cda995e1dd56832c5bd3f488630347d0285d8fd13b26",
+        "kind": "fresh_checkout"
       }
     ]
-  },
-  "note": "Current Windows verification qualifies finite checks. Required global reference/toolchain/reproduction/resource/manual gates remain explicit."
+  }
 }

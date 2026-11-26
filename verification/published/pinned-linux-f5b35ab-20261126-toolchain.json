@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "evidence_type": "toolchain",
+  "source": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "status": "PASS",
+  "commit": "f5b35ab75d2f95290d3dc384d020dfc524177987",
+  "go": "go1.27.3",
+  "platform": "linux/amd64",
+  "runtime_verified": true,
+  "verified_by": "20261126T042756Z-b3b749d3ab",
+  "sdk_bytes": 70588678,
+  "sdk_sha256": "65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40",
+  "scope": "Verified runtime in Linux WSL. Named KVM reference performance remains open."
+}

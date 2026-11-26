@@ -1,5 +1,13 @@
 # Current acceptance assessment
 
+## Current pinned Linux evidence for commit `f5b35ab`
+
+The ordinary verification suite and a separate committed reproduction passed on Linux WSL with Go 1.27.3. Both recorded 786 passes and 10 explicit skips in integration. The browser criterion is partial after the real offline demo and static HTML check. Resource admission remains partial after scoped quota and cleanup checks. [Source-bound criterion records](verification/criterion_status.json)
+
+The independent initial review found a gap in the supplied oracle evidence. The current verification ran the existing separate Python oracle against all 1,000 required seeded cases. Another independent review preceded the Python filesystem metadata test repair. The exact four-request requirement passed after the repair on Windows and Linux. [Curated review dispositions](verification/published/pinned-linux-f5b35ab-20261126-review.json)
+
+The named-host full grids and recall target have no current qualifying measurements. The owner walkthrough and actual browser keyboard review remain unrun. Earlier sections retain their original source scope.
+
 ## Supported Linux verification (2026-11-09)
 
 At technical source `853efaf7fb688c42520e3863806142184bbde449fee6ef5d25102b699e63a876`, [run #46](https://github.com/C-X1an/facetquarry/actions/runs/42514706740) completed supported Go 1.27.3 Linux verification, a distinct clean committed reproduction and the current online vulnerability scan. Main and clean clone each ran 774 cases: 764 passed and 10 were explicitly skipped, followed by a separate host control with one pass and zero skips. These contexts repeat the same test identities.

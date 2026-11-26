@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "source": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "status": "PASS",
+  "commit": "f5b35ab75d2f95290d3dc384d020dfc524177987",
+  "run_id": "20261126T042756Z-b3b749d3ab",
+  "command": [
+    "make",
+    "verify"
+  ],
+  "source_before": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "source_after": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "termination_reason": null,
+  "exit_code": 0,
+  "stdout_sha256": "bf4f4e546c7dcbd574c5a532c5ae42394e0b2912e1f9f4d4f95e473950e090d7",
+  "stderr_sha256": "9f3345d573e50c608a75991a0a50797a06fef2739072395ffe2e849d68a7252a",
+  "stream_digest_scope": "Complete launcher streams including the nested make command.",
+  "artifact_readback": "20261126T043728Z-a642167ec6",
+  "measurements": {
+    "status": "PASS",
+    "commit": "f5b35ab75d2f95290d3dc384d020dfc524177987",
+    "source": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+    "outer_run": "20261126T042756Z-b3b749d3ab",
+    "duration_seconds": 326.28055209992453,
+    "archive_sha256": "2f0197eb7189345fa71a13ccedc517c65fb2025b938f12c4d13401a5be2e143b",
+    "integration_passed": 786,
+    "explicit_skips": 10,
+    "archive_members": 334,
+    "fuzz": {
+      "FuzzQuery": {
+        "seconds": 31.013,
+        "executions": 608235,
+        "retained_corpus_files": 106
+      },
+      "FuzzSnapshot": {
+        "seconds": 31.015,
+        "executions": 1562379,
+        "retained_corpus_files": 3
+      }
+    },
+    "race_packages": 4,
+    "oracle_cases": 1000,
+    "oracle_cli_commands": 2000,
+    "smoke_cells": 21,
+    "smoke_samples": 672,
+    "demo_cases": 6,
+    "engine_mutation_controls": 4,
+    "integrity_mutation_controls": 2
+  },
+  "offline_demo": {
+    "cases": 6,
+    "report_sha256": "2e5e1c26457283bcccbc040b6c4b238e9e0704969a8188e762ecf5406d9945fc",
+    "in_page_links": 6,
+    "external_assets": 0,
+    "network_namespace": [
+      "lo"
+    ],
+    "browser_review": "NOT RUN"
+  },
+  "security": {
+    "receipt": "20261126T043533Z-0f93d693bf",
+    "scanner": "govulncheck v1.9.0",
+    "reachable": 0,
+    "imported_packages": 0,
+    "required_module_advisories": [
+      "GO-2026-6859"
+    ],
+    "fixed_go": "go1.27.4"
+  },
+  "frozen_group_diagnostic": {
+    "receipt": "20261126T043812Z-12bb7fdbe7",
+    "status": "PASS",
+    "source": "e327ca7b435d6405a39139c893f75119cb589bd1213be7db6e909069adbda554",
+    "original_receipt": "20261125T151350Z-377ec0f764",
+    "archive_sha256": "56bd806cda07afe4562976a39ba345d94ff4a333880becce1a599ef630c6a2d8",
+    "release_qualification": false,
+    "reference_host_verified": false,
+    "cells": 60,
+    "samples": 60000,
+    "empty_denominator_samples": 0,
+    "exact_oracle_queries": 1200,
+    "normalized_rows_sha256": "72891b554aa65d42200f7131723c80f8e3f41e8030907e026f71e9c7a732d969",
+    "group": {
+      "n": 2000,
+      "dimension": 64,
+      "distribution": "uniform",
+      "correlation": "independent",
+      "seed": 11
+    }
+  },
+  "release_qualification": false
+}

@@ -1,5 +1,15 @@
 # Verification report
 
+## Pinned Linux verification for commit `f5b35ab`
+
+Go 1.27.3 on Linux WSL passed `make verify` in 326.3 seconds. The integration suite passed 786 tests and explicitly skipped 10 platform and runner-role cases. All four Go race-test packages, 1,000 independently checked oracle cases with 2,000 actual CLI commands, four engine mutation controls, and two integrity mutation controls passed. Benchmark smoke covered 21 cells and 672 samples. [Curated verification evidence](verification/published/pinned-linux-f5b35ab-20261126.json)
+
+`FuzzQuery` ran 31.013 seconds with 608,235 executions. `FuzzSnapshot` ran 31.015 seconds with 1,562,379 executions. Readback verified all 109 retained fuzz files and the other members of the 334-file evidence archive. The separate offline `make clean-verify` run started from a committed checkout and passed the build, tests, six-case demo and cleanup. [Committed reproduction evidence](verification/published/pinned-linux-f5b35ab-20261126-reproduction.json)
+
+The live `govulncheck` v1.9.0 scan reported zero reachable vulnerabilities and zero in imported packages. It reported one standard-library advisory outside the observed call paths. Go fixed that advisory in 1.27.4. [Go advisory GO-2026-6859](https://pkg.go.dev/vuln/GO-2026-6859)
+
+Exact replay reproduced 60,000 normalized samples and summary metrics from 60 cells in an earlier one-reader WSL diagnostic. The current named-host 5,400-cell matrix is still due separately for readers 1, 4 and 16. The actual browser review and owner walkthrough remain open. Release status is **unqualified**.
+
 ## Retained POSIX proof on commit `b480857`
 
 The hosted Linux job passed all 22 Original22 controls and all three retained SPI controls with zero skips. The 268,443,648-byte quota request returned ENOSPC at zero caller-available space and left the failed probe empty. The unprivileged memory child observed MemoryError under the 512 MiB hard limit. [Actual GitHub run](https://github.com/C-X1an/facetquarry/actions/runs/45057586469)

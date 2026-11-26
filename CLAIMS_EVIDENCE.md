@@ -1,5 +1,11 @@
 # Claims and evidence
 
+## Verified Linux results for commit `f5b35ab`
+
+Linux WSL verification and clean committed reproduction passed with Go 1.27.3. The evidence includes the four-package race run, both 30-second fuzz campaigns, 1,000 exact Python oracle comparisons, six engine and integrity mutation controls, and the offline six-case inspector. The live scan found zero reachable vulnerabilities and reported one standard-library advisory outside the observed call paths. [Verification evidence](verification/published/pinned-linux-f5b35ab-20261126.json)
+
+The three full reference matrices, the reference recall threshold, actual browser review, and the owner walkthrough remain open. Release status is **unqualified**. [Current acceptance assessment](ACCEPTANCE_ASSESSMENT.md)
+
 ## Verified Linux results for commit `c3d5988`
 
 The full-volume resource proof and 22 original controls passed with exact archive custody. The separate Go 1.27.3 Linux job passed verification, race, both fuzz campaigns, clean committed reproduction, and online dependency scanning. Its scanner reported no vulnerabilities. [Original22 evidence](verification/published/linux22-full-volume-44314449130.json), [supported Go evidence](verification/published/supported-go-capacity-44336556192.json)

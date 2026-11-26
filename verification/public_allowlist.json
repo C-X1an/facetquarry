@@ -700,6 +700,11 @@
     "verification/published/linux22-partial-enospc-20261118.json",
     "verification/published/linux22-full-volume-44314449130.json",
     "verification/published/supported-go-capacity-44336556192.json",
-    "verification/published/scientific-posix-retained-45057586469.json"
+    "verification/published/scientific-posix-retained-45057586469.json",
+    "verification/published/pinned-linux-f5b35ab-20261126-export-audit.json",
+    "verification/published/pinned-linux-f5b35ab-20261126-reproduction.json",
+    "verification/published/pinned-linux-f5b35ab-20261126-review.json",
+    "verification/published/pinned-linux-f5b35ab-20261126-toolchain.json",
+    "verification/published/pinned-linux-f5b35ab-20261126.json"
   ]
 }

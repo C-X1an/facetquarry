@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "evidence_type": "export_audit",
+  "status": "PASS",
+  "commit": "f5b35ab75d2f95290d3dc384d020dfc524177987",
+  "source": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "files_checked": 699,
+  "findings": [],
+  "history_audited": true,
+  "allowlist_audited": true,
+  "history": {
+    "history_blobs": 1005,
+    "commit_metadata": 68,
+    "root_trees": 68,
+    "historical_alias_paths": 37065,
+    "history_object_bytes": 19600316,
+    "author_contact_policy": "Public GitHub noreply identities only."
+  },
+  "license_locks_and_grid_byte_exact": true,
+  "changed_paths": [
+    "tests/test_disk_inventory_metadata.py"
+  ],
+  "changed_file_sha256": "952ccf2b60ff32d66e3347b37d50412568b6b61133ced6a2526fa42f7c39a90e",
+  "receipt": "20261125T182303Z-ca82b45bfc"
+}
