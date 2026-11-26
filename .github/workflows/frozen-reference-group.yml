@@ -2,7 +2,7 @@ name: Bounded frozen benchmark group
 
 on:
   push:
-    branches: [frozen-reference-group-r2]
+    branches: [frozen-reference-group-r3]
 
 permissions:
   contents: read
@@ -13,12 +13,12 @@ concurrency:
 
 jobs:
   group:
-    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r2' && github.event.created == true && github.run_attempt == '1' }}
+    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r3' && github.event.created == true && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       FQ_RUN_BASENAME: facetquarry-named-group-${{ github.run_id }}-1
-      FQ_ADMISSION_SHA256: '9cfa8f17ec9c0fdfb3aa6f228b04185b9c972eac6d17da98311660754eac2065'
+      FQ_ADMISSION_SHA256: 'b8222bd2dc94ce918abf51e9abc3973a13812608eab05016cae4058d5a68051d'
       FQ_OUTER_IMAGE_BYTES: '1030000000'
       LC_ALL: C.UTF-8
       PYTHONDONTWRITEBYTECODE: '1'
@@ -39,8 +39,10 @@ jobs:
         shell: bash
         timeout-minutes: 4
         run: |
-          set -euo pipefail
+          set -Eeuo pipefail
           umask 077
+          fq_stage=checkout
+          trap 'rc=$?; printf "provision_failure_stage=%s exit_code=%s\n" "$fq_stage" "$rc"; if test -d "${fq_closure:-}" && test ! -L "$fq_closure"; then printf "{\"status\":\"FAIL\",\"stage\":\"%s\",\"exit_code\":%s}\n" "$fq_stage" "$rc" >"$fq_closure/provision-failure.json"; fi; exit "$rc"' ERR
           test "$(id -u)" != 0
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           test -z "$(git status --porcelain)"
@@ -52,7 +54,9 @@ jobs:
           export fq_image="$fq_root/outer.img"
           export fq_closure="$fq_root/closure"
           export fq_probe_bytes=$((FQ_OUTER_IMAGE_BYTES + 1048576))
-          test ! -L "$fq_root" && test ! -e "$fq_root"
+          test ! -L "$fq_root"
+          test ! -e "$fq_root"
+          fq_stage=admission
           python3 -B - <<'PY'
           import hashlib
           import json
@@ -91,11 +95,14 @@ jobs:
                   output.write(f'{key}={value}\n')
           print(json.dumps({'admission': plan, 'technical_source': source}))
           PY
+          fq_stage=create_owned_paths
           mkdir -- "$fq_root"
           mkdir -- "$fq_volume" "$fq_closure"
           test ! -e "$fq_image"
+          fq_stage=allocate_backing
           fallocate -l "$FQ_OUTER_IMAGE_BYTES" -- "$fq_image"
           sync -f -- "$fq_image"
+          fq_stage=verify_backing
           python3 -B - <<'PY'
           import json
           import os
@@ -126,24 +133,66 @@ jobs:
           assert info.st_size == expected, 'backing-file apparent length differs'
           assert expected <= record['allocated_bytes'] <= maximum, 'backing-file allocation outside admitted bounds'
           PY
+          fq_stage=format_outer
           mkfs.ext4 -F -q -m 0 -E nodiscard,lazy_itable_init=0,lazy_journal_init=0 "$fq_image"
+          fq_stage=mount_outer
           sudo -n mount -o loop,nodev,nosuid "$fq_image" "$fq_volume"
+          fq_stage=make_outer_private
           sudo -n mount --make-private "$fq_volume"
-          test "$(findmnt -n -o PROPAGATION --mountpoint "$fq_volume")" = private
+          fq_stage=verify_outer_private
+          fq_propagation="$(findmnt --raw --noheadings --output PROPAGATION --mountpoint "$fq_volume")"
+          export fq_propagation
+          python3 -B - <<'PY'
+          import json
+          import os
+          value = os.environ['fq_propagation']
+          assert len(value) <= 128
+          print(json.dumps({'stage': 'verify_outer_private', 'propagation': value}), flush=True)
+          assert value.strip() == 'private', 'outer mount propagation differs'
+          PY
+          fq_stage=chown_outer
           sudo -n chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
+          fq_stage=copy_checkout
           cp -a -- "$GITHUB_WORKSPACE" "$fq_volume/source"
           mkdir -- "$fq_volume/source/.local"
-          stderr="$fq_volume/source/.local/enospc.stderr"
-          probe="$fq_volume/outer-enospc-probe"
-          test ! -e "$probe" && test ! -L "$probe"
-          set +e
-          fallocate -l "$fq_probe_bytes" -- "$probe" 2>"$stderr"
-          refused=$?
-          set -e
-          test "$refused" -eq 1
-          grep -q 'No space left on device' "$stderr"
-          test -f "$probe" && test ! -L "$probe" && test -O "$probe"
-          rm -- "$probe"
+          fq_stage=outer_enospc
+          python3 -B - <<'PY'
+          import errno
+          import json
+          import os
+          from pathlib import Path
+          import stat
+
+          volume = Path(os.environ['fq_volume'])
+          name = 'outer-enospc-probe'
+          request = int(os.environ['fq_probe_bytes'])
+          directory = os.open(volume, os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+          try:
+              fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=directory)
+              try:
+                  try:
+                      os.posix_fallocate(fd, 0, request)
+                  except OSError as error:
+                      if error.errno != errno.ENOSPC:
+                          raise
+                      message = f'os.posix_fallocate request={request}: [Errno {error.errno}] {error.strerror}\n'
+                  else:
+                      raise RuntimeError('oversized allocation accepted')
+                  opened, named = os.fstat(fd), os.stat(name, dir_fd=directory, follow_symlinks=False)
+                  assert (opened.st_dev, opened.st_ino) == (named.st_dev, named.st_ino) and named.st_dev == os.fstat(directory).st_dev
+                  assert stat.S_ISREG(named.st_mode) and named.st_nlink == 1 and named.st_uid == os.getuid()
+                  with (volume / 'source/.local/enospc.stderr').open('x', encoding='utf-8') as output:
+                      output.write(message)
+                  os.unlink(name, dir_fd=directory)
+              finally:
+                  os.close(fd)
+          finally:
+              os.close(directory)
+          print(json.dumps({'stage': 'outer_enospc', 'errno': errno.ENOSPC, 'requested_bytes': request,
+                            'pre_cleanup_bytes': named.st_size, 'pre_cleanup_allocated_bytes': named.st_blocks * 512}),
+                flush=True)
+          PY
+          fq_stage=bind_quota_to_backing
           python3 -B - <<'PY'
           import hashlib
           import json
@@ -181,6 +230,7 @@ jobs:
           assert geometry['Reserved block count'] == 0 and geometry['Block size'] == usage.f_frsize
           geometry.update(caller_available_bytes=usage.f_bavail * usage.f_frsize,
                           caller_available_inodes=usage.f_favail, filesystem_bytes=usage.f_blocks * usage.f_frsize)
+          assert geometry['caller_available_bytes'] >= 500_000_000
           value = {'schema_version': 1, 'evidence_type': 'reference_quota', 'hard_quota_enforced': True,
                    'volume_path': str(volume), 'image_path': str(image), 'mount': binding['mount'],
                    'image_loop_binding': binding, 'volume_file_bytes': image.stat().st_size,
@@ -192,9 +242,12 @@ jobs:
               json.dump(value, output, sort_keys=True)
           print(json.dumps(value, sort_keys=True))
           PY
+          fq_stage=bind_runner_capture
           mkdir -- "$fq_volume/runner-evidence" "$GITHUB_WORKSPACE/.local"
           sudo -n mount --bind "$fq_volume/runner-evidence" "$GITHUB_WORKSPACE/.local"
           test "$fq_volume/runner-evidence" -ef "$GITHUB_WORKSPACE/.local"
+          trap - ERR
+          printf '%s\n' 'provision_complete=true'
 
       - name: Execute the actual KVM group under the bounded controller
         id: workload
@@ -319,6 +372,7 @@ jobs:
           root = temp / env['FQ_RUN_BASENAME']
           controls = {'workload-receipt.json': root / 'closure/workload-receipt.json',
                       'group-failure.json': root / 'closure/group-failure.json',
+                      'provision-failure': root / 'closure/provision-failure.json',
                       'backing-allocation': root / 'closure/backing-allocation.json',
                       'bootstrap': root / 'volume/bootstrap-proof/build.json'}
           for name, path in controls.items():
