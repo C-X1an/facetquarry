@@ -2,7 +2,7 @@ name: Bounded frozen benchmark group
 
 on:
   push:
-    branches: [frozen-reference-group-r1]
+    branches: [frozen-reference-group-r2]
 
 permissions:
   contents: read
@@ -13,12 +13,12 @@ concurrency:
 
 jobs:
   group:
-    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r1' && github.event.created == true && github.run_attempt == '1' }}
+    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r2' && github.event.created == true && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       FQ_RUN_BASENAME: facetquarry-named-group-${{ github.run_id }}-1
-      FQ_ADMISSION_SHA256: '6f8dd5c5fb30de6f803dff6e26b7ea4d700ddac18a6f2fd890e23ea3aef4c41a'
+      FQ_ADMISSION_SHA256: '9cfa8f17ec9c0fdfb3aa6f228b04185b9c972eac6d17da98311660754eac2065'
       FQ_OUTER_IMAGE_BYTES: '1030000000'
       LC_ALL: C.UTF-8
       PYTHONDONTWRITEBYTECODE: '1'
@@ -95,7 +95,37 @@ jobs:
           mkdir -- "$fq_volume" "$fq_closure"
           test ! -e "$fq_image"
           fallocate -l "$FQ_OUTER_IMAGE_BYTES" -- "$fq_image"
-          python3 -B -c 'import os,stat; n=int(os.environ["FQ_OUTER_IMAGE_BYTES"]); s=os.stat(os.environ["fq_image"],follow_symlinks=False); assert stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_uid==os.getuid() and s.st_size==n and n<=s.st_blocks*512<=n+4096'
+          sync -f -- "$fq_image"
+          python3 -B - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import stat
+          import subprocess
+
+          image = Path(os.environ['fq_image'])
+          expected = int(os.environ['FQ_OUTER_IMAGE_BYTES'])
+          maximum = expected + (2 << 20)
+          info = image.lstat()
+          gnu = [int(value) for value in subprocess.check_output([
+              '/usr/bin/stat', '--format=%d %i %h %u %s %b %B', '--', str(image),
+          ], text=True, timeout=10).split()]
+          record = {'stage': 'pre_format', 'method': 'fallocate', 'file_mode': stat.S_IFMT(info.st_mode),
+                    'uid': info.st_uid, 'caller_uid': os.getuid(), 'links': info.st_nlink,
+                    'device': info.st_dev, 'inode': info.st_ino, 'apparent_bytes': info.st_size,
+                    'blocks': info.st_blocks, 'python_block_bytes': 512, 'allocated_bytes': info.st_blocks * 512,
+                    'gnu_stat_device_inode_links_uid_apparent_blocks_unit': gnu,
+                    'expected_apparent_bytes': expected, 'maximum_allocated_bytes': maximum,
+                    'metadata_reservation_within_runner_bytes': 2 << 20}
+          with (Path(os.environ['fq_closure']) / 'backing-allocation.json').open('x', encoding='utf-8') as output:
+              json.dump(record, output, sort_keys=True)
+          print(json.dumps(record, sort_keys=True), flush=True)
+          assert stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and info.st_uid == os.getuid(), 'unexpected backing file owner or type'
+          assert gnu[:5] == [info.st_dev, info.st_ino, info.st_nlink, info.st_uid, info.st_size], 'backing-file identity differs'
+          assert gnu[5] * gnu[6] == record['allocated_bytes'], 'backing-file allocation reports differ'
+          assert info.st_size == expected, 'backing-file apparent length differs'
+          assert expected <= record['allocated_bytes'] <= maximum, 'backing-file allocation outside admitted bounds'
+          PY
           mkfs.ext4 -F -q -m 0 -E nodiscard,lazy_itable_init=0,lazy_journal_init=0 "$fq_image"
           sudo -n mount -o loop,nodev,nosuid "$fq_image" "$fq_volume"
           sudo -n mount --make-private "$fq_volume"
@@ -123,7 +153,7 @@ jobs:
 
           sys.path.insert(0, 'scripts')
           from common import source_hash
-          from reference_group_capacity import OUTER_IMAGE_BYTES
+          from reference_group_capacity import OUTER_IMAGE_BYTES, RUNNER_BYTES
           from reference_group_job import approved_context
           from reference_results import Commands, observe_binding, run_context
 
@@ -139,7 +169,11 @@ jobs:
           assert 0 < len(raw) <= 32768 and b'No space left on device' in raw
           binding = observe_binding(volume, image, runner)
           assert image.stat().st_size == OUTER_IMAGE_BYTES
-          assert OUTER_IMAGE_BYTES <= image.stat().st_blocks * 512 <= OUTER_IMAGE_BYTES + 4096
+          assert OUTER_IMAGE_BYTES <= image.stat().st_blocks * 512 <= OUTER_IMAGE_BYTES + (2 << 20)
+          assert RUNNER_BYTES == 64 << 20
+          dev = binding['mount']['source']
+          loop_size = int(runner(['sudo', '-n', 'blockdev', '--getsize64', dev])['stdout'])
+          assert 0 <= OUTER_IMAGE_BYTES - loop_size < 512
           header = runner(['dumpe2fs', '-h', str(image)])['stdout']
           fields = dict(line.partition(':')[::2] for line in header.splitlines() if ':' in line)
           geometry = {key: int(fields[key]) for key in ('Block count', 'Reserved block count', 'Block size', 'Inode count')}
@@ -151,7 +185,7 @@ jobs:
                    'volume_path': str(volume), 'image_path': str(image), 'mount': binding['mount'],
                    'image_loop_binding': binding, 'volume_file_bytes': image.stat().st_size,
                    'volume_allocated_bytes': image.stat().st_blocks * 512,
-                   'geometry': geometry, 'oversized_allocation_bytes': int(os.environ['fq_probe_bytes']),
+                   'geometry': geometry, 'loop_size_bytes': loop_size, 'oversized_allocation_bytes': int(os.environ['fq_probe_bytes']),
                    'oversized_allocation': 'DENIED_ENOSPC',
                    'enospc_sha256': hashlib.sha256(raw).hexdigest(), 'run_context': context, 'source': source}
           with (local / 'reference-quota.json').open('x', encoding='utf-8') as output:
@@ -285,6 +319,7 @@ jobs:
           root = temp / env['FQ_RUN_BASENAME']
           controls = {'workload-receipt.json': root / 'closure/workload-receipt.json',
                       'group-failure.json': root / 'closure/group-failure.json',
+                      'backing-allocation': root / 'closure/backing-allocation.json',
                       'bootstrap': root / 'volume/bootstrap-proof/build.json'}
           for name, path in controls.items():
               if path.is_file() and not path.is_symlink() and path.resolve(strict=True) == path and path.stat().st_size < 65536:
@@ -296,7 +331,8 @@ jobs:
                       result[name] = {'read_failure': type(error).__name__}
                       continue
                   result[name] = {key: row[key] for key in ('status', 'source', 'source_before', 'source_after', 'exit_code',
-                                                          'termination_reason', 'run_context', 'stage', 'setup_state')
+                                                          'termination_reason', 'run_context', 'stage', 'setup_state',
+                                                          'apparent_bytes', 'allocated_bytes', 'maximum_allocated_bytes')
                                   if key in row}
                   errors = row.get('errors')
                   if isinstance(errors, list):

@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "ref": "refs/heads/frozen-reference-group-r1",
+  "ref": "refs/heads/frozen-reference-group-r2",
   "attempt": 1,
   "ordinal": 1,
   "concurrency": 4,
-  "created_unix_seconds": 1795705310,
-  "expires_unix_seconds": 1795712510,
-  "baseline_bytes": 10745684448,
+  "created_unix_seconds": 1795709082,
+  "expires_unix_seconds": 1795716282,
+  "baseline_bytes": 10746642099,
   "byte_plan": {
-    "accounted_base_bytes": 10745684448,
+    "accounted_base_bytes": 10746642099,
     "global_reserve_bytes": 2000000000,
     "outer_image_bytes": 1030000000,
     "results_image_inside_outer_bytes": 67108864,
@@ -17,11 +17,11 @@
     "maximum_artifact_bytes": 100663296,
     "maximum_new_bytes": 1248103808,
     "admission_ceiling_bytes": 12000000000,
-    "peak_bytes": 11993788256,
+    "peak_bytes": 11994745907,
     "admission": "ALLOW",
     "capacity_observed": false,
     "release_qualification": false
   },
-  "inventory_sha256": "3d121872f7a19fb10ea52d4eb3ed7c7bac8da708e4b0e105375b12961c1f4308",
+  "inventory_sha256": "4a40314dd3a3a46ce62ccba33d8ce86f25d60940c9730cb6a32f5bcc402cd442",
   "release_qualification": false
 }
