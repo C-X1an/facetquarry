@@ -1,13 +1,20 @@
 """Small format/allocation controls; these do not emulate a VM boot."""
+from contextlib import redirect_stderr
+import hashlib
+import io
+import json
 import stat
 import tempfile
 import unittest
 import sys
 from types import SimpleNamespace
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from reference_guest import allocated, newc, package_stanza, official_uri, mirror_suffix, mirror_bases, rooted_package_target, admitted_copy, Setup, GUEST, INIT
+import benchmark
+import reference_guest
 
 
 class ReferenceGuestControls(unittest.TestCase):
@@ -71,6 +78,55 @@ class ReferenceGuestControls(unittest.TestCase):
     def test_embedded_guest_syntax(self):
         compile(GUEST, '<embedded guest>', 'exec')
         self.assertTrue(INIT.startswith('#!/bin/busybox sh\n'))
+
+    def test_group_execution_binds_frozen_selection_to_terminal_coverage(self):
+        config = json.loads((Path(benchmark.ROOT) / 'benchmarks/grid.json').read_bytes())['full']
+        config['concurrency'] = 16
+        groups, cells, _ = benchmark.grid_groups(config)
+        ordinal = 90
+        cfg_hash = hashlib.sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()[:12]
+        selection = benchmark.frozen_group_selection(config, groups, ordinal, 'a' * 64, cfg_hash)
+        serialized = benchmark.group_selection_bytes(selection)
+        seal = hashlib.sha256(serialized).hexdigest()
+        chosen = [row['id'] for row in selection['cells']]
+        expected = {'schema_version': 1, 'evidence_type': 'benchmark_coverage',
+                    'source': selection['source'], 'config': config, 'config_hash': cfg_hash, 'profile': 'full',
+                    'status': 'PASS_GROUP', 'selected_group': ordinal, 'group_selection_sha256': seal,
+                    'expected_cells': 5400, 'completed_cells': 60, 'expected_group_cells': 60, 'group_samples': 60_000,
+                    'group_complete': True, 'limited': True, 'grid_complete': False, 'release_qualification': False,
+                    'reference_recall_target': 'NOT QUALIFYING', 'reference_host_verified': False,
+                    'observed_cell_order': chosen, 'missing_cells': sorted(cells.keys() - set(chosen)),
+                    'unexpected_cells': [], 'failed_cells': [], 'run_errors': []}
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            (folder / 'group-selection.json').write_bytes(serialized)
+            path = folder / 'coverage.json'
+            raw = json.dumps(expected).encode()
+            path.write_bytes(raw)
+            result = benchmark.verify_group_execution(folder, serialized, config, cells)
+            self.assertEqual(result['coverage_sha256'], hashlib.sha256(raw).hexdigest())
+            self.assertEqual(result['group_selection_sha256'], seal)
+            self.assertEqual(result['group_samples'], 60_000)
+            for change in ({'status': 'PASS'}, {'group_samples': 59_999}, {'observed_cell_order': list(reversed(chosen))},
+                           {'missing_cells': []}, {'release_qualification': True}, {'run_errors': ['failure']}):
+                with self.subTest(change=list(change)):
+                    path.write_text(json.dumps({**expected, **change}))
+                    with self.assertRaisesRegex(ValueError, 'group coverage differs'):
+                        benchmark.verify_group_execution(folder, serialized, config, cells)
+            path.write_bytes(raw)
+            (folder / 'group-selection.json').write_bytes(serialized + b' ')
+            with self.assertRaisesRegex(ValueError, 'group selection differs'):
+                benchmark.verify_group_execution(folder, serialized, config, cells)
+
+    def test_explicit_group_requires_full_benchmark_and_source_view(self):
+        args = ['reference_guest.py', '--volume', 'work', '--project', 'work/source', '--frozen-group', '2']
+        for extra in ([], ['--mode', 'benchmark'], ['--mode', 'benchmark', '--profile', 'smoke']):
+            output = io.StringIO()
+            with self.subTest(extra=extra), patch.object(sys, 'argv', args + extra), redirect_stderr(output), \
+                    self.assertRaises(SystemExit) as error:
+                reference_guest.main()
+            self.assertEqual(error.exception.code, 2)
+            self.assertIn('--frozen-group needs full benchmark mode and the tracked source view', output.getvalue())
 
     def test_observed_mirror_path_preserves_apt_encodings(self):
         suffix = 'pool/main/q/qemu/qemu_8.2.2%2bds_amd64.deb'

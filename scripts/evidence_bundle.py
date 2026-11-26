@@ -344,7 +344,7 @@ def stderr_progress(event):
     sys.stderr.flush()
 
 
-def pack(inputroot, output, source, commit, run_id, paths, preset=6, progress=None):
+def pack(inputroot, output, source, commit, run_id, paths, preset=6, progress=None, *, output_limit_bytes=None):
     """Pack exact members; optional progress receives bounded, path-free dicts.
 
     The last observation is promotion/start. The returned PASS (the CLI's single
@@ -352,6 +352,8 @@ def pack(inputroot, output, source, commit, run_id, paths, preset=6, progress=No
     """
     identity(source, commit, run_id)
     require(type(preset) is int and preset in (1, 3, 6), 'unsupported compression preset')
+    limit = MAX_OUTPUT if output_limit_bytes is None else output_limit_bytes
+    require(type(limit) is int and 0 < limit <= MAX_OUTPUT, 'output limit must be within the global bound')
     observation = _PackProgress(progress, source, commit, run_id)
     root = no_links(inputroot)
     require(root.is_dir(), 'input root is not a directory')
@@ -398,7 +400,7 @@ def pack(inputroot, output, source, commit, run_id, paths, preset=6, progress=No
         archive_started = True
         observation.start('archive_encoding_xz', len(entries))
         with partial.open('xb') as raw_output:
-            with lzma.LZMAFile(LimitedWriter(raw_output, MAX_OUTPUT), 'wb', check=lzma.CHECK_SHA256,
+            with lzma.LZMAFile(LimitedWriter(raw_output, limit), 'wb', check=lzma.CHECK_SHA256,
                                filters=[{'id': lzma.FILTER_LZMA2, 'preset': preset, 'dict_size': (16 if preset < 6 else 64) * 1024 * 1024}]) as compressed:
                 with tarfile.open(fileobj=compressed, mode='w|', format=tarfile.USTAR_FORMAT) as tar:
                     tar_item(tar, 'manifest.json', metadata)
@@ -431,14 +433,20 @@ def pack(inputroot, output, source, commit, run_id, paths, preset=6, progress=No
         partial.unlink()
     except Exception as exc:
         if archive_started or progress is not None:
+            failure = {'status': 'FAIL', 'error_type': type(exc).__name__, 'error': str(exc),
+                       'partial_bundle': partial.name, 'originals_deleted': False}
+            if output_limit_bytes is not None:
+                failure.update(output_limit_bytes=limit, compressed_bytes=partial.stat().st_size if partial.exists() else 0)
             with diagnostics.open('x', encoding='utf-8') as stream:
-                json.dump({'status': 'FAIL', 'error_type': type(exc).__name__, 'error': str(exc),
-                           'partial_bundle': partial.name, 'originals_deleted': False}, stream)
+                json.dump(failure, stream)
         raise
-    return {'status': 'PASS', 'bundle_bytes': output.stat().st_size, 'bundle_sha256': file_sha(output),
-            'member_count': len(records), 'original_member_bytes': manifest['original_member_bytes'],
-            'streamed_payload_bytes': total_payload,
-            'gzip_recipe_members': sum(r['encoding'] != 'identity' for r in records), 'recovery_scope': SCOPE}
+    result = {'status': 'PASS', 'bundle_bytes': output.stat().st_size, 'bundle_sha256': file_sha(output),
+              'member_count': len(records), 'original_member_bytes': manifest['original_member_bytes'],
+              'streamed_payload_bytes': total_payload,
+              'gzip_recipe_members': sum(r['encoding'] != 'identity' for r in records), 'recovery_scope': SCOPE}
+    if output_limit_bytes is not None:
+        result['output_limit_bytes'] = limit
+    return result
 
 
 def unique_object(pairs):
@@ -545,6 +553,7 @@ def main():
         p.add_argument('--' + name, required=True)
     p.add_argument('--preset', type=int, choices=(1, 3, 6), default=3)
     p.add_argument('--progress', action='store_true', help='Emit bounded pack phase observations as JSONL on stderr')
+    p.add_argument('--output-limit-bytes', type=int, help='Apply a smaller compressed output limit')
     p.add_argument('--paths', nargs='+', required=True, help='Explicit relative completed result files/directories')
     for action in ('verify', 'recover'):
         p = sub.add_parser(action)
@@ -553,7 +562,8 @@ def main():
             p.add_argument('output', type=Path)
     args = parser.parse_args()
     result = (pack(args.inputroot, args.output, args.source, args.commit, args.run_id, args.paths, args.preset,
-                   progress=stderr_progress if args.progress else None)
+                   progress=stderr_progress if args.progress else None,
+                   output_limit_bytes=args.output_limit_bytes)
               if args.action == 'pack' else verify(args.bundle, getattr(args, 'output', None)))
     print(json.dumps(result, sort_keys=True))
 

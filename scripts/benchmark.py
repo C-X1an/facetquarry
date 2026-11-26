@@ -21,6 +21,7 @@ from oracle import expected_prepared,prepare_records
 from benchmark_support import command_attempt,host_metadata,memory_bytes,utc_now,Progress
 
 FACETS={0.2:'p20',0.05:'p05',0.01:'p01',0.001:'p001'}
+FROZEN_GRID_SHA256 = '37d376ffa53b54fd37849b0fb682a76b944cea029185a0da4771dc1d20420992'
 
 def workload(n:int,dim:int,distribution:str,correlation:str,seed:int,query_count:int):
     rng=random.Random(seed*100003+n)
@@ -113,6 +114,61 @@ def grid_groups(config):
     return groups,cell_map,targets
 
 
+def frozen_group_selection(config, groups, ordinal, identity, cfg_hash):
+    counts = (len(groups), tuple(len(cells) for _, cells in groups),
+              config['queries'], config['warmup'], config['repetitions'])
+    if counts != (90, (60,) * 90, 200, 20, 5) or not 1 <= ordinal <= len(groups):
+        raise ValueError('unexpected frozen group geometry')
+    dataset, cells = groups[ordinal - 1]
+    return {'ordinal': ordinal, 'dataset': dataset, 'concurrency': config['concurrency'],
+            'expected_samples': len(cells) * config['queries'] * config['repetitions'],
+            'cells': [{'id': cell_id, 'cell': cell} for cell_id, cell in cells],
+            'source': identity, 'config_hash': cfg_hash, 'full_expected_cells': 5400}
+
+
+def group_selection_bytes(selection):
+    return (json.dumps(selection, indent=2) + '\n').encode()
+
+
+def verify_group_execution(folder, expected_selection, config, cells):
+    with (folder / 'group-selection.json').open('rb') as stream:
+        if stream.read(len(expected_selection) + 1) != expected_selection:
+            raise ValueError('group selection differs from invocation')
+    selection = json.loads(expected_selection)
+    selected = [row['id'] for row in selection['cells']]
+    seal = hashlib.sha256(expected_selection).hexdigest()
+    with (folder / 'coverage.json').open('rb') as stream:
+        raw = stream.read((2 << 20) + 1)
+    if len(raw) > 2 << 20:
+        raise ValueError('group coverage exceeds bounded read')
+    coverage = json.loads(raw)
+    expected = {'schema_version': 1, 'evidence_type': 'benchmark_coverage', 'source': selection['source'],
+                'profile': 'full', 'status': 'PASS_GROUP', 'config': config, 'config_hash': selection['config_hash'],
+                'selected_group': selection['ordinal'], 'group_selection_sha256': seal,
+                'expected_cells': len(cells), 'completed_cells': len(selected), 'expected_group_cells': len(selected),
+                'group_complete': True, 'group_samples': selection['expected_samples'], 'limited': True,
+                'grid_complete': False, 'release_qualification': False, 'reference_host_verified': False,
+                'reference_recall_target': 'NOT QUALIFYING', 'observed_cell_order': selected,
+                'missing_cells': sorted(cells.keys() - set(selected)), 'unexpected_cells': [],
+                'failed_cells': [], 'run_errors': []}
+    if any(coverage.get(name) != value for name, value in expected.items()):
+        raise ValueError('group coverage differs from frozen selection')
+    return {'ordinal': selection['ordinal'], 'concurrency': selection['concurrency'],
+            'group_selection_sha256': seal, 'coverage_sha256': hashlib.sha256(raw).hexdigest(),
+            'group_cells': len(selected), 'group_samples': coverage['group_samples'],
+            'release_qualification': False}
+
+
+def group_collection(summaries, actual_ids, selected_ids, observed_order, selection, config):
+    expected_per_cell = config['queries'] * config['repetitions']
+    sampled = sum(item.get('sample_count', 0) for item in summaries)
+    complete = (actual_ids == selected_ids and observed_order == [row['id'] for row in selection['cells']]
+                and sampled == selection['expected_samples']
+                and all(item.get('status') == 'PASS' and item.get('sample_count') == expected_per_cell
+                        for item in summaries))
+    return {'group_samples': sampled, 'group_complete': complete, 'observed_cell_order': observed_order}
+
+
 def measurement(stdout,truths,eligible_ids,cell,config,identity):
     samples=[];timings=[];recalls=[];work=[];meta={};errors=[];seen=set()
     for number,line in enumerate(stdout.splitlines()):
@@ -155,28 +211,58 @@ def measurement(stdout,truths,eligible_ids,cell,config,identity):
 
 
 def main()->int:
-    parser=argparse.ArgumentParser();parser.add_argument('--profile',choices=('smoke','full','diagnostic'),default='smoke');parser.add_argument('--limit-cells',type=int,default=0);parser.add_argument('--concurrency',type=int,choices=(1,4,16));args=parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--profile', choices=('smoke', 'full', 'diagnostic'), default='smoke')
+    parser.add_argument('--concurrency', type=int, choices=(1, 4, 16))
+    subset = parser.add_mutually_exclusive_group()
+    subset.add_argument('--limit-cells', type=int, default=0)
+    subset.add_argument('--frozen-group', type=int, choices=range(1, 91), default=argparse.SUPPRESS,
+                        metavar='1..90', help='Measure exactly one build group of the unchanged full profile')
+    args = parser.parse_args()
     if args.limit_cells<0:parser.error('--limit-cells must be nonnegative')
-    config=json.loads((ROOT/'benchmarks/grid.json').read_text())['full' if args.profile=='diagnostic' else args.profile]
+    ordinal = getattr(args, 'frozen_group', None)
+    if ordinal is not None and args.profile != 'full':
+        parser.error('--frozen-group requires the full profile')
+    grid = (ROOT / 'benchmarks/grid.json').read_bytes()
+    if ordinal is not None and hashlib.sha256(grid).hexdigest() != FROZEN_GRID_SHA256:
+        parser.error('--frozen-group requires the unchanged frozen grid')
+    config=json.loads(grid)['full' if args.profile=='diagnostic' else args.profile]
     if args.profile=='diagnostic':
         config.update(n=[10000],distributions=['ties'],correlations=['independent'],seeds=[131])
     if args.concurrency:config['concurrency']=args.concurrency
+    groups,cell_map,expected_targets=grid_groups(config)
     identity=source_hash();provenance=binary_provenance(identity);cfg_hash=hashlib.sha256(json.dumps(config,sort_keys=True).encode()).hexdigest()[:12]
-    folder=ROOT/'.local/benchmarks'/f'{args.profile}-{identity[:12]}-{cfg_hash}';folder.mkdir(parents=True,exist_ok=True)
+    folder = ROOT / '.local/benchmarks' / f'{args.profile}-{identity[:12]}-{cfg_hash}'
+    selection = None
+    selection_sha = None
+    measured_cells = cell_map
+    if ordinal is not None:
+        selection = frozen_group_selection(config, groups, ordinal, identity, cfg_hash)
+        groups = [groups[ordinal - 1]]
+        measured_cells = dict(groups[0][1])
+        folder = folder.with_name(f'{folder.name}-group-{ordinal:03d}')
+    folder.mkdir(parents=True, exist_ok=selection is None)
+    if selection is not None:
+        selected_bytes = group_selection_bytes(selection)
+        (folder / 'group-selection.json').write_bytes(selected_bytes)
+        selection_sha = hashlib.sha256(selected_bytes).hexdigest()
+        (folder / 'expected_cells.json').write_text(json.dumps(list(cell_map)) + '\n')
     provenance_path=folder/'provenance.json'
     if provenance_path.exists():
         if json.loads(provenance_path.read_text())!=provenance:raise RuntimeError('resume executable provenance differs; preserve this run and start a new source-bound run')
     else:
         if any(folder.glob('*.summary.json')):raise RuntimeError('cached summaries have no run provenance; refusing to relabel historical measurements')
         provenance_path.write_text(json.dumps(provenance,indent=2)+'\n')
-    groups,cell_map,expected_targets=grid_groups(config)
-    progress=Progress(ROOT/'.local/reference-progress.json',identity,args.profile,config['concurrency'],len(cell_map))
+    progress=Progress(ROOT/'.local/reference-progress.json',identity,args.profile,config['concurrency'],len(measured_cells))
     invocation={'started_at':utc_now(),'available_physical_ram_bytes':memory_bytes()[1],
                 'arguments':vars(args),'source':identity}
+    if selection is not None:
+        invocation['group_selection_sha256'] = selection_sha
     invocation_path=folder/('invocation-'+str(time.time_ns())+'.json')
-    completed_this_run=0;limited=False;run_errors=[];summaries=[]
+    completed_this_run=0;limited=selection is not None;run_errors=[];summaries=[]
+    observed_order = []
     try:
-        collect_summaries(folder,cell_map,identity,provenance)
+        collect_summaries(folder,measured_cells,identity,provenance)
         for group,cells in groups:
             pending=[(cid,cell) for cid,cell in cells if not (folder/f'{cid}.summary.json').exists()]
             if args.limit_cells and completed_this_run>=args.limit_cells:
@@ -208,12 +294,16 @@ def main()->int:
             corpus_path=folder/'active-corpus.json';index_path=folder/'active-index.fq';index_path.unlink(missing_ok=True)
             corpus_raw=json.dumps(corpus,separators=(',',':')).encode();corpus_path.write_bytes(corpus_raw)
             corpus_sha=hashlib.sha256(corpus_raw).hexdigest();build_info=None;build_error=None;build=None
+            snapshot_sha = None
             progress.phase('build')
             build,build_stdout,_=command_attempt(folder,'build',[str(executable('facetquarry',ROOT)),'build','--input',str(corpus_path),'--output',str(index_path)],run)
             if build['status']=='PASS':
                 try:
                     build_info=json.loads(build_stdout)
                     if not isinstance(build_info,dict) or not isinstance(build_info.get('generation'),str) or not index_path.is_file():raise ValueError('build output/index missing')
+                    if selection is not None:
+                        with index_path.open('rb') as snapshot:
+                            snapshot_sha = hashlib.file_digest(snapshot, 'sha256').hexdigest()
                 except (ValueError,TypeError) as failure:build_error='build_parse: '+str(failure)
             truths={}
             for cid,cell in pending:
@@ -239,8 +329,13 @@ def main()->int:
                     progress.phase('sample_validation_and_compression')
                     samples,timings,recalls,work,meta,errors=measurement(stdout,truths[label],eligible_ids,cell,config,identity)
                     if observed['status']!='PASS':errors.append('measurement command failed: '+str(observed['termination_reason'] or observed['exit_code']))
-                    with gzip.open(folder/f'{cid}.samples.jsonl.gz','wt') as output:
+                    samples_path = folder / f'{cid}.samples.jsonl.gz'
+                    pending_samples = samples_path if selection is None else samples_path.with_suffix('.gz.partial')
+                    with gzip.open(pending_samples,'wt') as output:
                         for sample in samples:output.write(json.dumps(sample,separators=(',',':'))+'\n')
+                    if selection is not None:
+                        pending_samples.replace(samples_path)
+                        summary['snapshot_sha256'] = snapshot_sha
                     summary['attempts'].append(observed)
                     summary.update(stage='measurement',status='PASS' if not errors else 'FAIL',sample_count=len(samples),
                         empty_denominator_samples=len(samples)-len(recalls),mean_recall=statistics.mean(recalls) if recalls else None,
@@ -255,17 +350,23 @@ def main()->int:
                 if source_hash()!=identity:raise RuntimeError('source changed before summary publication')
                 summary['ended_at']=utc_now()
                 temp=folder/f'{cid}.summary.tmp';temp.write_text(json.dumps(summary,indent=2)+'\n');temp.replace(folder/f'{cid}.summary.json');completed_this_run+=1
+                if selection is not None:
+                    observed_order.append(cid)
                 progress.cell_finished(summary['status'])
+            if snapshot_sha is not None:
+                with index_path.open('rb') as snapshot:
+                    if hashlib.file_digest(snapshot, 'sha256').hexdigest() != snapshot_sha:
+                        raise RuntimeError('measured index bytes changed during the selected group')
             corpus_path.unlink(missing_ok=True);index_path.unlink(missing_ok=True);(folder/'active-queries.jsonl').unlink(missing_ok=True)
     except Exception as failure:
         # Preserve attempts and make interrupted/unattempted cells explicit in coverage.
         run_errors.append(type(failure).__name__+': '+str(failure))
     progress.phase('final_collection')
     try:
-        summaries,actual_ids=collect_summaries(folder,cell_map,identity,provenance)
+        summaries,actual_ids=collect_summaries(folder,measured_cells,identity,provenance)
     except Exception as failure:
         run_errors.append(type(failure).__name__+': '+str(failure));actual_ids={path.name.split('.')[0] for path in folder.glob('*.summary.json')}
-    missing=sorted(set(cell_map)-actual_ids);extra=sorted(actual_ids-set(cell_map));failures=[summary['cell'] for summary in summaries if summary['status']!='PASS']
+    missing=sorted(set(cell_map)-actual_ids);extra=sorted(actual_ids-set(measured_cells));failures=[summary['cell'] for summary in summaries if summary['status']!='PASS']
     targets=[summary for summary in summaries if summary['cell']['n']==10000 and summary['cell']['filter_label']=='all' and summary['cell']['mode']=='graph' and summary['cell']['ef']==128]
     target_complete=bool(expected_targets) and len(targets)==len(expected_targets)
     target_pass=target_complete and all(summary.get('status')=='PASS' and summary.get('mean_recall',0)>=.95 for summary in targets)
@@ -275,10 +376,17 @@ def main()->int:
         'reference_recall_target':'NOT QUALIFYING' if args.profile=='diagnostic' else 'PASS' if target_pass else 'NOT YET MEASURED' if not target_complete else 'FAIL',
         'release_qualification':False,'scope':'synthetic experimental measurements; full grid and reference-host qualification are separate gates'}
     report['status']='PASS' if not missing and not extra and not failures and not run_errors else 'FAIL'
+    if selection is not None:
+        selected = group_collection(summaries, actual_ids, set(measured_cells), observed_order, selection, config)
+        selected['group_complete'] = selected['group_complete'] and not (extra or failures or run_errors)
+        report.update(selected, group_selection_sha256=selection_sha, selected_group=ordinal,
+                      expected_group_cells=len(measured_cells), reference_recall_target='NOT QUALIFYING')
+        report['status'] = 'PASS_GROUP' if selected['group_complete'] else 'FAIL'
     invocation.update(ended_at=utc_now(),status=report['status'],completed_this_invocation=completed_this_run,run_errors=run_errors)
     invocation_path.write_text(json.dumps(invocation,indent=2)+'\n')
     (folder/'coverage.json').write_text(json.dumps(report,indent=2)+'\n');(folder/'expected_cells.json').write_text(json.dumps(list(cell_map))+'\n')
-    progress.phase('complete' if report['status']=='PASS' else 'failed',qualifying_profile=args.profile=='full')
+    succeeded = report['status'] in {'PASS', 'PASS_GROUP'}
+    progress.phase('complete' if succeeded else 'failed',qualifying_profile=args.profile=='full' and selection is None)
     print(json.dumps({'profile':args.profile,'folder':str(folder.relative_to(ROOT)),'status':report['status'],'cells':len(actual_ids),'expected':len(cell_map),'failed_cells':len(failures),'run_errors':run_errors,'scope':report['scope']}))
-    return 0 if report['status']=='PASS' else 1
+    return 0 if succeeded else 1
 if __name__=='__main__':raise SystemExit(main())

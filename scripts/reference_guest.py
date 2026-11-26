@@ -686,6 +686,7 @@ try:
         stream.write(b'append-fsync\n');stream.flush();os.fsync(stream.fileno())
     if control.read_bytes()!=b'facetquarry-9p-append-fsync\n':raise RuntimeError('guest share append/readback differs')
     result['io_control_sha256']=hashlib.sha256(control.read_bytes()).hexdigest()
+    group_selection = None
     if config['mode']=='smoke':
         command=['python3','scripts/evidence.py','--category','kvm-environment-smoke','--timeout','60','--',
                  'python3','-c','import os,platform; print(platform.platform()); print("logical_cpus",os.cpu_count())']
@@ -694,7 +695,8 @@ try:
         # Source/config equality alone is insufficient execution provenance.
         previous=sorted(p.name for p in (root/'.local/benchmarks').glob('full-*'))
         if previous:raise RuntimeError('qualified benchmark requires an empty full-profile namespace')
-        frozen=json.loads((root/'benchmarks/grid.json').read_text())['full' if config['profile'] in ('full','diagnostic') else 'smoke']
+        grid=(root/'benchmarks/grid.json').read_bytes()
+        frozen=json.loads(grid)['full' if config['profile'] in ('full','diagnostic') else 'smoke']
         if config['profile']=='diagnostic':
             frozen.update(n=[10000],distributions=['ties'],correlations=['independent'],seeds=[131])
         frozen['concurrency']=config['concurrency']
@@ -705,20 +707,38 @@ try:
                'started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),
                'preexisting_full_profiles':previous,'profile':config['profile'],
                'concurrency':config['concurrency'],'folder':folder,'config':frozen}
+        ordinal=config.get('frozen_group')
+        if ordinal is not None:
+            from benchmark import FROZEN_GRID_SHA256, frozen_group_selection, grid_groups, group_selection_bytes, verify_group_execution
+            if (config['profile']!='full' or policy!='reference-tracked-source-tmpfs-v1'
+                    or hashlib.sha256(grid).hexdigest()!=FROZEN_GRID_SHA256):
+                raise RuntimeError('selected guest requires the tracked source view and unchanged full grid')
+            groups, expected_cells, _ = grid_groups(frozen)
+            group_selection=group_selection_bytes(frozen_group_selection(frozen,groups,ordinal,config['source'],cfg_hash))
+            folder += f'-group-{ordinal:03d}'
+            start.update(folder=folder, frozen_group=ordinal, release_qualification=False,
+                         group_selection_sha256=hashlib.sha256(group_selection).hexdigest())
         start_path=root/'.local/reference-benchmark-start.json'
         with start_path.open('x') as stream:
             stream.write(json.dumps(start,indent=2)+'\n');stream.flush();os.fsync(stream.fileno())
         result.update(benchmark_start_sha256=hashlib.sha256(start_path.read_bytes()).hexdigest(),
                       benchmark_folder=folder)
-        command=['python3','scripts/evidence.py','--category','kvm-reference-benchmark','--requirements','AC-016,AC-017',
+        category='kvm-reference-benchmark' if ordinal is None else 'kvm-reference-frozen-group'
+        command=['python3','scripts/evidence.py','--category',category,'--requirements','AC-016,AC-017',
                  '--timeout',str(config['command_timeout']),'--','python3','scripts/benchmark.py','--profile',config['profile'],
                  '--concurrency',str(config['concurrency'])]
+        if ordinal is not None:
+            command.extend(['--frozen-group',str(ordinal)])
     result['command']=command
     p=subprocess.run(command,env=env,timeout=config['command_timeout']+15)
     result['command_exit_code']=p.returncode
     if source_hash()!=config['source']:raise RuntimeError('guest source changed')
     if policy!='legacy':reference_source_view.finish(result['source_view'],config)
     if p.returncode:raise RuntimeError('guest evidenced workload failed')
+    if group_selection is not None:
+        if hashlib.sha256(start_path.read_bytes()).hexdigest()!=result['benchmark_start_sha256']:
+            raise RuntimeError('selected group start record changed')
+        result['benchmark_group']=verify_group_execution(root/folder,group_selection,frozen,expected_cells)
     result['status']='PASS';result['reference_host_verified']=True;code=0
 except BaseException as failure:
     result['error']=str(failure);result['traceback']=traceback.format_exc()
@@ -834,6 +854,8 @@ def runtime(setup, extract):
               'execution_id': setup.manifest['execution_id'], 'run_context': setup.manifest['run_context'],
               'mode': setup.args.mode, 'profile': setup.args.profile, 'concurrency': setup.args.concurrency,
               'command_timeout': setup.args.timeout - 120}
+    if getattr(setup.args, 'frozen_group', None) is not None:
+        config['frozen_group'] = setup.args.frozen_group
     if source_view.policy(getattr(setup.args, 'source_policy', source_view.LEGACY_POLICY)) == source_view.SOURCE_POLICY:
         value = source_view.create_manifest(setup.args.project, config['source'], config['execution_id'],
                                             config['run_context'], config['uid'], config['gid'])
@@ -942,6 +964,14 @@ def boot(setup, extract, root, kernel, initrd):
     result = json.loads(result_path.read_text())
     if result.get('source') != setup.manifest['source'] or result.get('exit_code') != 0 or result.get('status') != 'PASS':
         raise RuntimeError('actual guest reported failure or stale source')
+    ordinal = getattr(setup.args, 'frozen_group', None)
+    if ordinal is not None:
+        observed = result.get('benchmark_group', {})
+        if ((observed.get('ordinal'), observed.get('concurrency'), observed.get('group_cells'),
+             observed.get('group_samples'), observed.get('release_qualification'))
+                != (ordinal, setup.args.concurrency, 60, 60_000, False)):
+            raise RuntimeError('actual guest omitted the bound selected group result')
+        setup.manifest['benchmark_group'] = observed
     if source_hash(setup.args.project) != setup.manifest['source']:
         raise RuntimeError('host source changed during guest execution')
     if source_view.policy(getattr(setup.args, 'source_policy', source_view.LEGACY_POLICY)) == source_view.SOURCE_POLICY:
@@ -973,9 +1003,13 @@ def main():
     parser.add_argument('--source-policy', choices=source_view.POLICIES, default=source_view.LEGACY_POLICY)
     parser.add_argument('--profile', choices=('smoke', 'full', 'diagnostic'), default='full')
     parser.add_argument('--concurrency', choices=(1, 4, 16), type=int, default=1)
+    parser.add_argument('--frozen-group', choices=range(1, 91), type=int, metavar='1..90')
     parser.add_argument('--timeout', type=int, default=300)
     parser.add_argument('--setup-max-bytes', type=int, default=800_000_000)
     args = parser.parse_args()
+    if args.frozen_group is not None and (args.mode != 'benchmark' or args.profile != 'full'
+                                           or args.source_policy != source_view.SOURCE_POLICY):
+        parser.error('--frozen-group needs full benchmark mode and the tracked source view')
     if platform.system() != 'Linux' or platform.machine() != 'x86_64' or os.getuid() == 0:
         parser.error('requires an ordinary Linux x86_64 runner user with existing sudo -n')
     args.volume = args.volume.resolve(strict=True)

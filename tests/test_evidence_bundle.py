@@ -1,5 +1,6 @@
 """Small synthetic transport controls; no engine or live integration claims."""
 import base64
+import datetime
 import gzip
 import io
 import json
@@ -163,6 +164,45 @@ class DirectoryTransportControls(unittest.TestCase):
         self.assertTrue(self.output.with_name(self.output.name + '.failure.json').exists())
         self.assertFalse(self.output.exists())
         self.assertEqual((self.root / 'results' / 'measurement.json').read_bytes(), b'{"real":false}\n')
+
+    def test_explicit_output_limit_preserves_failure_and_can_fit_small_bundle(self):
+        with self.assertRaisesRegex(ValueError, 'compressed output admission limit'):
+            self.pack(output_limit_bytes=32)
+        partial = self.output.with_name(self.output.name + '.partial')
+        self.assertLessEqual(partial.stat().st_size, 32)
+        failure = json.loads(self.output.with_name(self.output.name + '.failure.json').read_text())
+        self.assertEqual(failure['status'], 'FAIL')
+        self.assertEqual(failure['output_limit_bytes'], 32)
+        self.assertEqual(failure['compressed_bytes'], partial.stat().st_size)
+        self.assertFalse(failure['originals_deleted'])
+        self.assertFalse(self.output.exists())
+        self.assertEqual((self.root / 'results' / 'measurement.json').read_bytes(), b'{"real":false}\n')
+
+        second = self.folder / 'second.tar.xz'
+        result = self.pack(output=second, output_limit_bytes=16_384)
+        self.assertEqual(result['output_limit_bytes'], 16_384)
+        self.assertEqual(result['bundle_bytes'], second.stat().st_size)
+        self.assertLessEqual(result['bundle_bytes'], 16_384)
+        self.assertEqual(p.verify(second)['status'], 'PASS')
+
+    def test_explicit_output_limit_includes_the_last_compressed_byte(self):
+        fixed = datetime.datetime(2026, 11, 26, tzinfo=datetime.timezone.utc)
+        with mock.patch.object(p.datetime, 'datetime', wraps=p.datetime.datetime) as clock:
+            clock.now.return_value = fixed
+            unrestricted = self.pack()
+            boundary = unrestricted['bundle_bytes']
+            equal = self.folder / 'equal.tar.xz'
+            self.assertEqual(self.pack(output=equal, output_limit_bytes=boundary)['bundle_bytes'], boundary)
+            self.assertEqual(equal.read_bytes(), self.output.read_bytes())
+            with self.assertRaisesRegex(ValueError, 'compressed output admission limit'):
+                self.pack(output=self.folder / 'one-byte-short.tar.xz', output_limit_bytes=boundary - 1)
+        self.assertFalse((self.folder / 'one-byte-short.tar.xz').exists())
+
+    def test_explicit_output_limit_cannot_override_global_bound(self):
+        for invalid in (True, 0, -1, p.MAX_OUTPUT + 1):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, 'output limit'):
+                self.pack(output_limit_bytes=invalid)
+        self.assertEqual(list(self.folder.iterdir()), [self.root])
 
     def test_source_mutation_between_passes_is_refused_and_retained(self):
         original = p.read_original

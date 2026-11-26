@@ -180,6 +180,60 @@ class HarnessFaultCoverage(unittest.TestCase):
                 self.assertIsNone(summary['queries_sha256']);self.assertEqual(len(summary['attempts']),1)
                 self.assertEqual(summary['attempts'][0]['exit_code'],1)
 
+    def test_explicit_frozen_group_refusal_retains_full_denominator(self):
+        frozen = (ROOT / 'benchmarks/grid.json').read_bytes()
+        config = {**json.loads(frozen)['full'], 'concurrency': 4}
+        groups, all_cells, _ = benchmark.grid_groups(config)
+        expected = groups[45][1]
+        identity = 'refusal-control'
+        provenance = {'source': identity, 'binaries': {}}
+        with tempfile.TemporaryDirectory(dir=ROOT / '.cache/tmp') as directory:
+            root = Path(directory)
+            (root / 'benchmarks').mkdir()
+            (root / 'benchmarks/grid.json').write_bytes(frozen)
+            command = ['benchmark.py', '--profile', 'full', '--concurrency', '4', '--frozen-group', '46']
+            refusal = subprocess.CompletedProcess([], 1, b'{"admission":"REFUSE"}', b'resource limit')
+            with patch.object(benchmark, 'ROOT', root), patch.object(benchmark, 'source_hash', return_value=identity), \
+                    patch.object(benchmark, 'binary_provenance', return_value=provenance), \
+                    patch.object(benchmark, 'verify_binary_hashes'), patch.object(benchmark, 'run', return_value=refusal) as runner, \
+                    patch.object(benchmark, 'workload', side_effect=AssertionError('generated after refusal')), \
+                    patch.object(sys, 'argv', command), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(benchmark.main(), 1)
+                self.assertEqual(runner.call_count, 1)
+                with self.assertRaises(FileExistsError):
+                    benchmark.main()
+            folder, = (root / '.local/benchmarks').iterdir()
+            self.assertTrue(folder.name.endswith('-group-046'))
+            self.assertEqual(json.loads((folder / 'expected_cells.json').read_bytes()), list(all_cells))
+            raw_selection = (folder / 'group-selection.json').read_bytes()
+            selection = json.loads(raw_selection)
+            self.assertEqual(selection['ordinal'], 46)
+            self.assertEqual(selection['dataset'], groups[45][0])
+            self.assertEqual(selection['concurrency'], 4)
+            self.assertEqual(selection['cells'], [{'id': key, 'cell': value} for key, value in expected])
+            self.assertEqual(selection['expected_samples'], 60_000)
+            coverage = json.loads((folder / 'coverage.json').read_bytes())
+            self.assertEqual(coverage['status'], 'FAIL')
+            self.assertEqual(coverage['group_selection_sha256'], hashlib.sha256(raw_selection).hexdigest())
+            self.assertEqual(coverage['completed_cells'], 60)
+            self.assertEqual(coverage['failed_cells'], [value for _, value in sorted(expected)])
+            self.assertEqual(set(coverage['missing_cells']), all_cells.keys() - {key for key, _ in expected})
+            self.assertEqual(coverage['group_samples'], 0)
+            self.assertEqual(coverage['reference_recall_target'], 'NOT QUALIFYING')
+            self.assertFalse(coverage['grid_complete'])
+            self.assertTrue(coverage['limited'])
+
+    def test_frozen_group_refuses_incompatible_cli_before_binary_probe(self):
+        cases = [('--frozen-group', '1'), ('--profile', 'diagnostic', '--frozen-group', '1'),
+                 ('--profile', 'full', '--frozen-group', '0'), ('--profile', 'full', '--frozen-group', '91'),
+                 ('--profile', 'full', '--frozen-group', '1', '--limit-cells', '1')]
+        for arguments in cases:
+            with self.subTest(arguments=arguments), patch.object(sys, 'argv', ['benchmark.py', *arguments]), \
+                    patch.object(benchmark, 'binary_provenance', side_effect=AssertionError('probed binaries')), \
+                    contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as error:
+                benchmark.main()
+            self.assertEqual(error.exception.code, 2)
+
     def test_injected_timeout_start_error_and_invalid_json_are_terminal(self):
         # Fault injection tests the Python harness controls. The separate class
         # above covers real engine failures, and RetainedAttempts runs a real
