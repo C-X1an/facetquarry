@@ -2,7 +2,7 @@ name: Bounded frozen benchmark group
 
 on:
   push:
-    branches: [frozen-reference-group-r3]
+    branches: [frozen-reference-group-r4]
 
 permissions:
   contents: read
@@ -13,12 +13,12 @@ concurrency:
 
 jobs:
   group:
-    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r3' && github.event.created == true && github.run_attempt == '1' }}
+    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r4' && github.event.created == true && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       FQ_RUN_BASENAME: facetquarry-named-group-${{ github.run_id }}-1
-      FQ_ADMISSION_SHA256: 'b8222bd2dc94ce918abf51e9abc3973a13812608eab05016cae4058d5a68051d'
+      FQ_ADMISSION_SHA256: '8b09a5e744d623a465140b0895d6c5501cbddcaa11677ca52f8fc2c0c35ed7ee'
       FQ_OUTER_IMAGE_BYTES: '1030000000'
       LC_ALL: C.UTF-8
       PYTHONDONTWRITEBYTECODE: '1'
@@ -181,16 +181,27 @@ jobs:
                   opened, named = os.fstat(fd), os.stat(name, dir_fd=directory, follow_symlinks=False)
                   assert (opened.st_dev, opened.st_ino) == (named.st_dev, named.st_ino) and named.st_dev == os.fstat(directory).st_dev
                   assert stat.S_ISREG(named.st_mode) and named.st_nlink == 1 and named.st_uid == os.getuid()
-                  with (volume / 'source/.local/enospc.stderr').open('x', encoding='utf-8') as output:
-                      output.write(message)
+                  print(json.dumps({'stage': 'outer_enospc', 'errno': errno.ENOSPC, 'requested_bytes': request,
+                                    'pre_cleanup_bytes': named.st_size, 'pre_cleanup_allocated_bytes': named.st_blocks * 512}),
+                        flush=True)
                   os.unlink(name, dir_fd=directory)
               finally:
                   os.close(fd)
           finally:
               os.close(directory)
-          print(json.dumps({'stage': 'outer_enospc', 'errno': errno.ENOSPC, 'requested_bytes': request,
-                            'pre_cleanup_bytes': named.st_size, 'pre_cleanup_allocated_bytes': named.st_blocks * 512}),
-                flush=True)
+          print(json.dumps({'stage': 'persist_enospc_after_probe_close'}), flush=True)
+          directory = os.open(volume / 'source/.local', os.O_RDONLY | os.O_NOFOLLOW | os.O_DIRECTORY)
+          try:
+              state = os.fstatvfs(directory)
+              assert state.f_bavail * state.f_frsize >= 500_000_000
+              fd = os.open('enospc.stderr', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=directory)
+              with os.fdopen(fd, 'w', encoding='utf-8') as output:
+                  output.write(message)
+                  output.flush()
+                  os.fsync(output.fileno())
+              os.fsync(directory)
+          finally:
+              os.close(directory)
           PY
           fq_stage=bind_quota_to_backing
           python3 -B - <<'PY'
