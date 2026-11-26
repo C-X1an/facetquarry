@@ -1,0 +1,350 @@
+name: Bounded frozen benchmark group
+
+on:
+  push:
+    branches: [frozen-reference-group-r1]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reference-evidence
+  cancel-in-progress: false
+
+jobs:
+  group:
+    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r1' && github.event.created == true && github.run_attempt == '1' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    env:
+      FQ_RUN_BASENAME: facetquarry-named-group-${{ github.run_id }}-1
+      FQ_ADMISSION_SHA256: '6f8dd5c5fb30de6f803dff6e26b7ea4d700ddac18a6f2fd890e23ea3aef4c41a'
+      FQ_OUTER_IMAGE_BYTES: '1030000000'
+      LC_ALL: C.UTF-8
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Check out the exact first attempt without stored credentials
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        timeout-minutes: 2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          clean: false
+          lfs: false
+          submodules: false
+
+      - name: Admit measured capacity and prove the outer ext4 ceiling
+        id: provision
+        shell: bash
+        timeout-minutes: 4
+        run: |
+          set -euo pipefail
+          umask 077
+          test "$(id -u)" != 0
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+          test "$(realpath -e "$RUNNER_TEMP")" = "$RUNNER_TEMP"
+          test "$(realpath -e "$GITHUB_WORKSPACE")" = "$GITHUB_WORKSPACE"
+          test ! -e "$GITHUB_WORKSPACE/.local" && test ! -L "$GITHUB_WORKSPACE/.local"
+          export fq_root="$RUNNER_TEMP/$FQ_RUN_BASENAME"
+          export fq_volume="$fq_root/volume"
+          export fq_image="$fq_root/outer.img"
+          export fq_closure="$fq_root/closure"
+          export fq_probe_bytes=$((FQ_OUTER_IMAGE_BYTES + 1048576))
+          test ! -L "$fq_root" && test ! -e "$fq_root"
+          python3 -B - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import sys
+          import time
+
+          sys.path.insert(0, 'scripts')
+          from common import source_hash
+          from reference_group_capacity import growth_plan
+          from reference_group_job import approved_context
+
+          approved_context(os.environ)
+          document = Path('verification/reference-group-pilot-admission.json').read_bytes()
+          assert hashlib.sha256(document).hexdigest() == os.environ['FQ_ADMISSION_SHA256']
+          row = json.loads(document)
+          assert row['schema_version'] == 1 and row['ref'] == os.environ['GITHUB_REF']
+          assert row['attempt'] == 1 and row['ordinal'] == 1 and row['concurrency'] == 4
+          assert 0 <= time.time() - row['created_unix_seconds'] < 7200
+          assert row['expires_unix_seconds'] == row['created_unix_seconds'] + 7200
+          plan = growth_plan(row['baseline_bytes'])
+          assert plan['admission'] == 'ALLOW' and plan == row['byte_plan']
+          assert plan['outer_image_bytes'] == int(os.environ['FQ_OUTER_IMAGE_BYTES'])
+          assert all(0 < os.statvfs(os.environ[key]).f_frsize <= 4096
+                     for key in ('GITHUB_WORKSPACE', 'RUNNER_TEMP'))
+          disk = os.statvfs(os.environ['RUNNER_TEMP'])
+          assert disk.f_bavail * disk.f_frsize >= plan['outer_image_bytes'] + plan['external_runner_bytes']
+          assert not os.environ.get('FQ_FILESYSTEM_POLICY') and not os.environ.get('FQ_RESERVATION_PROFILE')
+          assert Path(os.environ['fq_root']).parent == Path(os.environ['RUNNER_TEMP'])
+          source = source_hash()
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as output:
+              for key, value in {'FQ_VOLUME': os.environ['fq_volume'], 'FQ_IMAGE': os.environ['fq_image'],
+                                 'FQ_CLOSURE': os.environ['fq_closure'], 'FQ_EXPECTED_SOURCE': source}.items():
+                  assert all(character not in value for character in ('\n', '\r'))
+                  output.write(f'{key}={value}\n')
+          print(json.dumps({'admission': plan, 'technical_source': source}))
+          PY
+          mkdir -- "$fq_root"
+          mkdir -- "$fq_volume" "$fq_closure"
+          test ! -e "$fq_image"
+          fallocate -l "$FQ_OUTER_IMAGE_BYTES" -- "$fq_image"
+          python3 -B -c 'import os,stat; n=int(os.environ["FQ_OUTER_IMAGE_BYTES"]); s=os.stat(os.environ["fq_image"],follow_symlinks=False); assert stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_uid==os.getuid() and s.st_size==n and n<=s.st_blocks*512<=n+4096'
+          mkfs.ext4 -F -q -m 0 -E nodiscard,lazy_itable_init=0,lazy_journal_init=0 "$fq_image"
+          sudo -n mount -o loop,nodev,nosuid "$fq_image" "$fq_volume"
+          sudo -n mount --make-private "$fq_volume"
+          test "$(findmnt -n -o PROPAGATION --mountpoint "$fq_volume")" = private
+          sudo -n chown "$(id -u):$(id -g)" "$fq_volume" "$fq_volume/lost+found"
+          cp -a -- "$GITHUB_WORKSPACE" "$fq_volume/source"
+          mkdir -- "$fq_volume/source/.local"
+          stderr="$fq_volume/source/.local/enospc.stderr"
+          probe="$fq_volume/outer-enospc-probe"
+          test ! -e "$probe" && test ! -L "$probe"
+          set +e
+          fallocate -l "$fq_probe_bytes" -- "$probe" 2>"$stderr"
+          refused=$?
+          set -e
+          test "$refused" -eq 1
+          grep -q 'No space left on device' "$stderr"
+          test -f "$probe" && test ! -L "$probe" && test -O "$probe"
+          rm -- "$probe"
+          python3 -B - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from common import source_hash
+          from reference_group_capacity import OUTER_IMAGE_BYTES
+          from reference_group_job import approved_context
+          from reference_results import Commands, observe_binding, run_context
+
+          image, volume = (Path(os.environ[key]) for key in ('fq_image', 'fq_volume'))
+          project = volume / 'source'
+          local = project / '.local'
+          source = source_hash(project)
+          assert source == source_hash(Path(os.environ['GITHUB_WORKSPACE']))
+          runner = Commands({'commands': []}, local / 'reference-outer-provision.json')
+          context = run_context(project, runner)
+          assert context == approved_context(os.environ)
+          raw = (local / 'enospc.stderr').read_bytes()
+          assert 0 < len(raw) <= 32768 and b'No space left on device' in raw
+          binding = observe_binding(volume, image, runner)
+          assert image.stat().st_size == OUTER_IMAGE_BYTES
+          assert OUTER_IMAGE_BYTES <= image.stat().st_blocks * 512 <= OUTER_IMAGE_BYTES + 4096
+          header = runner(['dumpe2fs', '-h', str(image)])['stdout']
+          fields = dict(line.partition(':')[::2] for line in header.splitlines() if ':' in line)
+          geometry = {key: int(fields[key]) for key in ('Block count', 'Reserved block count', 'Block size', 'Inode count')}
+          usage = os.statvfs(volume)
+          assert geometry['Reserved block count'] == 0 and geometry['Block size'] == usage.f_frsize
+          geometry.update(caller_available_bytes=usage.f_bavail * usage.f_frsize,
+                          caller_available_inodes=usage.f_favail, filesystem_bytes=usage.f_blocks * usage.f_frsize)
+          value = {'schema_version': 1, 'evidence_type': 'reference_quota', 'hard_quota_enforced': True,
+                   'volume_path': str(volume), 'image_path': str(image), 'mount': binding['mount'],
+                   'image_loop_binding': binding, 'volume_file_bytes': image.stat().st_size,
+                   'volume_allocated_bytes': image.stat().st_blocks * 512,
+                   'geometry': geometry, 'oversized_allocation_bytes': int(os.environ['fq_probe_bytes']),
+                   'oversized_allocation': 'DENIED_ENOSPC',
+                   'enospc_sha256': hashlib.sha256(raw).hexdigest(), 'run_context': context, 'source': source}
+          with (local / 'reference-quota.json').open('x', encoding='utf-8') as output:
+              json.dump(value, output, sort_keys=True)
+          print(json.dumps(value, sort_keys=True))
+          PY
+          mkdir -- "$fq_volume/runner-evidence" "$GITHUB_WORKSPACE/.local"
+          sudo -n mount --bind "$fq_volume/runner-evidence" "$GITHUB_WORKSPACE/.local"
+          test "$fq_volume/runner-evidence" -ef "$GITHUB_WORKSPACE/.local"
+
+      - name: Execute the actual KVM group under the bounded controller
+        id: workload
+        timeout-minutes: 100
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          test -d "$FQ_VOLUME/source"
+          test "$FQ_VOLUME/runner-evidence" -ef "$GITHUB_WORKSPACE/.local"
+          receipt="$FQ_VOLUME/runner-evidence/workload-receipt.json"
+          test ! -e "$receipt" && test ! -e "$FQ_CLOSURE/workload-receipt.json"
+          set +e
+          python3 -B scripts/evidence.py --category named-reference-frozen-group --requirements AC-016,AC-017,AC-021 --timeout 5780 -- \
+            timeout --signal=TERM --kill-after=30s 5700s /bin/bash -c \
+            'cd -- "$1/source" && exec python3 -B scripts/reference_group_job.py run --volume "$1" --image "$2" --closure "$3" --timeout 5400' \
+            facetquarry-group "$FQ_VOLUME" "$FQ_IMAGE" "$FQ_CLOSURE" >"$receipt"
+          rc=$?
+          set -e
+          test -s "$receipt"
+          test "$(wc -c <"$receipt")" -le 65536
+          cp -- "$receipt" "$FQ_CLOSURE/workload-receipt.json"
+          echo "evidence_exit=$rc" >>"$GITHUB_OUTPUT"
+          exit "$rc"
+
+      - name: Select the unique source-bound upload
+        id: custody
+        if: ${{ always() && !cancelled() && steps.provision.outcome == 'success' && steps.workload.outputs.evidence_exit != '' }}
+        timeout-minutes: 3
+        shell: bash
+        env:
+          FQ_EVIDENCE_EXIT: ${{ steps.workload.outputs.evidence_exit }}
+        run: |
+          set -euo pipefail
+          umask 077
+          rc="$(python3 -B - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          import re
+          import tarfile
+
+          folder = Path(os.environ['FQ_CLOSURE'])
+          prefix = os.environ['FQ_EXPECTED_SOURCE']
+          data = json.loads((folder / 'workload-receipt.json').read_bytes())
+          assert data['category'] == 'named-reference-frozen-group'
+          assert data['source_before'] == data['source_after'] == prefix
+          assert data['commit'] == os.environ['GITHUB_SHA'] and data['git_status'] == ''
+          assert data['termination_reason'] is None and data['exit_code'] in (0, 1)
+          assert str(data['exit_code']) == os.environ['FQ_EVIDENCE_EXIT']
+          assert data['status'] == ('PASS' if data['exit_code'] == 0 else 'FAIL')
+          workspace = Path(os.environ['GITHUB_WORKSPACE'])
+          assert re.fullmatch(r'[0-9]{8}T[0-9]{6}Z-[0-9a-f]{10}', data['run_id'])
+          paths = [('receipt.json', folder / 'workload-receipt.json')]
+          for role in ('stdout', 'stderr'):
+              path = workspace / data[role]
+              assert path == workspace / '.local/evidence' / data['run_id'] / f'{role}.txt'
+              assert path.resolve(strict=True) == path
+              assert path.stat().st_size <= 65536
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == data[role + '_sha256']
+              paths.append((f'{role}.txt', path))
+          with tarfile.open(folder / 'runner-command.tar', 'x', format=tarfile.USTAR_FORMAT) as archive:
+              for name, path in paths:
+                  archive.add(path, arcname=name, recursive=False)
+          print(data['exit_code'])
+          PY
+          )"
+          paths="$(python3 -B scripts/reference_group_job.py verify-candidate "$FQ_CLOSURE/candidate.json" \
+            --volume "$FQ_VOLUME" --image "$FQ_IMAGE" --closure "$FQ_CLOSURE" \
+            --source "$FQ_EXPECTED_SOURCE" --controller-exit "$rc")"
+          test "$(printf '%s\n' "$paths" | wc -l)" -eq 3
+          mapfile -t selected <<<"$paths"
+          python3 -B - "$FQ_CLOSURE/runner-command.tar" "$FQ_CLOSURE/candidate.json" "${selected[@]}" <<'PY'
+          from pathlib import Path
+          import sys
+
+          sys.path.insert(0, 'scripts')
+          from reference_group_capacity import ARTIFACT_BYTES
+
+          parts = [Path(value) for value in sys.argv[1:]]
+          assert len(parts) == len(set(parts)) == 5
+          assert all(p.is_file() and not p.is_symlink() and p.resolve(strict=True) == p for p in parts)
+          assert 0 < parts[0].stat().st_size <= 262144 and 0 < parts[1].stat().st_size <= 65536
+          assert sum(p.stat().st_size for p in parts) + 65536 <= ARTIFACT_BYTES
+          PY
+          {
+            echo 'paths<<FACETQUARRY_SELECTED'
+            printf '%s\n' "$paths"
+            printf '%s\n' "$FQ_CLOSURE/runner-command.tar" "$FQ_CLOSURE/candidate.json"
+            echo 'FACETQUARRY_SELECTED'
+          } >>"$GITHUB_OUTPUT"
+
+      - name: Record incomplete custody when no data payload was admitted
+        id: fallback
+        if: ${{ always() && !cancelled() && steps.custody.outcome != 'success' }}
+        timeout-minutes: 1
+        shell: bash
+        env:
+          FQ_PROVISION_OUTCOME: ${{ steps.provision.outcome }}
+          FQ_WORKLOAD_OUTCOME: ${{ steps.workload.outcome }}
+          FQ_CUSTODY_OUTCOME: ${{ steps.custody.outcome }}
+        run: |
+          set -euo pipefail
+          umask 077
+          python3 -B - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import re
+
+          env = os.environ
+          temp = Path(env['RUNNER_TEMP'])
+          run = env['GITHUB_RUN_ID']
+          assert re.fullmatch('[1-9][0-9]{0,19}', run)
+          assert env['FQ_RUN_BASENAME'] == f'facetquarry-named-group-{run}-1'
+          target = temp / f'{env["FQ_RUN_BASENAME"]}-incomplete.json'
+          result = {'schema_version': 1, 'status': 'UNRESOLVED', 'source_commit': env['GITHUB_SHA'],
+                    'run_id': run, 'run_attempt': env['GITHUB_RUN_ATTEMPT'], 'release_qualification': False,
+                    'provision': env['FQ_PROVISION_OUTCOME'], 'workload': env['FQ_WORKLOAD_OUTCOME'],
+                    'candidate': env['FQ_CUSTODY_OUTCOME'], 'raw_payload_exported': False}
+          root = temp / env['FQ_RUN_BASENAME']
+          controls = {'workload-receipt.json': root / 'closure/workload-receipt.json',
+                      'group-failure.json': root / 'closure/group-failure.json',
+                      'bootstrap': root / 'volume/bootstrap-proof/build.json'}
+          for name, path in controls.items():
+              if path.is_file() and not path.is_symlink() and path.resolve(strict=True) == path and path.stat().st_size < 65536:
+                  try:
+                      row = json.loads(path.read_bytes())
+                      if not isinstance(row, dict):
+                          raise ValueError('expected an object')
+                  except (OSError, ValueError) as error:
+                      result[name] = {'read_failure': type(error).__name__}
+                      continue
+                  result[name] = {key: row[key] for key in ('status', 'source', 'source_before', 'source_after', 'exit_code',
+                                                          'termination_reason', 'run_context', 'stage', 'setup_state')
+                                  if key in row}
+                  errors = row.get('errors')
+                  if isinstance(errors, list):
+                      result[name]['errors'] = [{key: item[key] for key in ('stage', 'type') if key in item}
+                                                for item in errors[:20] if isinstance(item, dict)]
+          with target.open('x', encoding='utf-8') as output:
+              json.dump(result, output, sort_keys=True)
+          with open(env['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'path={target}\n')
+          print(json.dumps(result, sort_keys=True))
+          PY
+
+      - name: Upload selected files once or preserve the incomplete-custody receipt
+        id: export
+        if: ${{ always() && !cancelled() && (steps.custody.outcome == 'success' || steps.fallback.outcome == 'success') }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        timeout-minutes: 8
+        with:
+          name: facetquarry-named-group-${{ github.run_id }}-1
+          compression-level: 0
+          retention-days: 2
+          overwrite: false
+          include-hidden-files: false
+          if-no-files-found: error
+          path: ${{ steps.custody.outputs.paths || steps.fallback.outputs.path }}
+
+      - name: Confirm ordinary outer unmount and record artifact identity
+        if: ${{ always() && !cancelled() }}
+        shell: bash
+        timeout-minutes: 2
+        env:
+          FQ_ARTIFACT_ID: ${{ steps.export.outputs.artifact-id }}
+          FQ_ARTIFACT_DIGEST: ${{ steps.export.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/$FQ_RUN_BASENAME"
+          if mountpoint -q -- "$GITHUB_WORKSPACE/.local"; then
+            test "$root/volume/runner-evidence" -ef "$GITHUB_WORKSPACE/.local"
+            sync -f -- "$GITHUB_WORKSPACE/.local"
+            sudo -n umount -- "$GITHUB_WORKSPACE/.local"
+            ! mountpoint -q -- "$GITHUB_WORKSPACE/.local"
+          fi
+          if mountpoint -q -- "$root/volume"; then
+            cd -- "$GITHUB_WORKSPACE"
+            sync -f -- "$root/volume"
+            sudo -n umount -- "$root/volume"
+            ! mountpoint -q -- "$root/volume"
+            loops="$(sudo -n losetup --noheadings --associated "$root/outer.img")"
+            test -z "$loops"
+          fi
+          printf '%s\n' "artifact_id=$FQ_ARTIFACT_ID" "artifact_digest=$FQ_ARTIFACT_DIGEST"

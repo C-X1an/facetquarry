@@ -11,7 +11,7 @@ import reference_group_capacity as capacity
 
 class FrozenGroupBudget(unittest.TestCase):
     def test_strict_ceiling_keeps_existing_global_reserve(self):
-        peak_growth = 1_318_103_808
+        peak_growth = 1_248_103_808
         last_admissible = 12_000_000_000 - peak_growth - 1
         candidate = capacity.growth_plan(last_admissible)
         self.assertEqual(candidate['maximum_new_bytes'], peak_growth)
@@ -24,7 +24,7 @@ class FrozenGroupBudget(unittest.TestCase):
                 capacity.growth_plan(value)
 
     def test_actual_caller_available_blocks_and_remaining_phase_must_fit(self):
-        usage = SimpleNamespace(f_blocks=268_000, f_frsize=4096, f_bfree=150_000,
+        usage = SimpleNamespace(f_blocks=250_000, f_frsize=4096, f_bfree=150_000,
                                 f_bavail=128_000, f_favail=1000)
         value = capacity.phase_space(usage, 'boot', future_bytes=20_000_000, required_inodes=12)
         self.assertEqual(value['caller_available_bytes'], 524_288_000)
@@ -37,6 +37,9 @@ class FrozenGroupBudget(unittest.TestCase):
         self.assertEqual(refused['status'], 'REFUSE')
         with self.assertRaises(ValueError):
             capacity.phase_space(usage, '../unbounded', future_bytes=1)
+        usage.f_blocks = 268_000
+        with self.assertRaisesRegex(ValueError, 'bounded outer geometry'):
+            capacity.phase_space(usage, 'boot', future_bytes=0)
 
     def test_exclusive_export_capacity_includes_runner_and_artifact_tail(self):
         mib = 1 << 20

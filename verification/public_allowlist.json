@@ -709,6 +709,11 @@
     "scripts/reference_group_capacity.py",
     "tests/test_reference_group_capacity.py",
     "scripts/reference_group_bootstrap.py",
-    "tests/test_reference_group_bootstrap.py"
+    "tests/test_reference_group_bootstrap.py",
+    ".github/workflows/frozen-reference-group.yml",
+    "REFERENCE_GROUP_PILOT.md",
+    "scripts/reference_group_job.py",
+    "tests/test_reference_group_job.py",
+    "verification/reference-group-pilot-admission.json"
   ]
 }
