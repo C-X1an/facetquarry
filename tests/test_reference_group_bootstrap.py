@@ -40,6 +40,22 @@ class GroupBootstrapControls(unittest.TestCase):
                     bootstrap.sdk_inventory(archive, block_size=4096, decoded_limit=limit, member_limit=5)
                 self.assertEqual(list(path.iterdir()), [])
 
+    def test_installed_sdk_verifies_each_file_and_detects_a_change(self):
+        with tempfile.TemporaryDirectory() as folder:
+            volume = Path(folder).resolve()
+            tools = volume / 'tools'
+            tools.mkdir()
+            body = self.archive([('go/VERSION', b'v\n'), ('go/bin/go', b'binary-data')])
+            with tarfile.open(fileobj=body, mode='r:gz') as archive:
+                expected = bootstrap.sdk_inventory(archive, block_size=4096, decoded_limit=4096, member_limit=5)
+            body.seek(0)
+            with tarfile.open(fileobj=body, mode='r:gz') as archive:
+                archive.extractall(tools, filter='data')
+            self.assertEqual(bootstrap.verify_installation(volume, tools, expected)['members'], 4)
+            (tools / 'go/bin/go').write_bytes(b'other-bytes')
+            with self.assertRaisesRegex(ValueError, 'installed SDK tree differs'):
+                bootstrap.verify_installation(volume, tools, expected)
+
 
 if __name__ == '__main__':
     unittest.main()
