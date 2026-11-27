@@ -69,6 +69,23 @@ class FrozenGroupBudget(unittest.TestCase):
         self.assertFalse(record['release_qualification'])
         self.assertEqual(capacity.host_control_plan(limit)['admission'], 'REFUSE')
 
+    def test_sequenced_peak_reserves_both_exclusive_phases_and_exact_recovery_size(self):
+        growth = 1_030_000_000 + (128 << 20)
+        limit = 12_000_000_000 - growth
+        plan = capacity.sequenced_group_plan(limit - 1)
+        self.assertEqual(plan['admission'], 'ALLOW')
+        self.assertEqual(plan['peak_bytes'], 11_999_999_999)
+        self.assertEqual(plan['maximum_artifact_bytes'], 64 << 20)
+        self.assertEqual(plan['guest_phase_external_bytes'], 50 << 20)
+        self.assertEqual(plan['results_image_inside_outer_bytes'], 32 << 20)
+        self.assertEqual(capacity.sequenced_group_plan(limit)['admission'], 'REFUSE')
+        parts = {'frozen_results_image': 32 << 20, 'host_proof': 24 << 20, 'closure': 4 << 20}
+        self.assertEqual(capacity.transport_limit(parts, sequenced=True)['maximum_transport_bytes'], 64 << 20)
+        with self.assertRaises(ValueError):
+            capacity.transport_limit(parts)
+        with self.assertRaises(ValueError):
+            capacity.transport_limit(dict(parts, frozen_results_image=64 << 20), sequenced=True)
+
 
 if __name__ == '__main__':
     unittest.main()

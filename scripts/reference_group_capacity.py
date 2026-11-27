@@ -14,6 +14,9 @@ HOST_PROOF_BYTES = 24 * MIB
 CLOSURE_BYTES = 4 * MIB
 ARCHIVE_OVERHEAD_BYTES = 4 * MIB
 ARTIFACT_BYTES = 96 * MIB
+SMALL_RESULTS_BYTES = 32 * MIB
+SEQUENCED_ARTIFACT_BYTES = 64 * MIB
+PRE_CLOSURE_REPORT_BYTES = 2 * MIB
 RUNNER_BYTES = 64 * MIB
 GUEST_FILESYSTEM_AND_INITRD_BYTES = 48 * MIB
 GLOBAL_RESERVE_BYTES = 2_000_000_000
@@ -51,6 +54,18 @@ def host_control_plan(accounted_base_bytes):
     return plan
 
 
+def sequenced_group_plan(accounted_base_bytes):
+    plan = growth_plan(accounted_base_bytes)
+    guest_phase = GUEST_FILESYSTEM_AND_INITRD_BYTES + PRE_CLOSURE_REPORT_BYTES
+    maximum = OUTER_IMAGE_BYTES + RUNNER_BYTES + max(guest_phase, SEQUENCED_ARTIFACT_BYTES)
+    peak = accounted_base_bytes + maximum
+    plan.update(maximum_new_bytes=maximum, results_image_inside_outer_bytes=SMALL_RESULTS_BYTES,
+                maximum_artifact_bytes=SEQUENCED_ARTIFACT_BYTES, guest_phase_external_bytes=guest_phase,
+                export_requires_guest_storage_release=True, peak_bytes=peak,
+                admission='ALLOW' if peak < ADMISSION_CEILING_BYTES else 'REFUSE')
+    return plan
+
+
 def phase_space(observation, phase, *, future_bytes, required_inodes=0):
     require(phase in PHASES, 'unknown group admission phase')
     require(type(future_bytes) is int and 0 <= future_bytes <= OUTER_IMAGE_BYTES
@@ -73,7 +88,7 @@ def phase_space(observation, phase, *, future_bytes, required_inodes=0):
             'required_inodes': required_inodes}
 
 
-def transport_limit(parts):
+def transport_limit(parts, *, sequenced=False):
     require(isinstance(parts, dict), 'transport inventory must be a mapping')
     roles = set(parts) - {'host_proof', 'closure'}
     require(roles in ({'verified_bundle'}, {'frozen_results_image'}), 'one exclusive artifact payload is required')
@@ -82,12 +97,15 @@ def transport_limit(parts):
         ('host_proof', HOST_PROOF_BYTES), ('closure', CLOSURE_BYTES),
     )), 'host proof or closure bytes exceed admission')
     payload = parts[role]
-    require(type(payload) is int and (payload == RESULT_IMAGE_BYTES if role == 'frozen_results_image'
-                                     else 0 < payload <= PACKET_BYTES), 'selected transport bytes exceed admission')
+    image_cap = SMALL_RESULTS_BYTES if sequenced else RESULT_IMAGE_BYTES
+    packet_cap = SMALL_RESULTS_BYTES if sequenced else PACKET_BYTES
+    archive_cap = SEQUENCED_ARTIFACT_BYTES if sequenced else ARTIFACT_BYTES
+    require(type(payload) is int and (payload == image_cap if role == 'frozen_results_image'
+                                     else 0 < payload <= packet_cap), 'selected transport bytes exceed admission')
     maximum = sum(parts.values()) + ARCHIVE_OVERHEAD_BYTES
-    require(maximum <= ARTIFACT_BYTES, 'total artifact ceiling exceeded')
+    require(maximum <= archive_cap, 'total artifact ceiling exceeded')
     return {'selected': role, 'member_bytes': sum(parts.values()), 'zip_overhead_bytes': ARCHIVE_OVERHEAD_BYTES,
-            'maximum_transport_bytes': maximum, 'artifact_ceiling_bytes': ARTIFACT_BYTES}
+            'maximum_transport_bytes': maximum, 'artifact_ceiling_bytes': archive_cap}
 
 
 def main():

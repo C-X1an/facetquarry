@@ -97,6 +97,52 @@ class GroupJobTests(unittest.TestCase):
         self.assertEqual(outside.get('location'), 'unknown')
         self.assertNotIn('private', json.dumps(outside))
 
+    def test_sequenced_export_needs_final_guest_storage_receipt(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            volume, closure, _, _ = self.fixture(root)
+            with self.assertRaisesRegex(ValueError, 'guest storage release was not proved'):
+                job.candidate('verified_bundle', volume, closure, SOURCE, CONTEXT, 0, sequenced=True)
+
+    def test_guest_units_require_swap_limit_bound_to_exact_invocation(self):
+        unit = 'facetquarry-owned-' + '1' * 32
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder).resolve()
+            parent = root / 'reference-guest'
+            parent.mkdir()
+            path = parent / 'setup.json'
+            cmd = ['sudo', '-n', 'systemd-run', '--unit=' + unit, '--property=KillMode=control-group']
+            record = {'source': SOURCE, 'run_context': CONTEXT,
+                      'commands': [{'transient_unit': unit, 'actual_command': cmd}]}
+            job.results.save(path, record, initial=True)
+            with self.assertRaisesRegex(ValueError, 'swap policy'):
+                job.guest_units(path, SOURCE, CONTEXT)
+            cmd.extend(['--property=MemorySwapMax=0', '--property=Restart=no', '--property=RemainAfterExit=no'])
+            job.results.save(path, record)
+            self.assertEqual(job.guest_units(path, SOURCE, CONTEXT)[1], [unit])
+            with self.assertRaisesRegex(ValueError, 'different invocation'):
+                job.guest_units(path, SOURCE, dict(CONTEXT, github_run_id='13'))
+
+    def test_closed_unit_refuses_restarts_and_pending_jobs(self):
+        unit = 'facetquarry-owned-' + '1' * 32
+        closed = dict(LoadState='loaded', ActiveState='inactive', SubState='dead', MainPID='0',
+                      ControlGroup='', Restart='no', RemainAfterExit='no', Job='', MemorySwapMax='0')
+        for key, value in (('Job', '437'), ('SubState', 'auto-restart'), ('Restart', 'on-failure'), ('MemorySwapMax', 'infinity'),
+                           ('RemainAfterExit', 'yes')):
+            with self.subTest(property=key), patch.object(Path, 'open', side_effect=FileNotFoundError):
+                observed = dict(closed, **{key: value})
+                def runner(*args, **kwargs):
+                    return {'stdout': '\n'.join(f'{k}={v}' for k, v in observed.items())}
+                with self.assertRaises(ValueError):
+                    job.closed_unit(unit, runner)
+        with patch.object(Path, 'open', side_effect=FileNotFoundError):
+            result = job.closed_unit(unit, lambda *a, **k: {'stdout': '\n'.join(f'{k}={v}' for k, v in closed.items())})
+            self.assertEqual(result['state'], 'inactive')
+            self.assertEqual(result['observed_memory_swap_max'], 0)
+            missing = dict(closed, LoadState='not-found', MemorySwapMax='infinity')
+            result = job.closed_unit(unit, lambda *a, **k: {'stdout': '\n'.join(f'{k}={v}' for k, v in missing.items())})
+            self.assertIsNone(result['observed_memory_swap_max'])
+
     def test_candidate_has_exact_exclusive_digest_inventory(self):
         with tempfile.TemporaryDirectory() as folder:
             volume, closure, value, _ = self.fixture(Path(folder).resolve())

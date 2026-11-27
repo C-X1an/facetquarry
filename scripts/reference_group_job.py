@@ -18,6 +18,7 @@ import re
 import shutil
 import signal
 import stat
+import subprocess
 import sys
 import tarfile
 import traceback
@@ -159,7 +160,7 @@ def expected_paths(volume, closure, branch):
     return [payload, volume / 'group-host-proof.tar', closure / 'group-closure.json']
 
 
-def candidate(branch, volume, closure, source, context, controller_exit):
+def candidate(branch, volume, closure, source, context, controller_exit, *, sequenced=False):
     paths = expected_paths(volume, closure, branch)
     rows = [dict(member(path), role=role) for path, role in
             zip(paths, (branch, 'host_proof', 'closure'), strict=True)]
@@ -169,13 +170,13 @@ def candidate(branch, volume, closure, source, context, controller_exit):
              'full_reference_profiles': 'NOT RUN', 'custody': 'UNRESOLVED',
              'upload_paths': [str(path) for path in paths], 'members': rows,
              'final_journal': member(volume / 'group-control.json'),
-             'admission': capacity.transport_limit({row['role']: row['bytes'] for row in rows})}
+             'admission': capacity.transport_limit({row['role']: row['bytes'] for row in rows}, sequenced=sequenced)}
     verify_candidate(value, volume=volume, closure=closure, source=source,
-                     context=context, controller_exit=controller_exit)
+                     context=context, controller_exit=controller_exit, sequenced=sequenced)
     return value
 
 
-def verify_candidate(value, *, volume, closure, source, context, controller_exit):
+def verify_candidate(value, *, volume, closure, source, context, controller_exit, sequenced=False):
     volume, closure = canonical(volume), canonical(closure)
     capacity.require(not closure.is_relative_to(volume) and not volume.is_relative_to(closure),
                      'closure containment differs')
@@ -207,20 +208,27 @@ def verify_candidate(value, *, volume, closure, source, context, controller_exit
                      and receipt.get('image_unmounted') is True and receipt.get('selected') == branch
                      and receipt.get('release_qualification') is False
                      and receipt.get('custody') == 'UNRESOLVED', 'final closure does not authorize export')
-    capacity.require(value['admission'] == capacity.transport_limit({row['role']: row['bytes'] for row in expected}),
+    if sequenced:
+        setup = volume / 'reference-guest/setup.json'
+        proof = verify_guest_storage_release(
+            volume, setup, expected_sha=receipt.get('guest_storage_released'), source=source, context=context)
+        capacity.require(proof['status'] == 'PASS' and receipt.get('nested_host_filesystems_unmounted') is True,
+                         'guest storage transition differs')
+    capacity.require(value['admission'] == capacity.transport_limit({row['role']: row['bytes'] for row in expected},
+                                                                    sequenced=sequenced),
                      'export admission changed')
     return [str(path) for path in paths]
 
 
 
-def results_adapter(volume, image):
+def results_adapter(volume, image, *, sequenced=False):
     # Load a separate module namespace: full-reference callers retain their exact
     # existing constants and lifecycle contracts even when imported in this process.
     spec = importlib.util.spec_from_file_location('_named_group_results', Path(results.__file__))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    module.IMAGE_BYTES = capacity.RESULT_IMAGE_BYTES
-    module.PROBE_BYTES = 65 * MIB
+    module.IMAGE_BYTES = capacity.SMALL_RESULTS_BYTES if sequenced else capacity.RESULT_IMAGE_BYTES
+    module.PROBE_BYTES = module.IMAGE_BYTES + MIB
     module.MAX_OUTER_BYTES = capacity.OUTER_IMAGE_BYTES
     def owned_paths(actual_volume, project):
         actual_volume, project = Path(actual_volume), Path(project)
@@ -324,6 +332,175 @@ def close_filesystem(item, runner):
                      and results.identity(item['image']) == item['identity'], 'evidence image remains active')
 
 
+def guest_units(setup, source, context):
+    if not os.path.lexists(setup):
+        capacity.require(not os.path.lexists(setup.parent), 'missing guest journal after creating its scope')
+        return None, []
+    journal = results.read_json(setup)
+    capacity.require(journal['source'] == source and journal['run_context'] == context,
+                     'guest process journal belongs to a different invocation')
+    units = []
+    for command in journal['commands']:
+        unit = command.get('transient_unit')
+        if unit is None:
+            continue
+        argv = command['actual_command']
+        capacity.require(re.fullmatch('facetquarry-owned-[0-9a-f]{32}', unit) is not None and unit not in units
+                         and argv[:3] == ['sudo', '-n', 'systemd-run']
+                         and {*guest.NONRESTARTING_UNIT, '--unit=' + unit,
+                              '--property=KillMode=control-group'} <= set(argv), 'guest unit or swap policy differs')
+        units.append(unit)
+    capacity.require(len(units) <= 64, 'guest unit journal exceeds closure admission')
+    return file_sha(setup), units
+
+
+def unit_state(unit, runner):
+    fields = ('LoadState', 'ActiveState', 'SubState', 'MainPID', 'ControlGroup', 'Job', 'Restart', 'RemainAfterExit',
+              'MemorySwapMax')
+    observed = runner(['systemctl', 'show', '--no-pager', *(f'--property={name}' for name in fields), unit],
+                      timeout=15, accepted=(0, 1))
+    rows = observed['stdout'].splitlines()
+    properties = dict(line.split('=', 1) for line in rows)
+    capacity.require(len(rows) == len(fields) and properties.keys() == set(fields), 'guest unit state is incomplete')
+    return properties
+
+
+def closed_unit(unit, runner):
+    properties = unit_state(unit, runner)
+    expected_group = '/system.slice/' + unit + '.service'
+    state, substate = properties['ActiveState'], properties['SubState']
+    loaded = properties['LoadState'] == 'loaded'
+    capacity.require(properties['LoadState'] in ('loaded', 'not-found')
+                     and (state, substate) in (('inactive', 'dead'), ('failed', 'failed'))
+                     and properties['Job'] in ('', '0') and properties['Restart'] == 'no'
+                     and properties['RemainAfterExit'] == 'no' and properties['MainPID'] == '0'
+                     and properties['ControlGroup'] in ('', expected_group), 'guest unit can still run or restart')
+    capacity.require(not loaded or properties['MemorySwapMax'] == '0', 'loaded guest unit swap limit differs')
+    event_path = Path('/sys/fs/cgroup' + expected_group) / 'cgroup.events'
+    try:
+        with event_path.open('rb') as stream:
+            event = stream.read(4097)
+    except FileNotFoundError:
+        cgroup = 'absent'
+    else:
+        population = [line for line in event.splitlines() if line.startswith(b'populated ')]
+        capacity.require(len(event) <= 4096 and population == [b'populated 0'], 'guest cgroup remains populated')
+        cgroup = 'empty'
+    return {'unit': unit, 'main_pid': 0, 'state': state, 'launch_memory_swap_max': 0,
+            'observed_memory_swap_max': 0 if loaded else None, 'restart': 'no',
+            'remain_after_exit': False, 'pending_job': False, 'cgroup': cgroup}
+
+
+def closed_nested_filesystems(volume, runner):
+    content = runner(['findmnt', '--json', '--list', '--submounts', '--mountpoint', str(volume),
+                      '--output', 'TARGET'])['stdout']
+    targets = [Path(row['target']) for row in json.loads(content)['filesystems']]
+    capacity.require(volume in targets and not any(volume in path.parents for path in targets),
+                     'owned outer volume or nested mounts differ')
+    images = ['reference-results.img', 'group-streams.img', 'group-records.img']
+    for name in images:
+        image = volume / name
+        if image.exists():
+            checked(image)
+            observed = runner(['sudo', '-n', 'losetup', '--json', '--list', '--associated', str(image),
+                               '--output', 'NAME,BACK-FILE'])
+            capacity.require(json.loads(observed['stdout'])['loopdevices'] == [], 'owned nested loop remains attached')
+
+
+def closure_probe(argv, *, timeout=15, accepted=(0,)):
+    observed = subprocess.run(argv, timeout=timeout, capture_output=True, text=True)
+    capacity.require(observed.returncode in accepted and len(observed.stdout) + len(observed.stderr) <= 65536,
+                     'bounded guest closure recheck failed')
+    return {'stdout': observed.stdout}
+
+
+def cleanup_owned(volume, image, closure):
+    """Retry only journaled units and exact loop mounts from a failed invocation."""
+    capacity.require(sys.platform == 'linux' and os.getuid() != 0, 'ordinary Linux runner required')
+    volume, image, closure = [canonical(path) for path in (volume, image, closure)]
+    invocation_paths(volume, image, closure, os.environ)
+    context = approved_context(os.environ)
+    project = volume / 'source'
+    source = source_hash(project)
+    capacity.require(source == os.environ.get('FQ_EXPECTED_SOURCE') and current_context(project) == context
+                     and checked(image).st_size == capacity.OUTER_IMAGE_BYTES, 'cleanup scope differs')
+    results.observe_binding(volume, image, closure_probe)
+    report = {'status': 'FAIL', 'source': source, 'run_context': context, 'units_closed': [], 'mounts_closed': []}
+    receipt = closure / 'group-emergency-cleanup.json'
+    capacity.require(not os.path.lexists(receipt), 'cleanup receipt already exists')
+    try:
+        setup, units = guest_units(volume / 'reference-guest/setup.json', source, context)
+        report['setup_sha256'] = setup
+        for unit in units:
+            state = unit_state(unit, closure_probe)
+            if state['Job'] not in ('', '0') or state['ActiveState'] not in ('inactive', 'failed'):
+                closure_probe(['sudo', '-n', 'systemctl', 'stop', unit])
+            report['units_closed'].append(closed_unit(unit, closure_probe))
+        mounts = {'reference-results': (project / '.local',), 'group-records': (volume / 'group-records',),
+                  'group-streams': (volume / 'reference-guest/commands', volume / 'group-streams')}
+        for name, targets in mounts.items():
+            backing = volume / (name + '.img')
+            for target in targets:
+                if os.path.ismount(target):
+                    binding = results.observe_binding(target, backing, closure_probe)
+                    close_filesystem({'image': backing, 'mount': target, 'identity': results.identity(backing),
+                                      'binding': binding}, closure_probe)
+                    report['mounts_closed'].append(name)
+        closed_nested_filesystems(volume, closure_probe)
+        report['status'] = 'PASS'
+    except BaseException as error:
+        report['errors'] = [failure_evidence('emergency_cleanup', error, volume)]
+    write_proof(receipt, report, initial=True)
+    print(json.dumps(report, sort_keys=True))
+    return int(report['status'] != 'PASS')
+
+
+def admit_guest_storage_release(volume, setup, freeze, runner, source, context):
+    digest, units = guest_units(setup, source, context)
+    capacity.require(freeze.get('status') == 'PASS' and freeze.get('image_unmounted') is True,
+                     'results storage remained active')
+    inactive = freeze['inactive_guest']
+    capacity.require(digest == inactive.get('guest_setup_sha256')
+                     and units == [row['unit'] for row in inactive['units']],
+                     'guest unit closure does not match frozen results')
+    capacity.require(not units or Path('/sys/fs/cgroup/cgroup.controllers').is_file(),
+                     'unified cgroup accounting missing')
+    closed_nested_filesystems(volume, runner)
+    release = {'status': 'PASS', 'scope': 'volatile guest storage closed before external artifact transfer',
+               'source': source, 'run_context': context, 'setup_sha256': digest,
+               'freeze_sha256': file_sha(volume / 'reference-results-freeze.json'),
+               'units': [closed_unit(unit, runner) for unit in units], 'nested_host_filesystems_unmounted': True,
+               'outer_and_runner_mounts_closed': False}
+    path = volume / 'group-guest-storage-release.json'
+    write_proof(path, release, initial=True)
+    return file_sha(path)
+
+
+def verify_guest_storage_release(volume, setup, *, expected_sha, source, context):
+    capacity.require(isinstance(expected_sha, str) and re.fullmatch('[0-9a-f]{64}', expected_sha) is not None,
+                     'guest storage release was not proved')
+    path = volume / 'group-guest-storage-release.json'
+    capacity.require(file_sha(path) == expected_sha, 'guest storage release receipt changed')
+    state = results.read_json(path)
+    digest, units = guest_units(setup, source, context)
+    capacity.require(state['status'] == 'PASS' and state['source'] == source and state['run_context'] == context
+                     and state['setup_sha256'] == digest and state['nested_host_filesystems_unmounted'] is True
+                     and state['outer_and_runner_mounts_closed'] is False
+                     and state['freeze_sha256'] == file_sha(volume / 'reference-results-freeze.json')
+                     and units == [row['unit'] for row in state['units']]
+                     and all(row['main_pid'] == 0 and row['launch_memory_swap_max'] == 0
+                             and row['observed_memory_swap_max'] in (0, None)
+                             and row['state'] in ('inactive', 'failed')
+                             and row['restart'] == 'no' and row['remain_after_exit'] is False
+                             and row['pending_job'] is False
+                             and row['cgroup'] in ('empty', 'absent') for row in state['units']),
+                     'guest storage closure no longer matches the finalized run')
+    closed_nested_filesystems(volume, closure_probe)
+    for unit in units:
+        closed_unit(unit, closure_probe)
+    return state
+
+
 def verify_bundle(bundle, project, context, source):
     with bundle.open('rb') as stream:
         verified = evidence_bundle.verify_stream(evidence_bundle.XZReader(stream), None)
@@ -403,17 +580,17 @@ def failure_evidence(stage, error, volume):
     return value
 
 
-def publish_candidate(volume, closure, report):
+def publish_candidate(volume, closure, report, *, sequenced=False):
     """Persist all final state before the sole externally selectable manifest."""
     results.save(volume / 'group-control.json', report)
     write_proof(closure / 'group-closure.json', report, initial=True)
     value = candidate(report['selected'], volume, closure, report['source'], report['run_context'],
-                      int(report['status'] != 'PASS'))
+                      int(report['status'] != 'PASS'), sequenced=sequenced)
     write_proof(closure / 'candidate.json', value, initial=True)
     return value
 
 
-def run(volume, image, closure, timeout, *, host_control=False):
+def run(volume, image, closure, timeout, *, host_control=False, sequenced=False):
     capacity.require(platform.system() == 'Linux' and platform.machine() == 'x86_64' and os.getuid() != 0,
                      'ordinary Linux x86_64 required')
     context = approved_context(os.environ)
@@ -437,7 +614,8 @@ def run(volume, image, closure, timeout, *, host_control=False):
     control_path = volume / 'group-control.json'
     write_proof(control_path, report, initial=True)
     runner = results.Commands(report, control_path)
-    adapter = results_adapter(volume, image)
+    adapter = results_adapter(volume, image, sequenced=sequenced)
+    packet_cap = capacity.SMALL_RESULTS_BYTES if sequenced else capacity.PACKET_BYTES
     streams = controls = None
     freeze_record = None
     payload = None
@@ -450,7 +628,7 @@ def run(volume, image, closure, timeout, *, host_control=False):
         report['outer'] = adapter.validate_outer(paths, runner, context)
         for phase in ('checkout',):
             bootstrap.admit(volume, phase, report.setdefault('space_holder', {'space': []}),
-                            STREAM_BYTES + CONTROL_BYTES + capacity.RESULT_IMAGE_BYTES, 128)
+                            STREAM_BYTES + CONTROL_BYTES + adapter.IMAGE_BYTES, 128)
         streams = bounded_filesystem(volume, 'group-streams', STREAM_BYTES, runner)
         controls = bounded_filesystem(volume, 'group-records', CONTROL_BYTES, runner)
         report['host_usable_bytes'] = {'streams': available_bytes(streams['mount']),
@@ -492,6 +670,7 @@ def run(volume, image, closure, timeout, *, host_control=False):
         class PilotSetup(original_setup):
             def __init__(self, args):
                 super().__init__(args)
+                self.disable_unit_swap = sequenced
                 runner(['sudo', '-n', 'mount', '--move', str(streams['mount']), str(self.logs)])
                 streams['mount'] = self.logs
                 streams['binding'] = results.observe_binding(self.logs, streams['image'], runner)
@@ -565,12 +744,12 @@ def run(volume, image, closure, timeout, *, host_control=False):
                     adapter.quiesce_guest(volume, project)
                     if report.get('workload_status') == 'PASS':
                         try:
-                            bootstrap.admit(volume, 'pack', {'space': []}, capacity.PACKET_BYTES + capacity.HOST_PROOF_BYTES)
+                            bootstrap.admit(volume, 'pack', {'space': []}, packet_cap + capacity.HOST_PROOF_BYTES)
                             bundle = volume / 'group-results.tar.xz'
                             with budget.stage(reserve=300):
                                 evidence_bundle.pack(project, bundle, report['source'], context['commit'],
                                                      context['github_run_id'], ['.local'], preset=1,
-                                                     output_limit_bytes=capacity.PACKET_BYTES)
+                                                     output_limit_bytes=packet_cap)
                                 report['decoded_readback'] = verify_bundle(bundle, project, context, report['source'])
                             payload, branch = bundle, 'verified_bundle'
                         except BaseException as error:
@@ -585,6 +764,11 @@ def run(volume, image, closure, timeout, *, host_control=False):
                 close_filesystem(item, runner)
             report.update(status='PASS' if not report['errors'] else 'FAIL', selected=branch,
                           image_sha256=freeze_record['image_sha256'], image_unmounted=True)
+            if sequenced:
+                report['nested_host_filesystems_unmounted'] = True
+                report['guest_storage_released'] = admit_guest_storage_release(
+                    volume, volume / 'reference-guest/setup.json', freeze_record, runner,
+                    report['source'], context)
             if host_control:
                 report['host_filesystems_unmounted'] = True
                 report['postclosure_available_bytes'] = available_bytes(volume)
@@ -599,8 +783,12 @@ def run(volume, image, closure, timeout, *, host_control=False):
                 with tarfile.open(host, 'x', format=tarfile.USTAR_FORMAT) as archive:
                     for item in (streams, controls):
                         archive.add(item['image'], arcname=item['image'].name, recursive=False)
+                    if sequenced:
+                        lifecycle = volume / 'group-guest-storage-release.json'
+                        capacity.require(checked(lifecycle).st_size <= 256 * 1024, 'guest closure proof exceeds transport')
+                        archive.add(lifecycle, arcname=lifecycle.name, recursive=False)
                 capacity.require(host.stat().st_size <= capacity.HOST_PROOF_BYTES, 'host proof exceeds cap')
-                publish_candidate(volume, closure, report)
+                publish_candidate(volume, closure, report, sequenced=sequenced)
                 print(json.dumps({'status': report['status'], 'candidate': str(closure / 'candidate.json'),
                                   'release_qualification': False}))
         except BaseException as error:
@@ -609,7 +797,12 @@ def run(volume, image, closure, timeout, *, host_control=False):
             # Preserve outer and every partial object. No candidate means no upload.
             failed = closure / 'group-failure.json'
             if not failed.exists():
-                write_proof(failed, report, initial=True)
+                if sequenced:
+                    fields = ('status', 'source', 'run_context', 'errors', 'setup_state', 'release_qualification')
+                    write_proof(failed, {name: report[name] for name in fields}, initial=True)
+                    write_proof(volume / 'group-failure-detail.json', report, initial=True)
+                else:
+                    write_proof(failed, report, initial=True)
             print(json.dumps({'status': 'FAIL', 'candidate': None, 'release_qualification': False}))
         finally:
             if 'closure_alarm' in locals():
@@ -624,14 +817,22 @@ def main():
     for name in ('volume', 'image', 'closure'):
         work.add_argument('--' + name, type=Path, required=True)
     work.add_argument('--timeout', type=int, default=5400)
-    work.add_argument('--host-control', action='store_true')
+    mode = work.add_mutually_exclusive_group()
+    mode.add_argument('--host-control', action='store_true')
+    mode.add_argument('--sequenced-group', action='store_true')
     verify = actions.add_parser('verify-candidate')
     verify.add_argument('manifest', type=Path)
     for name in ('volume', 'image', 'closure'):
         verify.add_argument('--' + name, type=Path, required=True)
     verify.add_argument('--source', required=True)
     verify.add_argument('--controller-exit', type=int, choices=(0, 1), required=True)
+    verify.add_argument('--sequenced-group', action='store_true')
+    cleanup = actions.add_parser('cleanup-owned')
+    for name in ('volume', 'image', 'closure'):
+        cleanup.add_argument('--' + name, type=Path, required=True)
     args = parser.parse_args()
+    if args.action == 'cleanup-owned':
+        return cleanup_owned(args.volume, args.image, args.closure)
     if args.action == 'verify-candidate':
         volume, image, closure = [canonical(path) for path in (args.volume, args.image, args.closure)]
         invocation_paths(volume, image, closure, os.environ)
@@ -645,10 +846,11 @@ def main():
                          and source_hash(volume / 'source') == args.source, 'verification scope differs')
         for path in verify_candidate(results.read_json(args.manifest), volume=volume, closure=closure,
                                      source=args.source, context=approved_context(os.environ),
-                                     controller_exit=args.controller_exit):
+                                     controller_exit=args.controller_exit, sequenced=args.sequenced_group):
             print(path)
         return 0
-    return run(args.volume, args.image, args.closure, args.timeout, host_control=args.host_control)
+    return run(args.volume, args.image, args.closure, args.timeout, host_control=args.host_control,
+               sequenced=args.sequenced_group)
 
 
 if __name__ == '__main__':

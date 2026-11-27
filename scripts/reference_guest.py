@@ -34,6 +34,7 @@ GUEST_RAM = 8_000_000_000
 TMPFS_BYTES = 18 * 1024 * 1024
 INITRD_MAX = 16 * 1024 * 1024
 LOG_MAX = 16 * 1024 * 1024
+NONRESTARTING_UNIT = ('--property=MemorySwapMax=0', '--property=Restart=no', '--property=RemainAfterExit=no')
 
 
 def digest(path):
@@ -129,8 +130,10 @@ class Setup:
             unit = 'facetquarry-owned-' + uuid.uuid4().hex
             actual = ['sudo', '-n', 'systemd-run', '--quiet', '--wait', '--pipe', '--collect',
                       '--unit=' + unit, '--property=RuntimeMaxSec=' + str(timeout),
-                      '--property=TimeoutStopSec=5', '--property=KillMode=control-group',
-                      '--', *command[2:]]
+                      '--property=TimeoutStopSec=5', '--property=KillMode=control-group']
+            if getattr(self, 'disable_unit_swap', False):
+                actual.extend(NONRESTARTING_UNIT)
+            actual.extend(['--', *command[2:]])
             record.update(transient_unit=unit, actual_command=actual)
         self.records.append(record)
         self.save()
