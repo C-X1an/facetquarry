@@ -58,6 +58,17 @@ class FrozenGroupBudget(unittest.TestCase):
             with self.subTest(record=record), self.assertRaises(ValueError):
                 capacity.transport_limit(record)
 
+    def test_host_control_charges_its_whole_outer_volume_and_no_guest(self):
+        growth = 1_030_000_000 + (66 << 20)
+        limit = 12_000_000_000 - growth
+        record = capacity.host_control_plan(limit - 1)
+        self.assertEqual(record['maximum_new_bytes'], growth)
+        self.assertEqual(record['guest_filesystems_and_initrd_bytes'], 0)
+        self.assertEqual(record['maximum_artifact_bytes'], 2 << 20)
+        self.assertEqual(record['admission'], 'ALLOW')
+        self.assertFalse(record['release_qualification'])
+        self.assertEqual(capacity.host_control_plan(limit)['admission'], 'REFUSE')
+
 
 if __name__ == '__main__':
     unittest.main()

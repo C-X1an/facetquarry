@@ -20,6 +20,7 @@ import signal
 import stat
 import sys
 import tarfile
+import traceback
 import time
 
 from common import ROOT, source_hash
@@ -38,6 +39,8 @@ CONTROL_BYTES = 4 * MIB
 
 def approved_context(env):
     capacity.require(env.get('GITHUB_REPOSITORY') == 'C-X1an/facetquarry'
+                     and env.get('GITHUB_REPOSITORY_ID') == '1430604581'
+                     and env.get('GITHUB_ACTOR_ID') == '53118172' and env.get('GITHUB_EVENT_NAME') == 'push'
                      and env.get('GITHUB_ACTIONS') == 'true' and env.get('RUNNER_OS') == 'Linux'
                      and env.get('ImageOS') == 'ubuntu24', 'unapproved repository or Ubuntu-24.04 run')
     for key, pattern in (('GITHUB_RUN_ID', '[1-9][0-9]{0,19}'),
@@ -77,7 +80,7 @@ def fresh_paths(volume, image, closure):
     capacity.require(not closure.is_relative_to(volume) and not volume.is_relative_to(closure)
                      and not image.is_relative_to(volume) and image.parent == volume.parent,
                      'external closure and sibling outer image required')
-    for path in [closure / name for name in ('candidate.json', 'group-closure.json', 'group-failure.json')]:
+    for path in [closure / name for name in ('candidate.json', 'group-closure.json', 'group-failure.json', 'host-control.json')]:
         capacity.require(not os.path.lexists(path), 'closure belongs to an existing invocation')
     for name in ('group-control.json', 'reference-results-setup.json', 'reference-results.img',
                  'reference-guest', 'bootstrap-proof', 'tools', 'group-streams.img', 'group-records.img',
@@ -243,6 +246,22 @@ def results_adapter(volume, image):
     return module
 
 
+def delegate_host_filesystem(mount, runner, uid, gid):
+    recovery = mount / 'lost+found'
+    root, before = checked(mount), checked(recovery)
+    capacity.require(stat.S_ISDIR(root.st_mode) and stat.S_ISDIR(before.st_mode)
+                     and root.st_dev == before.st_dev and stat.S_IMODE(before.st_mode) == 0o700
+                     and (before.st_uid, before.st_gid) == (0, 0), 'unexpected recovery directory geometry')
+    empty = runner(['sudo', '-n', 'find', str(recovery), '-mindepth', '1', '-maxdepth', '1', '-printf', '.', '-quit'])
+    capacity.require(empty['stdout'] == '', 'new recovery directory is not empty')
+    runner(['sudo', '-n', 'chown', '--no-dereference', f'{uid}:{gid}', '--', str(mount), str(recovery)])
+    root_after, after = checked(mount), checked(recovery)
+    capacity.require((root.st_dev, root.st_ino, root.st_mode) == (root_after.st_dev, root_after.st_ino, root_after.st_mode)
+                     and (before.st_dev, before.st_ino, before.st_mode) == (after.st_dev, after.st_ino, after.st_mode)
+                     and (root_after.st_uid, root_after.st_gid) == (after.st_uid, after.st_gid) == (uid, gid)
+                     and not any(recovery.iterdir()), 'ordinary-user recovery directory access differs')
+
+
 def bounded_filesystem(volume, name, size, runner):
     image, mount = volume / (name + '.img'), volume / name
     capacity.require(not os.path.lexists(image) and not os.path.lexists(mount), 'refusing reused evidence volume')
@@ -255,7 +274,7 @@ def bounded_filesystem(volume, name, size, runner):
     runner(['mkfs.ext4', '-F', '-q', '-m', '0', str(image)], timeout=60)
     runner(['sudo', '-n', 'mount', '-o', 'loop,nodev,nosuid,noexec', str(image), str(mount)])
     binding = results.observe_binding(mount, image, runner)
-    runner(['sudo', '-n', 'chown', f'{os.getuid()}:{os.getgid()}', str(mount)])
+    delegate_host_filesystem(mount, runner, os.getuid(), os.getgid())
     # Exercise the physical boundary on each evidence filesystem, too.
     probe = mount / 'enospc-probe'
     observed = runner(['fallocate', '-l', str(size + MIB), str(probe)], accepted=(1,), timeout=60)
@@ -353,6 +372,37 @@ def verify_guest(project, volume, source, context):
     return observed
 
 
+def pilot_setup_metadata(manifest, source, context):
+    # Bind the initial journal before its first command. Later writes require
+    # the same context independently collected from the guest helper's Git checks.
+    manifest.setdefault('run_context', dict(context))
+    capacity.require(manifest.get('source') == source and manifest['run_context'] == context,
+                     'guest setup identity differs')
+    return (json.dumps(manifest, indent=2) + '\n').encode()
+
+
+def failure_evidence(stage, error, volume):
+    value = {'stage': stage, 'type': type(error).__name__}
+    if isinstance(error, OSError):
+        locations = {
+            volume / 'reference-guest/commands/lost+found': 'guest.commands/lost+found',
+            volume / 'reference-guest/setup.json': 'guest.setup',
+            volume / 'group-records/lost+found': 'host.controls/lost+found',
+        }
+        name = Path(error.filename) if isinstance(error.filename, str) else None
+        value.update(errno=error.errno, location=locations.get(name, 'unknown'))
+    sources = {'reference_group_job.py', 'reference_guest.py', 'reference_results.py',
+               'reference_group_bootstrap.py', 'evidence_bundle.py'}
+    frames = []
+    for frame in traceback.extract_tb(error.__traceback__):
+        path = Path(frame.filename)
+        if path.parent == ROOT / 'scripts' and path.name in sources:
+            frames.append({'file': path.name, 'line': frame.lineno})
+    if frames:
+        value['frames'] = frames[-3:]
+    return value
+
+
 def publish_candidate(volume, closure, report):
     """Persist all final state before the sole externally selectable manifest."""
     results.save(volume / 'group-control.json', report)
@@ -363,7 +413,7 @@ def publish_candidate(volume, closure, report):
     return value
 
 
-def run(volume, image, closure, timeout):
+def run(volume, image, closure, timeout, *, host_control=False):
     capacity.require(platform.system() == 'Linux' and platform.machine() == 'x86_64' and os.getuid() != 0,
                      'ordinary Linux x86_64 required')
     context = approved_context(os.environ)
@@ -382,6 +432,8 @@ def run(volume, image, closure, timeout):
     report = {'status': 'FAIL', 'source': source_hash(project), 'run_context': context,
               'commands': [], 'errors': [], 'setup_state': 'NOT_STARTED',
               'release_qualification': False, 'custody': 'UNRESOLVED'}
+    if host_control:
+        report.update(scope='host-filesystem-control-v1', kvm='NOT RUN', measured_cells=0)
     control_path = volume / 'group-control.json'
     write_proof(control_path, report, initial=True)
     runner = results.Commands(report, control_path)
@@ -423,6 +475,11 @@ def run(volume, image, closure, timeout):
         # scientific/release gate is inferred from this narrow source build.
         build = results.read_json(volume / 'bootstrap-proof/build.json')
         capacity.require(build['status'] == 'PASS' and build['source'] == report['source'], 'build journal differs')
+        if host_control:
+            report['pinned_build'] = {'go': build['go'], 'space': build['space'],
+                                      'installed_bytes': build['sdk_inventory']['required_bytes'],
+                                      'installed_members': build['sdk_installed']['members'],
+                                      'journal_sha256': file_sha(volume / 'bootstrap-proof/build.json')}
         write_proof(project / '.local/reference-preflight-trim.json',
                     {'status': 'PASS', 'source': report['source'], 'volume': str(volume),
                      'project': str(project), 'build_journal_sha256': file_sha(volume / 'bootstrap-proof/build.json'),
@@ -439,7 +496,7 @@ def run(volume, image, closure, timeout):
                 streams['mount'] = self.logs
                 streams['binding'] = results.observe_binding(self.logs, streams['image'], runner)
             def save(self):
-                raw = (json.dumps(self.manifest, indent=2) + '\n').encode()
+                raw = pilot_setup_metadata(self.manifest, report['source'], context)
                 capacity.require(len(raw) < 2 * MIB, 'guest control metadata exceeds reservation')
                 target = controls['mount'] / 'setup.json'
                 record_capacity(controls['mount'], len(raw))
@@ -469,14 +526,29 @@ def run(volume, image, closure, timeout):
                         '--setup-max-bytes', '440000000']
             with (streams['mount'] / 'controller.stdout').open('w') as output, contextlib.redirect_stdout(output):
                 with budget.stage(reserve=600):
-                    guest.main()
+                    if host_control:
+                        setup = PilotSetup(argparse.Namespace(volume=volume, project=project,
+                            timeout=budget.remaining(reserve=1200), setup_max_bytes=440_000_000,
+                            source_policy='reference-tracked-source-tmpfs-v1'))
+                        git_head = setup.run(['git', 'rev-parse', 'HEAD']).strip()
+                        git_status = setup.run(['git', 'status', '--porcelain']).strip()
+                        capacity.require(git_head == context['commit'] and git_status == context['git_status'],
+                                         'host control checkout binding differs')
+                        setup.manifest.update(status='PASS', scope='ordinary runtime traversed the owned host filesystems')
+                        setup.save()
+                        report['ordinary_guest_setup'] = {'git_commit': git_head, 'git_status': git_status,
+                                                          'commands': len(setup.records)}
+                        report['host_control_status'] = 'PASS'
+                    else:
+                        guest.main()
         finally:
             guest.Setup = original_setup
             sys.argv = previous
-        verify_guest(project, volume, report['source'], context)
-        report['workload_status'] = 'PASS'
+        if not host_control:
+            verify_guest(project, volume, report['source'], context)
+            report['workload_status'] = 'PASS'
     except BaseException as error:
-        report['errors'].append({'stage': 'execution', 'type': type(error).__name__})
+        report['errors'].append(failure_evidence('execution', error, volume))
     finally:
         execution_alarm.__exit__(None, None, None)
         try:
@@ -502,27 +574,37 @@ def run(volume, image, closure, timeout):
                                 report['decoded_readback'] = verify_bundle(bundle, project, context, report['source'])
                             payload, branch = bundle, 'verified_bundle'
                         except BaseException as error:
-                            report['errors'].append({'stage': 'pack', 'type': type(error).__name__})
+                            report['errors'].append(failure_evidence('pack', error, volume))
                     freeze_record = adapter.freeze(volume, project, setup)
-                    if payload is None:
+                    if payload is None and not host_control:
                         payload, branch = volume / 'reference-results.img', 'frozen_results_image'
             capacity.require(freeze_record is not None and freeze_record['status'] == 'PASS',
                              'no safely closed complete results image; upload refused')
             for item in (streams, controls):
                 capacity.require(item is not None, 'missing bounded host filesystem')
                 close_filesystem(item, runner)
-            host = volume / 'group-host-proof.tar'
-            with tarfile.open(host, 'x', format=tarfile.USTAR_FORMAT) as archive:
-                for item in (streams, controls):
-                    archive.add(item['image'], arcname=item['image'].name, recursive=False)
-            capacity.require(host.stat().st_size <= capacity.HOST_PROOF_BYTES, 'host proof exceeds cap')
             report.update(status='PASS' if not report['errors'] else 'FAIL', selected=branch,
                           image_sha256=freeze_record['image_sha256'], image_unmounted=True)
-            publish_candidate(volume, closure, report)
-            print(json.dumps({'status': report['status'], 'candidate': str(closure / 'candidate.json'),
-                              'release_qualification': False}))
+            if host_control:
+                report['host_filesystems_unmounted'] = True
+                report['postclosure_available_bytes'] = available_bytes(volume)
+                results.save(control_path, report)
+                encoded = (json.dumps(report, sort_keys=True) + '\n').encode()
+                capacity.require(len(encoded) <= 96 * 1024, 'host control report exceeds admission')
+                with (closure / 'host-control.json').open('xb') as stream:
+                    stream.write(encoded)
+                print(json.dumps({'status': report['status'], 'measured_cells': 0, 'kvm': 'NOT RUN'}))
+            else:
+                host = volume / 'group-host-proof.tar'
+                with tarfile.open(host, 'x', format=tarfile.USTAR_FORMAT) as archive:
+                    for item in (streams, controls):
+                        archive.add(item['image'], arcname=item['image'].name, recursive=False)
+                capacity.require(host.stat().st_size <= capacity.HOST_PROOF_BYTES, 'host proof exceeds cap')
+                publish_candidate(volume, closure, report)
+                print(json.dumps({'status': report['status'], 'candidate': str(closure / 'candidate.json'),
+                                  'release_qualification': False}))
         except BaseException as error:
-            report['errors'].append({'stage': 'closure', 'type': type(error).__name__})
+            report['errors'].append(failure_evidence('closure', error, volume))
             report['status'] = 'FAIL'
             # Preserve outer and every partial object. No candidate means no upload.
             failed = closure / 'group-failure.json'
@@ -542,6 +624,7 @@ def main():
     for name in ('volume', 'image', 'closure'):
         work.add_argument('--' + name, type=Path, required=True)
     work.add_argument('--timeout', type=int, default=5400)
+    work.add_argument('--host-control', action='store_true')
     verify = actions.add_parser('verify-candidate')
     verify.add_argument('manifest', type=Path)
     for name in ('volume', 'image', 'closure'):
@@ -565,7 +648,7 @@ def main():
                                      controller_exit=args.controller_exit):
             print(path)
         return 0
-    return run(args.volume, args.image, args.closure, args.timeout)
+    return run(args.volume, args.image, args.closure, args.timeout, host_control=args.host_control)
 
 
 if __name__ == '__main__':

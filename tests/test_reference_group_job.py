@@ -1,9 +1,12 @@
 """Local refusal/custody fixtures only; no mount, ENOSPC or KVM claim."""
 import copy
+import errno
 import json
 from pathlib import Path
+import stat
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -11,6 +14,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import reference_group_job as job
 
 ENV = dict(GITHUB_REPOSITORY='C-X1an/facetquarry', RUNNER_OS='Linux', ImageOS='ubuntu24',
+           GITHUB_REPOSITORY_ID='1430604581', GITHUB_ACTOR_ID='53118172', GITHUB_EVENT_NAME='push',
            GITHUB_ACTIONS='true', GITHUB_RUN_ID='12', GITHUB_RUN_ATTEMPT='1', GITHUB_SHA='a' * 40)
 CONTEXT = job.approved_context(ENV)
 SOURCE = 'b' * 64
@@ -38,10 +42,60 @@ class GroupJobTests(unittest.TestCase):
     def test_scope_requires_approved_attempt_one(self):
         self.assertEqual(job.approved_context(ENV)['github_run_id'], '12')
         for key, value in [('GITHUB_REPOSITORY', 'other/repo'), ('ImageOS', 'ubuntu22'),
+                           ('GITHUB_REPOSITORY_ID', '1'), ('GITHUB_ACTOR_ID', '999'), ('GITHUB_EVENT_NAME', 'pull_request'),
                            ('GITHUB_ACTIONS', 'false'), ('GITHUB_SHA', 'HEAD'),
                            ('GITHUB_RUN_ATTEMPT', '2'), ('GITHUB_RUN_ATTEMPT', '100')]:
             with self.subTest(key=key, value=value), self.assertRaises(ValueError):
                 job.approved_context(dict(ENV, **{key: value}))
+
+    def test_delegates_only_the_owned_recovery_directory(self):
+        with tempfile.TemporaryDirectory() as folder:
+            mount = Path(folder).resolve()
+            recover = mount / 'lost+found'
+            recover.mkdir(mode=0o700)
+            root = SimpleNamespace(st_dev=17, st_ino=1, st_mode=stat.S_IFDIR | 0o755, st_uid=0, st_gid=0)
+            initial = SimpleNamespace(st_dev=17, st_ino=2, st_mode=stat.S_IFDIR | 0o700, st_uid=0, st_gid=0)
+            current = SimpleNamespace(**{**vars(initial), 'st_uid': 1001, 'st_gid': 1001})
+            root_after = SimpleNamespace(**{**vars(root), 'st_uid': 1001, 'st_gid': 1001})
+            commands = []
+
+            def runner(command):
+                commands.append(command)
+                return {'stdout': ''}
+
+            with patch.object(job, 'checked', side_effect=[root, initial, root_after, current]):
+                job.delegate_host_filesystem(mount, runner, 1001, 1001)
+            self.assertEqual(commands, [
+                ['sudo', '-n', 'find', str(recover), '-mindepth', '1', '-maxdepth', '1', '-printf', '.', '-quit'],
+                ['sudo', '-n', 'chown', '--no-dereference', '1001:1001', '--', str(mount), str(recover)],
+            ])
+            wrong = SimpleNamespace(**{**vars(initial), 'st_dev': 19})
+            with patch.object(job, 'checked', side_effect=[root, wrong]), self.assertRaises(ValueError):
+                job.delegate_host_filesystem(mount, runner, 1001, 1001)
+            self.assertEqual(len(commands), 2)
+
+    def test_initial_failed_guest_metadata_retains_current_binding(self):
+        manifest = {'source': SOURCE, 'status': 'PREPARING', 'commands': [], 'reference_host_verified': False}
+        report = json.loads(job.pilot_setup_metadata(manifest, SOURCE, CONTEXT))
+        self.assertEqual(report['run_context'], CONTEXT)
+        manifest['status'] = 'FAIL'
+        report = json.loads(job.pilot_setup_metadata(manifest, SOURCE, CONTEXT))
+        self.assertEqual((report['status'], report['run_context'], report['commands']), ('FAIL', CONTEXT, []))
+        self.assertFalse(report['reference_host_verified'])
+        manifest['run_context'] = dict(CONTEXT, github_run_id='13')
+        with self.assertRaisesRegex(ValueError, 'identity differs'):
+            job.pilot_setup_metadata(manifest, SOURCE, CONTEXT)
+
+    def test_failure_reports_only_approved_logical_paths(self):
+        volume = Path(tempfile.gettempdir()).resolve()
+        owned = volume / 'reference-guest/commands/lost+found'
+        internal = job.failure_evidence('execution', PermissionError(errno.EACCES, 'private message', str(owned)), volume)
+        self.assertEqual(internal, {'stage': 'execution', 'type': 'PermissionError', 'errno': errno.EACCES,
+                                    'location': 'guest.commands/lost+found'})
+        outside = job.failure_evidence('execution', PermissionError(errno.EACCES, 'private message',
+                                                                       str(volume.parent / 'private-dir')), volume)
+        self.assertEqual(outside.get('location'), 'unknown')
+        self.assertNotIn('private', json.dumps(outside))
 
     def test_candidate_has_exact_exclusive_digest_inventory(self):
         with tempfile.TemporaryDirectory() as folder:

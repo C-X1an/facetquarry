@@ -1,8 +1,8 @@
-name: Bounded frozen benchmark group
+name: Bounded reference host filesystem control
 
 on:
   push:
-    branches: [frozen-reference-group-r4]
+    branches: [frozen-reference-group-r5]
 
 permissions:
   contents: read
@@ -13,12 +13,12 @@ concurrency:
 
 jobs:
   group:
-    if: ${{ github.repository_id == '1430604581' && github.ref == 'refs/heads/frozen-reference-group-r4' && github.event.created == true && github.run_attempt == '1' }}
+    if: ${{ github.repository_id == '1430604581' && github.actor_id == '53118172' && github.ref == 'refs/heads/frozen-reference-group-r5' && github.event.created == true && github.run_attempt == '1' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 120
     env:
       FQ_RUN_BASENAME: facetquarry-named-group-${{ github.run_id }}-1
-      FQ_ADMISSION_SHA256: '8b09a5e744d623a465140b0895d6c5501cbddcaa11677ca52f8fc2c0c35ed7ee'
+      FQ_ADMISSION_SHA256: '086f93fac5521f7cb97873174497ad1fb30350168fd37e0017407f228f4d1cfe'
       FQ_OUTER_IMAGE_BYTES: '1030000000'
       LC_ALL: C.UTF-8
       PYTHONDONTWRITEBYTECODE: '1'
@@ -67,7 +67,7 @@ jobs:
 
           sys.path.insert(0, 'scripts')
           from common import source_hash
-          from reference_group_capacity import growth_plan
+          from reference_group_capacity import host_control_plan
           from reference_group_job import approved_context
 
           approved_context(os.environ)
@@ -75,10 +75,10 @@ jobs:
           assert hashlib.sha256(document).hexdigest() == os.environ['FQ_ADMISSION_SHA256']
           row = json.loads(document)
           assert row['schema_version'] == 1 and row['ref'] == os.environ['GITHUB_REF']
-          assert row['attempt'] == 1 and row['ordinal'] == 1 and row['concurrency'] == 4
+          assert row['attempt'] == 1 and row['mode'] == 'host_control' and row['ordinal'] == 1 and row['concurrency'] == 4
           assert 0 <= time.time() - row['created_unix_seconds'] < 7200
           assert row['expires_unix_seconds'] == row['created_unix_seconds'] + 7200
-          plan = growth_plan(row['baseline_bytes'])
+          plan = host_control_plan(row['baseline_bytes'])
           assert plan['admission'] == 'ALLOW' and plan == row['byte_plan']
           assert plan['outer_image_bytes'] == int(os.environ['FQ_OUTER_IMAGE_BYTES'])
           assert all(0 < os.statvfs(os.environ[key]).f_frsize <= 4096
@@ -260,9 +260,9 @@ jobs:
           trap - ERR
           printf '%s\n' 'provision_complete=true'
 
-      - name: Execute the actual KVM group under the bounded controller
+      - name: Exercise pinned build and ordinary host setup under quota
         id: workload
-        timeout-minutes: 100
+        timeout-minutes: 36
         shell: bash
         run: |
           set -euo pipefail
@@ -272,9 +272,9 @@ jobs:
           receipt="$FQ_VOLUME/runner-evidence/workload-receipt.json"
           test ! -e "$receipt" && test ! -e "$FQ_CLOSURE/workload-receipt.json"
           set +e
-          python3 -B scripts/evidence.py --category named-reference-frozen-group --requirements AC-016,AC-017,AC-021 --timeout 5780 -- \
-            timeout --signal=TERM --kill-after=30s 5700s /bin/bash -c \
-            'cd -- "$1/source" && exec python3 -B scripts/reference_group_job.py run --volume "$1" --image "$2" --closure "$3" --timeout 5400' \
+          python3 -B scripts/evidence.py --category named-reference-host-control --requirements AC-016,AC-017,AC-021 --timeout 2100 -- \
+            timeout --signal=TERM --kill-after=30s 2050s /bin/bash -c \
+            'cd -- "$1/source" && exec python3 -B scripts/reference_group_job.py run --volume "$1" --image "$2" --closure "$3" --timeout 1800 --host-control' \
             facetquarry-group "$FQ_VOLUME" "$FQ_IMAGE" "$FQ_CLOSURE" >"$receipt"
           rc=$?
           set -e
@@ -284,73 +284,46 @@ jobs:
           echo "evidence_exit=$rc" >>"$GITHUB_OUTPUT"
           exit "$rc"
 
-      - name: Select the unique source-bound upload
+      - name: Bind the small facility-control receipt to this run
         id: custody
-        if: ${{ always() && !cancelled() && steps.provision.outcome == 'success' && steps.workload.outputs.evidence_exit != '' }}
-        timeout-minutes: 3
+        if: ${{ steps.workload.outcome == 'success' }}
+        timeout-minutes: 2
         shell: bash
-        env:
-          FQ_EVIDENCE_EXIT: ${{ steps.workload.outputs.evidence_exit }}
         run: |
           set -euo pipefail
           umask 077
-          rc="$(python3 -B - <<'PY'
-          import hashlib
+          python3 -B - <<'PY'
           import json
           import os
           from pathlib import Path
-          import re
-          import tarfile
 
-          folder = Path(os.environ['FQ_CLOSURE'])
-          prefix = os.environ['FQ_EXPECTED_SOURCE']
-          data = json.loads((folder / 'workload-receipt.json').read_bytes())
-          assert data['category'] == 'named-reference-frozen-group'
-          assert data['source_before'] == data['source_after'] == prefix
-          assert data['commit'] == os.environ['GITHUB_SHA'] and data['git_status'] == ''
-          assert data['termination_reason'] is None and data['exit_code'] in (0, 1)
-          assert str(data['exit_code']) == os.environ['FQ_EVIDENCE_EXIT']
-          assert data['status'] == ('PASS' if data['exit_code'] == 0 else 'FAIL')
-          workspace = Path(os.environ['GITHUB_WORKSPACE'])
-          assert re.fullmatch(r'[0-9]{8}T[0-9]{6}Z-[0-9a-f]{10}', data['run_id'])
-          paths = [('receipt.json', folder / 'workload-receipt.json')]
-          for role in ('stdout', 'stderr'):
-              path = workspace / data[role]
-              assert path == workspace / '.local/evidence' / data['run_id'] / f'{role}.txt'
-              assert path.resolve(strict=True) == path
-              assert path.stat().st_size <= 65536
-              assert hashlib.sha256(path.read_bytes()).hexdigest() == data[role + '_sha256']
-              paths.append((f'{role}.txt', path))
-          with tarfile.open(folder / 'runner-command.tar', 'x', format=tarfile.USTAR_FORMAT) as archive:
-              for name, path in paths:
-                  archive.add(path, arcname=name, recursive=False)
-          print(data['exit_code'])
+          root = Path(os.environ['FQ_CLOSURE'])
+          expected = {'commit': os.environ['GITHUB_SHA'], 'git_status': '', 'github_run_id': os.environ['GITHUB_RUN_ID'],
+                      'github_run_attempt': '1'}
+          files = {}
+          for name in ('host-control.json', 'workload-receipt.json'):
+              path = root / name
+              assert path.is_file() and not path.is_symlink() and path.resolve(strict=True) == path
+              assert 0 < path.stat().st_size <= 96 * 1024
+              files[name] = json.loads(path.read_bytes())
+          host, receipt = (files[name] for name in ('host-control.json', 'workload-receipt.json'))
+          assert host['status'] == host['host_control_status'] == 'PASS'
+          assert host['run_context'] == expected and host['source'] == os.environ['FQ_EXPECTED_SOURCE']
+          assert host['kvm'] == 'NOT RUN' and host['measured_cells'] == 0 and host['release_qualification'] is False
+          assert host['image_unmounted'] is True and host['host_filesystems_unmounted'] is True
+          assert receipt['status'] == 'PASS' and receipt['commit'] == expected['commit']
+          assert receipt['source_before'] == receipt['source_after'] == host['source']
+          assert receipt['exit_code'] == 0 and receipt['termination_reason'] is None
+          target = root / 'host-control-export.json'
+          facts = {'status': 'HOST_CONTROL_ONLY', 'run_context': expected, 'source': host['source'],
+                   'release_qualification': False, 'host': host, 'receipt': receipt}
+          body = json.dumps(facts, sort_keys=True).encode()
+          assert len(body) <= 196608
+          with target.open('xb') as output:
+              output.write(body)
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as output:
+              output.write(f'paths={target}\n')
           PY
-          )"
-          paths="$(python3 -B scripts/reference_group_job.py verify-candidate "$FQ_CLOSURE/candidate.json" \
-            --volume "$FQ_VOLUME" --image "$FQ_IMAGE" --closure "$FQ_CLOSURE" \
-            --source "$FQ_EXPECTED_SOURCE" --controller-exit "$rc")"
-          test "$(printf '%s\n' "$paths" | wc -l)" -eq 3
-          mapfile -t selected <<<"$paths"
-          python3 -B - "$FQ_CLOSURE/runner-command.tar" "$FQ_CLOSURE/candidate.json" "${selected[@]}" <<'PY'
-          from pathlib import Path
-          import sys
-
-          sys.path.insert(0, 'scripts')
-          from reference_group_capacity import ARTIFACT_BYTES
-
-          parts = [Path(value) for value in sys.argv[1:]]
-          assert len(parts) == len(set(parts)) == 5
-          assert all(p.is_file() and not p.is_symlink() and p.resolve(strict=True) == p for p in parts)
-          assert 0 < parts[0].stat().st_size <= 262144 and 0 < parts[1].stat().st_size <= 65536
-          assert sum(p.stat().st_size for p in parts) + 65536 <= ARTIFACT_BYTES
-          PY
-          {
-            echo 'paths<<FACETQUARRY_SELECTED'
-            printf '%s\n' "$paths"
-            printf '%s\n' "$FQ_CLOSURE/runner-command.tar" "$FQ_CLOSURE/candidate.json"
-            echo 'FACETQUARRY_SELECTED'
-          } >>"$GITHUB_OUTPUT"
 
       - name: Record incomplete custody when no data payload was admitted
         id: fallback
@@ -401,7 +374,7 @@ jobs:
                                   if key in row}
                   errors = row.get('errors')
                   if isinstance(errors, list):
-                      result[name]['errors'] = [{key: item[key] for key in ('stage', 'type') if key in item}
+                      result[name]['errors'] = [{key: item[key] for key in ('stage', 'type', 'errno', 'location', 'frames') if key in item}
                                                 for item in errors[:20] if isinstance(item, dict)]
           with target.open('x', encoding='utf-8') as output:
               json.dump(result, output, sort_keys=True)

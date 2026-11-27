@@ -1,27 +1,29 @@
 {
   "schema_version": 1,
-  "ref": "refs/heads/frozen-reference-group-r4",
+  "ref": "refs/heads/frozen-reference-group-r5",
   "attempt": 1,
   "ordinal": 1,
   "concurrency": 4,
-  "created_unix_seconds": 1795709630,
-  "expires_unix_seconds": 1795716830,
-  "baseline_bytes": 10747155687,
+  "created_unix_seconds": 1795751640,
+  "expires_unix_seconds": 1795758840,
+  "baseline_bytes": 10880619933,
   "byte_plan": {
-    "accounted_base_bytes": 10747155687,
+    "accounted_base_bytes": 10880619933,
     "global_reserve_bytes": 2000000000,
     "outer_image_bytes": 1030000000,
     "results_image_inside_outer_bytes": 67108864,
     "external_runner_bytes": 67108864,
-    "guest_filesystems_and_initrd_bytes": 50331648,
-    "maximum_artifact_bytes": 100663296,
-    "maximum_new_bytes": 1248103808,
+    "guest_filesystems_and_initrd_bytes": 0,
+    "maximum_artifact_bytes": 2097152,
+    "maximum_new_bytes": 1099206016,
     "admission_ceiling_bytes": 12000000000,
-    "peak_bytes": 11995259495,
+    "peak_bytes": 11979825949,
     "admission": "ALLOW",
     "capacity_observed": false,
-    "release_qualification": false
+    "release_qualification": false,
+    "scope": "host filesystem and pinned build control, without a guest"
   },
-  "inventory_sha256": "6715d3dfe50a84b48cdfb108096fd7a2474dd398a2b897c7a4d3f5c91d25f451",
-  "release_qualification": false
+  "inventory_sha256": "6f86d48ecb07009acb09e94c3f2bf16e150cd831efa44101aa6437e68eba265c",
+  "release_qualification": false,
+  "mode": "host_control"
 }

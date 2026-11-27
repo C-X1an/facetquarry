@@ -41,6 +41,16 @@ def growth_plan(accounted_base_bytes):
             'capacity_observed': False, 'release_qualification': False}
 
 
+def host_control_plan(accounted_base_bytes):
+    plan = growth_plan(accounted_base_bytes)
+    maximum = OUTER_IMAGE_BYTES + RUNNER_BYTES + 2 * MIB
+    peak = accounted_base_bytes + maximum
+    plan.update(maximum_new_bytes=maximum, guest_filesystems_and_initrd_bytes=0, maximum_artifact_bytes=2 * MIB,
+                peak_bytes=peak, admission='ALLOW' if peak < ADMISSION_CEILING_BYTES else 'REFUSE',
+                scope='host filesystem and pinned build control, without a guest')
+    return plan
+
+
 def phase_space(observation, phase, *, future_bytes, required_inodes=0):
     require(phase in PHASES, 'unknown group admission phase')
     require(type(future_bytes) is int and 0 <= future_bytes <= OUTER_IMAGE_BYTES
