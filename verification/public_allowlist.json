@@ -714,6 +714,17 @@
     "REFERENCE_GROUP_PILOT.md",
     "scripts/reference_group_job.py",
     "tests/test_reference_group_job.py",
-    "verification/reference-group-pilot-admission.json"
+    "verification/reference-group-pilot-admission.json",
+    "verification/published/r6-linux-20261128-clean-command.json",
+    "verification/published/r6-linux-20261128-export-audit.json",
+    "verification/published/r6-linux-20261128-fuzz-query.json",
+    "verification/published/r6-linux-20261128-fuzz-snapshot.json",
+    "verification/published/r6-linux-20261128-mutation.json",
+    "verification/published/r6-linux-20261128-oracle.json",
+    "verification/published/r6-linux-20261128-race.json",
+    "verification/published/r6-linux-20261128-reproduction.json",
+    "verification/published/r6-linux-20261128-scientific-controls.json",
+    "verification/published/r6-linux-20261128-scope.json",
+    "verification/published/r6-linux-20261128-toolchain.json"
   ]
 }

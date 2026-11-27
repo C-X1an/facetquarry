@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "status": "PASS",
+  "evidence_type": "scoped_verification_summary",
+  "release_qualification": false,
+  "gitleaks_no_leaks": true,
+  "reachable_vulnerabilities": 0,
+  "imported_package_vulnerabilities": 0,
+  "stdlib_advisory_outside_observed_paths": "GO-2026-6859",
+  "live_vulnerability_scan_receipt": "20261127T190810Z-ab90e044f3",
+  "transport_tests": 86,
+  "transport_test_skips": 0,
+  "transport_receipt": "20261127T190000Z-71b35da092",
+  "independent_first_receipt": "20261127T140338Z-442aa36480",
+  "independent_final_receipt": "20261127T190645Z-70dccfd618",
+  "initial_combined_fuzz_outcome": "OOM_KILLED_WITH_CORPUS_RETAINED",
+  "initial_combined_fuzz_receipt": "20261127T190712Z-1e60ebc77e",
+  "named_host_full_profiles": "NOT_RUN",
+  "browser_visual_keyboard": "BLOCKED",
+  "owner_walkthrough": "NOT_RUN"
+}

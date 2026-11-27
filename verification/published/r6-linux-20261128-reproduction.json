@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "status": "PASS",
+  "evidence_type": "fresh_checkout",
+  "clean_checkout": true,
+  "exit_code": 0,
+  "supported_toolchain": true,
+  "artifact_readback": "20261127T190644Z-a4b842d648",
+  "measurements": {
+    "status": "PASS",
+    "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+    "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+    "outer_run": "20261127T190237Z-6add389671",
+    "nested_run": "20261127T190307Z-6fd02f9a5e",
+    "archive_sha256": "8c75a4c4676f7f8f816cd24e9507fb5268dac77af26cdd7a879273dc8e1f3013",
+    "archive_members": 49,
+    "test_count": 831,
+    "test_passed": 821,
+    "explicit_skips": 10,
+    "failed": 0,
+    "environment": "unprivileged offline Linux WSL",
+    "host_only_grant": "NOT APPLICABLE"
+  }
+}

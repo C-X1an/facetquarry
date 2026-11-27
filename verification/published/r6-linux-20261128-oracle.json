@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "evidence_type": "oracle_summary",
+  "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "seed_count": 1000,
+  "status": "PASS",
+  "failure": null,
+  "raw_comparison_bytes": 7701243,
+  "scope": "finite exact semantic comparisons with retained generated inputs/actual/independent truth; not ANN recall or production scale",
+  "raw_comparisons_sha256": "5b5accc9cde0183ae4fa33edcb1bdad453465f2d24b47691d2adec23ac6c9fe3",
+  "actual_cli_commands": 2000
+}

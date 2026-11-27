@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "status": "PASS",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "run_id": "20261127T191318Z-a468a4d84b",
+  "source_before": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "source_after": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "exit_code": 0,
+  "termination_reason": null,
+  "stdout_sha256": "25a11275e1889423a3cbdea629b4f6183ebcca6bb462302280780a5337bab17d",
+  "stderr_sha256": "09b784899d7abd0864d3a55f12bc993031d2f7a30e49a01e798b77153aa8ae9f",
+  "command": [
+    "make",
+    "property",
+    "mutation",
+    "benchmark-smoke"
+  ],
+  "archive_sha256": "318aa167b46799eecb1d8962311e90a3b6f9ac8fd330fa0eb040a4a0df376e8b",
+  "archive_members": 157,
+  "stream_digest_scope": "Bounded offline make invocation and execution wrapper.",
+  "smoke": {
+    "completed_cells": 21,
+    "samples": 672,
+    "p95_range_ns": [
+      18147,
+      593994
+    ],
+    "qualification": "NONQUALIFYING_WSL_SMOKE"
+  },
+  "oracle_cases": 1000,
+  "actual_cli_commands": 2000,
+  "engine_controls": 4,
+  "negative_lock_controls": 2
+}

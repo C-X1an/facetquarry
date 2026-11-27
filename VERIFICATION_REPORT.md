@@ -1,5 +1,13 @@
 # Verification report
 
+## Pinned Linux checks for commit `45999fb`
+
+The offline clean checkout passed 821 tests with 10 explicit skips and completed the six-case demo. All four Go race-test packages and all 86 targeted transport tests passed. The exact oracle matched 1,000 cases through 2,000 native CLI calls. All four engine mutations and both locked-file controls passed. WSL smoke recorded all 21 cells and 672 samples.
+
+`FuzzQuery` completed 31.016 seconds with 243,911 executions, and `FuzzSnapshot` completed 31.016 seconds with 1,540,588 executions. The earlier combined run hit its memory limit and retained its corpus. The online scan found zero reachable vulnerabilities and zero in imported packages. The pinned standard library retains advisory [GO-2026-6859](https://pkg.go.dev/vuln/GO-2026-6859) outside the observed call paths.
+
+The named full matrix, browser review, resource qualification, and owner walkthrough remain open. The hosted lifecycle changes have not executed on the named KVM host. [Scoped evidence](verification/published/r6-linux-20261128-scope.json)
+
 ## Pinned Linux verification for commit `f5b35ab`
 
 Go 1.27.3 on Linux WSL passed `make verify` in 326.3 seconds. The integration suite passed 786 tests and explicitly skipped 10 platform and runner-role cases. All four Go race-test packages, 1,000 independently checked oracle cases with 2,000 actual CLI commands, four engine mutation controls, and two integrity mutation controls passed. Benchmark smoke covered 21 cells and 672 samples. [Curated verification evidence](verification/published/pinned-linux-f5b35ab-20261126.json)

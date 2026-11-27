@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "status": "PASS",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "run_id": "20261127T190307Z-6fd02f9a5e",
+  "source_before": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "source_after": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "exit_code": 0,
+  "termination_reason": null,
+  "stdout_sha256": "6a35e88c778026677983051242876b28678d9ce565c3a9bf1f03a181be099cdf",
+  "stderr_sha256": "1994dba28f12d3ec8b2250567fc5b982e06d293fcc29c94c125971db73d9c693",
+  "command": [
+    "make",
+    "build",
+    "fmt",
+    "lint",
+    "check",
+    "test",
+    "integration",
+    "demo",
+    "clean"
+  ],
+  "archive_sha256": "8c75a4c4676f7f8f816cd24e9507fb5268dac77af26cdd7a879273dc8e1f3013",
+  "stream_digest_scope": "Native readback of both command streams."
+}

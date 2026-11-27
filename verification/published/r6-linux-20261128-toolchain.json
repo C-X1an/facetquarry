@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "status": "PASS",
+  "evidence_type": "toolchain",
+  "go": "go1.27.3",
+  "platform": "linux/amd64",
+  "runtime_verified": true,
+  "verified_by": "20261127T190237Z-6add389671",
+  "scope": "Unprivileged Linux WSL."
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "status": "PASS",
+  "evidence_type": "export_audit",
+  "findings": [],
+  "history_audited": true,
+  "allowlist_audited": true,
+  "current_tree_files": 713,
+  "reachable_history_blobs": 1057,
+  "gitleaks_receipt": "20261127T185954Z-ba404a61b9",
+  "public_source_audit_receipt": "20261127T185457Z-d409d119fe"
+}

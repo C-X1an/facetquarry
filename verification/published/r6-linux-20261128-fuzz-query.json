@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "evidence_type": "command",
+  "status": "PASS",
+  "commit": "45999fbee6127140af7ac42fed4f2f3dec474603",
+  "run_id": "20261127T191025Z-3db34a413c",
+  "source_before": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "source_after": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
+  "exit_code": 0,
+  "termination_reason": null,
+  "stdout_sha256": "e13a35303b82853cf49122db5c29a6ce8b895a3b258c6d982fe6c16b85bf7446",
+  "stderr_sha256": "3e981352b31c7abf6506efc20bab684757136634ffa4828b62adc4695eb7cdbb",
+  "command": [
+    "/go/bin/go",
+    "test",
+    "./internal/engine",
+    "-run",
+    "^$",
+    "-fuzz",
+    "^FuzzQuery$",
+    "-fuzztime",
+    "30s",
+    "-parallel",
+    "2"
+  ],
+  "target": "FuzzQuery",
+  "elapsed_seconds": 31.016,
+  "executions": 243911,
+  "retained_files": 115,
+  "archive_sha256": "c4d7359ac46c1c85f0d07e52f0f3fce959c29f3478b5d20e00c3b1a9bd600a23",
+  "stream_digest_scope": "Bounded Linux Go command and execution wrapper."
+}

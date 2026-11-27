@@ -1,276 +1,286 @@
 {
   "schema_version": 1,
-  "source": "c648961927ac840dd5af24987caa6c3fb383d811f2a00ed76097d5a1ec317126",
+  "source": "f8804004543641e8fe7582656c5add0c355f621beba8bbe8dff3927d5e302d3e",
   "assessment": "EXPERIMENTAL_NOT_RELEASE_QUALIFIED",
+  "supported_toolchain": true,
+  "independent_review_complete": false,
   "full_benchmark_complete": false,
   "owner_walkthrough_complete": false,
-  "resource_inventory_complete": false,
-  "supported_toolchain": true,
-  "independent_review_complete": true,
   "public_export_audited": true,
   "fresh_checkout_complete": true,
+  "resource_inventory_complete": false,
   "criteria": [
     {
       "id": "AC-001",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-002",
       "status": "PASS",
-      "qualification": "The independent Python oracle matched 1000 generated cases and retained the comparisons.",
+      "qualification": "The independent oracle matched 1,000 seeded inputs using 2,000 native CLI calls.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-oracle.json",
+          "kind": "oracle_summary",
+          "sha256": "976ccbb8e117d69469266f80f54b5d748909281edf8178dbc4a7d8c9901310e6"
+        },
+        {
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-003",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-004",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-005",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-006",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-007",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-008",
       "status": "PASS",
-      "qualification": "The pinned Go race run passed all four packages, including ownership and concurrent readers.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-009",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-010",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-011",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-012",
       "status": "PASS",
-      "qualification": "The pinned Go build, unit and integration suites passed.",
+      "qualification": "Pinned Go committed build, unit and integration checks passed.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-013",
       "status": "PARTIAL",
-      "qualification": "Six offline CLI outcomes and static HTML checks passed. Visual and keyboard review remain open.",
+      "qualification": "The offline demo rendered its data. Actual visual and keyboard browser review is blocked.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-014",
       "status": "PASS",
-      "qualification": "All four selected engine defects produced the expected assertion failures and passed again after restoration.",
+      "qualification": "The four engine mutations failed the expected assertions. The originals passed before and after.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-mutation.json",
+          "kind": "mutation_summary",
+          "sha256": "8e77e0b120edca931710e3dbddf61a21a77c932c8b5dad5d48c0bc40c8813aac"
         }
       ]
     },
     {
       "id": "AC-015",
       "status": "PASS",
-      "qualification": "Both Go fuzz targets ran for at least 30 seconds and the 109 discovered corpus files were verified.",
+      "qualification": "Separate pinned Go runs completed at least 30 seconds per fuzz target and retained their corpora.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-fuzz-query.json",
+          "kind": "command",
+          "sha256": "d8d5358fa4cef02f9a7f041d02f3cea089eb79fbae0fbff471a2a574c99f75f7"
+        },
+        {
+          "path": "verification/published/r6-linux-20261128-fuzz-snapshot.json",
+          "kind": "command",
+          "sha256": "5d62f70c11cfac1120c53671aada27c2b854ef85e0f0ba82ad25ff08437b6f17"
         }
       ]
     },
     {
       "id": "AC-016",
       "status": "NOT_RUN",
-      "qualification": "The current 5400-cell named-host matrix is outstanding separately for readers 1, 4 and 16.",
+      "qualification": "The named-host full matrix is due for readers 1, 4, and 16. WSL smoke completed 21 cells and 672 samples.",
       "receipts": []
     },
     {
       "id": "AC-017",
       "status": "NOT_RUN",
-      "qualification": "The current workload has no measured named-host recall qualification.",
+      "qualification": "The current candidate has no complete named-host recall results.",
       "receipts": []
     },
     {
       "id": "AC-018",
       "status": "PASS",
-      "qualification": "The tested public tree, allowlist, license and reachable history passed the publication audit.",
+      "qualification": "The exact technical source, license, allowlist, history and secret audits found no violations.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126-export-audit.json",
-          "sha256": "89e05d7679fa9827fd966c1b37192e900404a78360445063741e90b34dcec3e2",
-          "kind": "export_audit"
+          "path": "verification/published/r6-linux-20261128-export-audit.json",
+          "kind": "export_audit",
+          "sha256": "1ebfbf9420959eac18e8dc08e6f1a0d884e802d673b9350fd490cc7104fec0f6"
         }
       ]
     },
     {
       "id": "AC-019",
       "status": "PASS",
-      "qualification": "The separate committed Linux checkout ran the pinned build, tests, demo and cleanup successfully.",
+      "qualification": "The pinned Go offline fresh checkout completed all applicable steps with 10 explicit skips.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126-reproduction.json",
-          "sha256": "f7eb9eb553dab3b7ad73cda995e1dd56832c5bd3f488630347d0285d8fd13b26",
-          "kind": "fresh_checkout"
+          "path": "verification/published/r6-linux-20261128-reproduction.json",
+          "kind": "fresh_checkout",
+          "sha256": "e7e9e17325ef16ed47e33627202edef90e1614abac544e19cdc91ee551da6fc1"
         }
       ]
     },
     {
       "id": "AC-020",
       "status": "PARTIAL",
-      "qualification": "Local and external allocations were inventoried and scoped quotas exercised. Full reference capacity and a host-wide quota remain open.",
+      "qualification": "Local checks ran under a real resident-memory cap with zero swap. Full named-host resource evidence remains open.",
       "receipts": []
     },
     {
       "id": "AC-021",
-      "status": "PASS",
-      "qualification": "Independent read-only findings preceded the filesystem instrumentation repair. The product-source review and oracle disposition are recorded.",
+      "status": "PARTIAL",
+      "qualification": "A separate read-only review challenged the R6 lifecycle, and the integrator repaired and retested its findings. Full current release review remains open.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126-review.json",
-          "sha256": "cfd4f0133a901a21d23a65e1e8b8efbf289efeda9f47bfd74c95645eefac6b65",
-          "kind": "review"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-022",
       "status": "NOT_RUN",
-      "qualification": "The owner walkthrough and actual browser keyboard review were not run.",
+      "qualification": "The owner walkthrough was declined.",
       "receipts": []
     },
     {
       "id": "AC-023",
       "status": "PASS",
-      "qualification": "The network-isolated six-case inspector, static HTML, and live Go dependency scan were verified.",
+      "qualification": "The six-case offline demo completed in a network namespace with only loopback.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-clean-command.json",
+          "kind": "command",
+          "sha256": "f9c1252e4f0a904d0871fbf8871a7b67bd7f442403982ed9b85bca4be099761e"
         }
       ]
     },
     {
       "id": "AC-024",
       "status": "PASS",
-      "qualification": "Both disposable protected-file mutations failed the integrity gate before exact restoration.",
+      "qualification": "The actual locked-file controls detected both unauthorized changes and passed after byte-exact restoration.",
       "receipts": [
         {
-          "path": "verification/published/pinned-linux-f5b35ab-20261126.json",
-          "sha256": "c2c269fe860064d7a524cd0d3d7a33d451bda16d9b1f600ee2f4d2ce224cb623",
-          "kind": "command"
+          "path": "verification/published/r6-linux-20261128-scientific-controls.json",
+          "kind": "command",
+          "sha256": "6bd74fcd4e862d941e50bdaab7ceb39f1ba2d9f5916442953201be24f7237cf4"
         }
       ]
     }
@@ -278,30 +288,23 @@
   "gate_evidence": {
     "supported_toolchain": [
       {
-        "path": "verification/published/pinned-linux-f5b35ab-20261126-toolchain.json",
-        "sha256": "2c95c825d9552044285d7b46a17296d98d8ea34869ad016af74d6486679da7fa",
-        "kind": "toolchain"
-      }
-    ],
-    "independent_review_complete": [
-      {
-        "path": "verification/published/pinned-linux-f5b35ab-20261126-review.json",
-        "sha256": "cfd4f0133a901a21d23a65e1e8b8efbf289efeda9f47bfd74c95645eefac6b65",
-        "kind": "review"
+        "path": "verification/published/r6-linux-20261128-toolchain.json",
+        "kind": "toolchain",
+        "sha256": "aaf46a32f806eaa69d0010c819fea2c5d9dee54a58ea2d47b2ca9fb54b09481f"
       }
     ],
     "public_export_audited": [
       {
-        "path": "verification/published/pinned-linux-f5b35ab-20261126-export-audit.json",
-        "sha256": "89e05d7679fa9827fd966c1b37192e900404a78360445063741e90b34dcec3e2",
-        "kind": "export_audit"
+        "path": "verification/published/r6-linux-20261128-export-audit.json",
+        "kind": "export_audit",
+        "sha256": "1ebfbf9420959eac18e8dc08e6f1a0d884e802d673b9350fd490cc7104fec0f6"
       }
     ],
     "fresh_checkout_complete": [
       {
-        "path": "verification/published/pinned-linux-f5b35ab-20261126-reproduction.json",
-        "sha256": "f7eb9eb553dab3b7ad73cda995e1dd56832c5bd3f488630347d0285d8fd13b26",
-        "kind": "fresh_checkout"
+        "path": "verification/published/r6-linux-20261128-reproduction.json",
+        "kind": "fresh_checkout",
+        "sha256": "e7e9e17325ef16ed47e33627202edef90e1614abac544e19cdc91ee551da6fc1"
       }
     ]
   }
